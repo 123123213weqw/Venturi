@@ -22,6 +22,7 @@ execution kernels belong in separate, future components.
   file metadata, and shard-index metadata without interpreting them.
 - Returns tensors that remain valid after the loader closes.
 - Reports synchronized load times, physical tensor bytes, and CUDA allocator delta.
+- Verifies every loaded byte against the checkpoint, with bounded host-transfer chunks.
 
 **Loading a checkpoint does not mean Venturi can execute its architecture.**
 This layer validates storage integrity and consistency, not whether a model has
@@ -133,6 +134,51 @@ Use the reference loader explicitly for CPU validation:
 venturi load /absolute/path/to/checkpoint --loader safetensors --device cpu --json
 ```
 
+## FP16 acceptance: load, verify, and measure
+
+Ordinary FP16 safetensors are the first full-checkpoint acceptance target. Require
+FP16 floating-point storage without casting or modifying integer/bool buffers:
+
+```bash
+venturi verify /absolute/path/to/checkpoint --device cuda:0 \
+  --require-float-dtype F16 --buffer-size 67108864 --json
+```
+
+The dtype contract is checked **before CUDA setup**. It is a storage-dtype check,
+not proof that arbitrary integer tensors are unquantized model buffers. Verification
+compares every stored byte, including NaN payloads, with the CPU safetensors
+reference. It copies at most `--chunk-bytes` (default 16 MiB) back from the GPU at
+a time. Loading and verification times are reported separately. A mismatch exits
+nonzero and identifies the tensor and failing byte offset.
+
+Use the same verifier from Python while retaining the loaded weights:
+
+```python
+from venturi import load_checkpoint, verify_loaded_checkpoint
+
+model = load_checkpoint("/absolute/path/to/checkpoint", require_float_dtype="F16")
+verification = verify_loaded_checkpoint(model)
+print(verification.verified_tensors, verification.verified_bytes)
+```
+
+For repeated acceptance measurements in fresh processes, alternating loader order:
+
+```bash
+python tools/run_fp16_acceptance.py /absolute/path/to/checkpoint \
+  --device cuda:0 --runs 3 --output /absolute/path/to/acceptance.json
+```
+
+Every measured run performs a complete byte comparison. This is a model-loading
+measurement, **not** an inference benchmark. No page cache is evicted, so results
+must not be described as controlled cold-start performance. The JSON memory
+figures cover the PyTorch allocator, not total VRAM or native Siphon allocations.
+
+The pinned real-model fixture is documented in
+[`benchmarks/fp16/pythia-70m-source.json`](benchmarks/fp16/pythia-70m-source.json).
+It contains original FP16 weights plus U8 attention-mask buffers; no conversion
+from a quantized checkpoint is involved. Model weights are not committed and no
+model is downloaded automatically by the loader or default tests.
+
 ## Tests
 
 ```bash
@@ -173,6 +219,9 @@ No full-size checkpoint is required for this milestone.
 - `load_seconds`: includes CUDA setup/synchronization when applicable.
 - `cuda_allocated_bytes_delta`: PyTorch allocator change, not total or peak VRAM;
   native allocations invisible to PyTorch are excluded.
+- CLI `cuda_allocator`: allocated/reserved bytes and process-lifetime allocator
+  peaks sampled after loading. Native allocations and CUDA context are excluded;
+  the library does not reset caller-owned peak counters.
 
 ## Layout
 
@@ -180,6 +229,8 @@ No full-size checkpoint is required for this milestone.
 src/venturi/checkpoint.py   Header/index inspection and opaque metadata
 src/venturi/dtypes.py       Storage dtype descriptions, without conversion
 src/venturi/loader.py       Siphon/reference loading and owned tensor container
-src/venturi/cli.py          venturi inspect / venturi load
+src/venturi/verification.py Bounded, exact byte comparison with source tensors
+src/venturi/cli.py          venturi inspect / venturi load / venturi verify
+tools/                     Reproducible FP16 acceptance measurement
 tests/                     Generic CPU tests and opt-in CUDA acceptance
 ```

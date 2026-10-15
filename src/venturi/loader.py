@@ -100,6 +100,7 @@ def load_checkpoint(
     loader: str = "siphon",
     siphon_backend: str | None = None,
     buffer_size: int | None = None,
+    require_float_dtype: str | None = None,
 ) -> LoadedCheckpoint:
     """Load a storage-validated checkpoint without interpreting model semantics.
 
@@ -124,6 +125,20 @@ def load_checkpoint(
     if target.type == "cpu":
         target = torch.device("cpu")
     checkpoint = inspect_checkpoint(path)
+    if require_float_dtype is not None:
+        if require_float_dtype not in ("F16", "BF16", "F32", "F64"):
+            raise ValueError("require_float_dtype must be F16, BF16, F32, or F64")
+        mismatched = [
+            name
+            for name, spec in checkpoint.tensors.items()
+            if not spec.dtype.startswith(("I", "U"))
+            and spec.dtype != "BOOL"
+            and spec.dtype != require_float_dtype
+        ]
+        if mismatched:
+            raise CheckpointError(
+                f"Expected floating-point storage {require_float_dtype}; mismatched tensors: {mismatched[:5]}. No dtype conversion is performed."
+            )
     inspected = perf_counter()
     dtypes = {
         name: torch_dtype(spec.dtype) for name, spec in checkpoint.tensors.items()
