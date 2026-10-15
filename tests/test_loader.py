@@ -10,7 +10,12 @@ import pytest
 import torch
 from safetensors.torch import save_file
 
-from venturi import CheckpointError, inspect_checkpoint, load_checkpoint
+from venturi import (
+    CheckpointError,
+    inspect_checkpoint,
+    load_checkpoint,
+    verify_loaded_checkpoint,
+)
 from venturi.cli import main
 
 
@@ -421,3 +426,6 @@ def test_real_siphon_cuda_round_trip(make_checkpoint, weights, io_backend):
     for name, expected in weights.items():
         torch.testing.assert_close(loaded.weights[name].cpu(), expected, rtol=0, atol=0)
     assert scratch[0].item() == 42
+    verification = verify_loaded_checkpoint(loaded, chunk_bytes=7)
+    assert verification.verified_tensors == len(weights)
+    assert verification.verified_bytes == loaded.stats.tensor_bytes

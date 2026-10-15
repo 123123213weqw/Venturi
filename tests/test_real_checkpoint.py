@@ -3,10 +3,7 @@
 import os
 
 import pytest
-import torch
-from safetensors import safe_open
-
-from venturi import load_checkpoint
+from venturi import load_checkpoint, verify_loaded_checkpoint
 
 
 @pytest.mark.cuda
@@ -17,21 +14,6 @@ def test_full_checkpoint():
             "Set VENTURI_TEST_CUDA=1 and VENTURI_MODEL_PATH for full-checkpoint acceptance"
         )
     model = load_checkpoint(path, device=os.environ.get("VENTURI_DEVICE", "cuda:0"))
-    checked = set()
-    for shard in model.checkpoint.files:
-        with safe_open(str(shard), framework="pt", device="cpu") as reference:
-            for name in reference.keys():
-                actual = model.weights[name].cpu()
-                expected = reference.get_tensor(name)
-                assert actual.dtype == expected.dtype
-                assert actual.shape == expected.shape
-                # Compare storage bytes, including NaN payloads and dtypes for
-                # which arithmetic comparison kernels may not exist.
-                torch.testing.assert_close(
-                    actual.reshape(-1).view(torch.uint8),
-                    expected.reshape(-1).view(torch.uint8),
-                    rtol=0,
-                    atol=0,
-                )
-                checked.add(name)
-    assert checked == model.weights.keys()
+    verification = verify_loaded_checkpoint(model)
+    assert verification.verified_tensors == len(model.weights)
+    assert verification.verified_bytes == model.stats.tensor_bytes

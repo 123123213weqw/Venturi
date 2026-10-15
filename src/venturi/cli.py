@@ -3,8 +3,10 @@
 import argparse
 from dataclasses import asdict
 import json
+import platform
 import sys
 
+import safetensors
 import torch
 
 from .checkpoint import inspect_checkpoint
@@ -49,8 +51,19 @@ def main(argv: list[str] | None = None) -> int:
                 require_float_dtype=args.require_float_dtype,
             )
             summary = model.summary()
+            summary["runtime"] = {
+                "python": platform.python_version(),
+                "torch": str(torch.__version__),
+                "safetensors": safetensors.__version__,
+                "torch_cuda": torch.version.cuda,
+                "torch_cpu_threads": torch.get_num_threads(),
+            }
             if model.stats.device.startswith("cuda"):
                 device = torch.device(model.stats.device)
+                summary["runtime"]["device_name"] = torch.cuda.get_device_name(device)
+                summary["runtime"]["device_capability"] = list(
+                    torch.cuda.get_device_capability(device)
+                )
                 summary["cuda_allocator"] = {
                     "allocated_bytes": torch.cuda.memory_allocated(device),
                     "reserved_bytes": torch.cuda.memory_reserved(device),
