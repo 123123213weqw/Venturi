@@ -37,11 +37,13 @@ def test_nan_payload_scalar_and_empty(make_checkpoint):
         verify_loaded_checkpoint(model)
 
 
-@pytest.mark.parametrize("mutation", ["bytes", "shape", "dtype", "names"])
+@pytest.mark.parametrize("mutation", ["bytes", "shape", "dtype", "names", "layout"])
 def test_corruption_is_detected(make_checkpoint, mutation):
     model = load_checkpoint(make_checkpoint(), device="cpu", loader="safetensors")
     if mutation == "bytes":
         model.weights["quant.packed_uint4"][2] = 0
+    elif mutation == "layout":
+        model.weights["quant.packed_int4"].transpose_(0, 1)
     else:
         weights = dict(model.weights)
         if mutation == "shape":

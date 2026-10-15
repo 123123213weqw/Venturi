@@ -47,6 +47,10 @@ def verify_loaded_checkpoint(
                     raise CheckpointError(
                         f"Verification shape/dtype mismatch for {name}"
                     )
+                if not actual.is_contiguous():
+                    raise CheckpointError(
+                        f"Verification storage layout mismatch for {name}"
+                    )
                 actual_bytes = actual.reshape(-1).view(torch.uint8)
                 expected_bytes = expected.reshape(-1).view(torch.uint8)
                 for offset in range(0, expected_bytes.numel(), chunk_bytes):
@@ -59,6 +63,7 @@ def verify_loaded_checkpoint(
                             f"Verification failed for {name} at storage byte {offset + first}"
                         )
                     verified_bytes += end - offset
+                    del chunk, reference
                 seen.add(name)
     if seen != model.weights.keys():
         raise CheckpointError("Reference did not return every loaded tensor")
