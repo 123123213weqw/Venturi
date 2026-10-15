@@ -38,8 +38,8 @@ repacked, or silently cast. The original metadata is retained for future
 model-specific execution components.
 
 The loader supports byte-aligned safetensors dtypes available in the installed
-PyTorch/safetensors stack. Backend/device support still applies. Native sub-byte
-floating-point formats, original `.pth` files, GGUF, checkpoint conversion,
+PyTorch/safetensors stack. Backend/device support still applies. Native `.ninfer`
+containers, sub-byte floating-point formats, original `.pth` files, GGUF, checkpoint conversion,
 automatic downloads, and inference are not implemented yet.
 
 ## Install
@@ -178,6 +178,58 @@ The pinned real-model fixture is documented in
 It contains original FP16 weights plus U8 attention-mask buffers; no conversion
 from a quantized checkpoint is involved. Model weights are not committed and no
 model is downloaded automatically by the loader or default tests.
+
+### Verified result: RTX 4090 D
+
+The full Pythia-70M checkpoint passed on an RTX 4090 D with Python 3.12.3,
+PyTorch 2.9.1+cu130, and safetensors 0.8.0. Its 94 tensors contain 88 FP16 tensors
+and six U8 attention-mask buffers, totaling **166,019,180 storage bytes**. The
+downloaded file's SHA-256 was checked against the pinned Hugging Face source.
+
+| Loader | Runs | Median synchronized loading | Exact-byte verification |
+| --- | ---: | ---: | --- |
+| Siphon | 3 | 279.35 ms | Every tensor, every run |
+| safetensors reference | 3 | 275.39 ms | Every tensor, every run |
+
+The Siphon runs reported 160.08 MiB peak PyTorch allocated memory and 164 MiB peak
+reserved memory. These are **not total VRAM peaks**: native buffers and the CUDA
+context are excluded. The complete server suite passed **86 tests with no skips**;
+clean CPU CI also passed on Python 3.10 and 3.12.
+
+These small-checkpoint measurements do not establish a Siphon speed advantage,
+controlled cold-start performance, or inference throughput. Loading and
+verification are separate measurements; Python process startup is excluded.
+
+See the [raw runs](benchmarks/fp16/rtx4090d-pythia70m.json) and
+[validation record](benchmarks/fp16/validation.json).
+
+To acquire the exact acceptance fixture explicitly (the loader never downloads it):
+
+```bash
+set -eu
+export MODEL_DIR=/absolute/path/to/pythia-70m
+export REV=a39f36b100fe8a5377810d56c3f4789b9c53ac42
+mkdir -p "$MODEL_DIR"
+curl -fL --retry 3 -C - \
+  "https://huggingface.co/EleutherAI/pythia-70m/resolve/$REV/model.safetensors" \
+  -o "$MODEL_DIR/model.safetensors.partial"
+printf '%s  %s\n' \
+  ebfa4e2f18696ebd83716a0d39fe2c025f2ff8483f72a83ca59c475692fc9d15 \
+  "$MODEL_DIR/model.safetensors.partial" | sha256sum -c -
+# Rename only after successful checksum verification.
+mv "$MODEL_DIR/model.safetensors.partial" "$MODEL_DIR/model.safetensors"
+curl -fL --retry 3 \
+  "https://huggingface.co/EleutherAI/pythia-70m/resolve/$REV/config.json" \
+  -o "$MODEL_DIR/config.json"
+python tools/run_fp16_acceptance.py "$MODEL_DIR" --runs 3 \
+  --source-manifest benchmarks/fp16/pythia-70m-source.json \
+  --output /absolute/path/to/acceptance.json
+```
+
+The download commands target a new fixture directory; existing model weights do
+not need to be overwritten or converted. On macOS, use `shasum -a 256 -c -` in
+place of `sha256sum -c -` for the checksum step. Use a configured CUDA/Siphon
+environment for GPU acceptance.
 
 ## Tests
 
