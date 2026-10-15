@@ -6,10 +6,11 @@ A specialized, high-performance inference engine.
 
 ## First milestone: a model-agnostic loader
 
-Venturi currently **inspects and loads checkpoint tensors**, not model execution.
+Venturi **inspects and loads checkpoint tensors**, and has an optional reusable
+Ada Q4 Linear backend. It does **not yet execute complete models**.
 The loading core has no architecture-specific configuration classes, required
 weight names, layer counts, or model adapters. Architecture interpretation and
-execution kernels belong in separate, future components.
+execution kernels are separate components, not part of checkpoint loading.
 
 ### What it does
 
@@ -40,7 +41,154 @@ model-specific execution components.
 The loader supports byte-aligned safetensors dtypes available in the installed
 PyTorch/safetensors stack. Backend/device support still applies. Native `.ninfer`
 containers, sub-byte floating-point formats, original `.pth` files, GGUF, checkpoint conversion,
-automatic downloads, and inference are not implemented yet.
+automatic downloads, and full-model inference are not implemented yet.
+
+The optional operator API below interprets one explicit packed format; it does
+not infer an execution format from arbitrary quantization metadata.
+
+## Reusable Ada Q4 Linear backend
+
+This is a standalone operator plugin, not a Qwen runner or a universal 4-bit
+reader. It takes a weight matrix and activations without consulting layer names,
+model configs, attention implementations, or speculative decoders.
+
+### Supported contract
+
+- Linux CUDA, compute capability **8.9**. RTX 4090D is the validation target;
+  another RTX 4090 still needs a portability smoke test and its own measurements.
+- Signed two's-complement Q4 codes in `[-8, 7]`, low nibble first, group size 64,
+  FP16 scales, no zero points, K padded to 128: `q4_g64_fp16` /
+  `row_split_k128_v1`. Scale multiplication and accumulation use FP32.
+- Contiguous FP16 or BF16 activations `x[T,K]`, same-dtype output `out[T,N]`;
+  computes `out = x @ W.T`, without bias or activation fusion.
+- General SIMT route handles arbitrary positive N/K, including partial groups,
+  row tails, and T up to 262,140. It is a functional baseline, **not a tuned
+  high-throughput prefill implementation**.
+- Retained Ada MMA small-token schedule: BF16, T=2..16, N divisible by 40,
+  K in {5120, 6144, 25600}. Unsupported tuned requests fail explicitly; `auto`
+  preserves this route where applicable.
+- Dimension-independent MMA route: BF16, N divisible by 32, K divisible by 512,
+  arbitrary supported T, using runtime dimensions and 16-token tiles. No model
+  shape table is used. `auto` selects it for T>=2 when the retained route does
+  not apply; `route="mma"` selects it explicitly, including T=1. Other operands
+  use SIMT. Neither selection policy promises the fastest route on every card.
+
+AWQ, GPTQ, GGUF, FP4, and other group sizes/packing conventions are **not**
+interchangeable with this contract. They require explicit format adapters.
+The current adapter can view a single encoded Q4 payload, but cannot open a
+complete `.ninfer` artifact. No quantizer or model conversion is implicit.
+
+### Build explicitly on the CUDA server
+
+The loader and CPU tests do not compile CUDA. The optional backend uses a small
+C ABI, avoiding a dependency on PyTorch's C++ ABI or Ninja. A CUDA toolkit with
+Ada support and a compatible C++20 host compiler are required.
+
+```bash
+python -m venturi.ops.build --output-dir /absolute/path/to/venturi-native
+# Prints the versioned path to libventuri_ada.so.
+```
+
+Compiler output and source/binary hashes are retained alongside the library in
+`build.log` and `build.json`. Native `sm_89` code and `compute_89` PTX are included.
+Building is never triggered by importing Venturi or by running an operator.
+
+### Prepare once, execute without device allocations
+
+```python
+import torch
+from venturi.ops import AdaBackend, Q4RowSplitWeight
+
+# Obtain these planes from an explicit compatible checkpoint adapter.
+# uint8 codes: [N, padded_K/2]; float16 scales: [N, padded_K/64].
+weight = Q4RowSplitWeight(codes, scales, in_features=K)
+backend = AdaBackend("/absolute/path/to/libventuri_ada.so")
+plan = backend.prepare_linear(weight, tokens=8, dtype=torch.bfloat16, device="cuda:0")
+
+x = torch.randn(8, K, dtype=torch.bfloat16, device="cuda:0")
+out = plan.empty_output()  # Explicit allocation, before timing/capture.
+plan.run(x, out=out)
+```
+
+`Q4RowSplitWeight.from_codes(integer_codes, fp16_scales)` packs CPU integer codes
+exactly for tests/converters; it does not quantize floating-point weights.
+`from_payload(uint8_payload, out_features=N, in_features=K)` views the code plane
+followed by its 256-byte-aligned scale plane, validating the exact byte count.
+This can wrap a compatible tensor loaded through Siphon without coupling its I/O
+to native execution.
+
+Preparation owns independent device copies, checks finite scales, initializes
+the selected native route, and synchronizes preparation. It must run outside
+CUDA graph capture. A plan has fixed T, dtype, and weight dimensions; its GPU
+workspace requirement is zero bytes. Plans retain their backend library.
+
+`run` writes the caller's output on PyTorch's **current stream for the plan's
+device**. It performs no tensor allocation, full-weight dequantization, implicit
+cast, synchronization, or shape-dependent compilation. It rejects noncontiguous
+operands and output aliasing. Both MMA routes require 16-byte-aligned input.
+There is no autograd implementation. Prepare and warm up before timing/capture.
+
+The caller owns stream dependencies and lifetimes: keep the plan, inputs, and
+outputs alive until asynchronous work finishes, and keep captured operands and
+the plan alive across graph replays. When handing tensors between streams, use
+PyTorch's `wait_stream`/events and `record_stream` or retain them explicitly;
+Venturi does not silently synchronize every invocation. Do not mutate weight
+contents or resize operands while they are in use. Independent outputs can be
+used with the same prepared read-only weights on different streams.
+
+Python is the orchestration layer, not a claim that per-layer Python dispatch is
+free. A future model runner should capture its steady-state execution or use a
+native execution plan. The benchmark reports eager and graph latencies separately
+so Python launch overhead is not hidden behind kernel-only numbers.
+
+### Native correctness and operator benchmarks
+
+```bash
+VENTURI_ADA_LIBRARY=/absolute/path/to/libventuri_ada.so python -m pytest -q
+python tools/benchmark_q4_linear.py \
+  --library /absolute/path/to/libventuri_ada.so \
+  --output /absolute/path/to/q4-linear.json
+```
+
+Tests independently decode the signed codes and stored scales into FP64 and
+compare native outputs, including non-Qwen dimensions, K/row/token tails, route
+boundaries, full-size operators, nondefault streams, CUDA graph replay, owned
+weight preparation, and execution allocation checks. Without the environment
+variable, native tests skip and never invoke a compiler or allocate CUDA weights.
+
+The benchmark uses **synthetic weights** and reports eager event latency and
+amortized CUDA-graph operator latency, alternating `auto`/`generic` ordering.
+It is not a tokens/second measurement, an inference benchmark, or evidence of
+a speedup against llama.cpp. A full-model comparison also needs matched target
+weights/quality, prompts, context, output length, and speculative settings.
+
+### RTX 4090D validation
+
+On the RTX 4090D, all **145 tests passed**, including the existing Siphon/FP16
+loader acceptance tests. Native tests cover all three operator routes. The local
+CPU suite passes 107 tests and skips the 38 opt-in CUDA cases. Packaged native
+sources and attribution files were checked against the source tree.
+
+Selected BF16 graph operator latencies (synthetic Q4 weights, five repetitions):
+
+| N | K | T | Route | Median latency |
+|---:|---:|---:|---|---:|
+| 4096 | 4096 | 8 | Dimension-independent MMA | 12.18 microseconds |
+| 5120 | 25600 | 8 | Retained small-token MMA | 76.97 microseconds |
+| 5120 | 25600 | 128 | Dimension-independent MMA | 412.70 microseconds |
+
+Execution showed zero additional PyTorch device allocations in the measured
+routes. These are **operator microbenchmarks**, not model throughput; graph
+latency excludes ordinary per-operator Python launch gaps. Raw eager/graph samples,
+toolchain information, correctness/test scope, and tested source hashes are in
+[`benchmarks/q4/validation.json`](benchmarks/q4/validation.json) and
+[`benchmarks/q4/rtx4090d-linear.json`](benchmarks/q4/rtx4090d-linear.json).
+The second physical RTX 4090 portability test has not been run.
+
+Selected native schedules/helpers originate in NInfer, Cinference, and the Ada
+research code on the 4090D. Their scoped Apache-2.0 license, notices, source
+hashes, and adaptation notes are retained under
+`src/venturi/ops/csrc/third_party/ninfer/`; no repository-wide license is added.
 
 ## Install
 
