@@ -6,8 +6,9 @@ A specialized, high-performance inference engine.
 
 ## First milestone: a model-agnostic loader
 
-Venturi **inspects and loads checkpoint tensors**, and has an optional reusable
-Ada Q4 Linear backend. It does **not yet execute complete models**.
+Venturi **loads checkpoint tensors**, provides reusable Ada Q4 Linear operators,
+and can generate text with its first **dense GPT-NeoX model adapter** (Pythia).
+Other architectures are not executable merely because their weights can load.
 The loading core has no architecture-specific configuration classes, required
 weight names, layer counts, or model adapters. Architecture interpretation and
 execution kernels are separate components, not part of checkpoint loading.
@@ -41,10 +42,193 @@ model-specific execution components.
 The loader supports byte-aligned safetensors dtypes available in the installed
 PyTorch/safetensors stack. Backend/device support still applies. Native `.ninfer`
 containers, sub-byte floating-point formats, original `.pth` files, GGUF, checkpoint conversion,
-automatic downloads, and full-model inference are not implemented yet.
+automatic downloads, and quantized full-model execution are not implemented yet.
 
 The optional operator API below interprets one explicit packed format; it does
 not infer an execution format from arbitrary quantization metadata.
+
+## Text generation: first complete model adapter
+
+The first runner implements **classic dense GPT-NeoX**, validated with the pinned
+FP16 EleutherAI Pythia-70M checkpoint used by the loader acceptance tests. Its
+forward pass and generation loop are Venturi implementations using PyTorch
+operators; they do not call a Transformers model or `model.generate`.
+
+This is a correctness-first eager implementation, **not an optimized serving
+engine or a demonstrated speedup over llama.cpp**. The existing Q4 operator
+backend is independent: this runner does not silently quantize dense weights or
+claim end-to-end Q4 support. Qwen-27B and its mixed `.ninfer` artifact are not
+supported by this model adapter.
+
+### Local text completion
+
+Install the optional local tokenizer dependency:
+
+```bash
+python -m pip install -e '.[generate]'
+venturi generate /absolute/path/to/pythia-70m \
+  --prompt "Once upon a time" --max-new-tokens 32
+```
+
+The checkpoint directory needs its original `config.json`, safetensors weights,
+and `tokenizer.json`. Generation never downloads files. The default CUDA loader
+is Siphon, with the same explicit backend and buffer options as `venturi load`.
+Use `--tokenizer /absolute/path/to/tokenizer.json` to select the tokenizer
+explicitly, and `--json` for token IDs, stop reason, timing, and loader/runtime
+information. Without `--json`, the CLI prints only the generated continuation.
+
+For the existing pinned Pythia fixture, download only the missing tokenizer:
+
+```bash
+curl -fL --retry 3 \
+  https://huggingface.co/EleutherAI/pythia-70m/resolve/a39f36b100fe8a5377810d56c3f4789b9c53ac42/tokenizer.json \
+  -o "$MODEL_DIR/tokenizer.json.partial"
+printf '%s  %s\n' \
+  c24618a1b3e6a38167beff1c72cffd126c3a66254347304b50547d12c5f25624 \
+  "$MODEL_DIR/tokenizer.json.partial" | sha256sum -c -
+mv "$MODEL_DIR/tokenizer.json.partial" "$MODEL_DIR/tokenizer.json"
+```
+
+Use a new target or check existing files before replacing them. `MODEL_DIR` is
+the local fixture directory from the FP16 acceptance section. A CPU reference
+execution is available explicitly:
+
+```bash
+venturi generate /absolute/path/to/pythia-70m --device cpu --loader safetensors \
+  --prompt "The capital of France is" --max-new-tokens 16 --json
+```
+
+Pythia-70M is a small **base completion model**, not an instruction/chat model.
+Repetition or poor answers are model behavior, not evidence of inference
+correctness. No chat template, sampling, beam search, or repetition penalty is
+applied. Tokenization uses no inserted special tokens, padding, or truncation;
+an empty prompt uses the configured BOS token. Greedy decoding stops at EOS or
+the requested output limit. Generated EOS IDs are returned but hidden by text
+decoding. Nonfinite logits fail instead of being turned into an EOS token.
+Tokenizer IDs outside the model vocabulary, and emitted IDs absent
+from the tokenizer, are rejected rather than silently dropped.
+
+### Python API and state ownership
+
+```python
+from venturi import load_checkpoint
+from venturi.models import GPTNeoXModel
+from venturi.generation import LocalTokenizer, generate_text
+
+checkpoint = load_checkpoint("/absolute/path/to/pythia-70m", device="cuda:0")
+model = GPTNeoXModel(checkpoint)
+tokenizer = LocalTokenizer("/absolute/path/to/pythia-70m/tokenizer.json",
+                           vocab_size=model.config.vocab_size)
+result = generate_text(model, tokenizer, "Once upon a time", max_new_tokens=32)
+print(result.text)
+
+# Low-level cached forward API: one unpadded sequence, Python integer token IDs.
+session = model.create_session(capacity=128)
+logits = session.forward([12092, 2402, 247])  # Last-position logits [vocab].
+next_logits = session.forward([int(logits.argmax())])
+session.reset()  # Reuse allocated KV storage, not previous request history.
+```
+
+The model shares immutable learned weights and derived RoPE tables. Each session
+owns a fixed-capacity K/V cache; requests never share mutable cache storage.
+`forward(..., all_logits=True)` returns every input position's logits. Cached
+chunks use absolute-position causal masking, not SDPA's upper-left rectangular
+causal mask. New token positions cannot attend to stale/future cache entries.
+
+Sessions execute/reset only on their creating CUDA stream and are not safe for
+concurrent calls on the same session. Independent sessions can use different
+streams; they wait for model preparation without a global fence. Caller must
+retain model/session tensors until asynchronous work finishes. A failed forward
+requires `reset()` before reuse. The high-level generator synchronizes its own stream for
+wall-clock timings and uses one session per request.
+
+The context is bounded by `max_position_embeddings`. Generation conservatively
+reserves `prompt_tokens + max_new_tokens` cache positions; oversized requests
+fail before execution, without implicit truncation or eviction. Zero requested
+new tokens perform no model forward or KV allocation. The full-model eager path
+allocates intermediates and is **not** CUDA-graph-captured or allocation-free.
+
+### Model contract and validation
+
+Supported: homogeneous FP16/BF16/FP32 learned tensors on CUDA or CPU (FP64 for
+numerical tests), exact GELU, ordinary multihead causal attention, standard
+partial/full RoPE with an even rotary dimension, LayerNorm, parallel or sequential
+residuals, and untied input/output embeddings. No learned-weight dtype conversion is implicit.
+RoPE scaling variants, tied embeddings, bias-free variants, quantization config,
+and non-GPT-NeoX model types fail explicitly. Learned names/shapes/dtypes/devices
+are validated independently of generic checkpoint storage checks.
+Newer `partial_rotary_factor`/`rope_theta` fields must agree with the classic
+`rotary_pct`/`rotary_emb_base` interpretation; conflicting descriptions fail.
+
+Logits currently use the learned-weight dtype. An FP32-output LM head over FP16
+weights is not implemented; casting already-rounded FP16 logits cannot recover
+FP32 token rankings.
+
+Known legacy attention mask, masked-bias, and serialized inverse-frequency
+buffers are shape-checked but not used as learned parameters. RoPE is derived
+from config in FP32, then cast to the model dtype, rather than using old
+FP16-rounded inverse-frequency buffers. The FP64 test path derives it in FP64.
+
+CPU tests compare complete logits and cached continuations with independently
+written FP64 equations. Optional Transformers reference tests use a separate
+model implementation and are included in CI, not the production dependency set.
+For real-checkpoint validation on the CUDA host:
+
+```bash
+python -m pip install -e '.[test,generate,reference]'
+VENTURI_GENERATION_MODEL=/absolute/path/to/pythia-70m python -m pytest -q
+python tools/run_generation_acceptance.py /absolute/path/to/pythia-70m \
+  --output /absolute/path/to/generation-acceptance.json
+```
+
+The validation tool independently checks FP32 adapter mathematics and FP16
+prefill/teacher-forced decode against Transformers references loaded from the
+same stored parameters. It also checks a same-precision reference with FP32 RoPE
+frequencies preserved, records greedy token agreement at both precisions, and
+tests a cached multi-token chunk at position 512. Error limits are dtype-aware:
+large logits can have FP16 rounding intervals greater than a fixed absolute
+threshold, and FP16 greedy ties need not match FP32 choices. No reference library
+is invoked by `venturi generate`.
+
+Cached execution and full-batch prefill are not numerically invariant on this
+checkpoint: different matrix shapes and attention kernels can change rounding.
+Validation qualifies same-schedule cached FP16/FP32 references separately, and
+retains long-context cached-versus-full drift as an explicit diagnostic rather
+than increasing its tolerance until it passes. Small-model FP64 oracle tests
+check the underlying mathematics independently. Batch-invariant low-precision
+execution is not claimed.
+
+Generation timing fields exclude checkpoint loading, tokenizer work, and Python
+process startup. `prefill_seconds` includes the first greedy selection;
+`decode_seconds` covers later selections; `total_seconds` also includes session
+preparation and timing fences. These are eager single-request measurements, not
+cross-engine benchmark results. CLI allocator figures are sampled after loading,
+before generation/session preparation, unless separately stated.
+
+### RTX 4090D generation validation
+
+The real-checkpoint run passed **209 tests with no skips**, including previous
+loader/operator checks and the new generation tests. Local CPU validation passed
+168 tests, with 41 opt-in CUDA cases skipped. The wheel's 22 source/attribution
+assets were verified against the repository.
+
+All three 16-token greedy continuations matched the separate same-precision
+FP16 reference, using the same FP32-frequency RoPE contract. At position 512,
+cached FP16 and FP32 logits matched their respective same-schedule references
+exactly in this run. **The continuations did not match FP32 greedy decoding.**
+
+Long-context cached-versus-full-batch drift is retained as a known limitation:
+FP16 raw-logit maximum difference was 4.5, and cached FP32 versus full eager
+reference maximum difference was approximately 0.0745. Both exceeded their close
+comparison bounds; they are explicitly diagnostic, not claimed as passing
+batch-invariance checks. Same-schedule reference checks and independent FP64
+mathematical tests provide separate correctness evidence.
+
+See [`benchmarks/generation/validation.json`](benchmarks/generation/validation.json),
+the [raw reference report](benchmarks/generation/rtx4090d-pythia70m.json), and the
+[CLI output sample](benchmarks/generation/cli-sample.json). These results establish
+the first working dense text-generation path, not serving performance or model
+answer quality.
 
 ## Reusable Ada Q4 Linear backend
 
@@ -164,7 +348,7 @@ weights/quality, prompts, context, output length, and speculative settings.
 
 ### RTX 4090D validation
 
-On the RTX 4090D, all **145 tests passed**, including the existing Siphon/FP16
+At the Q4 operator milestone, all **145 tests passed** on the RTX 4090D, including the Siphon/FP16
 loader acceptance tests. Native tests cover all three operator routes. The local
 CPU suite passes 107 tests and skips the 38 opt-in CUDA cases. Packaged native
 sources and attribution files were checked against the source tree.
@@ -389,6 +573,8 @@ The default suite uses architecture-independent synthetic tensors, with mixed
 floating-point, integer-packed quantized, boolean, scalar, and empty storage. It
 requires no model download, GPU, Siphon extension, or Rust compilation. Tests
 cover exact contents and metadata, shard/index validation, lifetime, and CLI.
+With the `generate` and `reference` extras installed, it also exercises local
+tokenization and model/oracle tests without downloading any model checkpoint.
 
 On a GPU host with Siphon installed:
 
@@ -407,7 +593,8 @@ VENTURI_TEST_CUDA=1 VENTURI_MODEL_PATH=/absolute/path/to/checkpoint \
   python -m pytest -q -m cuda -k full_checkpoint
 ```
 
-No full-size checkpoint is required for this milestone.
+The default test suite never downloads a checkpoint. Real generation tests
+require `VENTURI_GENERATION_MODEL` and a matching local `tokenizer.json`.
 
 ## Measurement semantics
 
@@ -430,7 +617,10 @@ src/venturi/checkpoint.py   Header/index inspection and opaque metadata
 src/venturi/dtypes.py       Storage dtype descriptions, without conversion
 src/venturi/loader.py       Siphon/reference loading and owned tensor container
 src/venturi/verification.py Bounded, exact byte comparison with source tensors
-src/venturi/cli.py          venturi inspect / venturi load / venturi verify
-tools/                     Reproducible FP16 acceptance measurement
-tests/                     Generic CPU tests and opt-in CUDA acceptance
+src/venturi/ops/            Optional reusable Ada quantized Linear backend
+src/venturi/models/         Explicit model adapters and per-request KV state
+src/venturi/generation.py   Local tokenizer and bounded greedy generation
+src/venturi/cli.py          inspect / load / verify / generate
+tools/                     Loader, operator, and generation acceptance tools
+tests/                     Storage, operator, model/oracle, and opt-in CUDA tests
 ```

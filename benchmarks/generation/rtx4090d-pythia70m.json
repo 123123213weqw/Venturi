@@ -1,0 +1,720 @@
+{
+  "scope": "FP16 dense GPT-NeoX text generation; no Q4/full-Qwen inference claim",
+  "runtime": {
+    "python": "3.12.3",
+    "torch": "2.9.1+cu130",
+    "cuda": "13.0",
+    "transformers_reference": "4.57.1",
+    "tokenizers": "0.22.2",
+    "cpu_threads": 8,
+    "device": "cuda:0",
+    "allow_tf32": false,
+    "gpu": "NVIDIA GeForce RTX 4090 D"
+  },
+  "files": {
+    "model.safetensors": {
+      "bytes": 166029852,
+      "sha256": "ebfa4e2f18696ebd83716a0d39fe2c025f2ff8483f72a83ca59c475692fc9d15"
+    }
+  },
+  "tokenizer": {
+    "file": "tokenizer.json",
+    "sha256": "c24618a1b3e6a38167beff1c72cffd126c3a66254347304b50547d12c5f25624"
+  },
+  "load": {
+    "loader": "siphon",
+    "device": "cuda:0",
+    "inspect_seconds": 0.0012185079976916313,
+    "load_seconds": 0.3162375040119514,
+    "total_seconds": 0.317456012009643,
+    "tensor_count": 94,
+    "tensor_bytes": 166019180,
+    "cuda_allocated_bytes_delta": 167860224
+  },
+  "numerical_criteria": {
+    "formula": "abs(actual-reference) <= atol + rtol * abs(reference)",
+    "atol": 0.002,
+    "fp16_rtol": 0.00390625,
+    "fp32_rtol": 1e-05,
+    "reference_dtype": "Separate FP32 and FP16 models from the same stored learned parameters",
+    "rope": "FP32 inverse frequencies preserved in both references, not rounded by model.to(float16)",
+    "notes": "FP16 argmax can differ from FP32 due to large-logit rounding; agreement is recorded, not assumed",
+    "qualification": "Short FP32 prefill vs eager; same-schedule cached FP16/FP32 vs SDPA references. Long cached/full-batch drift is diagnostic, not hidden by larger tolerances."
+  },
+  "cases": [
+    {
+      "prompt": "Once upon a time",
+      "prefill_vs_fp32": {
+        "max_abs_error": 0.6513671875,
+        "mean_abs_error": 0.2501923143863678,
+        "max_error_over_bound": 0.15610907971858978,
+        "within_tolerance": true,
+        "argmax_agreement": 0.75
+      },
+      "prefill_vs_same_precision_reference": {
+        "max_abs_error": 0.0,
+        "mean_abs_error": 0.0,
+        "max_error_over_bound": 0.0,
+        "within_tolerance": true,
+        "argmax_agreement": 1.0
+      },
+      "fp32_adapter_vs_fp32_reference": {
+        "max_abs_error": 0.0008544921875,
+        "mean_abs_error": 0.00012150300608482212,
+        "max_error_over_bound": 0.06768327206373215,
+        "within_tolerance": true,
+        "argmax_agreement": 1.0
+      },
+      "teacher_forced_decode_vs_fp32": [
+        {
+          "max_abs_error": 0.6075439453125,
+          "mean_abs_error": 0.25081828236579895,
+          "max_error_over_bound": 0.14602234959602356,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.5830078125,
+          "mean_abs_error": 0.2490912526845932,
+          "max_error_over_bound": 0.1392134130001068,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.726318359375,
+          "mean_abs_error": 0.25047868490219116,
+          "max_error_over_bound": 0.17620427906513214,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.5811767578125,
+          "mean_abs_error": 0.25066137313842773,
+          "max_error_over_bound": 0.1401044726371765,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.634765625,
+          "mean_abs_error": 0.25051185488700867,
+          "max_error_over_bound": 0.1540745198726654,
+          "within_tolerance": true,
+          "argmax_agreement": 0.0
+        },
+        {
+          "max_abs_error": 0.66748046875,
+          "mean_abs_error": 0.24958984553813934,
+          "max_error_over_bound": 0.1601686179637909,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.9254150390625,
+          "mean_abs_error": 0.2524721920490265,
+          "max_error_over_bound": 0.22111068665981293,
+          "within_tolerance": true,
+          "argmax_agreement": 0.0
+        },
+        {
+          "max_abs_error": 0.6396484375,
+          "mean_abs_error": 0.25096595287323,
+          "max_error_over_bound": 0.1544371396303177,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.74072265625,
+          "mean_abs_error": 0.2522737681865692,
+          "max_error_over_bound": 0.1783442497253418,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.6163330078125,
+          "mean_abs_error": 0.2511787712574005,
+          "max_error_over_bound": 0.14935345947742462,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.64208984375,
+          "mean_abs_error": 0.24930056929588318,
+          "max_error_over_bound": 0.15637575089931488,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.7132568359375,
+          "mean_abs_error": 0.2528829574584961,
+          "max_error_over_bound": 0.1714819371700287,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.637939453125,
+          "mean_abs_error": 0.25179603695869446,
+          "max_error_over_bound": 0.15365178883075714,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.673095703125,
+          "mean_abs_error": 0.25084957480430603,
+          "max_error_over_bound": 0.17314617335796356,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.837158203125,
+          "mean_abs_error": 0.26015809178352356,
+          "max_error_over_bound": 0.20167270302772522,
+          "within_tolerance": true,
+          "argmax_agreement": 0.0
+        }
+      ],
+      "cached_vs_uncached_fp16": {
+        "max_abs_error": 1.0,
+        "mean_abs_error": 0.04041179642081261,
+        "max_error_over_bound": 0.2481793761253357,
+        "within_tolerance": true,
+        "argmax_agreement": 1.0
+      },
+      "generation": {
+        "prompt_ids": [
+          10758,
+          2220,
+          247,
+          673
+        ],
+        "generated_ids": [
+          13,
+          253,
+          187,
+          187,
+          3,
+          34,
+          15,
+          37,
+          15,
+          34,
+          15,
+          34,
+          15,
+          34,
+          15,
+          34
+        ],
+        "finish_reason": "length",
+        "prefill_seconds": 0.003967305994592607,
+        "decode_seconds": 0.05443201697198674,
+        "total_seconds": 0.05848588497610763,
+        "kv_cache_bytes": 245760,
+        "text": ", the\n\n\"A.D.A.A.A.A"
+      },
+      "reference_generated_ids": [
+        13,
+        253,
+        187,
+        187,
+        3,
+        510,
+        760,
+        2181,
+        326,
+        309,
+        476,
+        513,
+        310,
+        281,
+        755,
+        253
+      ],
+      "greedy_ids_match_fp32_reference": false,
+      "same_precision_reference_generated_ids": [
+        13,
+        253,
+        187,
+        187,
+        3,
+        34,
+        15,
+        37,
+        15,
+        34,
+        15,
+        34,
+        15,
+        34,
+        15,
+        34
+      ],
+      "greedy_ids_match_same_precision_reference": true
+    },
+    {
+      "prompt": "The capital of France is",
+      "prefill_vs_fp32": {
+        "max_abs_error": 1.2017822265625,
+        "mean_abs_error": 0.2777673900127411,
+        "max_error_over_bound": 0.29004645347595215,
+        "within_tolerance": true,
+        "argmax_agreement": 1.0
+      },
+      "prefill_vs_same_precision_reference": {
+        "max_abs_error": 0.0,
+        "mean_abs_error": 0.0,
+        "max_error_over_bound": 0.0,
+        "within_tolerance": true,
+        "argmax_agreement": 1.0
+      },
+      "fp32_adapter_vs_fp32_reference": {
+        "max_abs_error": 0.004150390625,
+        "mean_abs_error": 0.00034638712531886995,
+        "max_error_over_bound": 0.38521093130111694,
+        "within_tolerance": true,
+        "argmax_agreement": 1.0
+      },
+      "teacher_forced_decode_vs_fp32": [
+        {
+          "max_abs_error": 0.931640625,
+          "mean_abs_error": 0.2748074233531952,
+          "max_error_over_bound": 0.3178839087486267,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.978271484375,
+          "mean_abs_error": 0.2725284695625305,
+          "max_error_over_bound": 0.48553523421287537,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.76513671875,
+          "mean_abs_error": 0.2558683753013611,
+          "max_error_over_bound": 0.18535660207271576,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 1.3095703125,
+          "mean_abs_error": 0.3961234986782074,
+          "max_error_over_bound": 0.42772817611694336,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 1.1944580078125,
+          "mean_abs_error": 0.29906490445137024,
+          "max_error_over_bound": 0.28703296184539795,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.881103515625,
+          "mean_abs_error": 0.28643128275871277,
+          "max_error_over_bound": 0.2603518068790436,
+          "within_tolerance": true,
+          "argmax_agreement": 0.0
+        },
+        {
+          "max_abs_error": 0.844482421875,
+          "mean_abs_error": 0.25593748688697815,
+          "max_error_over_bound": 0.240839883685112,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 1.1549072265625,
+          "mean_abs_error": 0.3152899146080017,
+          "max_error_over_bound": 0.33717265725135803,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.8616943359375,
+          "mean_abs_error": 0.25893110036849976,
+          "max_error_over_bound": 0.2557678818702698,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.9134521484375,
+          "mean_abs_error": 0.26248660683631897,
+          "max_error_over_bound": 0.23334333300590515,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.7935791015625,
+          "mean_abs_error": 0.2734805643558502,
+          "max_error_over_bound": 0.19441279768943787,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.757568359375,
+          "mean_abs_error": 0.2539864182472229,
+          "max_error_over_bound": 0.22752933204174042,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.927734375,
+          "mean_abs_error": 0.26364612579345703,
+          "max_error_over_bound": 0.36477962136268616,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 1.2537841796875,
+          "mean_abs_error": 0.3236830532550812,
+          "max_error_over_bound": 0.45508211851119995,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 1.0694580078125,
+          "mean_abs_error": 0.27637624740600586,
+          "max_error_over_bound": 0.2736700475215912,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        }
+      ],
+      "cached_vs_uncached_fp16": {
+        "max_abs_error": 1.0,
+        "mean_abs_error": 0.3171815276145935,
+        "max_error_over_bound": 0.3667495846748352,
+        "within_tolerance": true,
+        "argmax_agreement": 1.0
+      },
+      "generation": {
+        "prompt_ids": [
+          510,
+          5347,
+          273,
+          6181,
+          310
+        ],
+        "generated_ids": [
+          253,
+          5347,
+          273,
+          253,
+          2586,
+          13,
+          253,
+          5347,
+          273,
+          253,
+          2586,
+          13,
+          253,
+          5347,
+          273,
+          253
+        ],
+        "finish_reason": "length",
+        "prefill_seconds": 0.0039524679887108505,
+        "decode_seconds": 0.05484339297981933,
+        "total_seconds": 0.05887767800595611,
+        "kv_cache_bytes": 258048,
+        "text": " the capital of the country, the capital of the country, the capital of the"
+      },
+      "reference_generated_ids": [
+        253,
+        5347,
+        273,
+        253,
+        2586,
+        13,
+        285,
+        253,
+        5347,
+        273,
+        253,
+        2586,
+        310,
+        253,
+        5347,
+        273
+      ],
+      "greedy_ids_match_fp32_reference": false,
+      "same_precision_reference_generated_ids": [
+        253,
+        5347,
+        273,
+        253,
+        2586,
+        13,
+        253,
+        5347,
+        273,
+        253,
+        2586,
+        13,
+        253,
+        5347,
+        273,
+        253
+      ],
+      "greedy_ids_match_same_precision_reference": true
+    },
+    {
+      "prompt": "def fibonacci(n):",
+      "prefill_vs_fp32": {
+        "max_abs_error": 1.1748046875,
+        "mean_abs_error": 0.3027610182762146,
+        "max_error_over_bound": 0.3316475749015808,
+        "within_tolerance": true,
+        "argmax_agreement": 0.8571429252624512
+      },
+      "prefill_vs_same_precision_reference": {
+        "max_abs_error": 0.0,
+        "mean_abs_error": 0.0,
+        "max_error_over_bound": 0.0,
+        "within_tolerance": true,
+        "argmax_agreement": 1.0
+      },
+      "fp32_adapter_vs_fp32_reference": {
+        "max_abs_error": 0.003662109375,
+        "mean_abs_error": 0.0003036789712496102,
+        "max_error_over_bound": 0.2903728783130646,
+        "within_tolerance": true,
+        "argmax_agreement": 1.0
+      },
+      "teacher_forced_decode_vs_fp32": [
+        {
+          "max_abs_error": 0.95556640625,
+          "mean_abs_error": 0.29253724217414856,
+          "max_error_over_bound": 0.23419032990932465,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 1.5628662109375,
+          "mean_abs_error": 0.37977153062820435,
+          "max_error_over_bound": 0.5061702132225037,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 1.0491943359375,
+          "mean_abs_error": 0.2780192792415619,
+          "max_error_over_bound": 0.34327781200408936,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.91845703125,
+          "mean_abs_error": 0.2711164355278015,
+          "max_error_over_bound": 0.3270331621170044,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.75341796875,
+          "mean_abs_error": 0.2503887712955475,
+          "max_error_over_bound": 0.18182742595672607,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 1.02001953125,
+          "mean_abs_error": 0.31245264410972595,
+          "max_error_over_bound": 0.24846674501895905,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.652099609375,
+          "mean_abs_error": 0.2524852454662323,
+          "max_error_over_bound": 0.15750902891159058,
+          "within_tolerance": true,
+          "argmax_agreement": 0.0
+        },
+        {
+          "max_abs_error": 1.21826171875,
+          "mean_abs_error": 0.3126950263977051,
+          "max_error_over_bound": 0.2916644811630249,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.6876220703125,
+          "mean_abs_error": 0.2516281008720398,
+          "max_error_over_bound": 0.16825780272483826,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.89794921875,
+          "mean_abs_error": 0.2653939127922058,
+          "max_error_over_bound": 0.21755816042423248,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.8165283203125,
+          "mean_abs_error": 0.25483572483062744,
+          "max_error_over_bound": 0.19651418924331665,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 1.1282958984375,
+          "mean_abs_error": 0.2915171980857849,
+          "max_error_over_bound": 0.33601921796798706,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.65185546875,
+          "mean_abs_error": 0.2505536377429962,
+          "max_error_over_bound": 0.1572565883398056,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.6351318359375,
+          "mean_abs_error": 0.2496764361858368,
+          "max_error_over_bound": 0.15823888778686523,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        },
+        {
+          "max_abs_error": 0.726318359375,
+          "mean_abs_error": 0.24959751963615417,
+          "max_error_over_bound": 0.20905187726020813,
+          "within_tolerance": true,
+          "argmax_agreement": 1.0
+        }
+      ],
+      "cached_vs_uncached_fp16": {
+        "max_abs_error": 1.0,
+        "mean_abs_error": 0.02217765897512436,
+        "max_error_over_bound": 0.2448561191558838,
+        "within_tolerance": true,
+        "argmax_agreement": 1.0
+      },
+      "generation": {
+        "prompt_ids": [
+          1545,
+          5713,
+          251,
+          42401,
+          9,
+          79,
+          2262
+        ],
+        "generated_ids": [
+          187,
+          187,
+          34,
+          27,
+          187,
+          187,
+          42,
+          452,
+          1119,
+          247,
+          2900,
+          15,
+          187,
+          42,
+          452,
+          247
+        ],
+        "finish_reason": "length",
+        "prefill_seconds": 0.003972955979406834,
+        "decode_seconds": 0.054837331001181155,
+        "total_seconds": 0.05888917500851676,
+        "kv_cache_bytes": 282624,
+        "text": "\n\nA:\n\nI have found a solution.\nI have a"
+      },
+      "reference_generated_ids": [
+        187,
+        187,
+        34,
+        27,
+        187,
+        187,
+        42,
+        1158,
+        368,
+        943,
+        897,
+        253,
+        1563,
+        2127,
+        27,
+        187
+      ],
+      "greedy_ids_match_fp32_reference": false,
+      "same_precision_reference_generated_ids": [
+        187,
+        187,
+        34,
+        27,
+        187,
+        187,
+        42,
+        452,
+        1119,
+        247,
+        2900,
+        15,
+        187,
+        42,
+        452,
+        247
+      ],
+      "greedy_ids_match_same_precision_reference": true
+    }
+  ],
+  "cached_chunk_at_position_512": {
+    "max_abs_error": 2.67193603515625,
+    "mean_abs_error": 0.8309178948402405,
+    "max_error_over_bound": 0.7297411561012268,
+    "within_tolerance": true,
+    "argmax_agreement": 0.6666666865348816
+  },
+  "cached_chunk_at_position_512_vs_same_precision": {
+    "max_abs_error": 2.0,
+    "mean_abs_error": 0.7367679476737976,
+    "max_error_over_bound": 0.5514199137687683,
+    "within_tolerance": true,
+    "argmax_agreement": 1.0
+  },
+  "cached_chunk_at_position_512_vs_cached_fp16_reference": {
+    "max_abs_error": 0.0,
+    "mean_abs_error": 0.0,
+    "max_error_over_bound": 0.0,
+    "within_tolerance": true,
+    "argmax_agreement": 1.0
+  },
+  "cached_chunk_at_position_512_vs_uncached_fp16": {
+    "max_abs_error": 4.5,
+    "mean_abs_error": 2.4123032093048096,
+    "max_error_over_bound": 1.4198603630065918,
+    "within_tolerance": false,
+    "argmax_agreement": 1.0
+  },
+  "cached_chunk_at_position_512_fp32_vs_full_eager": {
+    "max_abs_error": 0.07452392578125,
+    "mean_abs_error": 0.03533220663666725,
+    "max_error_over_bound": 6.63871431350708,
+    "within_tolerance": false,
+    "argmax_agreement": 1.0
+  },
+  "cached_chunk_at_position_512_fp32_math": {
+    "max_abs_error": 0.0,
+    "mean_abs_error": 0.0,
+    "max_error_over_bound": 0.0,
+    "within_tolerance": true,
+    "argmax_agreement": 1.0
+  },
+  "known_limitation": "Cached vs full-batch arithmetic is not numerically invariant on this checkpoint; raw drift and argmax agreement are retained. Same-schedule cached references are qualified independently.",
+  "all_greedy_ids_match_same_precision_reference": true,
+  "all_greedy_ids_match_fp32_reference": false,
+  "passed": true
+}

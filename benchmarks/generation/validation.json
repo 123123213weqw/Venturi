@@ -1,0 +1,57 @@
+{
+  "scope": "First complete dense GPT-NeoX text-generation adapter; no Qwen-27B or quantized full-model support",
+  "date": "2026-10-16",
+  "model_id": "EleutherAI/pythia-70m",
+  "runtime": {
+    "python": "3.12.3",
+    "torch": "2.9.1+cu130",
+    "cuda": "13.0",
+    "transformers_reference": "4.57.1",
+    "tokenizers": "0.22.2",
+    "cpu_threads": 8,
+    "device": "cuda:0",
+    "allow_tf32": false,
+    "gpu": "NVIDIA GeForce RTX 4090 D"
+  },
+  "cuda_tests": "209 passed; zero skips; three expected Siphon ring-depth warnings",
+  "local_cpu_tests": "168 passed; 41 opt-in CUDA cases skipped",
+  "packaging": "22 Python/native source and attribution files verified against wheel contents",
+  "source_manifest": "pythia70m-source.json",
+  "tested_sources": "tested-sources.json",
+  "test_log": "tests.log",
+  "reference_report": "rtx4090d-pythia70m.json",
+  "cli_example": "cli-sample.json",
+  "qualifications": {
+    "independent_fp64_equations": "CPU full-prefill, cached chunks, parallel/sequential residuals, RoPE, and causal isolation",
+    "fp16_greedy_reference_prompts_matched": 3,
+    "reference_prompt_count": 3,
+    "fp16_tokens_per_reference_case": 16,
+    "position_512_cached_fp16_max_abs_error": 0.0,
+    "position_512_cached_fp32_max_abs_error": 0.0
+  },
+  "limitations": {
+    "fp32_greedy_prompts_matched": 0,
+    "cached_vs_full_fp16_at_512": {
+      "max_abs_error": 4.5,
+      "mean_abs_error": 2.4123032093048096,
+      "max_error_over_bound": 1.4198603630065918,
+      "within_tolerance": false,
+      "argmax_agreement": 1.0
+    },
+    "cached_fp32_vs_full_eager_at_512": {
+      "max_abs_error": 0.07452392578125,
+      "mean_abs_error": 0.03533220663666725,
+      "max_error_over_bound": 6.63871431350708,
+      "within_tolerance": false,
+      "argmax_agreement": 1.0
+    },
+    "explanation": "Different batch shapes/kernels are not numerically invariant. These diagnostics are recorded outside the close bound, not claimed as passing equivalence tests.",
+    "not_claimed": [
+      "FP16/FP32-identical generation",
+      "Batch-invariant arithmetic",
+      "Full-model CUDA graphs or allocation-free execution",
+      "Q4 or Qwen-27B text generation",
+      "Speed advantage over llama.cpp"
+    ]
+  }
+}
