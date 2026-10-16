@@ -1,0 +1,27 @@
+{
+  "name": "cache-off",
+  "config": {
+    "max_context": 2048,
+    "prefill_chunk": 512,
+    "cuda_graph": true,
+    "kv_dtype": "bf16",
+    "cache": false,
+    "checkpoint_slots": 4,
+    "concurrency": 1,
+    "kv_capacity": 2048
+  },
+  "command": [
+    "/home/test/wangyue/venturi-work/qwen/native/venturi-qwen-probe",
+    "/dev/shm/venturi-test/venturi-ninfer-d3ae5782742a48c8b058196297a7ddff-f730fa10d9cd5d08/qwen3_8_27b.ninfer"
+  ],
+  "returncode": 1,
+  "elapsed_with_startup_seconds": 0.2648580074310303,
+  "records": [
+    {
+      "error": "disabled context cache accepts only root-only capacities",
+      "event": "startup_error",
+      "ok": false
+    }
+  ],
+  "ok": false
+}

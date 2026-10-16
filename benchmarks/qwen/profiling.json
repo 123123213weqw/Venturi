@@ -1,0 +1,168 @@
+{
+  "profiles": {
+    "eager": {
+      "scope": "One warmed complete 32-output request: prefill plus 31 decode intervals",
+      "api_calls": {
+        "cudaStreamSynchronize": 33,
+        "cudaLaunchKernel": 19139,
+        "cuKernelGetName": 19139,
+        "cudaMemcpyAsync": 73,
+        "cudaMemsetAsync": 97,
+        "cuProfilerStart": 1
+      },
+      "kernel_instances": 19139,
+      "summed_kernel_seconds": 0.562990729,
+      "projection_share_of_summed_kernel_duration": 0.9478498375059388,
+      "top_kernels": [
+        {
+          "name": "ninfer::ops::detail::<unnamed>::q4_linear_swiglu_gemv_pair_kernel(const __nv_bfloat16 *, const unsigned char *, const unsigned char *, __nv_bfloat16 *)",
+          "seconds": 0.210258354
+        },
+        {
+          "name": "void ninfer::ops::detail::q4_rowsplit_gemv_kernel<ninfer::ops::detail::Q4RowSplitGemvSchedule<(int)1, (int)8, (int)16, (int)1, (ninfer::ops::detail::Q4GemvActivationAccess)0, (ninfer::ops::detail::Q4GemvLaneMapping)0, (ninfer::ops::detail::Q4GemvDecodeMode)0, (ninfer::ops::detail::Q4GemvCodeTransfer)0, (ninfer::ops::detail::Q4GemvScaleAccess)0, (ninfer::ops::Cache)0, (int)0, (int)1>, (bool)0, (int)0, ninfer::ops::detail::<unnamed>::GemvResidualEpilogue, (bool)0, (bool)0>(const __nv_bfloat16 *, const unsigned char *, const unsigned char *, __nv_bfloat16 *, __nv_bfloat16 *, int, int, T4)",
+          "seconds": 0.122982857
+        },
+        {
+          "name": "void ninfer::ops::detail::ada_small_t_mma_dual_kernel<ninfer::ops::detail::AdaSmallTSchedule<(ninfer::ops::detail::AdaWeightFormat)0, (int)2, (int)8, (int)1, (int)8, (int)2, (bool)1, (bool)0>, (int)5120, ninfer::ops::detail::AdaContiguousRows, ninfer::ops::detail::<unnamed>::GdnValueZEpilogue, ninfer::ops::detail::AdaSmallTSchedule<(ninfer::ops::detail::AdaWeightFormat)0, (int)2, (int)8, (int)1, (int)8, (int)2, (bool)1, (bool)0>, (int)5120, ninfer::ops::detail::AdaContiguousRows, ninfer::ops::detail::<unnamed>::GdnQkEpilogue>(const __nv_bfloat16 *, int, int, ninfer::ops::detail::AdaSmallTOperand<T4>, ninfer::ops::detail::AdaSmallTOperand<T8>, int)",
+          "seconds": 0.079261494
+        },
+        {
+          "name": "void ninfer::ops::detail::q8_ksplit_mma_kernel<ninfer::ops::detail::Q8LinearGeometry<(int)248320, (int)5120>, (int)8, ninfer::ops::detail::Q8KSplitSchedule<(int)8, (int)8, (int)2, (ninfer::ops::detail::Q8KSplitScaleAccess)1, (ninfer::ops::Cache)0, (ninfer::ops::Cache)1, (ninfer::ops::detail::Q8KSplitActivationStage)0>, ninfer::ops::detail::Q8ContiguousOutput, ninfer::ops::detail::Q8KSplitStoreEpilogue, ninfer::ops::detail::Q8KSplitIdentityRows, (bool)0, (bool)1>(const __nv_bfloat16 *, const unsigned char *, const unsigned char *, T4, T5, T6, int)",
+          "seconds": 0.045311847
+        },
+        {
+          "name": "void ninfer::ops::detail::q4_rowsplit_gemv_kernel<ninfer::ops::detail::Q4RowSplitGemvSchedule<(int)1, (int)8, (int)16, (int)1, (ninfer::ops::detail::Q4GemvActivationAccess)0, (ninfer::ops::detail::Q4GemvLaneMapping)0, (ninfer::ops::detail::Q4GemvDecodeMode)0, (ninfer::ops::detail::Q4GemvCodeTransfer)0, (ninfer::ops::detail::Q4GemvScaleAccess)0, (ninfer::ops::Cache)0, (int)96, (int)1>, (bool)0, (int)0, ninfer::ops::detail::<unnamed>::GemvResidualEpilogue, (bool)0, (bool)0>(const __nv_bfloat16 *, const unsigned char *, const unsigned char *, __nv_bfloat16 *, __nv_bfloat16 *, int, int, T4)",
+          "seconds": 0.038869816
+        },
+        {
+          "name": "void ninfer::ops::detail::ada_small_t_mma_dual_kernel<ninfer::ops::detail::AdaSmallTSchedule<(ninfer::ops::detail::AdaWeightFormat)0, (int)2, (int)8, (int)1, (int)8, (int)2, (bool)1, (bool)0>, (int)5120, ninfer::ops::detail::AdaContiguousRows, ninfer::ops::detail::<unnamed>::AttnGateValueEpilogue, ninfer::ops::detail::AdaSmallTSchedule<(ninfer::ops::detail::AdaWeightFormat)0, (int)2, (int)8, (int)1, (int)8, (int)2, (bool)1, (bool)0>, (int)5120, ninfer::ops::detail::AdaContiguousRows, ninfer::ops::detail::<unnamed>::AttnQueryKeyEpilogue>(const __nv_bfloat16 *, int, int, ninfer::ops::detail::AdaSmallTOperand<T4>, ninfer::ops::detail::AdaSmallTOperand<T8>, int)",
+          "seconds": 0.022100133
+        }
+      ]
+    },
+    "graph": {
+      "scope": "One warmed complete 32-output request: prefill plus 31 decode intervals",
+      "api_calls": {
+        "cudaStreamSynchronize": 33,
+        "cudaGraphLaunch_v10000": 31,
+        "cudaLaunchKernel": 601,
+        "cudaMemsetAsync": 97,
+        "cudaMemcpyAsync": 11,
+        "cuKernelGetName": 601,
+        "cuProfilerStart": 1
+      },
+      "kernel_instances": 19139,
+      "summed_kernel_seconds": 0.560839984,
+      "projection_share_of_summed_kernel_duration": 0.9496134212855979,
+      "top_kernels": [
+        {
+          "name": "ninfer::ops::detail::<unnamed>::q4_linear_swiglu_gemv_pair_kernel(const __nv_bfloat16 *, const unsigned char *, const unsigned char *, __nv_bfloat16 *)",
+          "seconds": 0.21019386
+        },
+        {
+          "name": "void ninfer::ops::detail::q4_rowsplit_gemv_kernel<ninfer::ops::detail::Q4RowSplitGemvSchedule<(int)1, (int)8, (int)16, (int)1, (ninfer::ops::detail::Q4GemvActivationAccess)0, (ninfer::ops::detail::Q4GemvLaneMapping)0, (ninfer::ops::detail::Q4GemvDecodeMode)0, (ninfer::ops::detail::Q4GemvCodeTransfer)0, (ninfer::ops::detail::Q4GemvScaleAccess)0, (ninfer::ops::Cache)0, (int)0, (int)1>, (bool)0, (int)0, ninfer::ops::detail::<unnamed>::GemvResidualEpilogue, (bool)0, (bool)0>(const __nv_bfloat16 *, const unsigned char *, const unsigned char *, __nv_bfloat16 *, __nv_bfloat16 *, int, int, T4)",
+          "seconds": 0.122644772
+        },
+        {
+          "name": "void ninfer::ops::detail::ada_small_t_mma_dual_kernel<ninfer::ops::detail::AdaSmallTSchedule<(ninfer::ops::detail::AdaWeightFormat)0, (int)2, (int)8, (int)1, (int)8, (int)2, (bool)1, (bool)0>, (int)5120, ninfer::ops::detail::AdaContiguousRows, ninfer::ops::detail::<unnamed>::GdnValueZEpilogue, ninfer::ops::detail::AdaSmallTSchedule<(ninfer::ops::detail::AdaWeightFormat)0, (int)2, (int)8, (int)1, (int)8, (int)2, (bool)1, (bool)0>, (int)5120, ninfer::ops::detail::AdaContiguousRows, ninfer::ops::detail::<unnamed>::GdnQkEpilogue>(const __nv_bfloat16 *, int, int, ninfer::ops::detail::AdaSmallTOperand<T4>, ninfer::ops::detail::AdaSmallTOperand<T8>, int)",
+          "seconds": 0.078964422
+        },
+        {
+          "name": "void ninfer::ops::detail::q8_ksplit_mma_kernel<ninfer::ops::detail::Q8LinearGeometry<(int)248320, (int)5120>, (int)8, ninfer::ops::detail::Q8KSplitSchedule<(int)8, (int)8, (int)2, (ninfer::ops::detail::Q8KSplitScaleAccess)1, (ninfer::ops::Cache)0, (ninfer::ops::Cache)1, (ninfer::ops::detail::Q8KSplitActivationStage)0>, ninfer::ops::detail::Q8ContiguousOutput, ninfer::ops::detail::Q8KSplitStoreEpilogue, ninfer::ops::detail::Q8KSplitIdentityRows, (bool)0, (bool)1>(const __nv_bfloat16 *, const unsigned char *, const unsigned char *, T4, T5, T6, int)",
+          "seconds": 0.045302686
+        },
+        {
+          "name": "void ninfer::ops::detail::q4_rowsplit_gemv_kernel<ninfer::ops::detail::Q4RowSplitGemvSchedule<(int)1, (int)8, (int)16, (int)1, (ninfer::ops::detail::Q4GemvActivationAccess)0, (ninfer::ops::detail::Q4GemvLaneMapping)0, (ninfer::ops::detail::Q4GemvDecodeMode)0, (ninfer::ops::detail::Q4GemvCodeTransfer)0, (ninfer::ops::detail::Q4GemvScaleAccess)0, (ninfer::ops::Cache)0, (int)96, (int)1>, (bool)0, (int)0, ninfer::ops::detail::<unnamed>::GemvResidualEpilogue, (bool)0, (bool)0>(const __nv_bfloat16 *, const unsigned char *, const unsigned char *, __nv_bfloat16 *, __nv_bfloat16 *, int, int, T4)",
+          "seconds": 0.038686172
+        },
+        {
+          "name": "void ninfer::ops::detail::ada_small_t_mma_dual_kernel<ninfer::ops::detail::AdaSmallTSchedule<(ninfer::ops::detail::AdaWeightFormat)0, (int)2, (int)8, (int)1, (int)8, (int)2, (bool)1, (bool)0>, (int)5120, ninfer::ops::detail::AdaContiguousRows, ninfer::ops::detail::<unnamed>::AttnGateValueEpilogue, ninfer::ops::detail::AdaSmallTSchedule<(ninfer::ops::detail::AdaWeightFormat)0, (int)2, (int)8, (int)1, (int)8, (int)2, (bool)1, (bool)0>, (int)5120, ninfer::ops::detail::AdaContiguousRows, ninfer::ops::detail::<unnamed>::AttnQueryKeyEpilogue>(const __nv_bfloat16 *, int, int, ninfer::ops::detail::AdaSmallTOperand<T4>, ninfer::ops::detail::AdaSmallTOperand<T8>, int)",
+          "seconds": 0.021935298
+        }
+      ]
+    },
+    "prefill128": {
+      "scope": "512-prompt-token prefill plus first selection, no decode",
+      "api_calls": {
+        "cudaStreamSynchronize": 5,
+        "cudaLaunchKernel": 3605,
+        "cudaLaunchKernelExC_v11060": 192,
+        "cudaMemsetAsync": 97,
+        "cuKernelGetName": 3605,
+        "cudaMemcpyAsync": 14,
+        "cuProfilerStart": 1
+      },
+      "kernel_instances": 3797,
+      "summed_kernel_seconds": 0.307004931,
+      "projection_share_of_summed_kernel_duration": 0.9393830257403911,
+      "top_kernels": [
+        {
+          "name": "void ninfer::ops::detail::q4_rowsplit_gemm_mma_kernel<ninfer::ops::detail::Q4RowSplitMmaGemmSchedule<(int)32, (int)64, (int)64, (int)16, (int)32, (int)3, (int)2, (ninfer::ops::detail::Q4FragmentPipeline)0, (ninfer::ops::Cache)1, (ninfer::ops::Cache)1, (ninfer::ops::detail::Q4ScaleLoad)1>, (bool)1, ninfer::ops::detail::<unnamed>::ResidualEpilogue>(const __nv_bfloat16 *, const unsigned char *, const unsigned char *, __nv_bfloat16 *, int, int, int, int, T3)",
+          "seconds": 0.1125181
+        },
+        {
+          "name": "void ninfer::ops::detail::q4_rowsplit_gemm_mma_kernel<ninfer::ops::detail::Q4RowSplitMmaGemmSchedule<(int)64, (int)128, (int)64, (int)64, (int)32, (int)2, (int)1, (ninfer::ops::detail::Q4FragmentPipeline)0, (ninfer::ops::Cache)1, (ninfer::ops::Cache)1, (ninfer::ops::detail::Q4ScaleLoad)1>, (bool)1, ninfer::ops::detail::Q4MmaStoreEpilogue>(const __nv_bfloat16 *, const unsigned char *, const unsigned char *, __nv_bfloat16 *, int, int, int, int, T3)",
+          "seconds": 0.109622412
+        },
+        {
+          "name": "void ninfer::ops::detail::rowsplit_grouped_mma_kernel<ninfer::ops::detail::GemmCfg<(int)64, (int)128, (int)64, (int)64, (int)16, (int)2, (int)1, (bool)0, (bool)1, (bool)1>, (bool)1, (ninfer::ops::detail::RowSplitGroupedMmaCodec)0, (int)4>(const __nv_bfloat16 *, ninfer::ops::detail::RowSplitGroupedMmaJob, ninfer::ops::detail::RowSplitGroupedMmaJob, ninfer::ops::detail::RowSplitGroupedMmaJob, ninfer::ops::detail::RowSplitGroupedMmaJob, int, int, int)",
+          "seconds": 0.053831492
+        },
+        {
+          "name": "void ninfer::ops::detail::rowsplit_grouped_mma_kernel<ninfer::ops::detail::GemmCfg<(int)64, (int)128, (int)64, (int)64, (int)16, (int)2, (int)2, (bool)0, (bool)1, (bool)1>, (bool)1, (ninfer::ops::detail::RowSplitGroupedMmaCodec)0, (int)4>(const __nv_bfloat16 *, ninfer::ops::detail::RowSplitGroupedMmaJob, ninfer::ops::detail::RowSplitGroupedMmaJob, ninfer::ops::detail::RowSplitGroupedMmaJob, ninfer::ops::detail::RowSplitGroupedMmaJob, int, int, int)",
+          "seconds": 0.010980828
+        },
+        {
+          "name": "void ninfer::ops::detail::gated_delta_net::chunked::prepare_wy_wu::prepare_wy_wu_kernel<(int)64, (int)32, (int)8>(const __nv_bfloat16 *, const __nv_bfloat16 *, const float *, const float *, __nv_bfloat16 *, __nv_bfloat16 *, float *, ninfer::ops::detail::gated_delta_net::head_map)",
+          "seconds": 0.003238555
+        },
+        {
+          "name": "void ninfer::ops::detail::gated_delta_net::chunked::state_passing::state_passing_kernel<(int)16>(const __nv_bfloat16 *, const __nv_bfloat16 *, const __nv_bfloat16 *, const float *, const float *, __nv_bfloat16 *, __nv_bfloat16 *, float *, ninfer::ops::detail::gated_delta_net::head_map, int)",
+          "seconds": 0.003196745
+        }
+      ]
+    },
+    "prefill512": {
+      "scope": "512-prompt-token prefill plus first selection, no decode",
+      "api_calls": {
+        "cudaStreamSynchronize": 2,
+        "cudaLaunchKernel": 841,
+        "cudaMemsetAsync": 97,
+        "cudaLaunchKernelExC_v11060": 48,
+        "cuKernelGetName": 841,
+        "cudaMemcpyAsync": 11,
+        "cuProfilerStart": 1
+      },
+      "kernel_instances": 889,
+      "summed_kernel_seconds": 0.249280646,
+      "projection_share_of_summed_kernel_duration": 0.9619098106798071,
+      "top_kernels": [
+        {
+          "name": "void ninfer::ops::detail::q4_linear_swiglu_mma_split_half_pair_kernel<ninfer::ops::detail::GemmCfg<(int)64, (int)128, (int)64, (int)64, (int)16, (int)2, (int)1, (bool)0, (bool)1, (bool)1>, (bool)1>(const __nv_bfloat16 *, const unsigned char *, const unsigned char *, __nv_bfloat16 *, int, int, int, int)",
+          "seconds": 0.108509673
+        },
+        {
+          "name": "void ninfer::ops::detail::q4_rowsplit_gemm_mma_kernel<ninfer::ops::detail::Q4RowSplitMmaGemmSchedule<(int)64, (int)128, (int)64, (int)64, (int)32, (int)2, (int)1, (ninfer::ops::detail::Q4FragmentPipeline)0, (ninfer::ops::Cache)1, (ninfer::ops::Cache)1, (ninfer::ops::detail::Q4ScaleLoad)1>, (bool)1, ninfer::ops::detail::<unnamed>::ResidualEpilogue>(const __nv_bfloat16 *, const unsigned char *, const unsigned char *, __nv_bfloat16 *, int, int, int, int, T3)",
+          "seconds": 0.079836998
+        },
+        {
+          "name": "void ninfer::ops::detail::rowsplit_grouped_mma_kernel<ninfer::ops::detail::GemmCfg<(int)64, (int)128, (int)64, (int)64, (int)16, (int)2, (int)1, (bool)0, (bool)1, (bool)1>, (bool)1, (ninfer::ops::detail::RowSplitGroupedMmaCodec)0, (int)4>(const __nv_bfloat16 *, ninfer::ops::detail::RowSplitGroupedMmaJob, ninfer::ops::detail::RowSplitGroupedMmaJob, ninfer::ops::detail::RowSplitGroupedMmaJob, ninfer::ops::detail::RowSplitGroupedMmaJob, int, int, int)",
+          "seconds": 0.039403548
+        },
+        {
+          "name": "void ninfer::ops::detail::rowsplit_grouped_mma_kernel<ninfer::ops::detail::GemmCfg<(int)64, (int)128, (int)64, (int)64, (int)16, (int)2, (int)2, (bool)0, (bool)1, (bool)1>, (bool)1, (ninfer::ops::detail::RowSplitGroupedMmaCodec)0, (int)4>(const __nv_bfloat16 *, ninfer::ops::detail::RowSplitGroupedMmaJob, ninfer::ops::detail::RowSplitGroupedMmaJob, ninfer::ops::detail::RowSplitGroupedMmaJob, ninfer::ops::detail::RowSplitGroupedMmaJob, int, int, int)",
+          "seconds": 0.010602683
+        },
+        {
+          "name": "void ninfer::ops::detail::gated_delta_net::chunked::state_passing::state_passing_kernel<(int)16>(const __nv_bfloat16 *, const __nv_bfloat16 *, const __nv_bfloat16 *, const float *, const float *, __nv_bfloat16 *, __nv_bfloat16 *, float *, ninfer::ops::detail::gated_delta_net::head_map, int)",
+          "seconds": 0.002538467
+        },
+        {
+          "name": "void ninfer::ops::detail::gated_delta_net::chunked::prepare_wy_wu::prepare_wy_wu_kernel<(int)64, (int)32, (int)8>(const __nv_bfloat16 *, const __nv_bfloat16 *, const float *, const float *, __nv_bfloat16 *, __nv_bfloat16 *, float *, ninfer::ops::detail::gated_delta_net::head_map)",
+          "seconds": 0.001878076
+        }
+      ]
+    }
+  },
+  "caution": "Instrumented Nsight summaries, not throughput benchmarks. Summed GPU kernel time is not request wall time or a DRAM utilization measurement. Binary traces remain on the GPU host."
+}

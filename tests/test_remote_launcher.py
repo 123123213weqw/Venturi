@@ -6,9 +6,12 @@ from pathlib import Path
 import subprocess
 import sys
 
+import pytest
 
-def test_remote_launcher_quotes_prompt_and_paths(tmp_path):
-    launcher = Path(__file__).parents[1] / "scripts" / "venturi-4090d"
+
+@pytest.mark.parametrize("qwen", [False, True])
+def test_remote_launcher_quotes_prompt_and_paths(tmp_path, qwen):
+    launcher = Path(__file__).parents[1] / "scripts" / ("venturi-qwen-4090d" if qwen else "venturi-4090d")
     tools = tmp_path / "tools"
     tools.mkdir()
     ssh = tools / "ssh"
@@ -28,6 +31,8 @@ def test_remote_launcher_quotes_prompt_and_paths(tmp_path):
         "VENTURI_REMOTE_DIR": str(directory), "VENTURI_REMOTE_PYTHON": str(python),
         "VENTURI_REMOTE_MODEL": "/model with spaces", "VENTURI_REMOTE_SIPHON": "/siphon",
         "VENTURI_SSH_HOST": "test-host",
+        "VENTURI_QWEN_DIR": str(directory), "VENTURI_QWEN_MODEL": "/model with spaces",
+        "VENTURI_QWEN_RUNNER": "/runner with ' quotes; $(touch UNWANTED)",
     }
     result = subprocess.run(
         ["bash", str(launcher), "generate", "--prompt", prompt], env=env,
@@ -41,8 +46,8 @@ def test_remote_launcher_quotes_prompt_and_paths(tmp_path):
         ["bash", "-c", ssh_args[-1]], check=True, capture_output=True, text=True,
     )
     payload = json.loads(remote.stdout)
-    assert payload["args"] == [
-        "-m", "venturi", "generate", "/model with spaces", "--prompt", prompt,
+    assert payload["args"] == ["-m", "venturi"] + (["qwen"] if qwen else []) + [
+        "generate", "/model with spaces", "--prompt", prompt,
     ]
-    assert payload["path"] == f"{directory}/src:/siphon"
+    assert payload["path"] == f"{directory}/src" + ("" if qwen else ":/siphon")
     assert not (directory / "UNWANTED").exists()

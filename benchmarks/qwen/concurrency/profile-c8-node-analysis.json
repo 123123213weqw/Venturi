@@ -1,0 +1,1681 @@
+{
+  "database": "/home/test/wangyue/venturi-work/qwen/concurrency/profile-c8-node.sqlite",
+  "phases": {
+    "prefill": {
+      "kernel_count": 7112,
+      "summed_kernel_seconds": 2.009909711,
+      "projection_fraction": 0.963733125124445,
+      "top_kernels": [
+        {
+          "name": "q4_linear_swiglu_mma_split_half_pair_kernel",
+          "count": 512,
+          "seconds": 0.87480736,
+          "fraction": 0.4352470935446911,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 84,
+              "shared_bytes_per_block": 45568,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 2176,
+              "resource_only_resident_blocks_upper_bound": 2,
+              "resource_only_thread_occupancy_upper_bound": 0.3333333333333333,
+              "count": 512
+            }
+          ]
+        },
+        {
+          "name": "q4_rowsplit_gemm_mma_kernel",
+          "count": 1024,
+          "seconds": 0.64374523,
+          "fraction": 0.32028564590581254,
+          "launch_geometry": [
+            {
+              "threads": 128,
+              "registers_per_thread": 147,
+              "shared_bytes_per_block": 45568,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 320,
+              "resource_only_resident_blocks_upper_bound": 2,
+              "resource_only_thread_occupancy_upper_bound": 0.16666666666666666,
+              "count": 1024
+            }
+          ]
+        },
+        {
+          "name": "rowsplit_grouped_mma_kernel",
+          "count": 512,
+          "seconds": 0.403214642,
+          "fraction": 0.2006133110324576,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 100,
+              "shared_bytes_per_block": 46592,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 1024,
+              "resource_only_resident_blocks_upper_bound": 2,
+              "resource_only_thread_occupancy_upper_bound": 0.3333333333333333,
+              "count": 384
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 100,
+              "shared_bytes_per_block": 46592,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 896,
+              "resource_only_resident_blocks_upper_bound": 2,
+              "resource_only_thread_occupancy_upper_bound": 0.3333333333333333,
+              "count": 128
+            }
+          ]
+        },
+        {
+          "name": "state_passing_kernel",
+          "count": 384,
+          "seconds": 0.020504889,
+          "fraction": 0.010201895581567247,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 128,
+              "shared_bytes_per_block": 45312,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 384,
+              "resource_only_resident_blocks_upper_bound": 2,
+              "resource_only_thread_occupancy_upper_bound": 0.3333333333333333,
+              "count": 384
+            }
+          ]
+        },
+        {
+          "name": "prepare_wy_wu_kernel",
+          "count": 384,
+          "seconds": 0.015320699,
+          "fraction": 0.007622580714024919,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 77,
+              "shared_bytes_per_block": 29440,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 384,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 0.5,
+              "count": 384
+            }
+          ]
+        },
+        {
+          "name": "q8_ksplit_mma_kernel",
+          "count": 8,
+          "seconds": 0.011431901,
+          "fraction": 0.0056877684293152805,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 77,
+              "shared_bytes_per_block": 16896,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 15520,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 0.5,
+              "count": 8
+            }
+          ]
+        },
+        {
+          "name": "output_kernel",
+          "count": 384,
+          "seconds": 0.008201947,
+          "fraction": 0.00408075395382773,
+          "launch_geometry": [
+            {
+              "threads": 128,
+              "registers_per_thread": 125,
+              "shared_bytes_per_block": 24576,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 384,
+              "resource_only_resident_blocks_upper_bound": 4,
+              "resource_only_thread_occupancy_upper_bound": 0.3333333333333333,
+              "count": 384
+            }
+          ]
+        },
+        {
+          "name": "causal_conv1d_prefill_pairs_kernel",
+          "count": 384,
+          "seconds": 0.008108765,
+          "fraction": 0.004034392667303253,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 10240,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 384
+            }
+          ]
+        },
+        {
+          "name": "causal_attention_prompt_bf16_kernel",
+          "count": 128,
+          "seconds": 0.007367967,
+          "fraction": 0.003665819892145394,
+          "launch_geometry": [
+            {
+              "threads": 128,
+              "registers_per_thread": 239,
+              "shared_bytes_per_block": 98304,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 192,
+              "resource_only_resident_blocks_upper_bound": 1,
+              "resource_only_thread_occupancy_upper_bound": 0.08333333333333333,
+              "count": 128
+            }
+          ]
+        },
+        {
+          "name": "rmsnorm_cta_bf16x2_kernel",
+          "count": 1032,
+          "seconds": 0.004704295,
+          "fraction": 0.002340550410923409,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 36,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 512,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 1032
+            }
+          ]
+        },
+        {
+          "name": "rmsnorm_warp_bf16x2_kernel",
+          "count": 384,
+          "seconds": 0.004531818,
+          "fraction": 0.002254737103461858,
+          "launch_geometry": [
+            {
+              "threads": 512,
+              "registers_per_thread": 32,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 1536,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 384
+            }
+          ]
+        },
+        {
+          "name": "bf16_gdn_gating_proj_gemm_mma_kernel",
+          "count": 384,
+          "seconds": 0.003785978,
+          "fraction": 0.0018836557579078237,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 64,
+              "shared_bytes_per_block": 40960,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 96,
+              "resource_only_resident_blocks_upper_bound": 2,
+              "resource_only_thread_occupancy_upper_bound": 0.3333333333333333,
+              "count": 384
+            }
+          ]
+        },
+        {
+          "name": "l2norm_warp_bf16x2_kernel",
+          "count": 768,
+          "seconds": 0.001685474,
+          "fraction": 0.0008385819476246115,
+          "launch_geometry": [
+            {
+              "threads": 512,
+              "registers_per_thread": 20,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 512,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 768
+            }
+          ]
+        },
+        {
+          "name": "qk_rmsnorm_rope_kernel",
+          "count": 128,
+          "seconds": 0.000841843,
+          "fraction": 0.0004188461777127062,
+          "launch_geometry": [
+            {
+              "threads": 128,
+              "registers_per_thread": 30,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 3584,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 128
+            }
+          ]
+        },
+        {
+          "name": "sigmoid_gate_mul_bf16x8_kernel",
+          "count": 128,
+          "seconds": 0.000673361,
+          "fraction": 0.00033502052172531643,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 26,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 1536,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 128
+            }
+          ]
+        },
+        {
+          "name": "causal_conv1d_prefill_state_kernel",
+          "count": 384,
+          "seconds": 0.000598508,
+          "fraction": 0.00029777855031220353,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 34,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 40,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 384
+            }
+          ]
+        },
+        {
+          "name": "kv_cache_append_full_bf16_kernel",
+          "count": 128,
+          "seconds": 0.000284329,
+          "fraction": 0.0001414635684597675,
+          "launch_geometry": [
+            {
+              "threads": 128,
+              "registers_per_thread": 18,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 512,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 128
+            }
+          ]
+        },
+        {
+          "name": "embed_gather_q8_packed_5120_kernel",
+          "count": 8,
+          "seconds": 3.1456e-05,
+          "fraction": 1.5650454260629222e-05,
+          "launch_geometry": [
+            {
+              "threads": 128,
+              "registers_per_thread": 27,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 2560,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 8
+            }
+          ]
+        },
+        {
+          "name": "set_i32_scalar_kernel",
+          "count": 24,
+          "seconds": 2.5312e-05,
+          "fraction": 1.2593600529153321e-05,
+          "launch_geometry": [
+            {
+              "threads": 1,
+              "registers_per_thread": 16,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 1,
+              "resource_only_resident_blocks_upper_bound": 24,
+              "resource_only_thread_occupancy_upper_bound": 0.015625,
+              "count": 24
+            }
+          ]
+        },
+        {
+          "name": "sampling_group_finalize_sample_kernel",
+          "count": 8,
+          "seconds": 1.904e-05,
+          "fraction": 9.473062344938339e-06,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 34,
+              "shared_bytes_per_block": 4416,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 20,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 8
+            }
+          ]
+        },
+        {
+          "name": "sampling_partial_topk_kernel",
+          "count": 8,
+          "seconds": 1.8337e-05,
+          "fraction": 9.123295389660417e-06,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 23,
+              "shared_bytes_per_block": 4168,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 485,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 8
+            }
+          ]
+        },
+        {
+          "name": "fill_i32_positions_kernel",
+          "count": 8,
+          "seconds": 6.56e-06,
+          "fraction": 3.2638282028779154e-06,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 16,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 2,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 8
+            }
+          ]
+        }
+      ]
+    },
+    "decode": {
+      "kernel_count": 22724,
+      "summed_kernel_seconds": 0.734753168,
+      "projection_fraction": 0.8620356979529212,
+      "top_kernels": [
+        {
+          "name": "ada_small_t_mma_kernel",
+          "count": 6912,
+          "seconds": 0.429694182,
+          "fraction": 0.5848143304636966,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 72,
+              "shared_bytes_per_block": 9728,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 320,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 0.5,
+              "count": 2304
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 70,
+              "shared_bytes_per_block": 9728,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 2176,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 0.5,
+              "count": 2304
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 64,
+              "shared_bytes_per_block": 24320,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 128,
+              "resource_only_resident_blocks_upper_bound": 4,
+              "resource_only_thread_occupancy_upper_bound": 0.6666666666666666,
+              "count": 2304
+            }
+          ]
+        },
+        {
+          "name": "ada_small_t_mma_dual_kernel",
+          "count": 2432,
+          "seconds": 0.123791195,
+          "fraction": 0.16847997448852103,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 64,
+              "shared_bytes_per_block": 9728,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 1024,
+              "resource_only_resident_blocks_upper_bound": 4,
+              "resource_only_thread_occupancy_upper_bound": 0.6666666666666666,
+              "count": 1824
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 63,
+              "shared_bytes_per_block": 9728,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 896,
+              "resource_only_resident_blocks_upper_bound": 4,
+              "resource_only_thread_occupancy_upper_bound": 0.6666666666666666,
+              "count": 608
+            }
+          ]
+        },
+        {
+          "name": "recurrent_batch_update_kernel",
+          "count": 1824,
+          "seconds": 0.056734284,
+          "fraction": 0.07721543297925597,
+          "launch_geometry": [
+            {
+              "threads": 128,
+              "registers_per_thread": 53,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 384,
+              "resource_only_resident_blocks_upper_bound": 9,
+              "resource_only_thread_occupancy_upper_bound": 0.75,
+              "count": 96
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 53,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 768,
+              "resource_only_resident_blocks_upper_bound": 9,
+              "resource_only_thread_occupancy_upper_bound": 0.75,
+              "count": 96
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 53,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 1152,
+              "resource_only_resident_blocks_upper_bound": 9,
+              "resource_only_thread_occupancy_upper_bound": 0.75,
+              "count": 96
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 53,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 1536,
+              "resource_only_resident_blocks_upper_bound": 9,
+              "resource_only_thread_occupancy_upper_bound": 0.75,
+              "count": 96
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 53,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 1920,
+              "resource_only_resident_blocks_upper_bound": 9,
+              "resource_only_thread_occupancy_upper_bound": 0.75,
+              "count": 96
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 53,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 2304,
+              "resource_only_resident_blocks_upper_bound": 9,
+              "resource_only_thread_occupancy_upper_bound": 0.75,
+              "count": 96
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 53,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 2688,
+              "resource_only_resident_blocks_upper_bound": 9,
+              "resource_only_thread_occupancy_upper_bound": 0.75,
+              "count": 96
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 53,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 3072,
+              "resource_only_resident_blocks_upper_bound": 9,
+              "resource_only_thread_occupancy_upper_bound": 0.75,
+              "count": 1152
+            }
+          ]
+        },
+        {
+          "name": "q8_ksplit_mma_kernel",
+          "count": 38,
+          "seconds": 0.055846257,
+          "fraction": 0.07600682709815822,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 77,
+              "shared_bytes_per_block": 16896,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 15520,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 0.5,
+              "count": 38
+            }
+          ]
+        },
+        {
+          "name": "causal_attention_small_t_tc_partial_bf16_kernel",
+          "count": 608,
+          "seconds": 0.019815916,
+          "fraction": 0.02696948698287205,
+          "launch_geometry": [
+            {
+              "threads": 64,
+              "registers_per_thread": 255,
+              "shared_bytes_per_block": 35072,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 128,
+              "resource_only_resident_blocks_upper_bound": 2,
+              "resource_only_thread_occupancy_upper_bound": 0.08333333333333333,
+              "count": 32
+            },
+            {
+              "threads": 64,
+              "registers_per_thread": 255,
+              "shared_bytes_per_block": 35072,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 256,
+              "resource_only_resident_blocks_upper_bound": 2,
+              "resource_only_thread_occupancy_upper_bound": 0.08333333333333333,
+              "count": 32
+            },
+            {
+              "threads": 64,
+              "registers_per_thread": 255,
+              "shared_bytes_per_block": 35072,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 324,
+              "resource_only_resident_blocks_upper_bound": 2,
+              "resource_only_thread_occupancy_upper_bound": 0.08333333333333333,
+              "count": 32
+            },
+            {
+              "threads": 64,
+              "registers_per_thread": 255,
+              "shared_bytes_per_block": 35072,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 320,
+              "resource_only_resident_blocks_upper_bound": 2,
+              "resource_only_thread_occupancy_upper_bound": 0.08333333333333333,
+              "count": 448
+            },
+            {
+              "threads": 64,
+              "registers_per_thread": 255,
+              "shared_bytes_per_block": 35072,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 336,
+              "resource_only_resident_blocks_upper_bound": 2,
+              "resource_only_thread_occupancy_upper_bound": 0.08333333333333333,
+              "count": 64
+            }
+          ]
+        },
+        {
+          "name": "q4_linear_swiglu_gemv_pair_kernel",
+          "count": 128,
+          "seconds": 0.013594286,
+          "fraction": 0.018501840607239136,
+          "launch_geometry": [
+            {
+              "threads": 128,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 23296,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 4352,
+              "resource_only_resident_blocks_upper_bound": 4,
+              "resource_only_thread_occupancy_upper_bound": 0.3333333333333333,
+              "count": 128
+            }
+          ]
+        },
+        {
+          "name": "q4_rowsplit_gemv_kernel",
+          "count": 256,
+          "seconds": 0.010407203,
+          "fraction": 0.014164216574020951,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 32,
+              "shared_bytes_per_block": 4128,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 5120,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 128
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 33,
+              "shared_bytes_per_block": 4128,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 5120,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 128
+            }
+          ]
+        },
+        {
+          "name": "gdn_norm_gating_27_simt",
+          "count": 1824,
+          "seconds": 0.007463752,
+          "fraction": 0.01015817600394477,
+          "launch_geometry": [
+            {
+              "threads": 512,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 196,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 48,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 512,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 196,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 96,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 512,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 392,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 96,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 192
+            },
+            {
+              "threads": 512,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 392,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 144,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 192
+            },
+            {
+              "threads": 512,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 392,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 192,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 1248
+            }
+          ]
+        },
+        {
+          "name": "rmsnorm_cta_bf16x2_kernel",
+          "count": 3078,
+          "seconds": 0.005091219,
+          "fraction": 0.006929155560986979,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 36,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 1,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 162
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 36,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 2,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 162
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 36,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 3,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 162
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 36,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 4,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 162
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 36,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 5,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 162
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 36,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 6,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 162
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 36,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 7,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 162
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 40,
+              "shared_bytes_per_block": 36,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 8,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 1944
+            }
+          ]
+        },
+        {
+          "name": "gdn_projected_conv_kernel",
+          "count": 1824,
+          "seconds": 0.004135506,
+          "fraction": 0.00562842894744756,
+          "launch_geometry": [
+            {
+              "threads": 64,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 160,
+              "resource_only_resident_blocks_upper_bound": 24,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 64,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 320,
+              "resource_only_resident_blocks_upper_bound": 24,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 64,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 480,
+              "resource_only_resident_blocks_upper_bound": 24,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 64,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 640,
+              "resource_only_resident_blocks_upper_bound": 24,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 64,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 800,
+              "resource_only_resident_blocks_upper_bound": 24,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 64,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 960,
+              "resource_only_resident_blocks_upper_bound": 24,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 64,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 1120,
+              "resource_only_resident_blocks_upper_bound": 24,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 64,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 1280,
+              "resource_only_resident_blocks_upper_bound": 24,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 1152
+            }
+          ]
+        },
+        {
+          "name": "rmsnorm_warp_bf16x2_kernel",
+          "count": 1824,
+          "seconds": 0.004030126,
+          "fraction": 0.005485006632866944,
+          "launch_geometry": [
+            {
+              "threads": 512,
+              "registers_per_thread": 32,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 3,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 512,
+              "registers_per_thread": 32,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 6,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 512,
+              "registers_per_thread": 32,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 9,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 512,
+              "registers_per_thread": 32,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 12,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 512,
+              "registers_per_thread": 32,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 15,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 512,
+              "registers_per_thread": 32,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 18,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 512,
+              "registers_per_thread": 32,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 21,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 96
+            },
+            {
+              "threads": 512,
+              "registers_per_thread": 32,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 24,
+              "resource_only_resident_blocks_upper_bound": 3,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 1152
+            }
+          ]
+        },
+        {
+          "name": "causal_attention_small_t_reduce_output_kernel",
+          "count": 608,
+          "seconds": 0.001842444,
+          "fraction": 0.0025075686369820456,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 34,
+              "shared_bytes_per_block": 1072,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 24,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 1072,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 48,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 1072,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 72,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 1072,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 96,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 1072,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 120,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 1072,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 144,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 1072,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 168,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 1072,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 192,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 384
+            }
+          ]
+        },
+        {
+          "name": "qk_rmsnorm_rope_kernel",
+          "count": 608,
+          "seconds": 0.001002194,
+          "fraction": 0.001363987313900224,
+          "launch_geometry": [
+            {
+              "threads": 128,
+              "registers_per_thread": 30,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 7,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 30,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 14,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 30,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 21,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 30,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 28,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 30,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 35,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 30,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 42,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 30,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 49,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 30,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 56,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 384
+            }
+          ]
+        },
+        {
+          "name": "sigmoid_gate_mul_bf16x8_kernel",
+          "count": 608,
+          "seconds": 0.000825489,
+          "fraction": 0.0011234915832305742,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 26,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 3,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 26,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 6,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 26,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 9,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 26,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 12,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 26,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 15,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 26,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 18,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 26,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 21,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 32
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 26,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 24,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 384
+            }
+          ]
+        },
+        {
+          "name": "sampling_partial_topk_kernel",
+          "count": 38,
+          "seconds": 0.000269895,
+          "fraction": 0.0003673274396824377,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 23,
+              "shared_bytes_per_block": 4168,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 485,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 23,
+              "shared_bytes_per_block": 4168,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 970,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 23,
+              "shared_bytes_per_block": 4168,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 1455,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 23,
+              "shared_bytes_per_block": 4168,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 1940,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 23,
+              "shared_bytes_per_block": 4168,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 2425,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 23,
+              "shared_bytes_per_block": 4168,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 2910,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 23,
+              "shared_bytes_per_block": 4168,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 3395,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 23,
+              "shared_bytes_per_block": 4168,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 3880,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 24
+            }
+          ]
+        },
+        {
+          "name": "sampling_group_finalize_sample_kernel",
+          "count": 38,
+          "seconds": 8.8705e-05,
+          "fraction": 0.00012072761828500208,
+          "launch_geometry": [
+            {
+              "threads": 256,
+              "registers_per_thread": 34,
+              "shared_bytes_per_block": 4416,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 20,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 34,
+              "shared_bytes_per_block": 4416,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 40,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 34,
+              "shared_bytes_per_block": 4416,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 60,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 34,
+              "shared_bytes_per_block": 4416,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 80,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 34,
+              "shared_bytes_per_block": 4416,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 100,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 34,
+              "shared_bytes_per_block": 4416,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 120,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 34,
+              "shared_bytes_per_block": 4416,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 140,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 256,
+              "registers_per_thread": 34,
+              "shared_bytes_per_block": 4416,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 160,
+              "resource_only_resident_blocks_upper_bound": 6,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 24
+            }
+          ]
+        },
+        {
+          "name": "scatter_bf16x8_kernel",
+          "count": 38,
+          "seconds": 7.0178e-05,
+          "fraction": 9.551234762420242e-05,
+          "launch_geometry": [
+            {
+              "threads": 128,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 1,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 2,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 3,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 4,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 5,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 6,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 7,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 38,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 8,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 24
+            }
+          ]
+        },
+        {
+          "name": "embed_gather_q8_packed_5120_kernel",
+          "count": 38,
+          "seconds": 5.0337e-05,
+          "fraction": 6.850872128529564e-05,
+          "launch_geometry": [
+            {
+              "threads": 128,
+              "registers_per_thread": 28,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 10,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 28,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 20,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 28,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 30,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 28,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 40,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 28,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 50,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 28,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 60,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 28,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 70,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 2
+            },
+            {
+              "threads": 128,
+              "registers_per_thread": 28,
+              "shared_bytes_per_block": 0,
+              "local_memory_bytes_per_thread": 0,
+              "grid_blocks": 80,
+              "resource_only_resident_blocks_upper_bound": 12,
+              "resource_only_thread_occupancy_upper_bound": 1.0,
+              "count": 24
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "api": {
+    "cuProfilerStart": {
+      "count": 1,
+      "seconds": 2.072e-05
+    },
+    "cudaMemsetAsync_v3020": {
+      "count": 776,
+      "seconds": 0.003799974
+    },
+    "cudaMemcpyAsync_v3020": {
+      "count": 96,
+      "seconds": 0.0007336
+    },
+    "cuKernelGetName": {
+      "count": 6728,
+      "seconds": 0.000896906
+    },
+    "cudaLaunchKernel_v7000": {
+      "count": 6728,
+      "seconds": 0.038056567
+    },
+    "cudaLaunchKernelExC_v11060": {
+      "count": 384,
+      "seconds": 0.002362138
+    },
+    "cudaStreamSynchronize_v3020": {
+      "count": 54,
+      "seconds": 2.690979526
+    },
+    "cudaGraphLaunch_v10000": {
+      "count": 38,
+      "seconds": 0.045390662
+    }
+  },
+  "kernel_timeline_span_seconds": 2.8031893,
+  "kernel_interval_coverage_fraction": 0.9791128005518571,
+  "limitations": [
+    "Instrumented durations are not unprofiled throughput.",
+    "Resource-only ceilings ignore register-allocation granularity, grid waves and runtime stalls; not achieved occupancy.",
+    "Local memory includes compiler stack/storage; a nonzero field alone does not establish spills.",
+    "Kernel interval coverage is not SM utilization; no DRAM throughput or tensor-core utilization counters."
+  ]
+}

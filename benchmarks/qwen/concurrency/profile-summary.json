@@ -1,0 +1,362 @@
+{
+  "profiles": {
+    "profile-c1-node": {
+      "prefill": {
+        "kernel_count": 7112,
+        "summed_kernel_seconds": 2.001012708,
+        "projection_fraction": 0.9638244831176754,
+        "top_kernels": [
+          {
+            "name": "q4_linear_swiglu_mma_split_half_pair_kernel",
+            "count": 512,
+            "seconds": 0.870999372,
+            "fraction": 0.43527928059515353
+          },
+          {
+            "name": "q4_rowsplit_gemm_mma_kernel",
+            "count": 1024,
+            "seconds": 0.641049334,
+            "fraction": 0.3203624501918955
+          },
+          {
+            "name": "rowsplit_grouped_mma_kernel",
+            "count": 512,
+            "seconds": 0.401352655,
+            "fraction": 0.2005747656651064
+          },
+          {
+            "name": "state_passing_kernel",
+            "count": 384,
+            "seconds": 0.020338928,
+            "fraction": 0.010164317257299497
+          },
+          {
+            "name": "prepare_wy_wu_kernel",
+            "count": 384,
+            "seconds": 0.015088914,
+            "fraction": 0.007540638767397573
+          },
+          {
+            "name": "q8_ksplit_mma_kernel",
+            "count": 8,
+            "seconds": 0.011429188,
+            "fraction": 0.0057117018569179424
+          },
+          {
+            "name": "output_kernel",
+            "count": 384,
+            "seconds": 0.008159293,
+            "fraction": 0.004077581800145169
+          },
+          {
+            "name": "causal_conv1d_prefill_pairs_kernel",
+            "count": 384,
+            "seconds": 0.008150179,
+            "fraction": 0.004073027106432549
+          }
+        ]
+      },
+      "decode": {
+        "kernel_count": 148304,
+        "summed_kernel_seconds": 4.386238536,
+        "projection_fraction": 0.9429329702555875,
+        "top_kernels": [
+          {
+            "name": "q4_linear_swiglu_gemv_pair_kernel",
+            "count": 15872,
+            "seconds": 1.685934604,
+            "fraction": 0.384369110380731
+          },
+          {
+            "name": "q4_rowsplit_gemv_kernel",
+            "count": 31744,
+            "seconds": 1.291518629,
+            "fraction": 0.2944478779254426
+          },
+          {
+            "name": "ada_small_t_mma_dual_kernel",
+            "count": 15872,
+            "seconds": 0.807369972,
+            "fraction": 0.1840688702571738
+          },
+          {
+            "name": "q8_ksplit_mma_kernel",
+            "count": 248,
+            "seconds": 0.350783258,
+            "fraction": 0.07997359357475674
+          },
+          {
+            "name": "recurrent_batch_update_kernel",
+            "count": 11904,
+            "seconds": 0.057175798,
+            "fraction": 0.01303526872301411
+          },
+          {
+            "name": "causal_attention_small_t_tc_partial_bf16_kernel",
+            "count": 3968,
+            "seconds": 0.055932962,
+            "fraction": 0.012751919792079453
+          },
+          {
+            "name": "gdn_norm_gating_27_simt",
+            "count": 11904,
+            "seconds": 0.035026743,
+            "fraction": 0.007985599212746509
+          },
+          {
+            "name": "rmsnorm_cta_bf16x2_kernel",
+            "count": 20088,
+            "seconds": 0.033035369,
+            "fraction": 0.00753159426439365
+          }
+        ]
+      }
+    },
+    "profile-c8-node": {
+      "prefill": {
+        "kernel_count": 7112,
+        "summed_kernel_seconds": 2.009909711,
+        "projection_fraction": 0.963733125124445,
+        "top_kernels": [
+          {
+            "name": "q4_linear_swiglu_mma_split_half_pair_kernel",
+            "count": 512,
+            "seconds": 0.87480736,
+            "fraction": 0.4352470935446911
+          },
+          {
+            "name": "q4_rowsplit_gemm_mma_kernel",
+            "count": 1024,
+            "seconds": 0.64374523,
+            "fraction": 0.32028564590581254
+          },
+          {
+            "name": "rowsplit_grouped_mma_kernel",
+            "count": 512,
+            "seconds": 0.403214642,
+            "fraction": 0.2006133110324576
+          },
+          {
+            "name": "state_passing_kernel",
+            "count": 384,
+            "seconds": 0.020504889,
+            "fraction": 0.010201895581567247
+          },
+          {
+            "name": "prepare_wy_wu_kernel",
+            "count": 384,
+            "seconds": 0.015320699,
+            "fraction": 0.007622580714024919
+          },
+          {
+            "name": "q8_ksplit_mma_kernel",
+            "count": 8,
+            "seconds": 0.011431901,
+            "fraction": 0.0056877684293152805
+          },
+          {
+            "name": "output_kernel",
+            "count": 384,
+            "seconds": 0.008201947,
+            "fraction": 0.00408075395382773
+          },
+          {
+            "name": "causal_conv1d_prefill_pairs_kernel",
+            "count": 384,
+            "seconds": 0.008108765,
+            "fraction": 0.004034392667303253
+          }
+        ]
+      },
+      "decode": {
+        "kernel_count": 22724,
+        "summed_kernel_seconds": 0.734753168,
+        "projection_fraction": 0.8620356979529212,
+        "top_kernels": [
+          {
+            "name": "ada_small_t_mma_kernel",
+            "count": 6912,
+            "seconds": 0.429694182,
+            "fraction": 0.5848143304636966
+          },
+          {
+            "name": "ada_small_t_mma_dual_kernel",
+            "count": 2432,
+            "seconds": 0.123791195,
+            "fraction": 0.16847997448852103
+          },
+          {
+            "name": "recurrent_batch_update_kernel",
+            "count": 1824,
+            "seconds": 0.056734284,
+            "fraction": 0.07721543297925597
+          },
+          {
+            "name": "q8_ksplit_mma_kernel",
+            "count": 38,
+            "seconds": 0.055846257,
+            "fraction": 0.07600682709815822
+          },
+          {
+            "name": "causal_attention_small_t_tc_partial_bf16_kernel",
+            "count": 608,
+            "seconds": 0.019815916,
+            "fraction": 0.02696948698287205
+          },
+          {
+            "name": "q4_linear_swiglu_gemv_pair_kernel",
+            "count": 128,
+            "seconds": 0.013594286,
+            "fraction": 0.018501840607239136
+          },
+          {
+            "name": "q4_rowsplit_gemv_kernel",
+            "count": 256,
+            "seconds": 0.010407203,
+            "fraction": 0.014164216574020951
+          },
+          {
+            "name": "gdn_norm_gating_27_simt",
+            "count": 1824,
+            "seconds": 0.007463752,
+            "fraction": 0.01015817600394477
+          }
+        ]
+      }
+    },
+    "profile-cache-node": {
+      "prefill": {
+        "kernel_count": 1825,
+        "summed_kernel_seconds": 0.050705923,
+        "projection_fraction": 0.919574287209011,
+        "top_kernels": [
+          {
+            "name": "ada_small_t_mma_kernel",
+            "count": 576,
+            "seconds": 0.035277152,
+            "fraction": 0.6957205374212397
+          },
+          {
+            "name": "ada_small_t_mma_dual_kernel",
+            "count": 192,
+            "seconds": 0.009894327,
+            "fraction": 0.19513158255693325
+          },
+          {
+            "name": "q8_ksplit_mma_kernel",
+            "count": 1,
+            "seconds": 0.00145248,
+            "fraction": 0.028645174253114376
+          },
+          {
+            "name": "recurrent_bf16_direct_kernel",
+            "count": 144,
+            "seconds": 0.001248957,
+            "fraction": 0.024631382807093365
+          },
+          {
+            "name": "causal_attention_small_t_tc_partial_bf16_kernel",
+            "count": 64,
+            "seconds": 0.001006612,
+            "fraction": 0.01985196088433298
+          },
+          {
+            "name": "gdn_norm_gating_27_simt",
+            "count": 144,
+            "seconds": 0.000583529,
+            "fraction": 0.011508103303829021
+          },
+          {
+            "name": "rmsnorm_cta_bf16x2_kernel",
+            "count": 243,
+            "seconds": 0.000411973,
+            "fraction": 0.008124751027606774
+          },
+          {
+            "name": "rmsnorm_warp_bf16x2_kernel",
+            "count": 144,
+            "seconds": 0.000252611,
+            "fraction": 0.004981883477399672
+          }
+        ]
+      },
+      "decode": {
+        "kernel_count": 18538,
+        "summed_kernel_seconds": 0.548934155,
+        "projection_fraction": 0.9417997938204447,
+        "top_kernels": [
+          {
+            "name": "q4_linear_swiglu_gemv_pair_kernel",
+            "count": 1984,
+            "seconds": 0.210944412,
+            "fraction": 0.38427999073950864
+          },
+          {
+            "name": "q4_rowsplit_gemv_kernel",
+            "count": 3968,
+            "seconds": 0.161217346,
+            "fraction": 0.2936915922092696
+          },
+          {
+            "name": "ada_small_t_mma_dual_kernel",
+            "count": 1984,
+            "seconds": 0.100930218,
+            "fraction": 0.18386580080811332
+          },
+          {
+            "name": "q8_ksplit_mma_kernel",
+            "count": 31,
+            "seconds": 0.043854705,
+            "fraction": 0.0798906473582428
+          },
+          {
+            "name": "causal_attention_small_t_tc_partial_bf16_kernel",
+            "count": 496,
+            "seconds": 0.007513629,
+            "fraction": 0.013687668970060718
+          },
+          {
+            "name": "recurrent_batch_update_kernel",
+            "count": 1488,
+            "seconds": 0.007178303,
+            "fraction": 0.013076801533692142
+          },
+          {
+            "name": "gdn_norm_gating_27_simt",
+            "count": 1488,
+            "seconds": 0.004388058,
+            "fraction": 0.007993778415919483
+          },
+          {
+            "name": "rmsnorm_cta_bf16x2_kernel",
+            "count": 2511,
+            "seconds": 0.004103194,
+            "fraction": 0.007474838216252002
+          }
+        ]
+      }
+    }
+  },
+  "logical_encoded_input_estimates": [
+    {
+      "kernel": "q4_linear_swiglu_gemv_pair_kernel",
+      "n": 34816,
+      "k": 5120,
+      "encoded_weight_bytes": 94699520,
+      "mean_kernel_seconds": 0.00010622067817540323,
+      "logical_encoded_bytes_per_second": 891535637191.2988,
+      "fraction_of_nominal_memory_peak": 0.8843722221915473,
+      "note": "Analytical encoded-input throughput, assuming each code/FP16-scale byte read once as in selected source. NOT measured DRAM traffic or bandwidth utilization."
+    },
+    {
+      "kernel": "q8_ksplit_mma_kernel",
+      "n": 248320,
+      "k": 5120,
+      "encoded_weight_bytes": 1350860800,
+      "mean_kernel_seconds": 0.0014144486209677419,
+      "logical_encoded_bytes_per_second": 955044092782.7861,
+      "fraction_of_nominal_memory_peak": 0.9473703926027043,
+      "note": "Analytical encoded-input throughput, assuming each code/FP16-scale byte read once as in selected source. NOT measured DRAM traffic or bandwidth utilization."
+    }
+  ]
+}

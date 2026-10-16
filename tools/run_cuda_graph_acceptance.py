@@ -15,6 +15,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("checkpoint")
     parser.add_argument("--output", required=True)
+    parser.add_argument("--prefill-graphs", action="store_true")
     args = parser.parse_args()
     torch.set_num_threads(8)
     model = GPTNeoXModel(load_checkpoint(args.checkpoint, require_float_dtype="F16"))
@@ -25,7 +26,8 @@ def main():
     for prompt, budget in (("Once upon a time", 32), ("The capital of France is", 128)):
         ids = tokenizer.encode(prompt)
         graph = model.create_cuda_graph_session(
-            len(ids) + budget, decode_start=len(ids), decode_steps=budget - 1
+            len(ids) + budget, decode_start=len(ids), decode_steps=budget - 1,
+            prefill_lengths=(len(ids),) if args.prefill_graphs else (),
         )
         eager = model.create_session(len(ids) + budget)
         expected = eager.forward(ids)
@@ -59,6 +61,7 @@ def main():
             "bit_exact_teacher_rows": budget, "bit_exact_greedy_ids": True,
             "changed_prompt_isolated": True, "preparation_seconds": graph.preparation_seconds,
             "graph_count": graph.decode_steps, "generated_ids": actual_result.generated_ids,
+            "prefill_graph_count": 1 if args.prefill_graphs else 0,
         })
         del graph, eager
     report = {

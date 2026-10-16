@@ -1,0 +1,37 @@
+Running eager-a
+eager-a prose 56.046607111031996
+eager-a code 56.000749214180935
+eager-a long-512 55.625709064636425
+Running graph-a
+graph-a prose 57.19508027002559
+graph-a code 57.16162590874406
+graph-a long-512 56.787998517638854
+Running graph-b
+graph-b prose 57.143284069824155
+graph-b code 57.09942543154645
+graph-b long-512 56.730723593920196
+Running eager-b
+eager-b prose 55.969739659691065
+eager-b code 55.95851458153005
+eager-b long-512 55.595167566417096
+Running graph-prefill512
+graph-prefill512 prose 57.133318839175175
+graph-prefill512 code 57.10717433630039
+graph-prefill512 long-512 56.7446177474269
+Running dflash-chain8
+dflash-chain8 prose 162.07263377732122
+dflash-chain8 code 341.96798823660276
+dflash-chain8 long-512 403.04131463961005
+Running dflash-tree15
+Traceback (most recent call last):
+  File "/home/test/wangyue/venturi-work/qwen/src/tools/run_qwen_validation.py", line 344, in <module>
+    main()
+  File "/home/test/wangyue/venturi-work/qwen/src/tools/run_qwen_validation.py", line 200, in main
+    with QwenNativeSession(args.checkpoint, **{**options, **extra}) as session:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/test/wangyue/venturi-work/qwen/src/src/venturi/backends/qwen.py", line 117, in __init__
+    self.ready = self._exchange(self.config)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/test/wangyue/venturi-work/qwen/src/src/venturi/backends/qwen.py", line 167, in _exchange
+    raise ValueError(
+ValueError: Qwen native error: verify trees require DFlash2 with K=15, the k8v4 or int8 KV cache and 24x256 attention

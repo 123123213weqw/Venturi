@@ -1,0 +1,27 @@
+........................................................................ [ 23%]
+........................................................................ [ 46%]
+........................................................................ [ 69%]
+.............................................................F.......... [ 92%]
+......................                                                   [100%]
+=================================== FAILURES ===================================
+______________________ test_cli_explicit_backend_and_json ______________________
+tests/test_qwen_backend.py:175: in test_cli_explicit_backend_and_json
+    assert "explicit --runner" in capsys.readouterr().err
+E   AssertionError: assert 'explicit --runner' in 'venturi qwen: max_context must be an integer in [16,64]\n'
+E    +  where 'venturi qwen: max_context must be an integer in [16,64]\n' = CaptureResult(out='', err='venturi qwen: max_context must be an integer in [16,64]\n').err
+E    +    where CaptureResult(out='', err='venturi qwen: max_context must be an integer in [16,64]\n') = readouterr()
+E    +      where readouterr = <_pytest.capture.CaptureFixture object at 0x73de3463a9f0>.readouterr
+=============================== warnings summary ===============================
+tests/test_loader.py::test_real_siphon_cuda_round_trip[None]
+tests/test_loader.py::test_real_siphon_cuda_round_trip[BUFFERED]
+  /home/test/wangyue/venturi-work/qwen/src/src/venturi/loader.py:75: RuntimeWarning: Shrink io_depth from 512 to 1 to fit buffer_size=8388608.
+    safe_open(
+
+tests/test_loader.py::test_real_siphon_cuda_round_trip[MMAP]
+  /home/test/wangyue/venturi-work/qwen/src/src/venturi/loader.py:75: RuntimeWarning: Shrink io_depth from 96 to 4 to fit buffer_size=8388608.
+    safe_open(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_qwen_backend.py::test_cli_explicit_backend_and_json - Asser...
+1 failed, 309 passed, 3 warnings in 22.48s

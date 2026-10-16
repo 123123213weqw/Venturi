@@ -54,6 +54,25 @@ def test_future_tokens_do_not_change_earlier_logits(make_model):
     torch.testing.assert_close(first[:2], second[:2], rtol=0, atol=0)
 
 
+@pytest.mark.parametrize("all_logits", [False, True])
+def test_final_norm_only_processes_requested_rows(make_model, monkeypatch, all_logits):
+    model, config, weights, _ = make_model()
+    original_norm = model._norm
+    shapes = []
+
+    def record_norm(hidden, prefix):
+        if prefix == "gpt_neox.final_layer_norm":
+            shapes.append(tuple(hidden.shape))
+        return original_norm(hidden, prefix)
+
+    monkeypatch.setattr(model, "_norm", record_norm)
+    ids = [2, 5, 11, 17]
+    actual = model.create_session(8).forward(ids, all_logits=all_logits)
+    expected = full_logits(ids, config, weights)
+    assert shapes == [(4, model.config.hidden_size) if all_logits else (model.config.hidden_size,)]
+    torch.testing.assert_close(actual, expected if all_logits else expected[-1], rtol=2e-11, atol=2e-11)
+
+
 def test_outer_autocast_does_not_change_declared_dtype(make_model):
     model, *_ = make_model(dtype=torch.float32)
     expected = model.create_session(8).forward([2, 3, 4])

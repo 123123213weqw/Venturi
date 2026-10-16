@@ -254,12 +254,14 @@ class GPTNeoXModel:
         return GPTNeoXSession(self, capacity)
 
     def create_cuda_graph_session(
-        self, capacity: int, *, decode_start: int, decode_steps: int
+        self, capacity: int, *, decode_start: int, decode_steps: int,
+        prefill_lengths: Sequence[int] = (),
     ):
         from .cuda_graph import GPTNeoXCUDAGraphSession
 
         return GPTNeoXCUDAGraphSession(
-            self, capacity, decode_start=decode_start, decode_steps=decode_steps
+            self, capacity, decode_start=decode_start, decode_steps=decode_steps,
+            prefill_lengths=prefill_lengths,
         )
 
     def _linear(self, x, prefix):
@@ -419,9 +421,11 @@ class GPTNeoXSession:
                 if config.use_parallel_residual
                 else mlp + hidden
             )
-        hidden = model._norm(hidden, "gpt_neox.final_layer_norm")
-        logits = F.linear(
-            hidden if all_logits else hidden[-1], model._weights["embed_out.weight"]
+        # Final normalization is token-local. Next-token generation needs only
+        # the last row; retain every row for scoring/training-style callers.
+        hidden = model._norm(
+            hidden if all_logits else hidden[-1], "gpt_neox.final_layer_norm"
         )
+        logits = F.linear(hidden, model._weights["embed_out.weight"])
         self._position = end
         return logits

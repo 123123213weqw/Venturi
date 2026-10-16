@@ -1,0 +1,215 @@
+{
+  "recorded_at_utc": "2026-10-16T01:51:39.348539+00:00",
+  "base_commit": "ff08268225d830127dbe7aa29d6efc916bebc213",
+  "uncommitted_changes": true,
+  "published": false,
+  "remote_source": "School_4090D:/home/test/wangyue/venturi-work/text-generation",
+  "remote_evidence": "School_4090D:/home/test/wangyue/venturi-work/prefill-basic-validation",
+  "runtime": {
+    "python": "3.12.3",
+    "torch": "2.9.1+cu130",
+    "cuda": "13.0",
+    "gpu": "RTX 4090 D",
+    "driver": "580.178.04"
+  },
+  "checkpoint": {
+    "model": "EleutherAI/pythia-70m",
+    "revision": "a39f36b100fe8a5377810d56c3f4789b9c53ac42",
+    "sha256": "ebfa4e2f18696ebd83716a0d39fe2c025f2ff8483f72a83ca59c475692fc9d15"
+  },
+  "changes": [
+    "Select final hidden row before token-local final LayerNorm for last-logit requests.",
+    "Opt-in exact-length prefill CUDA graphs with checked greedy selection; eager fallback for unprepared/all-logits/cached-chunk requests.",
+    "CLI graph mode prepares the actual prompt length. Python prefill_lengths defaults to empty for backward compatibility."
+  ],
+  "schedule": {
+    "process_order": [
+      "eager-a",
+      "graph-a",
+      "graph-b",
+      "eager-b"
+    ],
+    "warmup_per_shape_per_process": 10,
+    "requests_per_shape_per_process": 50,
+    "cpu_threads": 8,
+    "capacity": "prompt length + 1",
+    "graph_plan": "one exact-length prefill graph plus one decode graph used only for untimed KV-continuation checks",
+    "prompt_ids": "(i * 7919 + 17) % vocab_size; reversed for changed-prompt checks",
+    "exclusive_engine_processes": true,
+    "background": "GNOME remote desktop, 354 MiB, unchanged; see background.csv"
+  },
+  "results": [
+    {
+      "prompt_tokens": 16,
+      "requests_per_mode": 100,
+      "eager_median_seconds": 0.004036342492327094,
+      "graph_median_seconds": 0.0004733924870379269,
+      "median_latency_speedup": 8.526418569891062,
+      "eager_prompt_tokens_per_second": 3578.1667059528836,
+      "graph_prompt_tokens_per_second": 34010.281576949834,
+      "per_process_median_seconds": {
+        "eager-a": 0.004033069533761591,
+        "graph-a": 0.0004756100242957473,
+        "graph-b": 0.0004630219773389399,
+        "eager-b": 0.0051823829708155245
+      },
+      "graph_preparation_seconds": [
+        0.41100934601854533,
+        0.40592719899723306
+      ],
+      "eager_allocator_baseline_bytes": 177768448,
+      "graph_allocator_baseline_bytes": 177973248
+    },
+    {
+      "prompt_tokens": 128,
+      "requests_per_mode": 100,
+      "eager_median_seconds": 0.005206590489251539,
+      "graph_median_seconds": 0.0005460155080072582,
+      "median_latency_speedup": 9.53560917757363,
+      "eager_prompt_tokens_per_second": 27052.255248475863,
+      "graph_prompt_tokens_per_second": 235208.20577067786,
+      "per_process_median_seconds": {
+        "eager-a": 0.004087121982593089,
+        "graph-a": 0.0005502880085259676,
+        "graph-b": 0.0005367165140341967,
+        "eager-b": 0.0052252500026952475
+      },
+      "graph_preparation_seconds": [
+        0.041125808958895504,
+        0.03152579895686358
+      ],
+      "eager_allocator_baseline_bytes": 179144704,
+      "graph_allocator_baseline_bytes": 188918272
+    },
+    {
+      "prompt_tokens": 512,
+      "requests_per_mode": 100,
+      "eager_median_seconds": 0.005380046524805948,
+      "graph_median_seconds": 0.0008156990224961191,
+      "median_latency_speedup": 6.595627034518783,
+      "eager_prompt_tokens_per_second": 94833.6575854136,
+      "graph_prompt_tokens_per_second": 629055.2171362401,
+      "per_process_median_seconds": {
+        "eager-a": 0.0055153284629341215,
+        "graph-a": 0.0008184964826796204,
+        "graph-b": 0.0008036780054681003,
+        "eager-b": 0.00534452497959137
+      },
+      "graph_preparation_seconds": [
+        0.05388263700297102,
+        0.04401994397630915
+      ],
+      "eager_allocator_baseline_bytes": 183863296,
+      "graph_allocator_baseline_bytes": 203208192
+    },
+    {
+      "prompt_tokens": 1024,
+      "requests_per_mode": 100,
+      "eager_median_seconds": 0.005569230008404702,
+      "graph_median_seconds": 0.0011599500139709562,
+      "median_latency_speedup": 4.801267245421275,
+      "eager_prompt_tokens_per_second": 185389.19245940272,
+      "graph_prompt_tokens_per_second": 844060.7538399118,
+      "per_process_median_seconds": {
+        "eager-a": 0.0055977779848035425,
+        "graph-a": 0.001163271488621831,
+        "graph-b": 0.001148164999904111,
+        "eager-b": 0.005430459015769884
+      },
+      "graph_preparation_seconds": [
+        0.04310123296454549,
+        0.03342202602652833
+      ],
+      "eager_allocator_baseline_bytes": 190154752,
+      "graph_allocator_baseline_bytes": 219072000
+    }
+  ],
+  "numerics": {
+    "reference": "Pre-change code at base_commit, same checkpoint/shape/precision; raw logits.pt retained only on GPU host.",
+    "checked_vectors_per_run": 24,
+    "timed_run_vector_checks": 96,
+    "byte_equal": true,
+    "max_abs_error": 0,
+    "full_generation_acceptance": "acceptance.json: 32/128 output tokens, all 160 teacher rows bit-exact, full greedy IDs match eager, changed prompt isolated.",
+    "not_claimed": [
+      "FP32 or llama.cpp equivalence",
+      "batch/cached scheduling invariance",
+      "arbitrary model/driver support"
+    ]
+  },
+  "tests": {
+    "gpu": {
+      "passed": 259,
+      "skipped": 0,
+      "expected_siphon_warnings": 3
+    },
+    "cpu": {
+      "passed": 210,
+      "skipped": 49
+    },
+    "ruff": "passed",
+    "git_diff_check": "passed"
+  },
+  "wheel": {
+    "file": "venturi_engine-0.1.0-py3-none-any.whl",
+    "sha256": "b70abe0d4813bf00940df6d5f7545379cf184d423e85b6222685dd231bbe7df0",
+    "verified_source_assets": 24
+  },
+  "scope": "Prefill plus finite-checked first-token selection, synchronized by host token read. Loading, tokenization, graph preparation and subsequent decode excluded. Warm, reused single-sequence FP16 sessions. PyTorch allocation is not whole-process GPU residency. Synthetic prompts, small GPT-NeoX model; no general or llama.cpp speedup claim. Host scheduling/clock variation affects eager dispatch timings. All exploratory and final raw runs retained; no best-run selection.",
+  "profiling": "Exploratory pre-change CPU-only operator trace contains six FlashAttention operator calls. It is instrumented, not GPU kernel timing or the throughput result.",
+  "post_measurement_changes": "Timed model/graph/generation implementation hashes match final files. After timings, CLI help wording was clarified and queued-replay/prefill-only unit tests were added; final GPU suite and CLI smoke test ran on those files. Each raw timing report preserves its original full source fingerprint.",
+  "source_sha256": {
+    "README.md": "8ac80a8bfa151fd9ba560aafc3ba79f45ca043c2a404f8f471bd549efd74c2f5",
+    "pyproject.toml": "c3cd507c976cb9e8af3e7891b272abb15e7830d9c6fadec4644a80a295b2396e",
+    "src/venturi/__init__.py": "641c5f6f0564502303bef06b2a8c8116be45113d03494a55dc77ffaaece288e7",
+    "src/venturi/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "src/venturi/benchmark.py": "ab199862022ed9cad08c45130cbcf201b7c2f94bfcb9b04945bb8a064172470d",
+    "src/venturi/checkpoint.py": "21c2e160634b941bd46c65385a85ca707f231b0fa9f26367833a3f1aee29e2ac",
+    "src/venturi/cli.py": "c434d480ca7c240766c252c556b975fc570c12274a3d87e3cd231b7b9d5f25b9",
+    "src/venturi/dtypes.py": "cda205f8ff55ae6f3564b58b84b65ebb0e4c82b61aee626806cd10c56ecda9a7",
+    "src/venturi/generation.py": "297e8ce8f6669443924275116dd85a671f5f5507eb0c6abe62716ace8d3e2a24",
+    "src/venturi/loader.py": "566f02b808cbd3d52d307120a304427ad1bbab1681611e33b1cfb4b5a13811ee",
+    "src/venturi/models/__init__.py": "e16dc6a745e16606b98c47256eaf46948040642a83fdcef834ae2316fcf50345",
+    "src/venturi/models/cuda_graph.py": "d7352f1bd80a3e0337193ee50185e072a3948e96c53171bd261148c96bc8ef91",
+    "src/venturi/models/gpt_neox.py": "193fb12eea297587bc5e193d6f99f9f0a4ed3ca07a74a0232443f629b5a03023",
+    "src/venturi/ops/__init__.py": "4c163746e35833f438a1fd6f55e3c3497821beca5ea5acd2deb161f1e32baa5a",
+    "src/venturi/ops/ada.py": "d15856fa73be46697cb730fa5bdc56582762a6cf5aa52c1d44680b8e5cb9dfd1",
+    "src/venturi/ops/build.py": "4cac1a4c50296405bbbd8c6ddf1c36311874051ab7a34175036b4fec5cafdcbf",
+    "src/venturi/ops/csrc/q4_linear.cu": "046a4a8ee423a3225cd540e84c82e59ebe8fdef2714b0f542a591f7be0f33112",
+    "src/venturi/ops/csrc/third_party/ninfer/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "src/venturi/ops/csrc/third_party/ninfer/NOTICE": "f4375e537963a1a898697d71408ac4d9357e9887ddf44f23180758d5541b72fc",
+    "src/venturi/ops/csrc/third_party/ninfer/ada_small_t_mma.cuh": "8026eaf287d9d582101f2e8140b46c4199c10f34b12a18263f9dba4ed3a8b9d7",
+    "src/venturi/ops/csrc/third_party/ninfer/ops/common/memory.cuh": "ef5f34d587610759f0707aea08b0dc2e833f94fb686e5d23fb857deec02e5e2b",
+    "src/venturi/ops/csrc/third_party/ninfer/ops/common/mma.cuh": "4c4d7d1105b3b660c02bf82576224f323968f17f2d663b89fd38230fac0bf75f",
+    "src/venturi/ops/csrc/third_party/ninfer/provenance.json": "559c19f396a7fbac5a529608c9f03f06d0a39441582146ecdfc97ba676d023b2",
+    "src/venturi/ops/csrc/third_party/ninfer/upstream-provenance.json": "821a43ee5d7ffd1a36d0c3123128173a93e1841c9e3749073800c1afee0e3b27",
+    "src/venturi/ops/weights.py": "0e138b7b81bba7a35be5b17c2753069621f62395512225c32ecbf8f4f423d9a9",
+    "src/venturi/verification.py": "6d857daed27e964ad401f312121b769c71b52fafa2185f39d4a33ce984e73744",
+    "tests/conftest.py": "a58681d8402772cf29e373f002ec50dbefd1eef54632d92cb6fe2b49ba1a37e3",
+    "tests/neox_reference.py": "e53bac2f245f362664b87a99189cfb7ff51d7e242781c94f516ae5f9a943b716",
+    "tests/test_ada_build.py": "73498ca862c9e8946e5a5155157228473770078009b79e4bc9f7255c53bc7968",
+    "tests/test_ada_cuda.py": "5323f709c484020268ece12ec873d7727ac41f39111d9c16940883baeaaaf4d0",
+    "tests/test_benchmark.py": "d47d87f2240a8bfc766d7a4b8605d1159d9c506a7af954d7437d9a8e93dc4f4f",
+    "tests/test_cuda_graph.py": "31e47b64f3e3428071174d9368d1766924182be0bec75be5c04bcc30a1afd021",
+    "tests/test_generation.py": "edcdd1e288e0bccc26767d4b313f184ca55b096b4452090b7c5946dcf1656a08",
+    "tests/test_generation_acceptance.py": "eab2b27c085bd502c04ac7cd20c4e0a5bf03218afff1b5d507214ae0fa6290df",
+    "tests/test_generation_cuda.py": "ce361202afa438ad9d483927ebf0f200fb9743625d82cba0efbb6107ba2e3534",
+    "tests/test_gpt_neox.py": "81aec258f40e92930d3ad8f7eea71cefe2b5f5f8df9f30bfcbd1aac50727e9ef",
+    "tests/test_llamacpp_comparison.py": "1e540611a3a0454de51b4721de653cc0e389dcd32c8e274e93d7293442c1c9ca",
+    "tests/test_loader.py": "e5a4356876cf694584385b00dd72e3d02a20486f6ee262db427953279cb4ad94",
+    "tests/test_q4_weights.py": "714ed289b9a564a571f990330000e7eaedfa1631db0effec5facbaa83844159c",
+    "tests/test_real_checkpoint.py": "5aa1e413e4e8d336e61ed4ab0c2b54e0b8f95feed07014d260071e68786dab96",
+    "tests/test_remote_launcher.py": "c662b57ccbda3fd51f0f393e969775394ccd0b260379b2fab00fc6e79798ead1",
+    "tests/test_verification.py": "60b69f8c5e4d7c57136310b859b74952636603117e3febb1e4a1d274ef8782fb",
+    "tools/benchmark_prefill.py": "6e2b250459dab38371839e91d52a5486f42a832de84db873a1b7513ad7c22ce8",
+    "tools/benchmark_q4_linear.py": "a64393b8413e3ff1f967d845810de5f221f04581351a425f726e55546da3d6fe",
+    "tools/compare_llamacpp.py": "35894ce19f3f91a0c86e17b7b6fa27bfc982c3ca03d3f26c019a58086848e6ac",
+    "tools/llama_compare/bench.cpp": "40920f7dac6d5d9f29160fb18f2cbd2f67db2400edcd4cfdec81bf0d27bcf1b0",
+    "tools/profile_decode.py": "76146a74bfcf3fde6d3bf6617610dd5c04b4c664356bc9ef87b5fc4b3f36bb1c",
+    "tools/run_cuda_graph_acceptance.py": "06cbb120f53d17a657fa7e39a780aebee0e2a2ec6e8481508339d61400dc5245",
+    "tools/run_fp16_acceptance.py": "993f74ddd2d6106f252419ae1832693798b96aebb3491b75e5bccacf0162a37c",
+    "tools/run_generation_acceptance.py": "78c4d731307fd59d344431103b1985606a66c0e39ed53a1d2f504d2fad1cfe3a"
+  },
+  "reproduce": "PYTHONPATH=src:<staged-siphon> python tools/benchmark_prefill.py <local-F16-checkpoint> --execution eager|cuda-graph --warmup 10 --repeats 50 --output-dir <new-directory> [--reference <trusted-before/logits.pt>]. Run four sequential processes in documented order; then tools/run_cuda_graph_acceptance.py <checkpoint> --prefill-graphs --output <new-file>. No model downloads or package installs.",
+  "publication_note": "The published/uncommitted flags describe the measurement snapshot before publication. Code and compact evidence are included in the enclosing repository commit; model weights, executables and binary profiler traces are not."
+}

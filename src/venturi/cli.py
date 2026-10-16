@@ -15,8 +15,14 @@ from .verification import verify_loaded_checkpoint
 
 
 def main(argv: list[str] | None = None) -> int:
+    arguments = sys.argv[1:] if argv is None else argv
+    if arguments and arguments[0] == "qwen":
+        from .qwen_cli import main as qwen_main
+
+        return qwen_main(arguments[1:])
     parser = argparse.ArgumentParser(prog="venturi")
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("qwen", help="Explicit optional native Qwen backend: inspect/stage/generate/benchmark")
     for command in ("inspect", "load", "verify", "generate", "benchmark"):
         child = commands.add_parser(command)
         child.add_argument("path")
@@ -50,7 +56,7 @@ def main(argv: list[str] | None = None) -> int:
             child.add_argument("--max-new-tokens", type=int, default=32)
             child.add_argument(
                 "--execution", choices=("eager", "cuda-graph"), default="eager",
-                help="Opt-in prepared FP16 CUDA decode graphs; preparation is reported separately",
+                help="Opt-in prepared FP16 CUDA prefill/decode graphs; preparation is reported separately",
             )
         if command == "benchmark":
             child.add_argument("--warmup", type=int, default=1)
@@ -141,6 +147,7 @@ def main(argv: list[str] | None = None) -> int:
                     session = runner.create_cuda_graph_session(
                         len(ids) + args.max_new_tokens, decode_start=len(ids),
                         decode_steps=args.max_new_tokens - 1,
+                        prefill_lengths=(len(ids),),
                     )
                 preparation_seconds = getattr(session, "preparation_seconds", 0.0)
                 if args.command == "generate":

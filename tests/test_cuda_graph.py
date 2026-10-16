@@ -32,6 +32,13 @@ def test_bad_plan_fails_before_cuda_allocation(capacity, start, steps):
         GPTNeoXCUDAGraphSession(model, capacity, decode_start=start, decode_steps=steps)
 
 
+@pytest.mark.parametrize("lengths", [None, "3", [True], [0], [21], [3, 3], [1.5], list(range(1, 10))])
+def test_bad_prefill_plan_fails_before_cuda_allocation(lengths):
+    model = SimpleNamespace(device=torch.device("cuda:0"), dtype=torch.float16)
+    with pytest.raises(ValueError, match="prefill_lengths"):
+        GPTNeoXCUDAGraphSession(model, 20, decode_start=2, decode_steps=0, prefill_lengths=lengths)
+
+
 @pytest.fixture
 def gpu_model(make_checkpoint):
     if os.environ.get("VENTURI_TEST_CUDA") != "1":
@@ -124,3 +131,84 @@ def test_captured_nonfinite_logits_fail_and_reset(gpu_model):
     graph.reset()
     graph.forward([2, 5])
     assert graph.select_token(graph.forward([3])) >= 0
+
+
+@pytest.mark.cuda
+def test_prefill_graphs_exact_shapes_fallback_and_cache(gpu_model):
+    graph = gpu_model.create_cuda_graph_session(
+        12, decode_start=1, decode_steps=11, prefill_lengths=(1, 3, 5)
+    )
+    eager = gpu_model.create_session(12)
+    for prompt in ([2], [2, 5, 9], [11, 7, 3], [2, 5, 9, 11, 17], [2, 5], [2, 5, 9]):
+        graph.reset()
+        eager.reset()
+        actual, expected = graph.forward(prompt), eager.forward(prompt)
+        assert torch.equal(actual.view(torch.int16), expected.view(torch.int16))
+        assert graph.select_token(actual) == int(expected.argmax())
+        for chunk in ([17, 3], [11]):
+            actual, expected = graph.forward(chunk), eager.forward(chunk)
+            assert torch.equal(actual.view(torch.int16), expected.view(torch.int16))
+    graph.reset()
+    eager.reset()
+    # All-logits prefill must not accidentally return only the captured last row.
+    actual = graph.forward([2, 5, 9], all_logits=True)
+    expected = eager.forward([2, 5, 9], all_logits=True)
+    assert actual.shape == (3, gpu_model.config.vocab_size)
+    assert torch.equal(actual.view(torch.int16), expected.view(torch.int16))
+    # Queue changed prompts without reading GPU outputs between replays.
+    pending = []
+    for prompt in ([2, 5, 9], [17, 11, 3], [2, 5, 9]):
+        graph.reset()
+        pending.append((prompt, graph.forward(prompt).clone()))
+    for prompt, actual in pending:
+        eager.reset()
+        assert torch.equal(actual.view(torch.int16), eager.forward(prompt).view(torch.int16))
+
+
+@pytest.mark.cuda
+def test_prefill_graph_greedy_eos_failure_and_stream(gpu_model):
+    stream = torch.cuda.Stream()
+    with torch.cuda.stream(stream):
+        graph = gpu_model.create_cuda_graph_session(
+            8, decode_start=3, decode_steps=4, prefill_lengths=(3,)
+        )
+        expected = generate_tokens(gpu_model, [2, 5, 9], max_new_tokens=5, eos_token_ids=())
+        for _ in range(2):
+            actual = generate_tokens(gpu_model, [2, 5, 9], max_new_tokens=5, eos_token_ids=(), session=graph)
+            assert actual.generated_ids == expected.generated_ids
+        actual = generate_tokens(gpu_model, [2, 5, 9], max_new_tokens=5,
+                                 eos_token_ids=(expected.generated_ids[0],), session=graph)
+        assert actual.generated_ids == expected.generated_ids[:1] and actual.finish_reason == "eos"
+        graph.reset()
+        # Prefill replay reuses its captured GPU storage, including finite checks.
+        before = torch.cuda.memory_allocated()
+        torch.cuda.reset_peak_memory_stats()
+        logits = graph.forward([11, 7, 3])
+        graph.select_token(logits)
+        assert torch.cuda.max_memory_allocated() == before
+        head = gpu_model._weights["embed_out.weight"]
+        original = head.clone()
+        head.fill_(float("nan"))
+        graph.reset()
+        logits = graph.forward([2, 5, 9])
+        with pytest.raises(RuntimeError, match="nonfinite"):
+            graph.select_token(logits)
+        with pytest.raises(RuntimeError, match="reset"):
+            graph.forward([3])
+        head.copy_(original)
+        graph.reset()
+        assert graph.select_token(graph.forward([2, 5, 9])) >= 0
+    with pytest.raises(ValueError, match="owning CUDA stream"):
+        graph.forward([2, 5, 9])
+    stream.synchronize()
+
+
+@pytest.mark.cuda
+def test_prefill_only_plan_without_decode_graphs(gpu_model):
+    graph = gpu_model.create_cuda_graph_session(
+        8, decode_start=3, decode_steps=0, prefill_lengths=(3,)
+    )
+    for prompt in ([2, 5, 9], [2, 5]):
+        a = generate_tokens(gpu_model, prompt, max_new_tokens=1, eos_token_ids=())
+        b = generate_tokens(gpu_model, prompt, max_new_tokens=1, eos_token_ids=(), session=graph)
+        assert a.generated_ids == b.generated_ids

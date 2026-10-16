@@ -1,0 +1,319 @@
+{
+  "recorded_at_utc": "2026-10-16T02:26:31.754086+00:00",
+  "base_commit": "ff08268225d830127dbe7aa29d6efc916bebc213",
+  "uncommitted_changes": true,
+  "published": false,
+  "implementation": "Explicit optional external-ninfer-cinference native backend. Venturi implements reader, staging, process transport, CLI and measurement; no new Qwen CUDA kernels or speculative algorithm are claimed.",
+  "steps": [
+    {
+      "step": 1,
+      "status": "complete",
+      "result": "Validated v3 framing, known mixed-bit layouts, bindings/resources and byte-preserving reads; native quantized GPU materialization and opt-in verified RAM staging."
+    },
+    {
+      "step": 2,
+      "status": "complete",
+      "result": "Resident dense Qwen3_5ForCausalLM execution through attributed external backend; ordinary CLI ID parity and request isolation."
+    },
+    {
+      "step": 3,
+      "status": "complete",
+      "result": "Separate native prefill/decode timing fields, 32-output generation traces and separate 512-token prefill-only traces."
+    },
+    {
+      "step": 4,
+      "status": "complete",
+      "result": "Measured graph policy (~2% decode gain) and explicit 512-token prefill chunk (~19% shorter tested TTFT). No novel kernel-performance claim."
+    },
+    {
+      "step": 5,
+      "status": "complete",
+      "result": "Integrated/evaluated BF16 chain8 and separately baselined K8V4 chain/tree; same-mode CLI parity and normal chat measurements; optional/experimental due retained raw-prose greedy divergence."
+    }
+  ],
+  "checkpoint": {
+    "original": "School_4090D:/home/test/wangyue/weights-ours/qwen3_8_27b.ninfer",
+    "architecture": "Qwen3_5ForCausalLM",
+    "linear_attention_layers": 48,
+    "full_attention_layers": 16,
+    "bytes": 18186359296,
+    "sha256": "37cb1507aca20b442a35f4d7833b950e0507767cf766e7140e81fad4faf43d7f",
+    "selected_text_weight_bytes": 15677913088
+  },
+  "hardware": {
+    "gpu": "NVIDIA RTX 4090 D",
+    "compute_capability": [
+      8,
+      9
+    ],
+    "driver": "580.178.04",
+    "cuda": "13.0",
+    "python": "3.12.3",
+    "background": "GNOME remote desktop 354 MiB, unchanged; no other engine processes during timing"
+  },
+  "normal_chat": [
+    {
+      "prompt": "Explain why the sky looks blue. Give a detailed answer.",
+      "same_greedy_ids": true,
+      "plain_tokens_per_second": 57.175997482941504,
+      "dflash_tokens_per_second": 199.09549131140847,
+      "plain_output_tokens": 128,
+      "dflash_output_tokens": 128,
+      "scope": "Normal non-thinking chat, EOS respected, maximum 128 outputs. Native CLI parity is same speculative schedule, not an original-BF16 mathematical reference."
+    },
+    {
+      "prompt": "Write a Python function to merge two sorted lists and explain its complexity.",
+      "same_greedy_ids": true,
+      "plain_tokens_per_second": 57.15829211919679,
+      "dflash_tokens_per_second": 411.3000877583224,
+      "plain_output_tokens": 128,
+      "dflash_output_tokens": 128,
+      "scope": "Normal non-thinking chat, EOS respected, maximum 128 outputs. Native CLI parity is same speculative schedule, not an original-BF16 mathematical reference."
+    }
+  ],
+  "raw_fixed_output": [
+    {
+      "workload": "prose",
+      "prompt_tokens": 9,
+      "eager_tokens_per_second": 56.00814701150966,
+      "eager_median_first_token_seconds": 0.018237046,
+      "graph_tokens_per_second": 57.16917043787688,
+      "graph_median_first_token_seconds": 0.0182614235,
+      "graph_speedup": 1.020729545402183,
+      "graph-prefill512": {
+        "decode_tokens_per_second": 57.133318839175175,
+        "median_first_token_seconds": 0.01825412,
+        "kv_dtype": "bf16"
+      },
+      "dflash-chain8": {
+        "decode_tokens_per_second": 162.07263377732122,
+        "median_first_token_seconds": 0.018429046,
+        "kv_dtype": "bf16"
+      },
+      "k8v4-graph": {
+        "decode_tokens_per_second": 57.20408315136343,
+        "median_first_token_seconds": 0.018349358,
+        "kv_dtype": "k8v4"
+      },
+      "k8v4-chain8": {
+        "decode_tokens_per_second": 161.92837625117517,
+        "median_first_token_seconds": 0.018471369,
+        "kv_dtype": "k8v4"
+      },
+      "dflash-tree15": {
+        "decode_tokens_per_second": 193.32303764519082,
+        "median_first_token_seconds": 0.018580564,
+        "kv_dtype": "k8v4"
+      }
+    },
+    {
+      "workload": "code",
+      "prompt_tokens": 16,
+      "eager_tokens_per_second": 55.97962393172507,
+      "eager_median_first_token_seconds": 0.0186803055,
+      "graph_tokens_per_second": 57.13050874005701,
+      "graph_median_first_token_seconds": 0.0187107025,
+      "graph_speedup": 1.0205589949967437,
+      "graph-prefill512": {
+        "decode_tokens_per_second": 57.10717433630039,
+        "median_first_token_seconds": 0.018741313,
+        "kv_dtype": "bf16"
+      },
+      "dflash-chain8": {
+        "decode_tokens_per_second": 341.96798823660276,
+        "median_first_token_seconds": 0.018980324000000003,
+        "kv_dtype": "bf16"
+      },
+      "k8v4-graph": {
+        "decode_tokens_per_second": 57.22374993171654,
+        "median_first_token_seconds": 0.018747401,
+        "kv_dtype": "k8v4"
+      },
+      "k8v4-chain8": {
+        "decode_tokens_per_second": 361.6746269970545,
+        "median_first_token_seconds": 0.019017019,
+        "kv_dtype": "k8v4"
+      },
+      "dflash-tree15": {
+        "decode_tokens_per_second": 561.4270568069946,
+        "median_first_token_seconds": 0.019098807,
+        "kv_dtype": "k8v4"
+      }
+    },
+    {
+      "workload": "long-512",
+      "prompt_tokens": 512,
+      "eager_tokens_per_second": 55.61043412214534,
+      "eager_median_first_token_seconds": 0.3114662385,
+      "graph_tokens_per_second": 56.75934660698717,
+      "graph_median_first_token_seconds": 0.31297342149999996,
+      "graph_speedup": 1.0206600164695407,
+      "graph-prefill512": {
+        "decode_tokens_per_second": 56.7446177474269,
+        "median_first_token_seconds": 0.254335325,
+        "kv_dtype": "bf16"
+      },
+      "dflash-chain8": {
+        "decode_tokens_per_second": 403.04131463961005,
+        "median_first_token_seconds": 0.31719796100000003,
+        "kv_dtype": "bf16"
+      },
+      "k8v4-graph": {
+        "decode_tokens_per_second": 57.07992900165917,
+        "median_first_token_seconds": 0.31112456299999997,
+        "kv_dtype": "k8v4"
+      },
+      "k8v4-chain8": {
+        "decode_tokens_per_second": 408.6066366655662,
+        "median_first_token_seconds": 0.314877244,
+        "kv_dtype": "k8v4"
+      },
+      "dflash-tree15": {
+        "decode_tokens_per_second": 825.7275983255944,
+        "median_first_token_seconds": 0.31608248299999997,
+        "kv_dtype": "k8v4"
+      }
+    }
+  ],
+  "raw_scope": "Three raw-token workloads, fixed 128 outputs, EOS explicitly ignored, warmup1/repeats3 per process. Eager/graph/graph/eager baselines combined across both passes, not best-run selected. Prefix reuse off. Repeated-prefix task is highly predictable and not representative interactive/Spec-Bench throughput.",
+  "prefill_first_token_reduction_fraction": 0.18735807091529644,
+  "numerics": {
+    "ordinary_same_mode_cli_ids": true,
+    "dflash_same_mode_cli_ids": true,
+    "changed_prompt_reset": true,
+    "normal_chat_greedy_ids_match": true,
+    "universal_speculative_equivalence_established": false,
+    "counterexamples": [
+      {
+        "case": "raw prose, BF16 chain8 vs ordinary BF16",
+        "matching_prefix_tokens": 99
+      },
+      {
+        "case": "raw prose, K8V4 ordinary vs BF16 ordinary",
+        "matching_prefix_tokens": 22
+      }
+    ],
+    "interpretation": "Transport acceptance uses the same native implementation through independent CLI, not a separate full-precision mathematical oracle. Full logits are not exposed/byte-qualified here. Schedule-dependent discrepancies remain unroot-caused; no tolerance is relaxed, no universal lossless/quality claim. Speculation is off by default."
+  },
+  "tests": {
+    "gpu": {
+      "passed": 310,
+      "skipped": 0,
+      "expected_siphon_warnings": 3
+    },
+    "cpu": {
+      "passed": 259,
+      "skipped": 51
+    },
+    "ruff": "passed",
+    "git_diff_check": "passed"
+  },
+  "wheel": {
+    "file": "venturi_engine-0.1.0-py3-none-any.whl",
+    "sha256": "ebf1dc0d74f4800603fe7d02dc084debfc66a5f42ccf482e646a167ac1346b7e",
+    "verified_source_assets": 30
+  },
+  "staging": {
+    "source": "/home/test/wangyue/weights-ours/qwen3_8_27b.ninfer",
+    "path": "/dev/shm/venturi-test/venturi-ninfer-d3ae5782742a48c8b058196297a7ddff-f730fa10d9cd5d08/qwen3_8_27b.ninfer",
+    "source_identity": [
+      {
+        "path": "/home/test/wangyue/weights-ours/qwen3_8_27b.ninfer",
+        "size": 18186359296,
+        "mtime_ns": 1791457896136842353,
+        "inode": 186418390,
+        "device": 2065
+      }
+    ],
+    "sha256": {
+      "qwen3_8_27b.ninfer": "37cb1507aca20b442a35f4d7833b950e0507767cf766e7140e81fad4faf43d7f"
+    },
+    "bytes": 18186359296,
+    "stage_seconds": 181.0557868349715,
+    "reused": false,
+    "scope": "Byte-exact copy into explicitly selected storage; host RAM/disk cost and staging time are additional. No quantization change, no resident-decode speedup, and no automatic eviction."
+  },
+  "deployment": {
+    "source": "School_4090D:/home/test/wangyue/venturi-work/qwen/src",
+    "runner": "School_4090D:/home/test/wangyue/venturi-work/qwen/native/venturi-qwen-runner",
+    "evidence": "School_4090D:/home/test/wangyue/venturi-work/qwen/validation-staged",
+    "resident_native_process_left_running": false,
+    "ram_cache_left_for_explicit_reuse": true
+  },
+  "provenance_notes": "First timed runs preserve first-attempt-source.json and the fixed native build/archive hashes. Resume retained completed timings after an unsupported BF16 tree request; tree was then tested with its required K8V4 baseline. Separate prefill profiles did not retime completed modes. Final source differs from completion snapshot only in CLI help wording; native model/transport implementation hashes match. Whole GPU suite passed on the final files.",
+  "retained_failures": [
+    "first-attempt.log: unsupported BF16 verify-tree configuration; now preflight-validated.",
+    "incomplete-deployment.log: support tools initially omitted from remote test staging; full source synchronized.",
+    "cli-env-isolation-failure.log: unit test inherited the real runner environment; test now isolates it."
+  ],
+  "source_sha256": {
+    ".gitignore": "e5a9e5c1389ab9ee80a8ae40d6916735edde00935f4623cf940ccc12a7ce9a38",
+    "README.md": "cc51555f204b31d1f2516bddd6392de13147f415b5abf5697d3b45f49058301b",
+    "pyproject.toml": "6ba06f67d02eb554fb866bfae3dd15019ed7c9a49174226cbf1d682b90b8f82e",
+    "scripts/venturi-4090d": "9bfb97b7ef5432b0ab3ef18c2bf9fcc7821fdeb7b4fb1befdb76cd6cf513aa7d",
+    "scripts/venturi-qwen-4090d": "2c7492e10b77b67a9ca84d01beb483f0dda6691fb4c81cb30d1abd2fca35d3bf",
+    "src/venturi/__init__.py": "641c5f6f0564502303bef06b2a8c8116be45113d03494a55dc77ffaaece288e7",
+    "src/venturi/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "src/venturi/backends/__init__.py": "794a9783b18b75499c41c152419357ae926c88e1220c878da0ffb6f800684677",
+    "src/venturi/backends/csrc/qwen_runner.cpp": "2bfcece284330c5d2a50ec871a7496650b0f32349e274eb2c294eb18863531a5",
+    "src/venturi/backends/qwen.py": "7bbcb1adf62ed587f9d108791b7cea74ad0514d730bdebe4ca051b5995fe6741",
+    "src/venturi/benchmark.py": "ab199862022ed9cad08c45130cbcf201b7c2f94bfcb9b04945bb8a064172470d",
+    "src/venturi/checkpoint.py": "21c2e160634b941bd46c65385a85ca707f231b0fa9f26367833a3f1aee29e2ac",
+    "src/venturi/cli.py": "9d49bed0daaf7ca2029f8a09726da865faf11844ac26d43740a97519a8210a87",
+    "src/venturi/dtypes.py": "cda205f8ff55ae6f3564b58b84b65ebb0e4c82b61aee626806cd10c56ecda9a7",
+    "src/venturi/generation.py": "297e8ce8f6669443924275116dd85a671f5f5507eb0c6abe62716ace8d3e2a24",
+    "src/venturi/loader.py": "566f02b808cbd3d52d307120a304427ad1bbab1681611e33b1cfb4b5a13811ee",
+    "src/venturi/models/__init__.py": "e16dc6a745e16606b98c47256eaf46948040642a83fdcef834ae2316fcf50345",
+    "src/venturi/models/cuda_graph.py": "d7352f1bd80a3e0337193ee50185e072a3948e96c53171bd261148c96bc8ef91",
+    "src/venturi/models/gpt_neox.py": "193fb12eea297587bc5e193d6f99f9f0a4ed3ca07a74a0232443f629b5a03023",
+    "src/venturi/ninfer.py": "d42f86482cf57894472906ed4890ef91d9c2da11891b1db628333c38b5612585",
+    "src/venturi/ops/__init__.py": "4c163746e35833f438a1fd6f55e3c3497821beca5ea5acd2deb161f1e32baa5a",
+    "src/venturi/ops/ada.py": "d15856fa73be46697cb730fa5bdc56582762a6cf5aa52c1d44680b8e5cb9dfd1",
+    "src/venturi/ops/build.py": "4cac1a4c50296405bbbd8c6ddf1c36311874051ab7a34175036b4fec5cafdcbf",
+    "src/venturi/ops/csrc/q4_linear.cu": "046a4a8ee423a3225cd540e84c82e59ebe8fdef2714b0f542a591f7be0f33112",
+    "src/venturi/ops/csrc/third_party/ninfer/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "src/venturi/ops/csrc/third_party/ninfer/NOTICE": "f4375e537963a1a898697d71408ac4d9357e9887ddf44f23180758d5541b72fc",
+    "src/venturi/ops/csrc/third_party/ninfer/ada_small_t_mma.cuh": "8026eaf287d9d582101f2e8140b46c4199c10f34b12a18263f9dba4ed3a8b9d7",
+    "src/venturi/ops/csrc/third_party/ninfer/ops/common/memory.cuh": "ef5f34d587610759f0707aea08b0dc2e833f94fb686e5d23fb857deec02e5e2b",
+    "src/venturi/ops/csrc/third_party/ninfer/ops/common/mma.cuh": "4c4d7d1105b3b660c02bf82576224f323968f17f2d663b89fd38230fac0bf75f",
+    "src/venturi/ops/csrc/third_party/ninfer/provenance.json": "559c19f396a7fbac5a529608c9f03f06d0a39441582146ecdfc97ba676d023b2",
+    "src/venturi/ops/csrc/third_party/ninfer/upstream-provenance.json": "821a43ee5d7ffd1a36d0c3123128173a93e1841c9e3749073800c1afee0e3b27",
+    "src/venturi/ops/weights.py": "0e138b7b81bba7a35be5b17c2753069621f62395512225c32ecbf8f4f423d9a9",
+    "src/venturi/qwen_cli.py": "45e0ee10979b5483531fc483659de3696ee119e108349d19fe158dda30371a68",
+    "src/venturi/staging.py": "20b7c77d8110b77ecf4c2556a3ef91c7df6d3ecf4d88ffd7948d27ddf4baf8ff",
+    "src/venturi/verification.py": "6d857daed27e964ad401f312121b769c71b52fafa2185f39d4a33ce984e73744",
+    "tests/conftest.py": "a58681d8402772cf29e373f002ec50dbefd1eef54632d92cb6fe2b49ba1a37e3",
+    "tests/neox_reference.py": "e53bac2f245f362664b87a99189cfb7ff51d7e242781c94f516ae5f9a943b716",
+    "tests/test_ada_build.py": "73498ca862c9e8946e5a5155157228473770078009b79e4bc9f7255c53bc7968",
+    "tests/test_ada_cuda.py": "5323f709c484020268ece12ec873d7727ac41f39111d9c16940883baeaaaf4d0",
+    "tests/test_benchmark.py": "d47d87f2240a8bfc766d7a4b8605d1159d9c506a7af954d7437d9a8e93dc4f4f",
+    "tests/test_cuda_graph.py": "31e47b64f3e3428071174d9368d1766924182be0bec75be5c04bcc30a1afd021",
+    "tests/test_generation.py": "edcdd1e288e0bccc26767d4b313f184ca55b096b4452090b7c5946dcf1656a08",
+    "tests/test_generation_acceptance.py": "eab2b27c085bd502c04ac7cd20c4e0a5bf03218afff1b5d507214ae0fa6290df",
+    "tests/test_generation_cuda.py": "ce361202afa438ad9d483927ebf0f200fb9743625d82cba0efbb6107ba2e3534",
+    "tests/test_gpt_neox.py": "81aec258f40e92930d3ad8f7eea71cefe2b5f5f8df9f30bfcbd1aac50727e9ef",
+    "tests/test_llamacpp_comparison.py": "1e540611a3a0454de51b4721de653cc0e389dcd32c8e274e93d7293442c1c9ca",
+    "tests/test_loader.py": "e5a4356876cf694584385b00dd72e3d02a20486f6ee262db427953279cb4ad94",
+    "tests/test_ninfer.py": "1f7c56b00dcc6018f159aa18fe2952dff601a5816c74807e6010c02f28ebf934",
+    "tests/test_q4_weights.py": "714ed289b9a564a571f990330000e7eaedfa1631db0effec5facbaa83844159c",
+    "tests/test_qwen_backend.py": "5d9b3544cbaaa2ffc30575a9ca81dfd5bb90097117bf90bcd98ca1215fa3d8f7",
+    "tests/test_qwen_real.py": "742d22d74f1810c50750936379abaebf301d85ae6c325d67d3283299465b7ce0",
+    "tests/test_real_checkpoint.py": "5aa1e413e4e8d336e61ed4ab0c2b54e0b8f95feed07014d260071e68786dab96",
+    "tests/test_remote_launcher.py": "935f27b782d4e749367e319db37a58ba0be738295c1d9aeddee3f079bcab60e5",
+    "tests/test_staging.py": "ac85c07c54f205471ec846292d135ccdb4a557814f5b6d7729955838cb896b92",
+    "tests/test_verification.py": "60b69f8c5e4d7c57136310b859b74952636603117e3febb1e4a1d274ef8782fb",
+    "tools/benchmark_prefill.py": "6e2b250459dab38371839e91d52a5486f42a832de84db873a1b7513ad7c22ce8",
+    "tools/benchmark_q4_linear.py": "a64393b8413e3ff1f967d845810de5f221f04581351a425f726e55546da3d6fe",
+    "tools/build_qwen_runner.py": "cdc886c6e2717f56a9f53d4663eafee08f270117b527b5057aba1810b5d779d4",
+    "tools/compare_llamacpp.py": "35894ce19f3f91a0c86e17b7b6fa27bfc982c3ca03d3f26c019a58086848e6ac",
+    "tools/llama_compare/bench.cpp": "40920f7dac6d5d9f29160fb18f2cbd2f67db2400edcd4cfdec81bf0d27bcf1b0",
+    "tools/profile_decode.py": "76146a74bfcf3fde6d3bf6617610dd5c04b4c664356bc9ef87b5fc4b3f36bb1c",
+    "tools/run_cuda_graph_acceptance.py": "06cbb120f53d17a657fa7e39a780aebee0e2a2ec6e8481508339d61400dc5245",
+    "tools/run_fp16_acceptance.py": "993f74ddd2d6106f252419ae1832693798b96aebb3491b75e5bccacf0162a37c",
+    "tools/run_generation_acceptance.py": "78c4d731307fd59d344431103b1985606a66c0e39ed53a1d2f504d2fad1cfe3a",
+    "tools/run_qwen_validation.py": "3337db021a294dd1627ba3afe7e8017646cf0d89f987ec9f84e8a325ca57db5b",
+    "tools/validate_qwen_speculative.py": "afa0bb4eea9d138717a1a690918f79b764e7e6cedc74ff925b90b1f0b94f2190"
+  },
+  "publication_note": "The published/uncommitted flags describe the measurement snapshot before publication. Code and compact evidence are included in the enclosing repository commit; model weights, executables and binary profiler traces are not.",
+  "text_export_normalization": "Publication strips trailing whitespace and blank EOF lines from Nsight CSV exports only. Numeric fields are unchanged; original server exports remain available."
+}
