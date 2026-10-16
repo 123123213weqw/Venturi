@@ -67,6 +67,7 @@ class GenerationResult:
     total_seconds: float
     kv_cache_bytes: int
     text: str | None = None
+    time_to_first_token_seconds: float | None = None
 
 
 def _synchronize(device):
@@ -86,6 +87,7 @@ def generate_tokens(
     *,
     max_new_tokens: int = 32,
     eos_token_ids: tuple[int, ...] | None = None,
+    session=None,
 ) -> GenerationResult:
     """Single-request greedy continuation, bounded by EOS and model context.
 
@@ -93,6 +95,10 @@ def generate_tokens(
     positions conservatively. No sampling, beam search, prompt truncation, or
     sliding-window eviction is implicit. The emitted final token need not be
     forwarded through the model merely to return it.
+
+    A supplied session must belong to this model and fit the full reservation.
+    Its logical history is reset for each request; allocation/graph preparation
+    performed by the caller is outside these request timing fields.
     """
     started = perf_counter()
     validate_token_ids(prompt_ids, model.config.vocab_size)
@@ -109,18 +115,28 @@ def generate_tokens(
         return GenerationResult(
             prompt_ids, (), "length", 0.0, 0.0, perf_counter() - started, 0
         )
-    session = model.create_session(len(prompt_ids) + max_new_tokens)
+    if session is None:
+        session = model.create_session(len(prompt_ids) + max_new_tokens)
+    else:
+        if session.model is not model or session.capacity < len(prompt_ids) + max_new_tokens:
+            raise ValueError("Provided session must belong to this model and fit the request")
+        validate_request = getattr(session, "validate_request", None)
+        if validate_request is not None:
+            validate_request(len(prompt_ids), max_new_tokens)
+        session.reset()
+    select = getattr(session, "select_token", _greedy_token)
     _synchronize(model.device)
     prefill_start = perf_counter()
     logits = session.forward(prompt_ids)
-    first = _greedy_token(logits)
-    prefill_seconds = perf_counter() - prefill_start
+    first = select(logits)
+    first_ready = perf_counter()
+    prefill_seconds = first_ready - prefill_start
     generated = [first]
     decode_start = perf_counter()
     with torch.inference_mode():
         while len(generated) < max_new_tokens and generated[-1] not in eos:
             logits = session.forward([generated[-1]])
-            generated.append(_greedy_token(logits))
+            generated.append(select(logits))
     _synchronize(model.device)
     decode_seconds = perf_counter() - decode_start
     return GenerationResult(
@@ -131,6 +147,7 @@ def generate_tokens(
         decode_seconds,
         perf_counter() - started,
         session.cache_bytes,
+        time_to_first_token_seconds=first_ready - started,
     )
 
 

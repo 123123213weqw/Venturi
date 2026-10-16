@@ -17,11 +17,11 @@ from .verification import verify_loaded_checkpoint
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="venturi")
     commands = parser.add_subparsers(dest="command", required=True)
-    for command in ("inspect", "load", "verify", "generate"):
+    for command in ("inspect", "load", "verify", "generate", "benchmark"):
         child = commands.add_parser(command)
         child.add_argument("path")
         child.add_argument("--json", action="store_true", dest="as_json")
-        if command in ("load", "verify", "generate"):
+        if command in ("load", "verify", "generate", "benchmark"):
             child.add_argument("--device", default="cuda:0")
             child.add_argument(
                 "--loader", choices=("siphon", "safetensors"), default="siphon"
@@ -37,7 +37,7 @@ def main(argv: list[str] | None = None) -> int:
             )
         if command == "verify":
             child.add_argument("--chunk-bytes", type=int, default=16 * 2**20)
-        if command == "generate":
+        if command in ("generate", "benchmark"):
             child.add_argument(
                 "--prompt",
                 required=True,
@@ -48,13 +48,24 @@ def main(argv: list[str] | None = None) -> int:
                 help="Local tokenizer.json; defaults to checkpoint directory",
             )
             child.add_argument("--max-new-tokens", type=int, default=32)
+            child.add_argument(
+                "--execution", choices=("eager", "cuda-graph"), default="eager",
+                help="Opt-in prepared FP16 CUDA decode graphs; preparation is reported separately",
+            )
+        if command == "benchmark":
+            child.add_argument("--warmup", type=int, default=1)
+            child.add_argument("--repeats", type=int, default=5)
+            child.add_argument(
+                "--ignore-eos", action="store_true",
+                help="Explicit fixed-length workload; normal generation still respects EOS",
+            )
     args = parser.parse_args(argv)
     try:
         if args.command == "inspect":
             summary = inspect_checkpoint(args.path).summary()
         else:
             tokenizer = None
-            if args.command == "generate":
+            if args.command in ("generate", "benchmark"):
                 from .generation import LocalTokenizer
                 from .models import GPTNeoXConfig
 
@@ -66,6 +77,18 @@ def main(argv: list[str] | None = None) -> int:
                 )
                 if args.max_new_tokens < 0:
                     raise ValueError("max_new_tokens must be nonnegative")
+                if args.execution == "cuda-graph":
+                    if not args.device.startswith("cuda"):
+                        raise ValueError("CUDA graph decode requires a CUDA device")
+                    if args.max_new_tokens > 257:
+                        raise ValueError("CUDA graph decode supports at most 257 new tokens (256 graphs)")
+                if args.command == "benchmark":
+                    if args.max_new_tokens == 0 or args.warmup < 0 or args.repeats < 1:
+                        raise ValueError(
+                            "benchmark requires max_new_tokens >= 1, warmup >= 0, repeats >= 1"
+                        )
+                if not tokenizer.encode(args.prompt) and config.bos_token_id is None:
+                    raise ValueError("Empty prompt requires a configured BOS token")
                 prompt_length = max(1, len(tokenizer.encode(args.prompt)))
                 if prompt_length + args.max_new_tokens > config.max_position_embeddings:
                     raise ValueError(
@@ -107,23 +130,48 @@ def main(argv: list[str] | None = None) -> int:
             if args.command == "verify":
                 stats = verify_loaded_checkpoint(model, chunk_bytes=args.chunk_bytes)
                 summary["verification"] = {"passed": True, **asdict(stats)}
-            if args.command == "generate":
+            if args.command in ("generate", "benchmark"):
                 from .generation import generate_text
                 from .models import GPTNeoXModel
 
-                result = generate_text(
-                    GPTNeoXModel(model),
-                    tokenizer,
-                    args.prompt,
-                    max_new_tokens=args.max_new_tokens,
-                )
-                summary["generation"] = asdict(result)
+                runner = GPTNeoXModel(model)
+                session = None
+                if args.execution == "cuda-graph" and args.max_new_tokens:
+                    ids = tokenizer.encode(args.prompt) or (runner.config.bos_token_id,)
+                    session = runner.create_cuda_graph_session(
+                        len(ids) + args.max_new_tokens, decode_start=len(ids),
+                        decode_steps=args.max_new_tokens - 1,
+                    )
+                preparation_seconds = getattr(session, "preparation_seconds", 0.0)
+                if args.command == "generate":
+                    result = generate_text(
+                        runner, tokenizer, args.prompt, max_new_tokens=args.max_new_tokens,
+                        session=session,
+                    )
+                    summary["generation"] = asdict(result)
+                    summary["generation_execution"] = {
+                        "mode": args.execution, "preparation_seconds": preparation_seconds,
+                        "request_including_preparation_seconds": preparation_seconds + result.total_seconds,
+                        "time_to_first_token_including_preparation_seconds": (
+                            preparation_seconds + result.time_to_first_token_seconds
+                            if result.time_to_first_token_seconds is not None else None
+                        ),
+                    }
+                else:
+                    from .benchmark import benchmark_tokens
+
+                    ids = tokenizer.encode(args.prompt) or (runner.config.bos_token_id,)
+                    summary["benchmark"] = benchmark_tokens(
+                        runner, ids, max_new_tokens=args.max_new_tokens,
+                        warmup=args.warmup, repeats=args.repeats,
+                        ignore_eos=args.ignore_eos, session=session,
+                    )
                 summary["tokenizer"] = {
                     "file": tokenizer.path.name,
                     "sha256": tokenizer.sha256,
                 }
                 summary["execution"] = (
-                    "Venturi GPT-NeoX dense eager runner; PyTorch operators, no Transformers model"
+                    f"Venturi GPT-NeoX dense {args.execution} runner; PyTorch operators, no Transformers model"
                 )
     except (ValueError, RuntimeError, OSError) as error:
         print(f"venturi: {error}", file=sys.stderr)
@@ -132,6 +180,15 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(summary, indent=2))
     elif args.command == "generate":
         print(summary["generation"]["text"])
+    elif args.command == "benchmark":
+        stats = summary["benchmark"]
+        if stats["preparation_seconds"]:
+            print(f"Graph preparation: {stats['preparation_seconds']:.3f} s (excluded from warmed timings)")
+        print(f"TTFT median: {stats['time_to_first_token_seconds']['median'] * 1000:.3f} ms")
+        rate = stats["decode_tokens_per_second"]
+        print("Decode: n/a (no decode tokens)" if rate is None else f"Decode: {rate:.3f} tokens/s")
+        if stats["peak_cuda_allocated_bytes"] is not None:
+            print(f"Peak PyTorch allocated: {stats['peak_cuda_allocated_bytes'] / 2**20:.3f} MiB")
     else:
         print(
             f"{summary['tensor_count']} tensors, {summary['tensor_bytes'] / 2**30:.3f} GiB, {len(summary['files'])} shard(s)"

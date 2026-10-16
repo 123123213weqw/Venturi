@@ -53,7 +53,26 @@ def test_greedy_tokens_against_uncached_oracle(model_fixture):
     assert result.finish_reason == "length"
     assert result.prefill_seconds >= 0 and result.decode_seconds >= 0
     assert result.total_seconds >= result.prefill_seconds + result.decode_seconds
+    assert result.total_seconds >= result.time_to_first_token_seconds >= result.prefill_seconds
     assert result.kv_cache_bytes == 2 * 2 * 2 * 9 * 8 * 8
+
+
+def test_explicit_session_reuse_resets_history_and_validates_owner(model_fixture):
+    from types import SimpleNamespace
+
+    model, *_ = model_fixture
+    session = model.create_session(12)
+    expected = generate_tokens(model, [2, 5], max_new_tokens=3, eos_token_ids=())
+    for _ in range(2):
+        actual = generate_tokens(
+            model, [2, 5], max_new_tokens=3, eos_token_ids=(), session=session
+        )
+        assert actual.generated_ids == expected.generated_ids
+        assert actual.kv_cache_bytes == session.cache_bytes
+    with pytest.raises(ValueError, match="belong"):
+        generate_tokens(model, [2], max_new_tokens=1, session=SimpleNamespace(model=None))
+    with pytest.raises(ValueError, match="fit"):
+        generate_tokens(model, [2, 5], max_new_tokens=3, session=model.create_session(2))
 
 
 def test_eos_and_zero_token_budget(model_fixture, monkeypatch):
@@ -71,6 +90,7 @@ def test_eos_and_zero_token_budget(model_fixture, monkeypatch):
         )
         result = generate_tokens(model, [2, 3], max_new_tokens=0)
         assert result.generated_ids == () and result.kv_cache_bytes == 0
+        assert result.time_to_first_token_seconds is None
 
 
 def test_nonfinite_logits_do_not_become_eos(model_fixture, monkeypatch):
@@ -167,3 +187,55 @@ def test_malformed_tokenizer(tmp_path):
     path.write_text("{}")
     with pytest.raises(ValueError, match="Invalid tokenizer"):
         LocalTokenizer(path, vocab_size=31)
+
+
+def test_cli_benchmark(model_fixture, tokenizer_path, capsys):
+    _, _, _, path = model_fixture
+    args = [
+        "benchmark", str(path), "--device", "cpu", "--loader", "safetensors",
+        "--tokenizer", str(tokenizer_path), "--prompt", "hello world",
+        "--max-new-tokens", "3", "--warmup", "0", "--repeats", "2", "--ignore-eos",
+    ]
+    assert main(args + ["--json"]) == 0
+    stats = json.loads(capsys.readouterr().out)["benchmark"]
+    assert stats["measured_requests"] == 2
+    assert stats["identical_generated_ids"]
+    assert stats["peak_cuda_allocated_bytes"] is None
+    assert all(run["decode_tokens"] == 2 for run in stats["runs"])
+    assert main(args) == 0
+    assert "TTFT median:" in capsys.readouterr().out
+
+
+def test_cli_graph_cpu_rejected_before_loading(model_fixture, tokenizer_path, capsys, monkeypatch):
+    import venturi.cli
+
+    _, _, _, path = model_fixture
+    monkeypatch.setattr(
+        venturi.cli, "load_checkpoint",
+        lambda *args, **kwargs: pytest.fail("invalid graph device loaded weights"),
+    )
+    assert main([
+        "generate", str(path), "--device", "cpu", "--execution", "cuda-graph",
+        "--tokenizer", str(tokenizer_path), "--prompt", "hello",
+    ]) == 1
+    assert "requires a CUDA device" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("option,value", [
+    ("--max-new-tokens", "0"), ("--warmup", "-1"), ("--repeats", "0"),
+])
+def test_cli_benchmark_invalid_before_load(
+    model_fixture, tokenizer_path, capsys, monkeypatch, option, value
+):
+    import venturi.cli
+
+    _, _, _, path = model_fixture
+    monkeypatch.setattr(
+        venturi.cli, "load_checkpoint",
+        lambda *args, **kwargs: pytest.fail("invalid request loaded weights"),
+    )
+    assert main([
+        "benchmark", str(path), "--tokenizer", str(tokenizer_path),
+        "--prompt", "hello", option, value,
+    ]) == 1
+    assert "benchmark requires" in capsys.readouterr().err

@@ -58,3 +58,21 @@ def test_real_cached_chunk_matches_full_prefill(real_model):
     actual = a.forward(ids[2:], all_logits=True)
     expected = b.forward(ids, all_logits=True)[2:]
     torch.testing.assert_close(actual.float(), expected.float(), rtol=0.01, atol=0.04)
+
+
+def test_real_benchmark_metrics(real_model):
+    from venturi.benchmark import benchmark_tokens
+
+    stats = benchmark_tokens(
+        real_model, [2, 5, 11], max_new_tokens=4, warmup=1, repeats=2, ignore_eos=True
+    )
+    assert stats["identical_generated_ids"]
+    assert stats["decode_tokens_per_second"] > 0
+    assert stats["peak_cuda_allocated_bytes"] > 0
+    for run in stats["runs"]:
+        assert run["output_tokens"] == 4 and run["decode_tokens"] == 3
+        assert run["time_to_first_token_seconds"] >= run["prefill_seconds"] > 0
+        assert run["total_seconds"] >= run["time_to_first_token_seconds"]
+        memory = run["cuda_allocator"]
+        assert memory["peak_allocated_bytes"] >= memory["baseline_allocated_bytes"]
+        assert memory["extra_peak_allocated_bytes"] >= run["kv_cache_bytes"] > 0

@@ -253,6 +253,15 @@ class GPTNeoXModel:
     def create_session(self, capacity: int) -> "GPTNeoXSession":
         return GPTNeoXSession(self, capacity)
 
+    def create_cuda_graph_session(
+        self, capacity: int, *, decode_start: int, decode_steps: int
+    ):
+        from .cuda_graph import GPTNeoXCUDAGraphSession
+
+        return GPTNeoXCUDAGraphSession(
+            self, capacity, decode_start=decode_start, decode_steps=decode_steps
+        )
+
     def _linear(self, x, prefix):
         return F.linear(
             x, self._weights[prefix + ".weight"], self._weights[prefix + ".bias"]
@@ -338,16 +347,21 @@ class GPTNeoXSession:
             raise
 
     def _forward(self, token_ids, all_logits):
+        ids = torch.tensor(token_ids, dtype=torch.long, device=self.model.device)
+        return self._forward_tensor(ids, all_logits)
+
+    def _forward_tensor(self, ids, all_logits):
+        """Internal tensor-input path; callers validate IDs before execution."""
         model, config = self.model, self.model.config
-        start, end = self.position, self.position + len(token_ids)
-        ids = torch.tensor(token_ids, dtype=torch.long, device=model.device)
+        length = ids.numel()
+        start, end = self.position, self.position + length
         hidden = F.embedding(ids, model._weights["gpt_neox.embed_in.weight"])
         cosine = model._cos[start:end].unsqueeze(0).unsqueeze(0)
         sine = model._sin[start:end].unsqueeze(0).unsqueeze(0)
         # SDPA's rectangular is_causal=True mask is upper-left aligned. Cached
         # chunks require absolute positions instead, not that default mask.
         mask = None
-        if start > 0 and len(token_ids) > 1:
+        if start > 0 and length > 1:
             queries = torch.arange(start, end, device=model.device)
             keys = torch.arange(end, device=model.device)
             mask = keys.unsqueeze(0) <= queries.unsqueeze(1)
@@ -356,7 +370,7 @@ class GPTNeoXSession:
             normalized = model._norm(hidden, prefix + "input_layernorm")
             qkv = model._linear(normalized, prefix + "attention.query_key_value")
             qkv = qkv.view(
-                len(token_ids), config.num_attention_heads, 3 * config.head_dim
+                length, config.num_attention_heads, 3 * config.head_dim
             )
             q, k, v = qkv.permute(1, 0, 2).unsqueeze(0).chunk(3, dim=-1)
             if config.rotary_dim:
@@ -382,10 +396,10 @@ class GPTNeoXSession:
                 self._values[layer, :, :end].unsqueeze(0),
                 attn_mask=mask,
                 dropout_p=0.0,
-                is_causal=start == 0 and len(token_ids) > 1,
+                is_causal=start == 0 and length > 1,
             )
             attention = (
-                attention[0].transpose(0, 1).reshape(len(token_ids), config.hidden_size)
+                attention[0].transpose(0, 1).reshape(length, config.hidden_size)
             )
             attention = model._linear(attention, prefix + "attention.dense")
             if config.use_parallel_residual:
