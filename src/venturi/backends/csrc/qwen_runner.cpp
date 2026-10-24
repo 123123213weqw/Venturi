@@ -12,6 +12,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
+#include <algorithm>
 
 using json = nlohmann::json;
 using Clock = std::chrono::steady_clock;
@@ -31,11 +33,81 @@ static json memory(const ninfer::Engine& engine) {
     if (cudaMemGetInfo(&free, &total) != cudaSuccess) throw std::runtime_error("cudaMemGetInfo failed");
     return {{"weights_used_bytes", m.weights.used_bytes}, {"weights_capacity_bytes", m.weights.capacity_bytes},
             {"runtime_reservation_bytes", m.runtime_reservation_bytes}, {"kv_payload_bytes", m.kv_payload_bytes},
+            {"kv_capacity", m.kv_capacity}, {"kv_capacity_page_groups", m.kv_capacity_page_groups},
             {"workspace_peak_bytes", m.workspace.peak_used_bytes}, {"device_free_bytes", free},
             {"device_total_bytes", total}};
 }
 
 static void emit(const json& result) { std::cout << result.dump() << std::endl; }
+
+static std::pair<ninfer::PreparedPrompt, ninfer::RequestOptions>
+prepare(ninfer::Engine& engine, const json& request) {
+    ninfer::PreparedPrompt prompt;
+    if (request.contains("token_ids")) {
+        const auto& raw_ids = request.at("token_ids");
+        if (!raw_ids.is_array() || raw_ids.empty()) throw std::invalid_argument("token_ids must be nonempty");
+        std::vector<ninfer::TokenId> ids;
+        for (const auto& value : raw_ids) {
+            if (!value.is_number_integer() || value.get<std::int64_t>() < 0 ||
+                value.get<std::int64_t>() > 2147483647) throw std::invalid_argument("invalid token ID");
+            ids.push_back(value.get<ninfer::TokenId>());
+        }
+        prompt = engine.prepare_tokens(std::move(ids), false);
+    } else if (request.value("raw_prompt", false)) {
+        prompt = engine.prepare_tokens(engine.tokenize_text(request.at("prompt").get<std::string>()), false);
+    } else {
+        ninfer::PromptInput input;
+        ninfer::ChatMessage message;
+        ninfer::MessagePart part;
+        part.text = request.at("prompt").get<std::string>();
+        message.parts.push_back(std::move(part));
+        input.messages.push_back(std::move(message));
+        input.options.enable_thinking = false;
+        prompt = engine.prepare(std::move(input));
+    }
+    ninfer::RequestOptions generation;
+    generation.execution.requested_output_tokens = integer(request, "max_new_tokens", 32, 1, engine.options().max_context);
+    generation.execution.allow_prefix_reuse = false;
+    generation.execution.sampling.temperature = 0.0F;
+    generation.execution.sampling.top_k = 0;
+    generation.execution.sampling.top_p = 1.0F;
+    generation.execution.sampling.min_p = 0.0F;
+    generation.execution.sampling.presence_penalty = 0.0F;
+    generation.execution.sampling.frequency_penalty = 0.0F;
+    generation.execution.sampling.seed = 0;
+    generation.stop.include_model_defaults = !request.value("ignore_eos", false);
+    generation.stop.publish_stop_token = request.value("ignore_eos", false);
+    const auto prompt_tokens = prompt.summary().prompt_tokens;
+    if (static_cast<std::uint64_t>(prompt_tokens) + generation.execution.requested_output_tokens > engine.options().max_context)
+        throw std::invalid_argument("prompt plus output exceeds max_context; no automatic truncation");
+    return {std::move(prompt), std::move(generation)};
+}
+
+static json generation_json(const ninfer::GenerationResult& result) {
+    const auto& t = result.timings;
+    const auto& s = result.speculative;
+    return {{"ok", true}, {"prompt_tokens", result.prompt.prompt_tokens},
+            {"generated_ids", result.generated_token_ids},
+            {"text", result.content}, {"reasoning", result.reasoning},
+            {"finish_reason", static_cast<int>(result.finish_reason)},
+            {"reused_prompt_tokens", result.reused_prompt_tokens},
+            {"timings", {{"prepare_seconds", t.prepare_seconds}, {"first_token_seconds", t.first_token_seconds},
+                {"prefill_seconds", t.prefill_seconds}, {"decode_seconds", t.decode_seconds},
+                {"generation_wall_seconds", t.generation_wall_seconds}, {"total_seconds", t.total_seconds}}},
+            {"speculative", {{"enabled", s.enabled}, {"rounds", s.rounds},
+                {"drafted_tokens", s.drafted_tokens}, {"accepted_tokens", s.accepted_tokens},
+                {"fallback_steps", s.fallback_steps}, {"draft_window", s.draft_window},
+                {"accepted_per_position", s.accepted_per_position}}}};
+}
+
+static json interval_stats(const ninfer::RuntimeStats& before, const ninfer::RuntimeStats& after) {
+    const auto rounds = after.decode_rounds - before.decode_rounds;
+    const auto rows = after.decode_row_rounds - before.decode_row_rounds;
+    return {{"computed_prefill_tokens", after.computed_prefill_tokens - before.computed_prefill_tokens},
+            {"committed_decode_tokens", after.committed_decode_tokens - before.committed_decode_tokens},
+            {"decode_rounds", rounds}, {"decode_row_rounds", rows},
+            {"mean_decode_batch", rounds ? json(static_cast<double>(rows) / rounds) : json(nullptr)}};
+}
 
 int main(int argc, char** argv) {
     try {
@@ -49,10 +121,17 @@ int main(int argc, char** argv) {
         options.artifact_path = argv[1];
         options.device = integer(config, "device", 0, 0, 128);
         options.max_context = integer(config, "max_context", 2048, 16, 262144);
-        options.kv_capacity = ninfer::KvCapacityPolicy::explicit_capacity(options.max_context);
+        options.max_concurrency = integer(config, "max_concurrency", 1, 1, 8);
+        const auto logical_pages = (options.max_context + 63U) / 64U;
+        const auto capacity = integer(config, "kv_capacity", options.max_concurrency * logical_pages * 64U,
+                                      options.max_context, options.max_concurrency * logical_pages * 64U);
+        if ((capacity + 63U) / 64U < std::max(logical_pages, options.max_concurrency))
+            throw std::invalid_argument("kv_capacity needs at least one page per lane");
+        options.kv_capacity = ninfer::KvCapacityPolicy::explicit_capacity(capacity);
+        options.max_pending_requests = 16;
+        options.pending_timeout_ms = integer(config, "pending_timeout_ms", 300000, 1, 4294967295U);
         options.prefill_chunk = integer(config, "prefill_chunk", 128, 1, options.max_context);
         options.use_cuda_graph = config.value("cuda_graph", true);
-        options.max_concurrency = 1;
         options.context_cache.enabled = false;
         options.context_cache.host_state_slots = 0;
         options.context_cache.host_kv_capacity_bytes = 0;
@@ -71,17 +150,38 @@ int main(int argc, char** argv) {
             options.speculative.backend = ninfer::SpeculativeBackend::DFlash2;
             options.speculative.draft_tokens = integer(config, "draft_tokens", 8, 1, 15);
             options.speculative.verify_tree = config.value("verify_tree", false);
+            if (options.speculative.verify_tree && options.max_concurrency != 1)
+                throw std::invalid_argument("verify-tree requires max_concurrency=1");
             options.speculative.proposal_head = config.value("optimized_proposal", false)
                 ? ninfer::ProposalHead::Optimized : ninfer::ProposalHead::Full;
         } else if (spec != "none") throw std::invalid_argument("unsupported speculative backend");
+        const auto cpu_wait = config.value("cpu_wait", std::string("blocking"));
+        if (cpu_wait != "auto" && cpu_wait != "blocking")
+            throw std::invalid_argument("cpu_wait must be auto or blocking");
+        // Only this owned process's CUDA primary context is affected. Leave
+        // unrelated GPU jobs alone; no clocks or system scheduler are changed.
         const auto started = Clock::now();
+        auto status = cudaSetDevice(options.device);
+        if (status != cudaSuccess) throw std::runtime_error(std::string("cudaSetDevice: ") + cudaGetErrorString(status));
+        unsigned int device_flags = 0;
+        status = cudaGetDeviceFlags(&device_flags);
+        if (status != cudaSuccess) throw std::runtime_error(std::string("cudaGetDeviceFlags: ") + cudaGetErrorString(status));
+        const auto schedule = cpu_wait == "blocking" ? cudaDeviceScheduleBlockingSync : cudaDeviceScheduleAuto;
+        status = cudaSetDeviceFlags((device_flags & ~cudaDeviceScheduleMask) | schedule);
+        if (status != cudaSuccess) throw std::runtime_error(std::string("cudaSetDeviceFlags: ") + cudaGetErrorString(status));
+        status = cudaGetDeviceFlags(&device_flags);
+        if (status != cudaSuccess || (device_flags & cudaDeviceScheduleMask) != schedule)
+            throw std::runtime_error("CUDA did not apply the requested CPU wait policy");
         ninfer::Engine engine(std::move(options));
         const auto load = engine.load_summary();
         cudaDeviceProp properties{};
         if (cudaGetDeviceProperties(&properties, config.value("device", 0)) != cudaSuccess)
             throw std::runtime_error("cudaGetDeviceProperties failed");
-        emit({{"ok", true}, {"event", "ready"}, {"protocol", 1},
+        emit({{"ok", true}, {"event", "ready"}, {"protocol", 3},
               {"backend", "external-ninfer-cinference"}, {"config", config},
+              {"cpu_wait", cpu_wait}, {"cuda_device_flags", device_flags},
+              {"limits", {{"max_concurrency", engine.options().max_concurrency},
+                          {"kv_capacity", engine.memory_summary().kv_capacity}, {"max_batch_requests", 16}}},
               {"architecture", load.architecture}, {"weight_formats", load.weight_formats},
               {"load_seconds", load.load_seconds}, {"upload_seconds", load.upload_seconds},
               {"startup_seconds", std::chrono::duration<double>(Clock::now() - started).count()},
@@ -99,69 +199,56 @@ int main(int argc, char** argv) {
                     emit({{"ok", true}, {"token_ids", engine.tokenize_text(request.at("prompt").get<std::string>())}});
                     continue;
                 }
-                if (op != "generate") throw std::invalid_argument("unknown operation");
+                if (op != "generate" && op != "generate_many") throw std::invalid_argument("unknown operation");
                 const auto wall_started = Clock::now();
-                ninfer::PreparedPrompt prompt;
-                if (request.contains("token_ids")) {
-                    const auto& raw_ids = request.at("token_ids");
-                    if (!raw_ids.is_array() || raw_ids.empty()) throw std::invalid_argument("token_ids must be nonempty");
-                    std::vector<ninfer::TokenId> ids;
-                    for (const auto& value : raw_ids) {
-                        if (!value.is_number_integer() || value.get<std::int64_t>() < 0 ||
-                            value.get<std::int64_t>() > 2147483647) throw std::invalid_argument("invalid token ID");
-                        ids.push_back(value.get<ninfer::TokenId>());
-                    }
-                    prompt = engine.prepare_tokens(std::move(ids), false);
-                } else if (request.value("raw_prompt", false)) {
-                    prompt = engine.prepare_tokens(engine.tokenize_text(request.at("prompt").get<std::string>()), false);
-                } else {
-                    ninfer::PromptInput input;
-                    ninfer::ChatMessage message;
-                    ninfer::MessagePart part;
-                    part.text = request.at("prompt").get<std::string>();
-                    message.parts.push_back(std::move(part));
-                    input.messages.push_back(std::move(message));
-                    input.options.enable_thinking = false;
-                    prompt = engine.prepare(std::move(input));
+                const bool many = op == "generate_many";
+                const auto mode = many ? request.at("mode").get<std::string>() : "single";
+                if (mode != "single" && mode != "parallel") throw std::invalid_argument("mode must be single or parallel");
+                if (mode == "parallel" && engine.options().max_concurrency < 2)
+                    throw std::invalid_argument("parallel mode requires reserved concurrency >= 2");
+                const json items = many ? request.at("requests") : json::array({request});
+                if (!items.is_array() || items.empty() || items.size() > 16)
+                    throw std::invalid_argument("requests must contain 1..16 elements");
+                std::vector<ninfer::PreparedPrompt> prompts;
+                std::vector<ninfer::RequestOptions> generations;
+                bool want_profile = false;
+                for (const auto& item : items) {
+                    auto [prompt, generation] = prepare(engine, item);
+                    prompts.push_back(std::move(prompt));
+                    generations.push_back(std::move(generation));
+                    want_profile = want_profile || item.value("profile", false);
                 }
-                ninfer::RequestOptions generation;
-                generation.execution.requested_output_tokens = integer(request, "max_new_tokens", 32, 1, engine.options().max_context);
-                generation.execution.allow_prefix_reuse = false;
-                generation.execution.sampling.temperature = 0.0F;
-                generation.execution.sampling.top_k = 0;
-                generation.execution.sampling.top_p = 1.0F;
-                generation.execution.sampling.min_p = 0.0F;
-                generation.execution.sampling.presence_penalty = 0.0F;
-                generation.execution.sampling.frequency_penalty = 0.0F;
-                generation.execution.sampling.seed = 0;
-                generation.stop.include_model_defaults = !request.value("ignore_eos", false);
-                generation.stop.publish_stop_token = request.value("ignore_eos", false);
-                const auto prompt_tokens = prompt.summary().prompt_tokens;
-                if (static_cast<std::uint64_t>(prompt_tokens) + generation.execution.requested_output_tokens > engine.options().max_context)
-                    throw std::invalid_argument("prompt plus output exceeds max_context; no automatic truncation");
-                if (request.value("profile", false)) {
+                if (want_profile) {
                     if (cudaProfilerStart() != cudaSuccess) throw std::runtime_error("cudaProfilerStart failed");
                     profiling = true;
                 }
                 engine.reset_memory_peaks();
-                auto handle = engine.submit(std::move(prompt), std::move(generation),
-                    ninfer::OutputConsumerMode::Aggregate, {.phase_timings = true});
-                const auto result = handle.wait();
+                const auto before = engine.runtime_stats();
+                json results = json::array();
+                std::vector<ninfer::GenerationHandle> handles;
+                // Submit before waiting to let the native scheduler form compact batches.
+                // Serial dispatch instead drains each request before admitting the next.
+                for (std::size_t i = 0; i < prompts.size(); ++i) {
+                    auto handle = engine.submit(std::move(prompts[i]), std::move(generations[i]),
+                        ninfer::OutputConsumerMode::Aggregate, {.phase_timings = true});
+                    if (mode == "parallel") handles.push_back(std::move(handle));
+                    else results.push_back(generation_json(handle.wait()));
+                }
+                for (auto& handle : handles) results.push_back(generation_json(handle.wait()));
+                const auto seconds = std::chrono::duration<double>(Clock::now() - wall_started).count();
+                const auto stats = interval_stats(before, engine.runtime_stats());
                 if (profiling) { cudaProfilerStop(); profiling = false; }
-                const auto& t = result.timings;
-                const auto& s = result.speculative;
-                emit({{"ok", true}, {"prompt_tokens", prompt_tokens}, {"generated_ids", result.generated_token_ids},
-                      {"text", result.content}, {"reasoning", result.reasoning},
-                      {"finish_reason", static_cast<int>(result.finish_reason)},
-                      {"reused_prompt_tokens", result.reused_prompt_tokens},
-                      {"timings", {{"prepare_seconds", t.prepare_seconds}, {"first_token_seconds", t.first_token_seconds},
-                          {"prefill_seconds", t.prefill_seconds}, {"decode_seconds", t.decode_seconds},
-                          {"generation_wall_seconds", t.generation_wall_seconds}, {"total_seconds", t.total_seconds},
-                          {"native_request_seconds", std::chrono::duration<double>(Clock::now() - wall_started).count()}}},
-                      {"speculative", {{"enabled", s.enabled}, {"rounds", s.rounds},
-                          {"drafted_tokens", s.drafted_tokens}, {"accepted_tokens", s.accepted_tokens},
-                          {"fallback_steps", s.fallback_steps}, {"draft_window", s.draft_window},
-                          {"accepted_per_position", s.accepted_per_position}}}, {"memory", memory(engine)}});
+                if (many) {
+                    for (std::size_t i = 0; i < results.size(); ++i) results[i]["index"] = i;
+                    emit({{"ok", true}, {"mode", mode}, {"results", results}, {"wall_seconds", seconds},
+                          {"runtime", stats}, {"memory", memory(engine)}});
+                } else {
+                    auto result = std::move(results[0]);
+                    result["timings"]["native_request_seconds"] = seconds;
+                    result["runtime"] = stats;
+                    result["memory"] = memory(engine);
+                    emit(result);
+                }
             } catch (const std::exception& error) {
                 if (profiling) cudaProfilerStop();
                 emit({{"ok", false}, {"error", error.what()}, {"available", engine.is_available()}});

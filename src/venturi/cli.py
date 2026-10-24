@@ -16,12 +16,24 @@ from .verification import verify_loaded_checkpoint
 
 def main(argv: list[str] | None = None) -> int:
     arguments = sys.argv[1:] if argv is None else argv
+    if arguments and arguments[0] == "qwen-native":
+        from .qwen_native_cli import main as native_qwen_main
+
+        return native_qwen_main(arguments[1:])
+    if arguments and arguments[0] == "llama":
+        from .llama_cli import main as llama_main
+
+        return llama_main(arguments[1:])
     if arguments and arguments[0] == "qwen":
         from .qwen_cli import main as qwen_main
 
         return qwen_main(arguments[1:])
     parser = argparse.ArgumentParser(prog="venturi")
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("qwen-native", help="Owned Q8 C++/CUDA runtime: inspect or explicit greedy generation")
+    commands.add_parser(
+        "llama", help="Independent classic Llama checkpoint bindings and generation"
+    )
     commands.add_parser("qwen", help="Explicit optional native Qwen backend: inspect/stage/generate/benchmark")
     for command in ("inspect", "load", "verify", "generate", "benchmark"):
         child = commands.add_parser(command)

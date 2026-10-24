@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+from pathlib import Path
 import sys
 
 from .backends.qwen import QwenNativeSession
@@ -35,7 +36,30 @@ def main(argv=None):
             default=os.environ.get("VENTURI_QWEN_RUNNER"),
             help="Explicit venturi-qwen-runner executable (or VENTURI_QWEN_RUNNER)",
         )
-        child.add_argument("--prompt", required=True)
+        inputs = child.add_mutually_exclusive_group(required=True)
+        inputs.add_argument(
+            "--prompt", action="append", help="Repeat for 1..16 ordered prompts"
+        )
+        inputs.add_argument(
+            "--prompts-file",
+            help="Local JSON array of 1..16 strings (remote path when using the SSH launcher)",
+        )
+        child.add_argument(
+            "--mode",
+            choices=("single", "parallel"),
+            default="single",
+            help="Serial dispatch (default) or native batched decode",
+        )
+        child.add_argument(
+            "--max-concurrency",
+            type=int,
+            help="Startup lane reservation: 1..8; default single=1, parallel=4",
+        )
+        child.add_argument(
+            "--kv-capacity",
+            type=int,
+            help="Shared physical KV token budget; default all lanes at full context",
+        )
         child.add_argument(
             "--raw-prompt",
             action="store_true",
@@ -47,6 +71,12 @@ def main(argv=None):
         child.add_argument("--device", type=int, default=0)
         child.add_argument(
             "--execution", choices=("eager", "cuda-graph"), default="cuda-graph"
+        )
+        child.add_argument(
+            "--cpu-wait",
+            choices=("blocking", "auto"),
+            default="blocking",
+            help="CUDA synchronization wait policy: blocking saves CPU; auto retains CUDA's heuristic",
         )
         child.add_argument("--kv-dtype", choices=("bf16", "k8v4"), default="bf16")
         child.add_argument(
@@ -84,13 +114,27 @@ def main(argv=None):
                 raise ValueError("max_new_tokens must be positive")
             if args.command == "benchmark" and (args.warmup < 0 or args.repeats < 1):
                 raise ValueError("benchmark requires warmup >= 0 and repeats >= 1")
+            prompts = args.prompt
+            if args.prompts_file:
+                prompts = json.loads(Path(args.prompts_file).read_text())
+            if (
+                not isinstance(prompts, list)
+                or not 1 <= len(prompts) <= 16
+                or any(not isinstance(p, str) for p in prompts)
+            ):
+                raise ValueError("Provide 1..16 prompt strings")
+            batch = len(prompts) > 1 or args.mode == "parallel"
             with QwenNativeSession(
                 args.path,
                 runner=args.runner,
                 max_context=args.max_context,
+                mode=args.mode,
+                max_concurrency=args.max_concurrency,
+                kv_capacity=args.kv_capacity,
                 prefill_chunk=args.prefill_chunk,
                 device=args.device,
                 cuda_graph=args.execution == "cuda-graph",
+                cpu_wait=args.cpu_wait,
                 kv_dtype=args.kv_dtype,
                 speculative=args.speculative,
                 draft_tokens=args.draft_tokens,
@@ -104,11 +148,16 @@ def main(argv=None):
                 if args.command == "generate":
                     report = {
                         "backend": session.ready,
-                        "generation": session.generate(args.prompt, **generation),
+                        ("batch" if batch else "generation"): (
+                            session.generate_many(prompts, **generation)
+                            if batch
+                            else session.generate(prompts[0], **generation)
+                        ),
                     }
                 else:
-                    report = session.benchmark(
-                        args.prompt,
+                    benchmark = session.benchmark_many if batch else session.benchmark
+                    report = benchmark(
+                        prompts if batch else prompts[0],
                         warmup=args.warmup,
                         repeats=args.repeats,
                         ignore_eos=args.ignore_eos,
@@ -117,11 +166,21 @@ def main(argv=None):
         if args.as_json:
             print(json.dumps(report, indent=2))
         elif args.command == "generate":
-            print(report["generation"]["text"])
+            if "batch" in report:
+                for item in report["batch"]["results"]:
+                    print(f"[{item['index']}] {item['text']}")
+            else:
+                print(report["generation"]["text"])
         elif args.command == "benchmark":
             print(f"Backend: {report['backend']} (resident model; startup excluded)")
-            rate = report["decode_tokens_per_second"]
-            print("Decode: n/a" if rate is None else f"Decode: {rate:.3f} tokens/s")
+            if "output_tokens_per_second" in report:
+                print(f"Mode: {report['mode']}")
+                print(
+                    f"Total output: {report['output_tokens_per_second']:.3f} tokens/s (batch wall time)"
+                )
+            else:
+                rate = report["decode_tokens_per_second"]
+                print("Decode: n/a" if rate is None else f"Decode: {rate:.3f} tokens/s")
             print(
                 f"First token median: {report['median_first_token_seconds'] * 1000:.3f} ms"
             )

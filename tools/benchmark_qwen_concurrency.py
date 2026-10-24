@@ -1,6 +1,7 @@
 """Finite public-Engine concurrency/cache probes; no upstream edits or implicit downloads.
 
-Uses an explicitly linked research runner, not the sequential production Python API.
+Uses an explicitly linked research runner for cache/profiling experiments; the
+production Python API now separately exposes bounded single/parallel batches.
 All throughput uses a shared wall clock, never summed concurrent request durations.
 """
 

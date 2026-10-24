@@ -53,6 +53,482 @@ automatic downloads are not implemented here.
 The optional operator API below interprets one explicit packed format; it does
 not infer an execution format from arbitrary quantization metadata.
 
+## Independent reusable feed-forward block
+
+`venturi.models.GatedMLPWeights` is the first standalone building block toward
+a Venturi-owned model core. It composes the same explicit mathematics for
+Llama-style and Qwen-style feed-forward sublayers:
+
+```text
+normalized = RMSNorm(x, norm_weight, epsilon)
+gate       = Linear(normalized, gate_weight)
+up         = Linear(normalized, up_weight)
+activated  = SiLU(gate) * up
+down       = Linear(activated, down_weight)
+out        = x + down
+```
+
+The three projection weights have shapes `[I,H]`, `[I,H]`, `[H,I]`. There is no
+bias, architecture detection, model graph registry, checkpoint download or
+dependency on the external NInfer/Cinference model runtime. These are **not yet
+complete Qwen/Llama adapters**: GDN, embeddings, final head and model-specific
+binding still need independent implementations. Standalone RoPE/attention and
+one complete standard decoder layer with dense KV state are now available below. The
+existing `venturi qwen` generation path remains unchanged and external-backed.
+
+Ownership and numerical boundaries:
+
+- `DenseWeight` and `Q4RowSplitWeight` describe stored matrices; preparation
+  takes owned copies. Prepared weight tensors must not be mutated.
+- `CudaBackend` provides Venturi-owned CUDA RMSNorm, SwiGLU and residual-add
+  kernels. Dense Linear uses a Venturi C ABI bridge to **cuBLAS**, not an
+  original GEMM algorithm. No PyTorch C++ extension ABI is required.
+- Q4 execution requires an **explicit** `AdaBackend`; its existing attributed
+  kernels are reused, not rebranded as a new quantized GEMM. No Q8 operator is
+  added by this milestone. The standalone blocks library does not include the
+  external engine or its headers.
+- Native activations/dense weights support FP16, BF16 and FP32 on SM89. Q4
+  retains the existing FP16/BF16 activation contract. RMSNorm materializes its
+  scale vector in FP32, accumulates statistics in FP32 and casts its output
+  once. Inputs must have representable FP32 square-sums; epsilon must be a
+  positive normal FP32 value. Each Linear, SwiGLU and residual output is also
+  activation-cast; this does not promise the same bits as a fully fused MLP.
+- Mutable activations and scratch are explicit `GatedMLPWorkspace` buffers.
+  Allocate outside timing/graph capture and use independent buffers for
+  overlapping executions. Dense cuBLAS uses a caller-owned 4 MiB scratch
+  buffer, reused sequentially by the three projections. Native submission
+  does not perform weight decoding/materialization into a full floating model.
+- Plans have fixed token extents and may be reused for matching-shape requests
+  with independent workspaces. Use `weights.upload(...).prepare(tokens=...)` to
+  share one owned weight allocation across decode/prefill shapes. The older
+  `weights.prepare(...)` convenience call still uploads a separate copy per call.
+  There is no implicit global cache or content-based deduplication.
+- Warm plans on the intended stream before capture/timing. Keep plans, graphs,
+  inputs, outputs and workspaces alive until queued work completes. CUDA plans
+  do not use per-operator PyTorch numerical fallbacks; `TorchBackend` is a
+  separately selected, allocating CPU/CUDA reference. Its Q4 reference
+  explicitly materializes exact stored values in FP32/64, not BF16-rounded
+  weights.
+
+Small CPU example (the explicit reference backend, not a CUDA speed claim):
+
+```python
+import torch
+from venturi.models import GatedMLPWeights
+from venturi.ops import DenseWeight, TorchBackend
+
+h, i, tokens = 32, 80, 7
+weights = GatedMLPWeights(
+    norm=torch.ones(h),
+    gate=DenseWeight(torch.randn(i, h) / h**0.5),
+    up=DenseWeight(torch.randn(i, h) / h**0.5),
+    down=DenseWeight(torch.randn(h, i) / i**0.5),
+)
+plan = weights.prepare(TorchBackend(), tokens=tokens,
+                       dtype=torch.float32, device="cpu", epsilon=1e-6)
+workspace = plan.empty_workspace()
+x = torch.randn(tokens, h)
+out = torch.empty_like(x)
+plan.run(x, out=out, workspace=workspace)
+```
+
+Build explicitly **on the Linux CUDA server**, never implicitly at import:
+
+```bash
+PYTHONPATH=src python -m venturi.ops.build --component blocks --output-dir build/blocks
+# Optional, only when composing packed Q4 projections:
+PYTHONPATH=src python -m venturi.ops.build --component ada --output-dir build/ada
+```
+
+Each command prints a content-addressed library path and retains compiler output
+and a build manifest. Load the first path with `CudaBackend(library)` and
+prepare the same block on `device="cuda:0"` with matching stored dense-weight
+dtype. For Q4, pass `q4_backend=AdaBackend(q4_library)` explicitly. Neither path
+loads the external Qwen engine. The ordinary Qwen backend is not switched by
+building these libraries.
+
+### Shared-block qualification and current performance limits
+
+On the RTX 4090D, **127 selected tests passed without skips**, including the
+existing Q4 operators, new primitives, independent FP64 composition tests,
+buffer/alias guards, ownership, current-stream execution, graph replay and a
+real-sized near-cancellation regression. Local CPU validation passed 366 tests
+with 90 CUDA/asset skips. Compilation occurred only on the remote CUDA host.
+
+Synthetic full-size sublayers tested `[H,I]=[4096,14336]` and `[5120,17408]`,
+T=1/128, with BF16 dense or packed Q4 weights. Every output of every individual
+Op was compared with independent FP64 math on its actual represented inputs:
+**96 stage checks passed** across both execution backends. The existing Q4
+criterion was retained. All 16 full-block eager/graph output comparisons were
+bit-identical within their backend. This is not a full model, pretrained
+checkpoint evaluation or a claim of identical BF16 outputs across backends.
+
+Two implementation issues were resolved rather than hidden by tolerance changes:
+the Q4 reference now preserves decoded stored weights in FP32/64 instead of
+rounding them to BF16, and dense GEMM requests **pedantic FP32 computation**.
+The earlier default cuBLAS mode exceeded the fixed per-Op bound on two
+near-cancellation outputs at T=128/N=5120/K=17408; pedantic mode passes those
+same inputs and unchanged bound. Counterexamples and the regression are retained.
+Separate whole-chain FP64/BF16 diagnostics can exceed a small error budget even
+on the PyTorch reference because intermediate casts amplify rounding-boundary
+differences. Those diagnostics remain visible; they are not relabeled as
+lossless correctness or substituted for independent per-Op qualification.
+
+Representative unprofiled **CUDA-graph wall microseconds per sublayer call**:
+
+| Synthetic shape | Stored format | T | PyTorch reference | Native block |
+|---|---|---:|---:|---:|
+| Llama-style 4096/14336 | BF16 | 1 | 393.7 | 381.3 |
+| Llama-style 4096/14336 | BF16 | 128 | 622.8 | 2209.9 |
+| Llama-style 4096/14336 | Q4 | 128 | 1299.6 | 574.5 |
+| Qwen-style 5120/17408 | BF16 | 1 | 585.0 | 573.9 |
+| Qwen-style 5120/17408 | BF16 | 128 | 846.9 | 3838.9 |
+| Qwen-style 5120/17408 | Q4 | 128 | 2114.9 | 858.4 |
+
+**Strict dense prefill is substantially slower than PyTorch at present.** This
+is a correctness-first foundation, not a promoted fast backend. Q4 timings
+compare packed execution using the existing Ada operator with an explicitly
+materialized FP32 PyTorch reference, not another quantized engine or a new Q4
+algorithm. No whole-model TPS benefit follows. The phase order was fixed
+(Torch eager/graph, native eager/graph), with >=2 seconds per phase after warmup;
+this is descriptive microbenchmark evidence, not a multi-session ABBA claim.
+
+Raw CUDA-event elapsed, wall time, process CPU time and 200 ms whole-device GPU
+samples (busy, VRAM, power, clocks, temperature) are retained per phase. CPU
+includes this Python process/native library work and benchmark waiting; 100%
+means one core. GPU samples are coarse, with the first second excluded. They
+are not achieved occupancy or DRAM bandwidth utilization. Counter policy stayed
+`RmProfilingAdminOnly: 1`; no new counter probe, driver privileges or clocks
+were changed. No kernel-attribution diagnosis is claimed by this benchmark.
+
+Reproduce with `tools/benchmark_shared_mlp.py --library BLOCKS_LIBRARY
+--q4-library ADA_LIBRARY --output-directory NEW_DIRECTORY` on the CUDA host.
+Build manifests, tests, all eight cases, diagnostics and preserved failures are
+in [`benchmarks/shared-mlp`](benchmarks/shared-mlp/).
+
+
+## Shared weight residency and attention primitives
+
+Weight storage is now separate from shape-dependent execution plans. This applies
+to native dense, native Q4, and the explicit PyTorch reference. Uploads own copies
+and establish readiness before binding plans on other streams. Shape binding does
+not copy/materialize tensors; dense shapes get separate cuBLAS handles. Plans
+retain storage if the resident wrapper is released. Tensors exposed through
+`storage_tensors` are diagnostic, **read-only by contract**, not mutation APIs.
+
+```python
+# `weights` is GatedMLPWeights; `backend` is CudaBackend or TorchBackend.
+resident = weights.upload(backend, dtype=torch.bfloat16, device="cuda:0")
+decode = resident.prepare(tokens=1)
+prefill = resident.prepare(tokens=128)
+# These plans share weight pointers, but not activation/scratch buffers.
+decode_workspace = decode.empty_workspace()
+prefill_workspace = prefill.empty_workspace()
+print(resident.storage_nbytes)
+```
+
+Individual operators expose `backend.upload_linear(...)` and
+`backend.upload_rmsnorm(...)`, with `.prepare(tokens=...)` on each resident.
+The standalone `AdaBackend.upload_linear(weight, device="cuda:0")` additionally
+allows FP16/BF16 activation plans and different routes to share the same Q4 planes;
+the general blocks resident fixes the activation dtype at upload. No automatic
+weight conversion, repacking, global registry or runtime weight swapping occurs.
+Retain plans, tensors, graphs and workspaces until all queued work completes.
+Call dense plans' `.close()` only afterwards; it releases execution handles, not
+other plans' shared weights. The independent blocks library is now **ABI 2**;
+rebuild it explicitly rather than loading an old ABI 1 library.
+
+### RoPE and causal grouped-query attention
+
+Both native and reference backends expose the same explicit APIs:
+
+```python
+rope = backend.prepare_rope(tokens=128, heads=24, head_dim=256,
+                            rotary_dim=256, layout="split_half",
+                            dtype=torch.bfloat16, device="cuda:0")
+# x/out: [128,24,256]; cos/sin: caller-selected FP32 [128,128].
+rope.run(x, cos, sin, out=rotated)
+
+attention = backend.prepare_attention(
+    tokens=128, kv_tokens=640, query_heads=24, kv_heads=4, head_dim=256,
+    dtype=torch.bfloat16, device="cuda:0",
+)
+# q/out: [128,24,256]; k/v: contiguous [640,4,256].
+attention.run(q, k, v, out=attended)
+```
+
+- Layout is contiguous `[tokens, heads, channels]`. RoPE supports split-half or
+  interleaved pairs, an even partial rotary extent, and exact in-place rotation.
+  Frequency conventions, positions, scaling and table selection belong to the
+  caller/model adapter. It does not infer a model's RoPE convention.
+- Attention supports FP16/BF16/FP32, head dimensions 64/128/256, MHA/GQA/MQA,
+  FP32 accumulation and a final activation cast. Adjacent groups of `Hq/Hkv`
+  query heads share each KV head. The default scale is `1/sqrt(head_dim)`.
+- With Q length T and KV length S >= T, query row i sees keys `0..S-T+i`.
+  This bottom-right causal alignment supports prefill, chunked prefix attention,
+  and one-token decode. The caller must provide already assembled, visible K/V.
+  No padding mask, bias or sliding window is provided. Logits must remain finite
+  in FP32; overflow/non-finite inputs have no numerical guarantee.
+- Native RoPE/attention run on the caller's current stream, accept caller-owned
+  output and allocate no GPU scratch. Output must not alias Q/K/V; RoPE only
+  permits exact input/output aliasing. Warm execution before CUDA graph capture.
+- Native attention uses **serial-key online softmax**, without a score matrix.
+  It is a correctness-first baseline, **not FlashAttention, PagedAttention, a
+  paged/quantized KV cache, or a promoted fast kernel**. The explicit PyTorch
+  reference allocates scores/repeated KV heads and is not a native fallback.
+
+A complete standard decoder layer with dense KV ownership/append and Q/K/V/output
+projection composition is now available below. Full independent-model execution
+still needs checkpoint-specific bindings, embeddings/final head and, for the
+hybrid 27B checkpoint, GDN and its model-specific normalization/gating. None of
+these components replaces the current external-backed `venturi qwen` path.
+
+### Residency/attention qualification on RTX 4090D
+
+**217 selected remote tests passed without skips**; local validation passed
+416 tests with 130 CUDA/asset skips. Coverage includes FP16/BF16/FP32, independent
+FP64 per-Op checks, buffer guards, both RoPE layouts/partial rotation, causal GQA,
+4K-token prefix correctness, chunk/single-query equivalence, CUDA graph replay,
+source isolation, shape binding without tensor copies/allocations, resident
+lifetime, and overlapping streams with independent execution buffers.
+
+For one synthetic `[H,I]=[5120,17408]` MLP prepared at T=1/17/128:
+
+| Stored format | Separate weight MiB | Shared weight MiB | Sequence wall us, separate | Shared |
+|---|---:|---:|---:|---:|
+| BF16 | 1530.06 | 510.02 | 7318.2 | 7263.3 |
+| Q4 g64/FP16 scale | 406.46 | 135.49 | 1916.2 | 1551.4 |
+
+The sequence is **three sequential MLP calls in one CUDA graph**, not three
+concurrent requests or a model token. Weight storage falls exactly 66.7%; all
+four trials' outputs and eager/graph comparisons were bit-identical. Dense
+sequence timing was effectively flat (-0.75%); Q4 sequence latency fell 19.0%
+in this ABBA session only. No kernel/cache attribution, single-shape TPS benefit
+or whole-model gain is inferred from that Q4 result. Whole-device NVML VRAM was
+2470→1450 MiB (dense) and 1262→978 MiB (Q4), distinct from tensor-only weight bytes.
+
+Preparation wall/CPU times are separate from execution. BF16 wall was
+1.824–1.906 s separate versus 0.613–0.675 s shared; process CPU was
+5.795–5.969 s versus 1.951–2.057 s (four intra-op CPU threads). Q4 preparation
+was 61.0–65.5 ms separate versus **22.7–95.6 ms shared**; the slow shared trial is
+retained, not excluded to claim a uniform loading speedup.
+
+Standalone BF16 operator median CUDA-graph **wall microseconds/call**:
+
+| Operator shape | Explicit PyTorch reference | Native |
+|---|---:|---:|
+| Attention T1/S129, Hq24/Hkv4/D256 | 24.50 | 56.79 |
+| Attention T128/S128, Hq24/Hkv4/D256 | 62.98 | 177.49 |
+| Attention T128/S640, Hq24/Hkv4/D256 | 144.88 | 1510.97 |
+| Attention T128/S128, Hq32/Hkv8/D128 | 50.95 | 209.20 |
+| RoPE T1/H24/D256, split-half | 11.79 | 4.40 |
+| RoPE T128/H24/D256, split-half | 20.23 | 4.49 |
+
+Every full-size operator/backend output passed the independent FP64 bound and
+its eager/graph outputs were identical. **Attention is slower in every timed
+case** and is not promoted. RoPE gains are against this explicit PyTorch
+reference, not a third-party fused kernel. Native runs do not use Tensor math
+fallbacks. Strict dense GEMM prefill remains slower as documented above.
+
+Timing is one unprofiled ABBA session, two samples per condition, at least two
+seconds per phase, three warmups, 100 graph replays per chunk. Event/wall/CPU
+measurements and raw 200 ms telemetry are retained. Execution CPU is about one
+busy core, including Python graph dispatch and CUDA-event waiting; this change
+does not claim an idle-CPU optimization. During the Q4 sequence native GPU busy
+was 98.5–100% by phase mean, power 403.5–416.3 W, SM clock 2760–2770 MHz and
+temperature 54 C. These coarse whole-device samples are **not achieved occupancy
+or bandwidth utilization**. Counter access remains restricted by
+`RmProfilingAdminOnly: 1`; no counter retry, privilege/clock changes, profiler
+attribution or timeline-gap diagnosis was performed.
+
+An expanded test run exposed an unseeded FP16 whole-chain residual cancellation
+failure. A deterministic seed-7 input and outputs are preserved under
+`failures/composite-fp16-counterexample.json`: every one of its six Ops passes
+the unchanged independent FP64 bound, while the composite relative-error
+assertion fails. Tests now check those per-Op bounds and bit-identical native
+composition instead of treating amplified whole-chain rounding as an Op defect.
+No per-Op tolerance was enlarged; this is not a claim of lossless FP16 execution.
+
+Qualification and unprofiled baseline/change measurements are retained in
+[`benchmarks/residency-attention`](benchmarks/residency-attention/). Reproduce on
+the Linux CUDA host with `tools/benchmark_residency_attention.py --library
+BLOCKS_LIBRARY --q4-library ADA_LIBRARY --output-directory NEW_DIRECTORY`.
+
+
+
+## Independent decoder layer with dense KV state
+
+`DecoderLayerWeights` now composes one **bias-free, pre-RMSNorm GQA/SwiGLU**
+decoder layer using the existing independent Ops:
+
+```text
+x → RMSNorm → Q / K / V projections
+              Q,K → caller-selected RoPE tables
+              K,V → directly into this layer/request's cache tail
+              Q + visible K,V → causal attention → output projection
+x + projected → existing normalized residual SwiGLU MLP → out
+```
+
+This is **not a complete Qwen/Llama checkpoint adapter**. There are no embeddings,
+final norm/head, sampling, checkpoint-name bindings, Q/K normalization, attention
+gates, biases, GDN, paging, prefix sharing or KV quantization in this component.
+Native execution currently supports BF16 activations/dense weights and BF16 KV;
+projections may independently use the existing explicit Q4 descriptor/plugin.
+`TorchBackend` provides BF16 and an explicit FP64 reference mode. Other existing
+model/generation backends are unchanged.
+
+### Ownership and execution boundaries
+
+- `weights.upload(backend, dimensions=AttentionDimensions(...))` owns one copy of
+  each matrix/vector. Each T-specific `.prepare(tokens=T)` shares those pointers;
+  `.at(position=P)` adds only attention-position metadata and shares the same
+  Linear handles. No per-position weight upload, handle creation, repacking or
+  runtime full-weight decode occurs. Upload still **copies the source**; it does
+  not automatically adopt/free checkpoint tensors or deduplicate independent uploads.
+- One `LayerKVCache` belongs to one resident layer and one request. Its dense
+  `[capacity,Hkv,D]` K/V tensors allocate once. K/V Linear writes directly to
+  `[P:P+T]`; K is rotated in place. There is **no separate append-copy kernel or
+  temporary K/V projection allocation**. Attention sees only `[0:P+T]` and row i
+  sees keys `0..P+i`. Uninitialized/stale tail slots are never visible.
+- `DecoderWorkspace` is one execution lane's aligned arena. Norm/down-projection
+  storage is reused; query/attention-output slots become MLP gate/up slots after
+  attention consumes them. A single dense cuBLAS scratch buffer serves all seven
+  projections. The same arena can serve smaller T and compatible sequential
+  layers, including mixed dense/Q4 layers with different scratch requirements.
+- CUDA cache/arena operations are bound to their creating stream. Distinct streams
+  require distinct caches/workspaces. Host submission locks prevent threads from
+  interleaving a shared arena's operator sequence. They do not synchronize the GPU
+  or turn one arena into concurrently usable storage.
+- Every call checks shapes, cache ownership/visible position, capacity, aliasing,
+  alignment and plan lifetime before writes. A submission exception after execution
+  starts poisons the cache. `reset()` discards visibility; `truncate(P)` discards a
+  suffix but is not a fork/shared-prefix implementation. Both use stream ordering,
+  not a GPU memset. A successful call commits visible length after **enqueue**,
+  not after GPU completion. Keep owners/buffers alive until work completes.
+
+Explicit composition sketch (tables and hidden states come from the caller):
+
+```python
+from venturi.models import AttentionDimensions
+
+dims = AttentionDimensions(query_heads=24, kv_heads=4, head_dim=256,
+                           rotary_dim=256, rope_layout="split_half")
+resident = weights.upload(backend, dimensions=dims)  # DecoderLayerWeights
+prefill = resident.prepare(tokens=128)
+decode = resident.prepare(tokens=1)
+cache = resident.empty_cache(capacity=2048)
+workspace = prefill.empty_workspace()  # also fits decode; no new arena per step
+
+prefill.at(position=0).run(hidden_prompt, cos_prompt, sin_prompt,
+    out=prompt_out, workspace=workspace, cache=cache)
+decode.at(position=cache.length).run(hidden_next, cos_next, sin_next,
+    out=next_out, workspace=workspace, cache=cache)
+```
+
+### Managed fixed-position graph capture
+
+Use `step.capture(..., out=..., workspace=..., cache=...)` outside any existing
+capture. The prefix must already be valid and the caller must avoid other CUDA
+work/allocations in this process during setup. Preparation uses a non-default
+stream with explicit dependencies to/from the owning stream. Warmup/capture may
+write uncommitted tail slots but **does not advance visible cache length**.
+The returned wrapper retains its buffers; `.run()` replays and commits length.
+It rejects a wrong cache position, changed tensor storage or a closed plan.
+A new position needs another `.at(...)`/capture; this is not a dynamic-length
+whole-model decode graph. Raw external capture of stateful `.run()` is rejected
+so Python KV bookkeeping cannot silently drift from replayed GPU work.
+
+This layer does not make native attention fast: the serial-key online-softmax
+baseline and pedantic dense GEMM remain the documented performance limitations.
+Qualification and matched workspace/backend measurements are under
+[`benchmarks/decoder-layer`](benchmarks/decoder-layer/). Run
+`tools/benchmark_decoder_layer.py --library BLOCKS_LIBRARY --q4-library ADA_LIBRARY
+--output-directory NEW_DIRECTORY` on the Linux CUDA host. This benchmark runs two
+synthetic standard decoder layers, **not the hybrid Qwen checkpoint or model TPS**.
+
+
+
+### Decoder-layer qualification and measured limits
+
+On the RTX 4090D, **246 selected tests passed without skips**. Local validation
+passed 431 tests with 144 CUDA/asset skips. The new tests cover FP64 independent
+full-layer references, both rotary layouts/partial rotation, prefill/chunk/decode
+consistency, BF16 cache capacity/reset/truncation, failure poisoning, source
+isolation, shape/position binding without weight copies, mixed dense/Q4 scratch
+requirements, shared-arena host submission serialization, independent request
+streams, fixed-position graph visibility, changed-pointer rejection, and native
+execution without allocating Tensor/numerical fallbacks.
+
+The full-size benchmark runs **two sequential synthetic standard layers** with
+H5120/I17408/Hq24/Hkv4/D256, BF16 activation/KV, either dense BF16 or packed Q4
+weights, T128/P0 or T1/P128 and capacity129. Decode prefixes contain the real
+preceding synthetic prefill, not random/zero KV. All **240 per-Op FP64 checks**
+passed using unchanged bounds and actual represented inputs. Separate-temporary
+composition and the layer's real cache matched exactly. All **32 two-layer
+workspace/graph phase outputs** were bit-identical within their backend.
+Native and reference backends are **not bit-identical** to each other; these are
+numerical-contract checks, not model-quality or lossless BF16 claims.
+
+Active per-lane activation/scratch storage, not weights or persistent KV:
+
+| Stored projections | T / prefix | Separate arenas for 2 layers | One sequentially shared arena |
+|---|---:|---:|---:|
+| BF16 | 128 / 0 | 30.00 MiB | 15.00 MiB |
+| Q4 | 128 / 0 | 22.00 MiB | 11.00 MiB |
+| BF16 | 1 / 128 | 8.172 MiB | 4.086 MiB |
+| Q4 | 1 / 128 | 0.172 MiB | 0.086 MiB |
+
+Sharing halves those workspace bytes for two compatible layers; it does not
+halve the whole model's VRAM. Layer weights and request/layer KV remain distinct.
+The two native layers own 1300.08 MiB of BF16 weights or 345.39 MiB of Q4 weights,
+shared across T1/T128 plans; their two BF16 KV caches total 1.008 MiB. The per-layer
+versus shared-arena timings differed by less than 0.3% here: **a memory/lifetime
+improvement, not evidence of a meaningful kernel speedup**.
+
+Median unprofiled **wall microseconds per two-layer sequence** with a shared arena:
+
+| Stored projections | T / prefix | Explicit PyTorch reference | Native |
+|---|---:|---:|---:|
+| BF16 | 128 / 0 | 2351.6 | 11099.0 |
+| BF16 | 1 / 128 | 1599.3 | 1602.7 |
+| Q4 | 128 / 0 | 5437.7 | 2928.7 |
+| Q4 | 1 / 128 | 3061.6 | 1667.0 |
+
+Dense prefill is still about **4.7x slower** than the reference. Q4 compares
+packed execution with explicitly FP32-materialized reference weights, not another
+quantized engine. Its synthetic codes are uniform [-8,7] with a nonzero population
+mean, not quantized pretrained weights. Maximum absolute cross-backend difference
+4.0 is retained for the two Q4 cases (normalized RMS differences 0.0972%/0.0698%);
+BF16 normalized RMS differences were about 0.716%/0.704%. Per-Op checks passed, but
+these full-chain diagnostics are not relabeled as identical model behavior or
+pretrained quality evidence. No full Qwen, Llama, serving or generation-TPS claim
+follows from these operator/layer measurements.
+
+Workspace comparisons use ABBA separate/shared/shared/separate; backend comparisons
+use ABBA reference/native/native/reference. Each phase lasts at least two seconds
+after three capture warmups, with 100 wrapper calls per event chunk. A call runs
+both layer graphs and manages cache visibility; timing includes host validation,
+dispatch/bookkeeping and event waiting, not just kernel durations. Every repeat
+truncates back to the same prefix: this is **fixed-position replay, not a sustained
+autoregressive rollout**. One ABBA session is descriptive, not a confidence interval.
+Process CPU remained about one busy core; no idle-CPU optimization is claimed.
+
+Raw 200 ms GPU busy/VRAM/power/clocks/temperature samples and event/wall/CPU time
+are retained, with the first second of each phase excluded from telemetry summaries.
+Both backend residents coexist during the comparison, so whole-device VRAM is not
+a minimal single-backend model peak. Q4 prefill shared-arena phase means were
+100% GPU busy, 421.9–427.5 W, 2628–2634 MHz SM clock and 53.6–54.6 C. These are not
+achieved occupancy or bandwidth utilization. `RmProfilingAdminOnly: 1` remains;
+no restricted counter retry, privilege/clock changes or new profiler attribution
+was performed. The production external Qwen runner hash is unchanged; the GPU
+returned to 387 MiB/0% busy after the jobs.
+
+Initial default-stream capture and CPU-base-alignment test assumptions were fixed
+and their logs preserved under `benchmarks/decoder-layer/failures`. Capture now
+uses an explicit non-default preparation stream with dependencies; CUDA arenas
+retain 256-byte alignment, while CPU tests check relative region alignment.
+
+
 ## Qwen-27B: explicit optional native backend
 
 `venturi qwen` supports the existing NInfer v3 artifact whose text config is
@@ -67,8 +543,9 @@ inspection, verified staging, resident-process transport, CLI and measurement.
 No weights are expanded to a full FP16 model. Vision and MTP are not enabled;
 only text and the explicitly selected drafter are materialized. The Python
 client does not create a PyTorch CUDA context or run per-token Python forwards.
-One owned native process holds the GPU model across sequential API requests;
-there is no HTTP server or background service. Closing the session releases it.
+One owned native process holds the GPU model across API calls. A call can run
+one request or a bounded native batch; there is no HTTP server or background
+service. Closing the session releases it.
 Python transport time and native generation times are reported separately.
 
 ### Build against the existing Ada native implementation
@@ -105,9 +582,9 @@ venturi qwen benchmark /absolute/path/to/model.ninfer \
 ```
 
 Defaults: non-thinking user chat via the embedded template, greedy selection,
-BF16 KV, context 2048, prefill chunks 128, CUDA graphs on, speculative decoding
-off. `--raw-prompt` bypasses the chat template. `--execution eager` disables
-graphs; `--prefill-chunk`, `--max-context` and `--kv-dtype bf16|k8v4` are explicit
+BF16 KV, context 2048, prefill chunks 128, CUDA graphs on, blocking CPU waits,
+speculative decoding off. `--raw-prompt` bypasses the chat template.
+`--execution eager` disables graphs; `--prefill-chunk`, `--max-context` and `--kv-dtype bf16|k8v4` are explicit
 startup choices. Prompt plus requested output must fit context: no truncation.
 EOS is respected in generation; only the explicit benchmark `--ignore-eos`
 requests fixed output lengths. Prefix reuse is disabled for isolated-request
@@ -127,7 +604,8 @@ with QwenNativeSession(
     print(first['text'], second['text'])
 ```
 
-Calls are sequential; there is no concurrent access to one session. Invalid
+RPC calls are sequential; independent concurrent Python calls are rejected. Use
+`generate_many` for native parallel execution within one call (below). Invalid
 requests are rejected before execution where possible. Native process exit,
 malformed responses and read timeout close the owned process; no other GPU job
 is stopped. No fallback to a different model, precision or backend is implicit.
@@ -143,6 +621,177 @@ The launcher uses the staged Venturi source and explicit native runner on
 School_4090D. Model paths refer to that server. `VENTURI_QWEN_MODEL`,
 `VENTURI_QWEN_RUNNER`, `VENTURI_QWEN_DIR`, `VENTURI_REMOTE_PYTHON` and
 `VENTURI_SSH_HOST` override that deployment without changing credentials.
+
+### Switch between single and parallel dispatch
+
+`single` is the default: requests execute one at a time. `parallel` submits the
+whole input list before waiting, so the existing native scheduler can form
+compact decode batches on **one GPU with one copy of the weights**. This is
+request batching, not tensor parallelism, multi-GPU execution, Python threads,
+or a guarantee that one person's request generates faster.
+
+```bash
+# Serial list: repeat --prompt, or use --prompts-file prompts.json.
+venturi qwen generate /absolute/path/to/model.ninfer \
+  --runner /absolute/path/to/venturi-qwen-runner \
+  --mode single --prompt 'What is 2+2?' --prompt 'Explain gravity briefly.'
+
+# Native parallel list: reserve up to four active requests.
+venturi qwen generate /absolute/path/to/model.ninfer \
+  --runner /absolute/path/to/venturi-qwen-runner \
+  --mode parallel --max-concurrency 4 \
+  --prompt 'What is 2+2?' --prompt 'Explain gravity briefly.' --json
+```
+
+The SSH launcher accepts these same options. `--prompts-file` is a JSON array
+of 1–16 strings; its path is **on the server** when using the launcher. Results
+retain input order, each request has isolated recurrent/KV state, EOS is
+respected, and prefix reuse remains disabled. Every prompt is prepared and
+checked against the output budget before any request in that list is submitted.
+One prompt alone is still B=1, even with `--mode parallel`.
+
+For switching **without reloading the model**, reserve concurrency once:
+
+```python
+with QwenNativeSession(
+    '/absolute/path/to/model.ninfer',
+    runner='/absolute/path/to/venturi-qwen-runner',
+    mode='single', max_concurrency=4, max_context=2048,
+) as model:
+    prompts = ['What is 2+2?', 'Explain gravity briefly.']
+    serial = model.generate_many(prompts, max_new_tokens=64)
+    model.set_mode('parallel')
+    batched = model.generate_many(prompts, max_new_tokens=64)
+    model.set_mode('single')
+    one = model.generate('Now explain CUDA graphs.', max_new_tokens=64)
+    # A per-call override does not change the session's default mode.
+    batched_again = model.generate_many(prompts, mode='parallel')
+```
+
+`set_mode` is idle-only and changes dispatch, **not the startup GPU reservation**.
+The native maximum concurrency is fixed at 1–8. Defaults are C=1 in single mode
+and C=4 in parallel mode; parallel needs C>=2. A session initially created with
+C=1 needs reopening with a larger reservation before it can run parallel. A
+single request in a C=4 session does not release the other reserved lane state.
+The list limit is 16, with excess active requests waiting in the native FIFO.
+The session timeout covers the complete batch response, not each row separately.
+
+`--max-context` is the per-request ceiling. `--kv-capacity` is the **shared
+physical token budget**, rounded to 64-token pages; by default it reserves
+`C * ceil(max_context / 64) * 64` tokens. An explicit smaller shared budget can
+reduce VRAM but may reduce simultaneous admissions. It must hold one full
+context and at least one page per lane; it cannot exceed the full C-lane page
+capacity. No automatic KV precision change or OOM fallback is performed.
+In particular, the successful **single-request 256K K8V4 test does not mean four
+256K caches fit on a 24 GB GPU**. Use shorter per-request contexts for parallel
+work, or explicitly budget a shared cache and accept lower concurrency.
+
+For list benchmarking, `venturi qwen benchmark` uses the same prompt/mode
+options. It reports **all output tokens / elapsed batch wall time**, including
+preparation, prefill and queueing, excluding startup and warmup. It does not sum
+overlapping per-request decode times. Native `runtime.mean_decode_batch` exposes
+the actual compact batch size; configured C is only an upper bound. The existing
+one-prompt single benchmark retains its separate decode-only metric.
+
+**Numerical limitation:** serial and compact-batched execution are not guaranteed
+to produce identical greedy token IDs. Acceptance found counterexamples with
+both BF16 and K8V4 KV on the stored quantized checkpoint. Single-row dispatch
+and serial resets are checked independently, alongside literal-answer/state
+isolation tests. These checks are not a broad model-quality evaluation; do not
+interpret successful batching as a proof of lossless numerical equivalence.
+
+This interface requires the **protocol-3 runner** built from the current source.
+Older binaries fail explicitly rather than silently ignoring concurrency. The
+math, paged cache, scheduler and kernels are still the external NInfer/Cinference
+implementation; this change exposes those capabilities in Venturi's public API.
+`tools/validate_qwen_modes.py` is a finite production-path acceptance/comparison
+with one resident process, serial/parallel mode switches, ordered exact-ID
+comparisons on its stated workload, and wall-clock throughput.
+
+Production-API acceptance on the same RTX 4090D / Qwen27B checkpoint used eight
+requests per wave, **509 raw prompt tokens + 64 fixed output tokens each**,
+context 2048, prefill chunk 512, graphs on, no speculation/reuse. Each comparison
+kept one model resident: warm both dispatch paths, then two measured waves per
+mode in single/parallel/parallel/single order. These retained runs used the
+protocol-2 runner and CUDA automatic CPU waits, before the blocking-wait default.
+
+| Startup reservation | KV profile / shared capacity | Single total tokens/s | Parallel total tokens/s | Actual parallel decode batch |
+|---|---|---:|---:|---:|
+| C=4 | BF16 / 8192 | 46.82 | 116.11 | 3.91 |
+| C=8 | K8V4 / 4608 | 46.98 | 150.05 | 7.20 |
+
+These are **separate within-configuration serial/parallel comparisons**, not an
+isolated precision comparison. Serial state replay and one-row parallel checks
+passed; four distinct literal answers were returned in the correct order under
+each tested configuration. Some ordinary raw/chat greedy outputs differed
+across modes; full IDs, reproduction script, the initial failed equality tests,
+and revised behavioral checks are retained in
+[`benchmarks/qwen/modes`](benchmarks/qwen/modes/). This is a bounded offline API,
+not a new HTTP server or batch-invariant numerical implementation.
+
+### CPU-efficient CUDA waits
+
+The native runner defaults to `--cpu-wait blocking`. CUDA blocks the waiting
+CPU thread on a synchronization primitive instead of busy-waiting for GPU
+completion. This changes the **CPU waiting policy**, not the model mathematics,
+KV precision, GPU stream dependencies, CUDA Graphs or request concurrency. It
+only affects this owned runner process's CUDA context, not other GPU jobs or
+system-wide settings. See the
+[NVIDIA CUDA 13 runtime reference](https://docs.nvidia.com/cuda/archive/13.0.0/cuda-runtime-api/group__CUDART__DEVICE.html).
+
+```bash
+# CPU-efficient default; works with single or parallel dispatch.
+venturi qwen generate /absolute/path/to/model.ninfer \
+  --runner /absolute/path/to/venturi-qwen-runner \
+  --cpu-wait blocking --prompt 'Explain CUDA graphs.'
+
+# Restore CUDA's previous automatic scheduling heuristic for latency comparison.
+# On the tested server this heuristic actively spins while waiting.
+venturi qwen benchmark /absolute/path/to/model.ninfer \
+  --runner /absolute/path/to/venturi-qwen-runner \
+  --cpu-wait auto --prompt 'Explain CUDA graphs.' --json
+```
+
+Python uses `QwenNativeSession(..., cpu_wait='blocking')` or `cpu_wait='auto'`.
+This is a startup choice, independent of runtime `set_mode`. The protocol-3
+startup response reports the applied policy and CUDA device flags; mismatched
+runners fail rather than silently ignoring the option. Non-scheduling CUDA
+context flags are preserved. A sleeping CPU may have extra wakeup latency;
+`auto` remains available when maximum raw throughput matters more than freeing
+CPU capacity.
+
+The earlier internal `host_active_fraction` counter **is not process CPU use**:
+it excludes time inside device waiting, where the driver may still spin. Use
+`tools/benchmark_qwen_cpu.py` on the Linux CUDA server to measure actual native
+process user+system CPU seconds from `/proc/<pid>/stat`, plus Python process CPU
+separately. **100% means one logical CPU core**, not the whole machine. Measurements
+include all threads in the owned native process and exclude startup/warmup.
+These counters do not measure CPU power, whole-system energy or energy/token.
+
+On the RTX 4090D / dual Xeon E5-2640 v4 server, a counterbalanced
+`auto / blocking / blocking / auto` comparison used four measured requests per
+process after warmup: each 509 raw prompt tokens + 64 fixed output tokens,
+BF16 KV, context 2048, chunk 512, graphs enabled, no speculation or prefix reuse.
+Startup and warmup were excluded. Combining both processes per policy:
+
+| Metric | CUDA auto | Blocking waits |
+|---|---:|---:|
+| Native CPU utilization (100% = one logical core) | 100.03% | 2.17% |
+| Native CPU seconds for 512 output tokens | 10.92 | 0.24 |
+| Native + Python CPU milliseconds/output token | 21.334 | 0.478 |
+| Total output tokens/s, including prefill | 46.90 | 46.27 |
+| Median native first-token latency | 255.56 ms | 257.76 ms |
+
+This freed almost one CPU core: **97.8% less native CPU time**, at the cost of
+**1.35% lower output throughput** on this workload. It is not a free tokens/s or
+energy-efficiency claim. All 16 measured single-request sequences matched the
+unchanged protocol-2 baseline's IDs. Targeted GPU/transport/accounting validation
+passed **62 tests**, including BF16/graphs, K8V4/eager, DFlash2, state replay and
+parallel dispatch; local CPU validation passed **309 tests** with 56 opt-in tests
+skipped. The separate pilot C4 experiment also reduced CPU use, with a small
+throughput cost. Evidence and the retained pilot are in
+[`benchmarks/qwen/cpu`](benchmarks/qwen/cpu/). Only the native wait policy and
+transport contract changed; external model/kernel libraries were not rebuilt.
 
 ### Optional byte-exact RAM staging
 
@@ -210,7 +859,65 @@ compute jobs stop the benchmark; only the known GNOME remote desktop service
 is allowed. Nsight brackets warmed generation, excluding loading; profiler
 timings are not substituted for unprofiled throughput.
 
+### Eight-request DFlash2 comparison on RTX 4090D
+
+A 2026-10-17 production-API test compared ordinary decoding with DFlash2 chain8
+at startup concurrency 8. One `generate_many` RPC submitted eight distinct
+non-thinking chat prompts (mixed prose/code), not eight HTTP clients. Both modes
+used the same RAM-staged quantized checkpoint, BF16 KV, context 2048, total KV
+capacity 16384, prefill chunk 512, CUDA graphs, blocking CPU waits, no prefix
+reuse, and 128 output tokens per request with EOS explicitly ignored. Tree
+verification and the indexed proposal head were off.
+
+Fresh resident sessions ran ordinary/DFlash2/DFlash2/ordinary. Each warmed one
+eight-request wave, then measured three waves: six measured waves and 6144
+output tokens per variant. Loading and warmup were excluded; aggregate
+throughput divides total outputs by shared client wall time, including prefill
+and JSON transport, never by summed concurrent request durations.
+
+| Measurement | Ordinary, C8 | DFlash2 chain8, C8 |
+|---|---:|---:|
+| Aggregate output tokens/s | 333.76 | 346.54 |
+| Median whole-batch client wall | 3.068 s | 2.955 s |
+| Median internal native first-token time | 301.2 ms | 380.3 ms |
+| Native CPU, 100% = one core | 4.94% | 4.46% |
+| Sampled whole-device GPU busy | 97.3% | 98.7% |
+| Whole-device VRAM | 18040 MiB | 19980 MiB |
+
+The observed aggregate gain is **3.83%**, not a multi-fold C8 speedup and not
+346.54 tokens/s per request. The drafter accepted 4872 of 9528 proposed tokens
+(51.13%), averaging 3.98 accepted draft tokens per speculative request-round.
+Mean active request rows per decode round were 7.58/5.37; startup capacity 8
+does not mean every round retains eight unfinished requests. Native first-token
+timestamps are not streamed client TTFT; this API returns a completed batch.
+
+**Speculation remains experimental and off by default.** Ordinary output matched
+its reference in 48/48 measured rows; DFlash2 matched 36/48. Two of eight prompts
+diverged consistently in all six measured DFlash waves: CPU-cache explanation
+at zero-based output index 61 and word-frequency code at index 42. Raw token IDs
+and comparisons are retained. Within-session warmup replay matched for all
+96 measured rows, and all four native processes exited cleanly. Repeatability
+does not establish lossless equivalence or an independent mathematical oracle.
+
+Sampled power averaged 392.7/400.2 W, SM clocks 2775.0/2771.3 MHz, memory clocks
+10251 MHz in both, and temperatures 52.4/54.5 C. These whole-device samples do
+not establish energy efficiency. Counter policy remained `RmProfilingAdminOnly:
+1`; achieved occupancy, compute throughput, DRAM bandwidth and cache/stall
+counters were unavailable. No new counter probe, privilege/clock change,
+kernel edit or model download was made. This is a throughput comparison, not
+a counter-verified bottleneck diagnosis. Local validation passed 332 CPU tests
+with 56 hardware/environment skips; Ruff and diff checks passed.
+
+Run `tools/benchmark_qwen_dflash.py CHECKPOINT --runner RUNNER
+--output-directory NEW_DIRECTORY --repeats 3` on the CUDA host to reproduce.
+The commands, complete outputs, CPU/wall counters, telemetry and summary are in
+[`benchmarks/qwen/dflash-c8`](benchmarks/qwen/dflash-c8/).
+
 ### Measured Qwen result on RTX 4090D
+
+The retained ordinary/speculative and concurrency/long-context measurements below
+used the earlier CUDA automatic CPU-wait policy. The current CPU-policy comparison
+is reported above; do not assume identical throughput under blocking waits.
 
 The native integration passed **310 GPU-enabled tests with no skips** (three
 expected Siphon warnings). Local CPU validation passed **259 tests**, with
@@ -290,10 +997,10 @@ runs were reused, not overwritten or selected by best throughput.
 
 The external Engine **already implements paged KV storage**, with 64-token page
 groups, startup-fixed concurrency 1–8, and compact decode batches. Venturi's
-production `QwenNativeSession` is still sequential with prefix reuse disabled.
-The research transport in `tools/csrc/qwen_concurrency_probe.cpp` exercises those
-existing native capabilities; it is not a new paging implementation or public
-concurrent Python API.
+production `QwenNativeSession.generate_many` now exposes single/parallel dispatch
+with prefix reuse disabled (see above). The historical measurements below used
+`tools/csrc/qwen_concurrency_probe.cpp`, retained for cache/profiling experiments;
+they are not measurements of a new paging implementation or HTTP serving API.
 
 On the same 4090D/checkpoint, eight requests per wave, each with 512 raw prompt
 tokens and 64 output tokens, produced these **total output rates including
@@ -370,6 +1077,423 @@ suite has 268 passing tests and 51 opt-in skips. Ordinary raw comparisons matche
 all 384 tested sequences, and normal chat matched all 48 comparisons. This is
 same-backend consistency testing, not independent FP32 mathematical qualification.
 The earlier speculative numerical counterexample remains relevant.
+
+### GPU-efficiency acceptance and the current gap
+
+[`AGENTS.md`](AGENTS.md) requires relevant inference optimizations to include
+correctness, unprofiled before/after measurements and GPU diagnostics, with
+unavailable hardware counters explicitly recorded. The reusable Linux telemetry
+command is:
+
+```bash
+PYTHONPATH=src python tools/benchmark_qwen_gpu.py /absolute/path/to/model.ninfer \
+  --runner /absolute/path/to/venturi-qwen-runner \
+  --output-directory /absolute/path/to/new-report-directory
+```
+
+The current protocol-3 / blocking-wait comparison kept one C=4-capable model
+resident, with a fixed shared KV reservation of 8192 tokens. Both modes ran eight
+509-token raw prompts and 64 fixed output tokens/request, context 2048, chunk
+512, BF16 KV, CUDA Graphs, no speculation/reuse. Both modes were warmed before
+single/parallel/parallel/single measured waves. Throughput includes preparation,
+prefill and queueing, excluding startup/warmup. NVML was sampled every 200 ms;
+the first second of each wave was excluded from telemetry statistics to reduce
+coarse-sample boundary mixing.
+
+| Measurement | Single dispatch | Parallel dispatch, C=4 |
+|---|---:|---:|
+| Total output tokens/s | 46.28 | 114.95 |
+| Actual mean decode batch | 1.00 | 3.91 |
+| Native CPU utilization (100%=one logical core) | 2.17% | 2.92% |
+| NVML GPU busy time | 98.80% | 98.91% |
+| NVML memory-controller busy time | 87.97% | 68.29% |
+| Whole-device VRAM used | 16914 MiB | 16914 MiB |
+| Sampled whole-device GPU power | 414.49 W | 403.63 W |
+
+A separate `--cpu-wait auto` session repeated the same dispatch workload:
+single/parallel throughput was 46.88/116.24 tokens/s, GPU busy time
+99.95%/100.00%, native CPU use 100.26%/100.12% of one logical core. Restoring
+busy-waiting therefore recovered only about 1.3%/1.1% throughput at the cost of
+nearly a full CPU core. The earlier counterbalanced CPU comparison is the
+stronger wait-policy throughput experiment. GPU telemetry sessions were ordered
+blocking then auto, not counterbalanced across policies; their small power and
+temperature differences do not establish causal energy savings.
+
+These are whole-device, time-based samples, including the pre-existing desktop
+process. Memory-controller busy is **not bandwidth utilization**; its mode
+comparison also reflects different prefill/decode time proportions. A GPU busy
+reading near 99% does not measure SM occupancy or the fraction of peak compute
+achieved. See the [NVIDIA monitoring definitions](https://docs.nvidia.com/deploy/nvidia-smi/index.html).
+
+Separate warmed Nsight Systems node traces attributed **96.08% of prefill kernel
+time to projections** in both modes, **94.29% of single decode** and **89.81% of
+parallel decode**. Single decode's largest groups were fused Q4 SwiGLU GEMV
+(38.48%), Q4 row-split GEMV (29.38%), dual small-T MMA projections (18.42%) and
+Q8 output projection (8.01%). The next single-request kernel targets are therefore
+Q4 SwiGLU and residual/down projections, rather than another Python rewrite.
+
+Instrumented kernel-timeline coverage was 90.27%/93.21%, but node tracing increased
+wall time: those figures are **not unprofiled idle fractions or guaranteed
+speedup headroom**. Throughput above comes only from the unprofiled runs. The
+fresh Nsight Compute probe again failed with `ERR_NVGPUCTRPERM`; achieved SM
+occupancy, compute/Tensor Core utilization, DRAM GB/s, L2 hit rate and stall
+counters remain unavailable. No driver/privilege settings were changed. Launch
+resource ceilings in the trace analysis are theoretical, not measured occupancy.
+There is currently **no defensible numerical percentage of unused compute
+capacity**. See [Nsight metric definitions](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html).
+
+Both unprofiled waves within each mode produced identical IDs; cross-mode IDs
+are not universally equal, consistent with the earlier batching counterexamples.
+Raw telemetry, complete outputs, profiler summaries, counter-denial logs and
+measurement tests are retained in
+[`benchmarks/qwen/gpu-gap`](benchmarks/qwen/gpu-gap/). Binary profiler traces remain
+on the server; model/kernel code was not changed in this diagnostic run.
+
+### Projection scheduling experiment: no promoted speedup
+
+The first GPU projection experiment targeted single-request Q4 gate/up SwiGLU,
+previously about 38.48% of decode kernel time. Eleven alternative schedules
+plus the original schedule were compiled in isolated directories on the 4090D:
+warp count, asynchronous pipeline depth, group tile size, shared/global activation
+reads and weight-copy cache policy. External sources, archives and the production
+runner were not overwritten. Replacement objects link before unchanged archives.
+
+A public-Op, rotating-weight CUDA-graph benchmark reads eight distinct matrices
+(757,596,160 aggregate storage bytes, larger than device L2), with 64 calls per
+graph, 30 warmup graphs and 50 timed graphs. Forward/reverse screening found the
+best candidate, `g8w4s3`, at about **102.46 us versus 103.01 us** for the original:
+only roughly **0.5% kernel-level gain**, not a model throughput claim. Its shared
+memory fell from 23,296 to 16,768 bytes/block and registers from 40 to 39/thread,
+but resource-only occupancy ceilings (33.3% to 50% in separate node traces) are
+not achieved occupancy measurements. The traced target-kernel duration fell
+only about 0.37%; profiler timing is not substituted for unprofiled throughput.
+More warps and cached-global activation variants did not help. The earlier
+write-flush benchmark is retained as a separate cache condition; its upstream
+`dram_spec_pct` uses another GPU's nominal peak and **must not be used here**.
+
+The selected candidate and baseline passed independent packed-weight decoding
+and FP64 SwiGLU-oracle checks at T=1/2/17/32/512, two seeds, guarded buffers,
+unchanged inputs/weights, and positive/negative graph replay at T=1/2/17. The
+existing A16 criterion was not loosened. A matched, unprofiled full-model ABBA
+comparison used the same resident mixed-precision Qwen checkpoint, BF16 KV,
+2,048 context capacity, four reserved slots, chunk 512, CUDA graphs, blocking
+CPU waits, no speculation/reuse, eight 509-token raw prompts and 64 fixed output
+tokens each. Both dispatch modes warmed before measurement in each session.
+
+| Across two sessions per variant | Original | Candidate |
+|---|---:|---:|
+| Single total output tokens/s, including prefill | 46.215 | 46.205 |
+| Parallel total output tokens/s | 114.698 | 114.609 |
+| Single native CPU, 100% = one core | 2.12% | 2.14% |
+| Parallel native CPU | 3.08% | 2.97% |
+| Sampled whole-device VRAM | 16,914 MiB | 16,914 MiB |
+
+All 128 measured output rows matched their same-mode baseline token IDs, as did
+the separate traced outputs. Four real-model regression tests passed, covering
+session reuse, mode/state isolation and BF16/K8V4 KV. The local CPU suite passed
+315 tests with 56 hardware/environment skips. Small
+timing differences are not a demonstrated speedup or regression: temperatures
+and clocks drifted during the session, and the unchanged parallel route also
+varied. GPU busy stayed around 99%; power, clocks, temperatures and raw samples
+are retained alongside the timings. Hardware-counter access remained restricted
+(`RmProfilingAdminOnly: 1`); no achieved occupancy, DRAM GB/s, cache/stall or
+compute-utilization conclusion follows. The candidate is **not promoted**.
+
+Reproduce the isolated experiment only on a CUDA host with the explicitly
+selected compatible external source/build (the source patch is hash-guarded):
+
+```bash
+python tools/projection/build_candidates.py --source /absolute/path/to/ninfer \
+  --build /absolute/path/to/ninfer/build --output /new/experiment \
+  --candidate g8w4s3
+python tools/projection/evaluate_candidate.py --manifest /new/experiment/builds.json \
+  --candidate g8w4s3 --output /new/qualification
+python tools/build_qwen_runner.py --source /absolute/path/to/ninfer \
+  --build /absolute/path/to/ninfer/build --output /new/candidate-runner \
+  --ops-object /new/experiment/g8w4s3/q4_linear_swiglu_gemv.cu.o
+```
+
+Keep the ordinary runner as the baseline; use `tools/benchmark_qwen_gpu.py`
+against both in baseline/candidate/candidate/baseline order with fresh output
+directories. Raw results and build identities are in
+[`benchmarks/qwen/projection`](benchmarks/qwen/projection/). A nominal occupancy
+increase alone does not justify a dispatch change. The next distinct target is
+the residual/down Q4 row-split GEMV, not further blind occupancy tuning.
+
+### Small Q4 residual/down projection test
+
+A follow-up tested three T=1 alternatives through the public fused `LinearAdd`
+Op at `[N,K]=[5120,6144]` and `[5120,17408]`. Two schedules redistribute scalar
+byte decoding over two rows/four warps or four rows/two warps. The best applies
+the existing packed-word decoding strategy with **four rows/block and one
+warp/row**, instead of one row/block and eight warps/row. The stored Q4 weights,
+BF16 activation/output precision and residual-add formula are unchanged, but
+the floating-point reduction order is different.
+
+The read-heavy, larger-than-L2 public-Op screen measured the down projection at
+about **59.9 to 52.2 us (13% lower kernel time)**; the K=6144 projection was
+essentially unchanged. Both scalar multi-row alternatives made K=6144 slower.
+All schedules passed the independent FP64 oracle with the existing A16 error
+criterion, full-output checks at T=1/2 with two seeds, guarded buffers, input and
+weight preservation, zero/restored-input graph replay, and unaffected-route
+regression checks. The original archive was also timed without an override.
+
+The same matched full-model ABBA workload described above then measured:
+
+| Unprofiled measurement | Original | Packed-word candidate |
+|---|---:|---:|
+| Single total output tokens/s, including prefill | 46.221 | 46.960 |
+| Single median 63-token decode time | 1.1232 s | 1.1013 s |
+| Parallel total output tokens/s | 114.657 | 114.901 |
+| Single native CPU, 100% = one core | 2.19% | 2.16% |
+| Single sampled GPU busy | 98.8% | 99.0% |
+| Whole-device VRAM | 16,914 MiB | 16,914 MiB |
+
+This is an observed **1.60% single-request total-throughput improvement** in a
+small short-context test, not a universal performance guarantee. The parallel
+difference is too small to claim a benefit. Single-mode sampled power averaged
+about 418/398 W; these coarse whole-device samples do not establish causal
+energy savings. Achieved occupancy and DRAM/cache/stall counters remain blocked.
+Separate node tracing confirmed the changed kernel and lower target duration;
+its timing is not substituted for unprofiled throughput.
+
+**The candidate is not promoted.** One of eight serial prompts changed its
+greedy continuation at generated token 24, consistently across repetitions.
+The wording differs slightly; this was not a measured logit-margin or broad
+accuracy evaluation. Parallel outputs matched the same-mode baseline, and
+each mode remained repeatable within each candidate session. Four real-model
+regression tests passed, including state reuse and BF16/K8V4 mode switching;
+the local CPU suite passed 317 tests with 56 environment/hardware skips.
+Passing an Op error criterion does not guarantee identical autoregressive text.
+Broader quality checks are needed before enabling this non-bit-identical route.
+
+Run `tools/projection/test_rowsplit.py --source /absolute/path/to/ninfer
+--build /absolute/path/to/ninfer/build --output /new/rowsplit-experiment` on the
+CUDA server to reproduce the isolated source-hash-guarded build, independent
+oracle checks and finite synthetic screen. The experimental runner uses the
+existing explicit `--ops-object` build option and can be selected with
+`--runner`; the default runner and all external archives remain unchanged.
+Results, counterexamples, build commands and GPU samples are retained in
+[`benchmarks/qwen/rowsplit-small`](benchmarks/qwen/rowsplit-small/).
+
+### Controlled block-size ablation
+
+For the experimental vectorized Q4 `LinearAdd` kernel, a separate ablation
+changed **only rows/block: 2, 4, or 8**, giving 64, 128, or 256 threads/block.
+Each row retained one warp, the same packed-word decode, pipeline, cache policy,
+lane ownership and reduction order. This is not a comparison against the older
+scalar kernel and does not select a global block size for other Ops.
+
+| Threads/block | K=6144 kernel us | K=17408 kernel us | Single total tokens/s | Parallel total tokens/s |
+|---|---:|---:|---:|---:|
+| 64 | 19.568 | 52.216 | 46.932 | 114.728 |
+| **128** | **19.487** | **52.176** | **46.960** | **114.817** |
+| 256 | 19.504 | 52.320 | 46.869 | 114.455 |
+
+Kernel columns are medians of unprofiled synthetic run medians. Full-model
+columns use the same short-context workload above, two warmed sessions per
+size, ordered **128/64/256/256/64/128**. The single-request differences versus
+128 are only -0.06% and -0.20%; clocks and temperature drifted. These observations
+support **retaining 128 as a reasonable experimental setting**, not a claim of
+a statistically established or universal optimum.
+
+All three passed the independent FP64 oracle/guard/replay checks. Supplemental
+full-output snapshots matched bit-for-bit across both K values and two seeds;
+all **192 measured generation rows** matched the same-mode 128-thread reference.
+The CPU suite passed 320 tests with 56 environment/hardware skips. Native CPU
+stayed around 2.1-2.2% of one core in single mode; sampled GPU busy stayed around
+99% and whole-device VRAM at 16,914 MiB. Raw CPU, power, clocks and temperatures
+are retained with each run; small telemetry differences are not causal energy
+or CPU-efficiency claims.
+
+Separate public-Op node traces verified 2,560/1,280/640 grid blocks, 40 registers
+per thread, and 1,088/2,176/4,352 shared bytes/block. Resource-only resident-block
+ceilings are 24/12/6 per SM, giving the same 100% resource-only thread ceiling.
+The finite grid supplies another theoretical whole-device ceiling of about
+93.6%. **Neither ceiling is achieved occupancy**, which remains unavailable
+under the existing counter-access restriction. Traced timings are not model TPS.
+
+Reproduce with `tools/projection/test_rowsplit.py --suite block-size` and the
+same explicit source/build/output arguments above. The previous vectorized
+candidate's greedy divergence from the original scalar implementation remains;
+this ablation adds no observed output differences but does not resolve that
+quality question. Production is unchanged. Evidence is in
+[`benchmarks/qwen/rowsplit-blocks`](benchmarks/qwen/rowsplit-blocks/).
+
+### Prefill GEMM tile/pipeline experiment
+
+The next experiment targeted the Q4 fused `LinearAdd` GEMM responsible for about
+34.1% of the original 509-token prefill trace. It compared the existing 64x128
+tile against a different warp mapping, a 64x64 tile with two stages, and that
+smaller tile with three stages. No weights, activation precision, KV precision,
+decode kernels, or prefill chunk size were changed.
+
+The result was **shape-dependent**. At T=509 the two-stage 64x64 tile reduced
+synthetic Op time by about 14%, but at full T=512 it was about 13% slower. The
+other warp mapping and deeper pipeline did not provide a general improvement.
+Follow-up tests also found regressions at aligned T=320/384/448; nearby partial
+tiles improved. A selective experimental dispatch therefore uses the smaller
+tile only for **192<T<512 and (T<=256 or T%64!=0)**, preserving the existing
+routes otherwise. This is an Op-local scheduling choice, not a model-specific
+math or precision change.
+
+A matched original/selective/selective/original comparison measured:
+
+| Raw prompt tokens | Original median prefill | Selective median prefill | Observed reduction |
+|---|---:|---:|---:|
+| 128 | 79.6 ms | 79.6 ms | Unchanged |
+| 509 | 258.4 ms | 249.6 ms | **3.4%** |
+| 1,021 | 510.9 ms | 504.0 ms | **1.4%** |
+| 2,048 | 1,017.9 ms | 1,018.2 ms | Unchanged |
+| 8,192 | 4,158.4 ms | 4,161.0 ms | Unchanged |
+
+Each resident session warmed all lengths, then measured three repetitions with
+ascending/descending/ascending length order, 16 fixed output tokens, C=1,
+context capacity 16,384, BF16 KV, chunk 512, CUDA graphs, blocking CPU waits,
+and no speculation or prefix reuse. Prefill and internal native first-token
+timestamps exclude loading/tokenization/warmup; the synchronous RPC does not
+measure streamed client time-to-first-byte. Long prompts made of full chunks
+showed no meaningful benefit, and small control differences are not regressions.
+
+All initial variants and the selective route passed the unchanged fused A16
+FP64 criterion: independent packed decode, a full-output dense oracle at T=193,
+two seeds across full/sampled cases, full/tail and selector-boundary probes,
+guarded buffers, input/weight preservation and zero/restored-input graph replay.
+All **60 measured continuations matched the original runner**, with repeatable
+state reuse. This is limited deterministic evidence, not a broad quality claim.
+
+Separate public-Op node traces confirmed the partial route's registers fell
+from 154 to 96/thread and shared memory from 45,568 to 29,184 bytes/block.
+The resource-only occupancy ceiling rose from 16.7% to 25%; **achieved occupancy
+is still unavailable** under the existing counter restriction. Full T=512
+retained the original 147-register/45,568-byte kernel. These instrumented traces
+are not used as model speed measurements. Whole-device GPU busy was about 99%,
+VRAM 16,964 MiB in both cases, and native CPU about 3.4% of one core across the
+mixed-length measured generation phase. Power/clocks/temperature samples are
+retained; they do not establish causal energy savings.
+
+Reproduce isolated operator tests with `tools/projection/test_rowsplit.py
+--suite prefill` or `--suite prefill-selective` and explicit source/build/new
+output paths. `tools/benchmark_qwen_prefill.py CHECKPOINT --runner RUNNER
+--output-directory NEW_DIRECTORY` runs the end-to-end latency workload.
+**Production remains unchanged**; the selective runner is a tested experiment
+and is not combined with the earlier non-bit-identical decode candidate.
+Evidence and commands are in
+[`benchmarks/qwen/prefill-tiles`](benchmarks/qwen/prefill-tiles/).
+
+### Full-chunk GEMM ablation: retain the original tile
+
+A separate 4090D experiment tested a **128-output-channel x 64-token** tile
+against the existing **64 x 128** tile for the same fused Q4 LinearAdd Op.
+Two warp layouts used 256 or 128 threads per block, respectively. The wide-T
+schedule alone changed; decode, packed weights, activation/KV precision,
+residual mathematics and external archives were unchanged.
+
+Both new layouts passed independent FP64 qualification: dense full-output
+T=512 at K=6144/17408, additional sampled tile/route boundaries through T=1024,
+guard/input/weight checks and zero/restored-input graph replay. Neither was
+faster. The unprofiled public-Op screen at T=512 measured:
+
+| Projection | Original 64 x 128 | 128 x 64, 256 threads | 128 x 64, 128 threads |
+|---|---:|---:|---:|
+| K=6144 | 326.1 us | 373.4 us | 382.7 us |
+| K=17408 | 902.8 us | 1040.9 us | 1063.3 us |
+
+The better full-chunk candidate (256 threads) was also compared against the
+ordinary production runner in baseline/candidate/candidate/baseline order.
+Each resident session warmed all six exact token-ID prompt lengths, then ran
+three repetitions per length, with 16 generated tokens and EOS ignored.
+C1, context/KV capacity 16384, BF16 KV, chunk 512, CUDA graphs, blocking CPU
+wait, and no speculation or prefix reuse were fixed. Loading and warmup were
+excluded. Median **native prefill**, not streamed client TTFB, was:
+
+| Prompt tokens | Original | Candidate | Latency increase |
+|---|---:|---:|---:|
+| 128 (unchanged-route control) | 79.55 ms | 79.48 ms | approximately unchanged |
+| 509 | 257.87 ms | 283.39 ms | 9.90% |
+| 512 | 252.97 ms | 263.53 ms | 4.17% |
+| 1021 | 510.80 ms | 546.26 ms | 6.94% |
+| 2048 | 1016.36 ms | 1060.91 ms | 4.38% |
+| 8192 | 4152.67 ms | 4333.87 ms | 4.36% |
+
+All 72 measured continuations matched their same-length original token IDs;
+state replay matched each session's warmup. This small fixture set is not broad
+quality validation. Separate public-Op node traces confirmed 147 to 84
+registers/thread and 45,568 to 41,984 shared bytes/block for the 256-thread
+layout. Its resource-only thread occupancy ceiling increased from 16.7% to
+33.3%, **yet execution became slower**. Those ceilings are not achieved
+occupancy. The larger row tile also changes weight-staging/dequantization
+reuse; hardware counters remain restricted, so a precise stall/bandwidth cause
+is not established.
+
+Across the mixed-length measured prefill-plus-decode phases, whole-device GPU
+busy averaged 97.6/97.9%, VRAM was 16,964 MiB for both, sampled power averaged
+416.4/415.8 W, SM clocks 2740.7/2740.0 MHz, and temperatures 60.9/61.4 C.
+Native CPU averaged 3.43/3.57% (100% means one core).
+Raw CPU time, client wall, native prefill throughput and telemetry are retained
+separately. These samples do not establish energy savings. Achieved occupancy,
+DRAM bandwidth and compute/cache/stall counters remain unavailable under
+`RmProfilingAdminOnly: 1`; no privileges or clocks were changed.
+
+**Both new schedules are rejected; production and the earlier selective
+candidate remain unchanged.** Reproduce the operator ablation with
+`tools/projection/test_rowsplit.py --suite prefill-full` and explicit
+source/build/new output paths on the CUDA host. Commands, raw results,
+qualification logs and the aggregate are in
+[`benchmarks/qwen/prefill-full`](benchmarks/qwen/prefill-full/).
+
+### Long-context KV retrieval screen
+
+The same quantized Qwen checkpoint completed **near-256K prompts on the 4090D**
+using the existing native K8V4 route, without weight changes, CPU KV offload,
+speculative decoding, or prefix reuse. Two seeded synthetic registries per
+length contain three exact tags around 5%, 50%, and 95% of the input, plus a
+requested project absent from the registry. An independent string oracle grades
+the returned JSON. This is a small retrieval screen, not a broad quality claim.
+
+| Context capacity | K8V4 KV payload | Mean observed prefill | Observed decode | Checks passed |
+|---|---:|---:|---:|---:|
+| 2,048 | 0.049 GiB | 0.94 s | 57.1 tokens/s | 8/8 |
+| 16,384 | 0.393 GiB | 8.33 s | 55.3 tokens/s | 8/8 |
+| 65,536 | 1.570 GiB | 39.05 s | 51.5 tokens/s | 8/8 |
+| 131,072 | 3.141 GiB | 92.16 s | 47.0 tokens/s | 8/8 |
+| 262,144 | 6.281 GiB | 240.79 s | 40.1 tokens/s | 8/8 |
+
+Each row has six exact-tag checks and two missing-key checks across two
+documents, not eight independently generated documents. Actual prompts at the
+largest capacity contained **261,892 and 261,885 tokens**, including the chat
+template; output is part of the same 262,144-token context budget. Sampled
+whole-device peak VRAM was **21.85 GiB**, including desktop/context allocations.
+The 256K configuration therefore fits this workload, but initially reading the
+document takes about **four minutes**. Decode speed excludes that initial wait.
+
+BF16 KV was also tested at 2K/16K/64K. All six paired documents produced identical
+greedy token sequences and passed their exact-answer checks. At 64K, BF16 KV
+reserved 4 GiB versus 1.57 GiB for K8V4. There is **no BF16 reference at 128K or
+256K**. These results do not prove unchanged general long-context reasoning,
+coding, or factual quality, and do not invalidate the earlier prose divergence.
+The K8V4 route can change attention arithmetic as well as cache storage.
+
+One short warmup precedes each engine's two different long documents; reported
+latencies can include lazy graph capture and are not a steady-state throughput
+benchmark. Prefix reuse is disabled, so each document is fully recomputed.
+No runtime defaults or CUDA kernels were changed for this screen.
+
+Reproduce on the CUDA host with an existing checkpoint and native runner:
+
+```bash
+PYTHONPATH=src python tools/validate_qwen_long_context.py /absolute/path/to/model.ninfer \
+  --runner /absolute/path/to/venturi-qwen-runner \
+  --output-dir /absolute/path/to/new-long-context-results
+```
+
+For application use, configure `QwenNativeSession` with `max_context=262144`,
+`kv_dtype="k8v4"`, `prefill_chunk=512`, and a suitable request timeout (the screen
+uses 1,800 seconds). Read large document text from a file in Python; avoid passing
+megabyte-sized prompts as shell arguments. Keep prompt, chat-template, and output
+tokens within the context limit. Full generated documents remain on the GPU host;
+the generator, expected answers, token offsets, hashes, raw responses, and compact
+memory/timing evidence are retained in `benchmarks/qwen/long-context/`.
 
 ## Text generation: first complete model adapter
 
@@ -1319,3 +2443,1115 @@ src/venturi/cli.py          inspect / load / verify / generate
 tools/                     Loader, operator, and generation acceptance tools
 tests/                     Storage, operator, model/oracle, and opt-in CUDA tests
 ```
+
+## Independent checkpoint/vocabulary bindings and GDN milestone
+
+The independent path now has strict checkpoint bindings, dense embedding lookup,
+final RMSNorm/output-head composition, and a separate Gated DeltaNet recurrence.
+These are **not yet a complete independent Qwen-27B model adapter**. The existing
+external Qwen runner remains unchanged by this milestone.
+
+### Bind the actual Qwen vocabulary without dense expansion
+
+Inspection of the current 27B artifact finds Q8/group-32 embedding and output
+matrices, both `[248320,5120]`, not Q4. `NInferVocabulary` validates both named
+bindings, shapes and physical formats before upload. Reads are bounded to 16 MiB;
+signed codes and FP16 scale planes are preserved. Shared object IDs are uploaded
+once, so tied vocabulary storage is not duplicated. Each actual untied matrix
+uses 1,350,860,800 bytes (codes plus scales); lookup and projection plans share it.
+There is no full-vocabulary BF16/FP32 materialization on the native path.
+
+```python
+import torch
+from venturi.ninfer import NInferArtifact
+from venturi.ops import CudaBackend, NInferVocabulary
+
+backend = CudaBackend("/absolute/path/to/rebuilt/libventuri_blocks.so")
+artifact = NInferArtifact("/absolute/path/to/qwen3_8_27b.ninfer")
+vocabulary = NInferVocabulary.upload_from_ninfer(artifact, backend)
+lookup = vocabulary.embedding.prepare_embedding([1, 42])  # Host-validated IDs.
+embedding = torch.empty((2, 5120), dtype=torch.bfloat16, device="cuda:0")
+lookup.run(out=embedding)
+head = vocabulary.head.prepare(tokens=1)
+logits = torch.empty((1, 248320), dtype=torch.bfloat16, device="cuda:0")
+head.run(embedding[-1:], out=logits)  # Vocabulary plumbing test, NOT model output.
+```
+
+Dense `ResidentLinear.prepare_embedding(ids)` likewise shares its owned matrix
+with output-head plans. IDs are uploaded during preparation; native `run()` is
+allocation-free and capture-safe. Plans and buffers must outlive queued work;
+private uploaded IDs and resident weights are immutable by contract. Invalid
+host IDs are rejected before upload; kernels also bounds-check IDs defensively.
+Q8 output projection is a straightforward FP32-accumulating dot-product baseline,
+not an optimized prefill GEMM. Its explicit Torch reference dequantizes bounded
+512-row tiles; that is a diagnostic baseline, not a competitive quantized engine.
+
+### GDN is recurrence, not ordinary attention
+
+The artifact has 48 `linear_attention`/GDN layers and 16 full-attention layers.
+GDN uses 16 key/query heads, 48 value heads and 128-dimensional keys/values.
+`backend.prepare_gdn(tokens=T, qk_heads=16, value_heads=48)` accepts contiguous
+BF16 `q/k[T,16,128]`, `v[T,48,128]`, FP32 transformed `log_decay/beta[T,48]`,
+and explicit FP32 state `[48,128,128]` in **value,key** order. Each layer's state
+is 3 MiB, independent of the number of processed tokens. This is not the total
+model cache size: full-attention KV and convolution history are separate.
+
+For each head/token, with optional FP32 L2-normalized Q/K (`epsilon=1e-6`):
+
+```text
+A       = exp(log_decay) * state
+state'  = A + outer(beta * (v - A @ k), k)
+output  = (state' @ q) / sqrt(key_dim)
+```
+
+`plan.run(q,k,v,log_decay,beta,state=state,out=out,state_out=next_state)` supports
+exact state/state_out in-place aliasing and rejects other writable overlaps.
+Gates must already be transformed, finite and stable; no sigmoid, softplus,
+clamping, normalization-rounding change or hidden state reset is implicit.
+FP32 normalization is deliberate: HF's optional BF16-normalization boundary is
+not bit-identical. A separate raw-Q/K recurrence test checks the independent
+Transformers implementation with state orientation/head expansion explicit.
+The caller owns state reset/commit/stream dependencies and must discard state
+after failed execution. Independent streams need independent writable buffers.
+
+### Dense checkpoint-to-generation fixture path
+
+`LlamaWeights.bind(loaded)` validates classic HF Llama tensor names, exact
+shapes/dtypes, finite values and tied-head consistency **before uploading**.
+Its explicit adapter composes the independent decoder layers, embeddings, final
+norm and head with one shared per-session layer arena, dense per-layer KV,
+chunked prefill, and greedy generation. BF16 is supported; FP64 is an explicit
+reference-fixture mode. No real Llama checkpoint was available or downloaded.
+The path is qualified on generated single/sharded checkpoints, including an
+independent full-sequence FP64 oracle and a Transformers tiny-model fixture.
+
+```bash
+PYTHONPATH=src python -m venturi llama inspect /absolute/path/to/classic-bf16-llama
+PYTHONPATH=src python -m venturi llama generate /absolute/path/to/classic-bf16-llama \
+  --blocks-library /absolute/path/to/rebuilt/libventuri_blocks.so \
+  --token-ids 1,42 --max-new-tokens 8
+```
+
+This eager adapter synchronizes chunk execution, allocates returned logits,
+and prepares head/ID metadata outside capture. It is not an optimized whole-model
+CUDA-graph path. Fused FP32 RMSNorm/SiLU arithmetic differs from Transformers'
+BF16 intermediate rounding; whole-model BF16 bit identity is not promised.
+RoPE scaling, independent head width, biases, Q/K normalization, hybrid/GDN
+configs and quantized HF checkpoints are explicitly rejected, never reinterpreted
+as classic Llama. The generic checkpoint loader remains architecture-independent.
+
+### Qualification and remaining work
+
+Build the blocks library explicitly on the target Linux SM89 GPU host. That milestone used **ABI 4**; the active native-Q8
+work requires **ABI 8**, so rebuild before using the new frontend operators. No CUDA/Rust compilation was
+performed on the Mac. Run the opt-in native tests with `VENTURI_BLOCKS_LIBRARY`
+(and `VENTURI_ADA_LIBRARY` for existing Q4 decoder regression tests).
+
+`tools/qualify_checkpoint_gdn.py` tests actual Qwen Q8 bytes against independent
+row decoding and **all 248,320 output logits against bounded CPU FP64 math**.
+GDN is qualified with synthetic represented inputs at the artifact's actual head
+dimensions, for T=1 and T=128, against independent FP64 outputs and final state.
+Its matched unprofiled ABBA phases use identical inputs/precision, 3 warmup calls,
+and >=2 seconds per phase, and retain CPU time, wall/event latency and NVML data.
+These are primitive calls, not full-model generation TPS or llama.cpp comparisons.
+GPU event intervals can include host submission gaps. CPU usage includes CUDA
+waiting; GPU busy is not achieved occupancy. Hardware counters remain unavailable
+under `RmProfilingAdminOnly=1`; no profiling permissions/settings were changed.
+
+Next for independent **Qwen** generation: causal depthwise convolution and
+per-request convolution history; gate projections/transforms; gated output and
+zero-centered `(1+weight)` normalization; packed multipart Q4 projection bindings;
+Q/K norm and attention output gate; partial/multimodal RoPE rules; then the hybrid
+layer/session adapter and full checkpoint correctness/quality/performance tests.
+Do not infer Qwen generation correctness from vocabulary lookups or synthetic GDN.
+
+
+## Active native Q8 Qwen goal
+
+The implementation goal is active; full independent Qwen inference and matched
+single/parallel-serving wins are **not complete**. See
+[`docs/native-q8-goal.md`](docs/native-q8-goal.md) for the acceptance matrix,
+source acquisition, hardware capacity and ordered milestones.
+
+Current additions include `Q8RowSplitWeight.from_dense` (explicit bounded-row
+source quantization), generic native Q8 projection/embedding residency, native
+causal convolution/history, gate transforms, staged gated RMSNorm, zero-centered
+norm preparation and strict GDN constant bindings. These are reusable operators,
+not yet an integrated Qwen model. Native runs are allocation-free with explicit
+buffers; Python preparation/reference code is labeled separately. Rebuild the
+blocks library explicitly for **ABI 8**. SM70/V100 remains unqualified.
+
+The current all-Q8 text weight budget is about **26.6 GiB before cache/workspace**,
+so it does not fit entirely on one 24 GiB 4090D. The existing mixed Q4/Q8 artifact
+is not falsely relabeled as original-quality Q8. The original BF16 acquisition
+job on WZU_Server uses a revision-pinned HTTPS source/mirror and checksum checks;
+partial downloads are not a verified checkpoint. No running GPU service was
+stopped to make room.
+
+`tools/qualify_native_q8_bootstrap.py` preserves the initial Q8 prefill gap:
+at `[17408,5120]`, T=128 the direct native baseline took ~20.53 ms versus ~0.728 ms
+for a prepared, materialized FP32 reference. At T=1 native took ~168 us versus
+~381 us. These are **primitive** timings, not model TPS or wins against a
+competitive Q8 engine. Full-model correctness comes before performance claims.
+
+
+### Packed GDN and projected-input mixer core
+
+`PreparedGDN.run_packed` consumes chronological `[T, Q-flat | K-flat | V-flat]`
+convolution output directly. It retains the existing FP32 recurrence contract,
+without allocating or copying separate Q/K/V planes. Native packed/separate and
+chunked execution are bit-identical in qualification; complete input storage is
+checked for writable aliasing, including later tokens and K/V regions.
+
+`ResidentGDNFrontend.prepare_mixer_core` composes native convolution/history,
+gate transforms, packed recurrence and gated normalization. Caller-owned
+`GDNMixerWorkspace`, convolution history and recurrent state are preflighted
+before any launch; independent lanes must not share mutable buffers. The core
+accepts already-projected QKV/a/b/z. It is **not** the complete GDN layer or Qwen
+model: input/output projections, residual/MLP, hybrid full attention, model
+session, trained-model quality and native parallel serving remain outstanding.
+That packed milestone used blocks ABI 6; current work requires **ABI 8**. Earlier capsules remain historical.
+
+At real Qwen GDN geometry with synthetic BF16 inputs, packed loads remove
+**2.5 MiB of unpack scratch at T=128**. Fixed-state graph-wrapper wall medians
+were 1.841 ms packed vs 1.847 ms with explicit unpack; T=1 was 22.17 vs 22.43 us.
+This tiny latency difference is not a demonstrated meaningful speedup. The
+recurrence remains the dominant cost. These are primitive calls, not model TPS;
+see `benchmarks/gdn-packed/summary.md` for CPU/event/NVML evidence and limitations.
+
+
+### Original Qwen BF16 -> separate Q8 storage
+
+The new `QwenSourcePlan` covers every text weight in the pinned original
+Qwen3.5-27B index: 851 text roles; 348 vision/MTP tensors explicitly excluded.
+`tools/export_qwen_q8.py` performs CPU-only bounded-row conversion into a new
+encoded Q8 artifact, preserving raw norms and head-interleaved Q/gate rows.
+Sensitive small a/b projections remain BF16; recurrent gate constants are FP32.
+It requires a complete, hash-checked source by default, rechecks hashes, refuses
+existing outputs and never uses the mixed-Q4 artifact as a source substitute.
+`QwenQ8Weights` preflights all runtime roles and reads one encoded matrix or
+bounded floating parameter at a time. This is checkpoint binding/storage work,
+not yet native full-model generation or an inference-speed improvement.
+See `docs/native-q8-goal.md` and `benchmarks/qwen-source-bindings/summary.md`.
+
+
+### Complete GDN decoder-layer operator composition
+
+`ResidentQwenGDNLayer.from_q8` now composes the GDN layer's norm, projections,
+convolution/history, gates, recurrent matrix update, gated norm, output/residual
+and post-norm MLP/residual. It streams individual encoded matrices into owned
+resident storage, shares weights across token-shape plans, preflights the entire
+layer before state writes and uses explicit per-request state/per-lane workspace.
+CUDA graph/no-fallback and independent-stream tests are included.
+
+This is **not** the complete hybrid Qwen model, native scheduler or a trained
+quality/performance win. A retained BF16/FP64 cascade counterexample is documented
+alongside per-operator qualification; full trained-model quality is still open.
+See `benchmarks/qwen-gdn-layer/summary.md` and `docs/native-q8-goal.md`.
+
+
+### Qwen full-attention layer and original gated-norm precision
+
+Full-attention layer composition now includes per-head query/gate packing,
+zero-centered Q/K norms, default text-only partial/mRoPE, causal GQA, output gate
+and the residual MLP. Dense cache ownership, visible-length commits, failure
+poisoning and fixed-position CUDA capture reuse the common cache lifecycle.
+These layer APIs are dense KV primitives, not paging or a serving scheduler.
+The eager hybrid integration below is separate from a native production runtime.
+
+The verified original checkpoint revealed FP32 GDN gated gamma. The converter
+and native operator now retain that precision and promoted multiplication, rather
+than copying the legacy BF16 artifact's rounding. The corrected payload is
+28,601,618,432 bytes. Original source conversion/storage verification is now
+complete; trained-model quality remains unverified. Current blocks are **ABI 10**
+(the historical layer capsule used ABI 8). See
+`benchmarks/qwen-attention-layer/summary.md` for checks and retained limitations.
+
+
+### Hybrid Q8 text model/session correctness baseline
+
+`ResidentQwenModel.from_q8` connects embeddings, every declared GDN/full-attention
+layer, zero-centered final norm and output head. Native numerical kernels never
+fall back to an external model or dense Torch forward. `QwenSession` owns request
+history/state/KV, supports chunked ingestion and token continuation, reuses one
+workspace per layer kind, and commits position only after the whole call succeeds.
+Errors after execution starts require reset; GDN state is not truncatable.
+The host dispatcher is synchronous Python, not yet native production scheduling,
+sampling, whole-model graphs, continuous batching or paged KV.
+
+The pinned original checkpoint is downloaded and the separately published Q8
+artifact passed full hashes, all 449 floating tensors and 1,206 independently
+quantized row samples across all 402 Q8 matrices. That is storage verification,
+not trained logits/quality. The full suite reports 853 passed / 26 skipped on the
+4090D. New integration checks use miniature original-format fixtures. Full model
+residency needs ~26.64 GiB for weights alone, exceeding a 24 GiB 4090D; no implicit
+offload or precision downgrade is allowed. Full-model quality, SM70/FP16 and
+matched single/concurrent speed comparisons remain open.
+
+See `benchmarks/qwen-hybrid-model/summary.md` for exact bytes, hashes, reproducible
+source/tests, failure/reset semantics, occupied-GPU timing limitations and the
+remaining acceptance work. No new throughput win is claimed.
+
+
+### Explicit V100 SM70 / FP16 port
+
+The native blocks have architecture-tagged builds (the first SM70 port used
+ABI 9; the current lossless-parameter implementation is **ABI 10**). Build the SM70
+variant explicitly on a Linux CUDA 12.x host (not the local Mac):
+
+```bash
+PYTHONPATH=src python -m venturi.ops.build --component blocks \
+  --architecture sm70 --nvcc /usr/local/cuda/bin/nvcc \
+  --output-dir /absolute/path/to/sm70-build
+```
+
+Use an explicitly selected FP16 activation profile. The default BF16 profile is
+rejected on V100 before uploads; no automatic cast/offload fallback occurs.
+Q8 planes stay encoded and FP32 gamma/gates/recurrent state remain FP32; small
+BF16 a/b/conv weights explicitly convert to FP16. Ada Q4 is still SM89-only.
+A library for one architecture cannot be silently loaded on the other target.
+
+SM70 qualification covers Q8 lookup/projection, GDN and miniature hybrid sessions,
+with operator oracles, graph/no-fallback and state/ownership/reset checks. The
+selected real-checkpoint layer tool also checks actual Q8 layer weights, using
+synthetic activations. None of these is a complete trained 27B generation or
+quality result, and no speed win or achieved occupancy is claimed. See
+`benchmarks/sm70-fp16/summary.md`. Full resident loading remains memory-guarded:
+Q8 weights alone exceed the 4090D's 24 GiB and the currently free V100 memory.
+
+The first V100 layer checks found small-parameter FP16 rounding, including one
+convolution weight underflow. That historical casting profile was **not**
+original-parameter fidelity or full-model quality approval. The ABI-10 fix below
+preserves these parameters through FP32 storage/compute; the original artifact
+bytes and the earlier counterexample capsule remain unchanged.
+
+
+### Lossless small parameters for FP16 execution
+
+Blocks **ABI 10** adds an explicit `upload_fp32_linear(DenseWeight(fp32),
+dtype=torch.float16, device=...)` path and FP32-weight causal convolution.
+Ordinary dense upload still rejects mismatched dtypes; no weight conversion is
+silently inferred. Native execution uses FP32 parameters/products/accumulation
+and one activation-output cast, without numerical Torch fallback or run-time
+allocation. The simple direct projection kernel is a fidelity baseline, not an
+optimized large GEMM claim. The operators are reusable outside Qwen.
+
+The Qwen FP16 loader now widens small BF16 a/b/conv parameters losslessly to FP32,
+while keeping Q8 planes encoded, activations/KV FP16 and gamma/gates/recurrent
+state FP32. Original BF16 and explicit FP64 diagnostic profiles remain separate.
+Memory planning accounts for the larger small parameters before uploads.
+
+Real layer-0 checks on V100 compare **all 532,480** uploaded a/b/conv values with
+the original-derived artifact: zero changed values or underflows. Real GDN and
+attention layers at T=1/8 still pass 70 existing per-operator checks; tiny hybrid,
+graph/no-fallback, source-tiny-value, ownership and failure/reset tests pass.
+The 4090D full suite is 920 passed / 32 skipped; the selected V100 CPU/native
+suite is 61 / 12. These are not complete trained-model generation/quality or
+matched engine speed results. See `benchmarks/fp32-small-parameters/summary.md`.
+
+
+### Explicit full-model streaming correctness mode
+
+`StreamingQwenModel.from_q8` is a separate, deliberately slow mode. The resident
+API never chooses it implicitly. It streams embedding, one declared layer at a
+time, and output head in synchronized phases; a request retains only state/KV
+and reusable per-kind workspaces. Native numerical layers remain owned CUDA
+operators, with Q8 planes preserved and FP32 small parameters on the FP16 path.
+Python handles loading, position-table setup and explicit KV copies. A fresh
+owned attention cache imports each intended prefix; cache identity is never
+rebound to unrelated weights. Errors poison the request until reset.
+
+```python
+import torch
+from venturi.models import QwenQ8Weights, StreamingQwenModel
+from venturi.ninfer import NInferArtifact
+from venturi.ops import CudaBackend
+
+weights = QwenQ8Weights.from_ninfer(NInferArtifact("/absolute/path/to/model.ninfer"))
+model = StreamingQwenModel.from_q8(
+    weights, CudaBackend("/absolute/path/to/libventuri_blocks.so"),
+    dtype=torch.float16, device="cuda:0",
+)
+session = model.create_session(128, max_tokens=32)
+logits = session.forward(prompt_token_ids)
+session.close()
+```
+
+The complete 64-layer original-derived Q8 model has generated **Paris + EOS** on
+V100 for the recorded 26-token chat smoke case. Peak PyTorch GPU allocation was
+1,518,406,656 bytes **because weights were streamed**, not because the full model
+is compressed into that memory. This is not a resident-runtime, native-sampler,
+batched/paged serving, corpus-quality or throughput qualification. The diagnostic
+tool uses explicit host CPU greedy sampling and optionally compares same-input
+steps against an allocating CPU Torch numerical profile. That profile shares
+the adapter; it is not an independent upstream architecture or original-BF16
+quality reference. Both recorded steps passed the predeclared numerical gates:
+identical top-1 tokens, relative logit L2 below 0.00263 and centered cosine above
+0.999994. This two-token case does not qualify broader model quality. The final
+4090D regression suite is 947 passed / 36 skipped; the full trained-model run
+was on V100, not the 4090D. See `benchmarks/qwen-streaming/summary.md` for status,
+source hashes, fixed gates and limitations. No speed win is claimed.
+
+
+### Native GPU greedy selection (blocks ABI 11)
+
+`prepare_greedy` is model-independent: contiguous FP16/BF16/FP32 logits, one or
+more independent rows, explicit output/workspace, and lowest-index tie-breaking.
+It returns `[token, status]` int64 pairs on the GPU. A nonfinite value invalidates
+that row and writes `[-1, 1]`; valid rows have status 0. Check the status before
+using a token. Native execution performs no Torch numerical fallback, hidden
+allocation, CPU read or synchronization. Each concurrent invocation needs its
+own buffers. SM70 still rejects native BF16. Rebuild explicitly for ABI 11;
+historical ABI-10 evidence and libraries remain unchanged.
+
+```python
+from venturi.ops import prepare_greedy
+
+selector = prepare_greedy(
+    backend, rows=1, vocab_size=248320, dtype=torch.float32, device="cuda:0",
+)
+result = torch.empty(1, 2, dtype=torch.int64, device="cuda:0")
+scratch = torch.empty(selector.workspace_bytes, dtype=torch.uint8, device="cuda:0")
+selector.run(logits.view(1, -1), out=result, workspace=scratch)
+# Explicit control-flow synchronization, outside CUDA graph capture:
+token, status = result.cpu()[0].tolist()
+if status:
+    raise ValueError("Nonfinite logits; no valid token")
+```
+
+The streaming diagnostic tool defaults to `--sampler native-greedy`;
+`--sampler cpu-greedy` preserves the explicit reference policy. Native selection
+copies only a 16-byte result pair per row for host control flow, but the tool
+still separately copies complete logits/traces for qualification. This is greedy
+selection only, not temperature/top-k/top-p sampling, a device-side stop/input
+loop, a native scheduler or whole-model graph qualification. See
+`benchmarks/native-greedy/summary.md` for measured scope and results.
+
+The ABI-11 full V100 streaming case again generated Paris + EOS. Both same-input
+CPU-reference gates passed, and logits/all hidden/GDN/KV snapshots were byte-
+identical to the previous native run. Final SM89 regression: 1011 passed /
+42 skipped. This validates the greedy operator/integration, not a production
+native control loop, broader quality, parallel serving or full-model speed win.
+
+### Independent native Qwen runtime (blocks ABI 12)
+
+`NativeQwenModel` now owns the complete C++/CUDA forward, GDN history/state,
+dense KV, positions and greedy generation loop. Python only preflights metadata
+and prepares small constants at load; native code owns copies and read-only
+mapped Q8 source planes. A generation call has no Python layer/operator/token
+callbacks. `venturi qwen-native` selects this path; the legacy `venturi qwen`
+command remains the separate external backend.
+
+Select weight residency explicitly:
+
+- `resident`: upload and share all immutable Q8 weights once. Memory admission
+  fails rather than silently offloading or lowering precision. The tested 27B
+  FP16 profile owns approximately 28.66 GB of model GPU memory plus request
+  KV/GDN/workspace and CUDA context; it does **not** fit a single 24 GB GPU.
+- `streaming`: keep small constants resident and upload encoded large weights
+  into a bounded arena through pinned staging. Only selected embedding rows
+  transfer. This is an explicit low-VRAM correctness/offload mode, not the
+  resident model's expected throughput.
+
+SM70 requires explicit FP16 execution; native BF16 is rejected. Original small
+BF16 parameters that require FP32 storage are preserved, not rounded to FP16.
+Request state is independent, but a model currently serializes its private
+stream: no continuous batching, paged KV or whole-model CUDA graphs are claimed.
+Closing a Python model refuses new sessions; existing native sessions retain
+their shared model. Execution failures poison a request until reset. Source
+file identity/change checks remain enabled, including for resident mode.
+
+Build on the remote CUDA host, never implicitly during inference:
+
+```bash
+LIB=$(python -m venturi.ops.build --component blocks --architecture sm70 \
+  --output-dir "$HOME/codex-build/Venturi/blocks-sm70")
+python -m venturi qwen-native generate /path/to/model.ninfer \
+  --blocks-library "$LIB" --weight-mode resident --dtype fp16 \
+  --token-ids "$TOKEN_IDS" --max-new-tokens 32
+```
+
+`TOKEN_IDS` must contain comma-separated IDs with the checkpoint's intended
+prompt/chat formatting. Alternatively `--prompt` plus `--tokenizer` loads an
+explicit local tokenizer; it does not automatically apply a chat template,
+download dependencies or execute remote model code. Native generation is
+greedy only; EOS policy is explicit. Diagnostic forward/snapshots return owned
+CPU copies, not production token-stream timing.
+
+The SM70 Q8 projection profile uses four prompt tokens per weight tile and four
+output rows per single-token tile. The generic operator accepts arbitrary
+supported matrix shapes; no Qwen layer numbers or model dimensions are baked
+into the kernel. Per-output FP32 FMA ordering, reduction ordering, Q8 codes and
+scales remain unchanged. This is SIMT reuse, **not** Tensor Core/INT8 GEMM.
+Build flags `--q8-token-tile` and `--q8-row-tile` accept 1, 2, 4 or 8; 1/1
+preserves original dispatch. Defaults are SM70 4/4, SM89 1/1 until a separate
+SM89 full-model performance qualification. Tile choices are part of the build
+cache identity, not an implicit runtime model/precision substitution.
+
+See `benchmarks/v100-q8-optimization/summary.md` for resident/offload timing
+scopes, exact-parity checks, tile regressions, CPU time, telemetry and separate
+Nsight attribution. Projection microbenchmark graph replay does not establish
+whole-model graph support. No external-engine or parallel-serving win follows
+from these internal single-request comparisons.
+
+### Explicit two-device projection sharding (blocks ABI 13)
+
+Native Qwen can row-shard its resident Q8 projections across two explicitly
+selected, compatible CUDA devices. Each shard evaluates complete dot products;
+FP16/BF16 output rows are gathered without reducing rounded partial sums.
+Embeddings and request GDN/KV state stay on the primary device. This is tensor
+parallelism for **one request**, not simultaneous request serving. MTP is a
+separate opt-in wrapper described below. Single-device execution remains the
+default. This feature originated with ABI 13; current source requires ABI 15.
+
+```bash
+CUDA_VISIBLE_DEVICES=1,0 python -m venturi qwen-native generate /path/to/model.ninfer \
+  --blocks-library "$LIB" --weight-mode resident --dtype fp16 \
+  --tensor-parallel-device cuda:1 --tensor-parallel-transport host \
+  --token-ids "$TOKEN_IDS" --max-new-tokens 32
+```
+
+Here logical `cuda:0` is the primary physical GPU 1, and logical `cuda:1` is
+physical GPU 0. `host` explicitly stages both directions through portable pinned
+host buffers using CUDA DMA; there is no CPU numerical fallback. The default
+`peer` transport requires bidirectional peer capability **and actual byte-copy
+probes** before large weight uploads. A failed probe stops loading and never
+silently chooses another transport. This matters on the tested PCIe V100 pair:
+CUDA advertises peer access, but a reverse-direction byte-copy probe fails.
+No driver, IOMMU, ACS or profiling-permission settings were changed.
+
+Session diagnostics report primary model/request bytes, secondary model/scratch
+bytes, pinned host bytes and logical input/output transfer payload counters.
+Host staging performs two physical DMA copies per logical inter-device payload;
+these counters are not PCIe bandwidth measurements. Native private streams,
+cross-device events and the model mutex protect shared projection scratch;
+requests still serialize. Streaming weights with tensor parallelism are rejected.
+
+Matched non-speculative single-request tests improve 14.9565 -> **17.1169 TPS**
+on two V100s; 26-token-prompt TTFT improves 0.90099 -> **0.56229 s**. These are
+internal one-/two-GPU results, not a 50 TPS or external-engine win.
+
+The real-model two-step qualification preserves all previous-native logits,
+hidden values and GDN/KV bytes and passes unchanged fixed CPU-reference gates.
+See `benchmarks/v100-native-tp/summary.md` for matched unprofiled measurements,
+separate multi-device profiler attribution, hardware limitations and regressions.
+At that historical baseline, native MTP was not implemented. The ABI-15
+one-proposal implementation and its separate qualification are described below.
+The reported external 50 TPS used two GPUs plus MTP and a different checkpoint;
+it is not a matched result for this non-speculative path.
+
+### Native two-device pipeline parallelism (blocks ABI 14)
+
+`NativeQwenPipelineModel` partitions contiguous layer ranges across two GPUs.
+Each stage owns its resident Q8 projections, constants and the corresponding
+per-request GDN/convolution/KV state. Only the boundary hidden tensor crosses
+stages, through explicitly selected portable pinned-host DMA. The last stage
+owns the output head and greedy selection. No CPU numerical fallback or Python
+layer/token loop is used.
+
+Rebuild the remote blocks library for **ABI 15**, including `qwen_pipeline.cuh`
+and `qwen_mtp.cuh`. Older libraries are rejected. On the tested V100 pair:
+
+```bash
+CUDA_VISIBLE_DEVICES=1,0 python -m venturi qwen-native generate /path/to/model.ninfer \
+  --blocks-library "$LIB" --weight-mode resident --dtype fp16 \
+  --pipeline-device cuda:1 --pipeline-split-layer 32 \
+  --pipeline-transport host --token-ids "$TOKEN_IDS" --max-new-tokens 32
+```
+
+Logical GPU 0 runs layers `[0,32)` and embeddings; logical GPU 1 runs layers
+`[32,64)` and the output head. A different explicit split is supported; it must
+leave at least one layer per stage. PP cannot be combined with the existing TP
+option on these two devices. Single-GPU and TP APIs remain separate choices.
+PP currently requires resident weights and explicit host transport; it never
+tries the known-unreliable peer route or silently offloads weights.
+
+Distinct request sessions can execute simultaneously on different stages.
+Native locks serialize each individual stage, not the complete model. Greedy
+selection stays within the final-stage lock so a request obtains its next-token
+dependency before another request occupies that stage. Python can submit one
+`session.generate(...)` call per request from separate threads; generation and
+stage scheduling remain native. This is not continuous batching, paged KV,
+HTTP serving or whole-model CUDA graphs. MTP requires the explicit wrapper below.
+
+Snapshots route each layer to its owning device. A partial-stage failure poisons
+the entire request until reset; resetting clears both stages. Closing the model
+refuses new requests while existing sessions retain native weights. Shared model
+bytes should be counted once, whereas request bytes belong to each session;
+`peer_request_device_bytes` exposes the second stage's request allocation.
+Tied embedding/head weights may need a copy on each stage's device.
+
+See `benchmarks/v100-native-pp/summary.md` for correctness-first qualification,
+matched TP/PP comparisons at 1, 2, 4 and 8 requests, CPU/latency/throughput/VRAM
+accounting, separate CUDA timeline overlap and preserved initial-scheduler data.
+A one-request PP path still traverses both stages sequentially: lower
+communication alone does not guarantee lower single-request latency.
+
+### V100 CUDA launch bounds and occupancy
+
+The SM70 Q8 tiled projection now supplies a 256-thread compiler launch bound,
+with six minimum resident blocks for the multi-token specialization and one
+for decode. This is a compiler resource/scheduling hint, not a changed launch
+size, arithmetic order, weight format or precision. SM89 does not receive the
+hint. That experiment used ABI 14; current source requires an ABI-15 rebuild.
+
+On the tested V100 binary, prefill uses 40 instead of 44 registers/thread and
+its CUDA-API theoretical occupancy increases from 62.5% to 75%. Decode uses
+56 instead of 64 registers, with the same 50% theoretical occupancy; both
+specializations have no compiler-reported spills. Forcing decode to 75% or
+100% theoretical occupancy instead introduced spills and substantial regressions,
+so those experimental variants are not promoted.
+
+Matched Qwen Q8/FP16 two-V100 tests, 23 prompt tokens and 32 greedy outputs,
+improve single-request TP decode from 17.14 to 18.86 TPS and eight-request PP
+aggregate decode from 28.31 to 33.19 TPS. TP first-token wall falls from 491 to
+431 ms; complete eight-request PP cohort wall falls from 12.26 to 10.56 s.
+These are internal, non-speculative measurements, not a matched llama.cpp win.
+
+`tools/inspect_cuda_occupancy.py` hashes an explicitly supplied library, extracts
+its cubins and queries the CUDA driver occupancy API. Optional native Nsight
+SQLite traces add actual launch geometry and kernel attribution. The tool does
+not launch kernels or obtain achieved occupancy. Driver counter access remains
+restricted; NVML GPU busy is not achieved occupancy. Raw tests, compiler spill
+reports, counterexamples and matched CPU/latency/throughput data are retained in
+`benchmarks/v100-cuda-occupancy/summary.md`.
+
+### Experimental native one-proposal MTP (blocks ABI 15)
+
+`NativeQwenMTPModel` wraps a resident native target. Python handles loading and
+submission only: draft forward, target verification, greedy selection and
+transactional GDN rollback/replay remain native. The original checkpoint's 15
+MTP tensors are exported separately; the unchanged target embedding/output head
+are shared, not duplicated. This is checkpoint-specific MTP support, not an
+arbitrary-model speculative decoder.
+
+Export the separate draft payload from the same verified original BF16 source:
+
+```python
+from venturi.qwen_export import export_qwen_mtp_q8
+export_qwen_mtp_q8("/path/to/verified-bf16", "/path/to/mtp-q8.ninfer")
+```
+
+After rebuilding the remote blocks library for the current ABI (16), enable it explicitly:
+
+```bash
+CUDA_VISIBLE_DEVICES=1,0 python -m venturi qwen-native generate /path/to/model.ninfer \
+  --blocks-library "$LIB" --weight-mode resident --dtype fp16 \
+  --tensor-parallel-device cuda:1 --tensor-parallel-transport host \
+  --mtp-artifact /path/to/mtp-q8.ninfer \
+  --token-ids "$TOKEN_IDS" --max-new-tokens 32
+```
+
+Use the existing pipeline options instead of the TP options to test PP. MTP is
+**off by default** and currently supports one proposal, greedy decoding and
+fresh/reset requests only. Longer chains, arbitrary continuation, sampling,
+continuous batching, paged KV and whole-model graphs are not implemented here.
+The tested two-V100 path uses original-derived Q8 weights and FP16 activations;
+SM89 and other checkpoint families are not qualified by these results.
+
+The matched short-prompt TP test improves single-request post-first-token rate
+from **18.94 to 24.55 TPS**, with **87.5%** draft acceptance and exact target
+output/committed-state checks. This is not a universal win: PP loses aggregate
+throughput at higher request counts. Keep MTP opt-in, and compare complete-request
+throughput separately from decode rate. Full 1/2/4/8-request results, CPU time,
+latency, memory and separate profiling evidence are in
+`benchmarks/v100-native-mtp/summary.md`. See `docs/native-mtp-plan.md` for the
+implemented state transaction, acceptance gates and remaining limitations.
+
+### Current optimization target: llama.cpp on two V100s
+
+The next acceptance target is a **same-original-checkpoint llama.cpp comparison**
+and measured end-to-end optimization, not another Venturi-only speed claim.
+Screen 1/8 requests first, then promote with repeated 1/2/4/8-request tests,
+correctness gates and explicit speculation/precision/timing scopes. See the
+revised target in `docs/native-q8-goal.md`. Equal Q8 weight labels do not imply
+identical encoded tensors or engine-internal activation math. The old uncensored
+Qwen3.8 service's 50 TPS is not a same-checkpoint Qwen3.5 baseline.
+
+`tools/serve_native_benchmark.py` is a loopback-only fixed-greedy benchmark adapter,
+not a production inference API. `tools/benchmark_completion_api.py` sends the
+same pretokenized fixed-work requests to it or llama-server and measures global
+HTTP cohort wall separately from engine-reported internal timings. The native
+adapter's scalar route submits one owned C++ generation call per request; its
+batch route submits one per cohort. Neither adds a Python model/token loop.
+Initial comparison evidence is kept separately in
+`benchmarks/v100-llama-comparison/`, without changing earlier frozen capsules.
+
+### Native target cohort batching (blocks ABI 16)
+
+`NativeQwenModel.create_batch()` groups projection, normalization, MLP and output
+head rows across independent requests. Each slot owns separate convolution
+history, FP32 GDN state, FP16 attention KV and position. Python only submits
+metadata; prefill packing, active decode compaction, greedy selection and the
+generation loop remain in C++. EOS and output budgets can differ per request.
+
+```python
+# model is an already loaded resident NativeQwenModel, optionally with TP.
+# max_tokens must accommodate at least the selected request count.
+batch = model.create_batch([256] * 8)
+try:
+    outputs = batch.generate(
+        [prompt_a, prompt_b],
+        max_new_tokens=[32, 8],
+        eos_token_ids=[[], [248046, 248044]],
+        slots=[7, 2],
+    )
+    print(batch.info())
+    batch.reset(slots=[7, 2])
+finally:
+    batch.close()
+```
+
+`forward()` returns owned CPU final-row logits per selected slot for diagnostics;
+`snapshot(slot)` copies committed state for correctness checks. The last emitted
+token is not consumed, matching scalar native generation. Invalid submissions
+do not mutate state; an execution failure poisons participating slots until reset.
+Shared model/workspace counters count once per cohort, not once per response.
+
+This first version is **fixed-cohort target batching**, not continuous admission,
+paged KV, PP batching or batched MTP. Short prompts currently wait for the whole
+cohort's prefill. The loopback benchmark adapter enables it with `--batch-target`
+(TP only, without `--mtp-artifact`); its admission window defaults to 5 ms and is
+included in client wall time. Rebuild the library remotely for ABI 16; older
+libraries are deliberately rejected. V100 qualification does not qualify SM89.
+
+On the two-V100 Qwen-27B test (23 prompt IDs, 32 outputs, three repeats), target
+batching improves eight-request complete-cohort HTTP throughput from **15.44 to
+28.84 TPS**; single-request decode remains approximately 18.9 TPS. The explicit
+25 ms benchmark admission window is included in HTTP wall time. The pinned
+llama.cpp non-speculative control still reaches **63.90 TPS** at eight requests:
+the external speed goal is not complete. Exact real-model scalar/cache gates,
+1/2/4/8 results, CPU/latency, telemetry and separate profiles are preserved in
+`benchmarks/v100-native-batch/summary.md`.
+
+### Staged integer-dot Q8 projection research
+
+`prepare_q8_dp4a(resident, tokens=8, residual_compensation=True)` is an explicit
+experimental operator. It retains
+the original Q8 weights but quantizes FP16 activation rows with FP32 group scales;
+the optional second Q8 pass compensates the activation residual. This is a named
+new compute profile, not exact original FP16 arithmetic. Caller-owned aligned
+workspace is mandatory; execution has no Torch math/allocation fallback.
+
+On V100, independent operator/reference tests pass and the compensated prototype
+is about 1.4x faster at one row and 1.6x at eight rows across the tested projection
+shapes. These are operator measurements; the following model integration has
+separate qualification. The default engine arithmetic is unchanged. Rejected T8/CPU-thread experiments,
+precision errors, raw timings and separate profiling are preserved in
+`benchmarks/v100-q8-dp4a/summary.md`.
+
+### Opt-in residual-activation Q8 model projections
+
+Rebuild the native library to expose the additive ABI-16 profile exports. Select
+`projection_profile="q8-residual"` in `NativeQwenModel.from_q8()`, or:
+
+```bash
+venturi qwen-native generate /path/to/text-q8.ninfer \
+  --blocks-library /path/to/libventuri_blocks.so \
+  --weight-mode resident --dtype fp16 --projection-profile q8-residual \
+  --tensor-parallel-device cuda:1 --tensor-parallel-transport host \
+  --token-ids 248045,846,198 --max-new-tokens 32
+```
+
+Supply the model's fully formatted token IDs. Omit the TP options for one GPU.
+This named profile uses **two group32 activation Q8 passes with FP32 scales**;
+the second compensates the first's residual. Original Q8 weights/scales, FP16
+external activations/KV and FP32 GDN state remain unchanged, but projection
+arithmetic/reduction and intermediate model states are **not bit-identical** to
+the original FP16-activation path. The default remains `fp16` (original typed
+arithmetic). Profile selection is explicit; unsupported libraries fail rather
+than silently falling back. Single/TP, fixed-cohort target batching, and a
+single-request MTP target are supported. MTP's draft retains original FP16
+arithmetic. PP, streaming weights and BF16 targets reject this profile; SM89,
+sampling and broad original-BF16/corpus quality are not qualified.
+
+On two V100s, three repeats with 23 prompt IDs/32 outputs improve complete-cohort
+HTTP TPS at 1/2/4/8 requests from **15.19/21.56/26.59/28.81** to
+**18.05/26.59/33.28/37.16**. Single-request MTP post-first decode improves
+**24.55 -> 29.27 TPS** (whole HTTP request: 18.47 -> 22.65 TPS). Fixed prior CPU
+logit thresholds, all four original text trajectories and same-profile
+scalar/batch/MTP state gates pass. This is limited trained-case qualification,
+not a general quality-equivalence claim. The fresh llama.cpp control still
+reaches **66.83 TPS** at eight requests; the external goal remains active.
+See `benchmarks/v100-native-residual/summary.md` for exact scopes, arithmetic
+differences, CPU/latency/VRAM/telemetry and separate CUDA timelines.
+
+### Scoped shared projection inputs
+
+New native builds share an input only within explicit adjacent QKV/z, Q/K/V
+and MLP gate/up groups. They avoid duplicate TP input transfers and, for
+`q8-residual`, duplicate activation packing. Cross-device fences still protect
+output scratch/gather reuse. There is no persistent pointer-based activation
+cache and no arithmetic change within either profile; chunk/head boundaries,
+request switches, failure and reset cannot inherit a previous group's reuse flag.
+This is not a fused GEMM, compressed wire format or CUDA graph.
+
+Trained old/new comparisons preserve every logit byte on 98 steps per profile,
+all four greedy trajectories and private scalar/batch cache bytes, including
+eight mixed requests and selected reset/continuation. Three-repeat residual
+complete-cohort HTTP TPS at 1/2/4/8 requests improves
+**18.09/26.82/33.71/37.48 -> 18.97/27.66/34.35/38.62**. Original FP16-activation
+C1/C8 improves **15.21/28.85 -> 15.81/29.72**; its C2/C4 speed was not remeasured.
+Single-request residual MTP post-first decode improves **29.27 -> 30.42 TPS**,
+while complete-request HTTP improves 22.62 -> 23.45 TPS. These are limited V100
+measurements, not universal gains or SM89 qualification. Fresh llama.cpp C8
+is still 62.80 TPS; the prior 66.83 TPS control also remains valid evidence.
+The external goal is unfinished. See `benchmarks/v100-shared-inputs/summary.md`.
+
+The benchmark uses **32 projection rows** and **256 context tokens per slot**:
+these are distinct limits. Residual packing scratch is 1,253,376 bytes per
+device, not scaled to 256 rows. The new capsule records this erratum to the
+previous frozen report's prose; the original commands/data remain unchanged.
+
+### Guarded V100 integer-dot T8 scheduling
+
+Rebuilt SM70 libraries now reuse each Q8 weight group across eight activation
+rows for large `q8-residual` projections. T1/T2 are unchanged. Small row grids
+and code planes <=6 MiB retain T4; SM89 dispatch is unchanged. This is a measured
+V100 heuristic, not universal autotuning. Quantization, FP32 reduction order,
+outputs and private caches remain byte-identical within each profile.
+
+Three-repeat two-V100 complete-cohort HTTP TPS at 1/2/4/8 requests improves
+**19.05/27.72/34.34/38.60 -> 19.41/28.58/35.57/43.18**. C1/C2/C4 gains are
+prefill gains: their post-first decode rates are essentially unchanged.
+Single-request MTP decode also stays approximately **30.4 TPS**, despite lower
+TTFT. Fresh llama.cpp still reaches **67.29 TPS** at C8, so the external goal
+remains active. V100 suite: 1206 passed / 440 skipped; local: 761 / 885.
+
+`prepare_q8_wmma()` is a separate **research-only** group32-scaled FP16 Tensor
+Core operator. It passes independent numerical/tail/subnormal tests but is slower
+than residual DP4A in the tested decode/batch regimes. It is **not selected by
+native model generation** and has no trained-model quality qualification.
+This milestone's serving gain comes from integer-dot scheduling, not Tensor Cores.
+See `benchmarks/v100-q8-wmma/summary.md` for negative results, shape guards,
+strict byte gates, raw timings and separate profiling.
+
+### V100 TP output-copy hypothesis: rejected
+
+A direct pitched-output prototype passes exact trained logits, scalar/batch
+private caches and fresh MTP committed-state checks, plus 1280 V100 tests.
+It removes 5208 primary staging copies in the C8 trace but does not improve
+HTTP throughput (43.186 -> 43.188 TPS in screening). CUDA waiting shifts to
+other APIs; summed copy-API duration was not removable elapsed time. The native
+source is restored exactly to the qualified guarded-T8 path, and the rejected
+prototype is preserved separately, not enabled in generation.
+
+Fresh three-repeat llama.cpp MTP depth 2/3/4 tests find depth 2 best among
+tested 1–4: 30.17 whole-request HTTP TPS and 49.80 reported post-first TPS.
+Venturi's retained MTP1 remains 23.99 HTTP / 30.42 post-first TPS; the external
+goal is not met. Native multi-proposal MTP is not implemented by this study.
+See `benchmarks/v100-strided-output/summary.md` for scopes, negative results,
+acceptance, profiling and the source-restore proof.
+
+### V100 two-token shared-activation staging
+
+The rebuilt SM70 library now stages activation codes/scales in shared memory
+for eligible **T2 `q8-residual`** projections only (at most 48 KiB, 16 row warps
+per CTA). Quantization, reduction order, outputs and private caches remain
+byte-exact. Default FP16, T1/T4/T8, SM89 and peer transport/fences are unchanged.
+No new CLI switch: use the existing explicit residual profile with the rebuilt
+library. Standalone T1 shared variants were slower and are not selected.
+
+Three-repeat two-V100 C2 HTTP improves **28.55 -> 29.63 TPS**; single-request
+MTP1 post-first decode **30.42 -> 31.73 TPS**, whole-request HTTP 23.99 -> 24.80.
+Other non-spec concurrency cells are roughly flat; this is not a universal
+speedup or an external-engine win. Native MTP2 is still unimplemented.
+V100 suite: 1256 passed / 440 skipped; local: 762 / 934. See
+`benchmarks/v100-q8-shared-activation/summary.md` for byte/state gates, raw
+measurements, rejected choices and separate launch-resource/timeline evidence.
+
+### V100 K-tiled activation staging
+
+The rebuilt SM70 residual path now stages 1,024 K-columns at a time for T>=3,
+with unchanged quantization, reduction and output/private-cache bytes. The
+measured tile4/row8 and tile8/row16 choices avoid a regressing small-row geometry.
+T1, existing T2 staging, SM89 and default FP16 arithmetic remain unchanged.
+
+Three-repeat C1/2/4/8 HTTP improves **19.39/29.63/35.55/43.17 ->
+20.19/31.48/45.21/54.72 TPS**. C4/C8 gain about 27%; C1/C2 gain from prefill
+only. Single MTP decode stays approximately 31.8 TPS, while whole-request HTTP
+improves 24.97 -> 26.22. These are internal gains, not wins over llama.cpp.
+V100 suite: 1438 passed / 440 skipped; local: 763 / 1115. Use the existing
+explicit `q8-residual` option with the rebuilt library; no new precision switch.
+See `benchmarks/v100-q8-tiled-staging/summary.md` for scopes, regressions,
+reference reuse, raw data and separate profiling.
+
+
+### V100 grouped/fused same-input projections
+
+The rebuilt SM70 `q8-residual` path groups gate/up, qkv/z and Q/K/V transport
+fences and peer output copies, then computes complete row dots in one kernel
+per group/device. Primary outputs use explicit full-width pitches. No partial
+FP16 reduction, changed quantization, new precision switch or Python forward.
+Default FP16, SM89, PP and non-host TP retain their existing paths.
+
+Three-repeat two-V100 C1/2/4/8 complete-request HTTP improves
+**20.23/31.55/45.35/54.69 -> 22.11/33.80/47.80/57.04 TPS**. Ordinary single
+post-first improves **23.08 -> 25.52 TPS**; MTP1 post-first
+**31.73 -> 34.40 TPS** (HTTP 26.17 -> 28.08). Trained affected-profile logits,
+outputs, private caches and MTP committed state remain byte-exact to the pinned
+control; unchanged trained FP16 and independent draft references are reused,
+not freshly executed. V100 suite: 1517 passed / 440 skipped; local: 765 / 1192.
+These are internal gains, **not wins over llama.cpp**. Source-only transport/
+fusion ablations, remaining limits and separate diagnostics are in
+`benchmarks/v100-q8-projection-fusion/summary.md`.
+
+
+### V100 compact GDN geometry
+
+The rebuilt SM70 residual target uses 64/128 threads for corresponding GDN key
+dimensions, preserving the original eight logical warp partials, output and FP32
+state bytes. Default FP16 targets, legacy public GDN, PP, SM89 and DK256 remain
+unchanged. No extra persistent workspace, precision switch or Python forward.
+
+Three-repeat C1/2/4/8 HTTP improves **22.13/33.82/47.84/57.05 ->
+22.96/35.81/52.05/63.18 TPS**. Single ordinary post-first reaches **26.30 TPS**,
+MTP1 **35.69 TPS** (HTTP 29.38). C4 is 3.57% above the pinned llama.cpp HTTP
+control, short of the required 5%; the other cells still trail. Trained affected-
+profile logits/cache/MTP state remain byte-exact; V100 suite **1644 passed /
+440 skipped**, local **766 / 1318**. Use the existing `q8-residual` profile with
+the rebuilt library. Scopes, failures, reference reuse and separate profiling:
+`benchmarks/v100-gdn-compact/summary.md`.
+
+
+### Explicit native batched-prefill budget
+
+The HTTP/profile/qualification tools now expose `--projection-rows`; the native
+model already accepts `max_tokens=...` (API default128). A qualified explicit
+256-row budget reduces C1/2/4/8 prefill group calls **1/2/3/6 -> 1/1/1/1** for
+the same fixed work/context/precision. No new kernel or architecture is claimed.
+
+Three-repeat HTTP is **22.92/36.29/53.25/65.41 TPS**. C4 is **5.96% above** the
+pinned llama.cpp HTTP control, but C1/C2/C8 still trail and decode is flat.
+Primary NVML peak grows **1722 MiB**, so adapter default32 and scalar/MTP settings
+remain unchanged. Opt in with `max_tokens=256` before native `create_batch(...)`,
+or `--batch-target --projection-rows 256 --projection-profile q8-residual` in the
+loopback benchmark adapter. Fresh128/256 trained logit/cache signatures are
+byte-exact; V100 **1679 passed / 440 skipped**, local **769 / 1350**.
+`benchmarks/v100-prefill-budget/summary.md` records tradeoffs, controls and profiles.
+
+### Native two-proposal MTP with prefix recovery
+
+An explicit additive ABI16 path now drafts two tokens, verifies three target
+inputs, restores intermediate GDN/history state without target replay, and repairs
+speculative draft KV with verified target hidden. Depth one remains the default.
+Select `--mtp-artifact ... --mtp-draft-tokens 2 --mtp-recovery prefix` for
+`venturi qwen-native generate`; the API uses `draft_tokens=2, recovery="prefix"`.
+Call `session.prepare_prefix()` before timing on a fresh/reset request. Rebuild
+for the optional new exports; no external forward or Python token loop is used.
+
+Three-repeat two-V100 C1/2/4/8 complete-request HTTP TPS improves from scalar
+MTP1 **29.41/29.29/29.75/29.26** to **33.88/33.36/33.48/33.81**. Single post-first
+native decode improves **35.72 -> 42.83 TPS**. The original replay-based MTP2 is
+slower (~25.7 HTTP TPS) and is retained as a negative ablation. Prefix recovery
+removes all trained-case target replay inputs; outputs and committed target/draft
+state remain exact to qualified controls. V100 suite **1772 passed /448 skipped**;
+local **776 /1444**. Existing independent target/teacher references are reused;
+this is not broad original-BF16/corpus-quality qualification.
+
+Tradeoffs: one additional 146.8125 MiB logical recurrent snapshot per prepared
+slot; actual eight-slot primary NVML usage grows **22435 -> 23993 MiB** (+1558),
+which exceeds the 1174.5 MiB logical payload increase. Allocation/residency overhead
+has not been separately isolated. Default depth/recovery and row budget remain
+unchanged. Scalar MTP is still slower than ordinary native batching at parallel
+loads. C1 HTTP beats the reused best-tested external MTP2 control, but native
+post-first 42.83 still trails its 49.80 TPS; the complete external goal is unfinished.
+See `benchmarks/v100-native-mtp2/summary.md` for scopes, precision differences,
+CPU/latency/memory, retained reporting failure and separate profiling evidence.
+
+### T3 projection experiment: not promoted
+
+A bounded SM70 three-token study tests full activation sharing and token3 K tiles
+at rows 4/8/16. All 134 new fixture checks and the complete 1906-test V100 suite pass;
+trained logits/private-state/MTP gates remain exact. Full sharing mostly regresses.
+The best generic K-tiled candidate improves the **one-repeat screen** only
+34.021 -> 34.114 HTTP TPS at C1 (+0.27%) and 34.136 -> 34.524 at C8 (+1.14%);
+ordinary batch rows256 is effectively unchanged. This fails the predeclared
+promotion gate, so no expensive three-repeat matrix is run and the model dispatch
+is restored. Research-only entries remain available; no new production TPS claim.
+The previously qualified 42.83 decode TPS result remains the current milestone.
+See `benchmarks/v100-t3-projection/summary.md`; next priority is native batched MTP
+verification, not another unbounded geometry sweep.
+
+### Native MTP1 target-verification cohorts (experimental)
+
+`NativeQwenMTPModel.create_batch(capacities)` adds opt-in native target verification
+across independent request slots. It projects every verifier row and preserves
+request-private GDN/history/KV, prefix-one rejection recovery, verified-hidden
+draft catch-up, EOS and failure/reset semantics. MTP children borrow the cohort's
+target sessions rather than duplicating permanent target caches. Draft blocks,
+proposal heads and shifted prefill remain serial native operations. No PP,
+continuation, paging, continuous admission or whole-model graph is implied.
+
+The explicit benchmark-only switch is `tools/serve_native_benchmark.py --batch-mtp`
+with TP, a draft artifact and depth one. Existing CLI scalar MTP and ordinary
+batching remain unchanged. The first matched three-repeat study finds a useful
+C2 gain, **36.30 -> 42.61 HTTP TPS**, but C1 and C8 lose to their stronger existing
+paths. The following SDK-only optimization removes nested metadata validation
+from generate/info/stats while retaining public and native source guards; old/new
+arms use the exact same native SO. See `benchmarks/v100-batched-mtp/summary.md` for
+the final matrix, CPU/latency/memory, negative results, separate GPU profiles and
+reused external controls. No universal automatic strategy is enabled.
+
+Final tests: V100 **1,992 passed /448 skipped**, local **785 /1,655**. Exact trained
+output/private-state gates pass; unchanged independent quality references are
+explicitly reused, not rerun or broadened. The full single/parallel external
+speed goal is still unfinished.
+
+### Token-tile CTA ordering study: not promoted
+
+A bounded scheduling-only experiment tests adjacent token tiles on eight real
+checkpoint shapes plus fused groups at seven token counts (77 cells). All 104 new
+checks and the full 2,096-test V100 suite pass; teacher logits, target/MTP state,
+EOS/reset and recurrence gates remain exact. Median fused multi-tile event time
+improves ~3.6%, but one-repeat C8 HTTP gains are only 0.66% for ordinary batching
+and 1.06% for MTP1 cohorts; single MTP2 is effectively unchanged. None passes the
+predeclared engine promotion gate. No three-repeat matrix or new qualified TPS
+claim; all nine native source dependencies are restored. The previous best
+single/parallel milestones remain in force. See
+`benchmarks/v100-token-tile-order/summary.md` for CPU/latency/memory, exact launch
+geometry, separate profiles, static-versus-achieved occupancy and retained failures.
+
+### Native MLP column/row TP (explicit SM70 profile)
+
+`--projection-profile q8-residual-column-mlp` opts into a qualified resident FP16
+target path on two V100s with `--tensor-parallel-device cuda:1` and
+`--tensor-parallel-transport host`. Rebuild/use the ABI-matching native library;
+older libraries fail preflight rather than silently falling back. Gate/up and
+SwiGLU stay local to each rank; down projection transports FP32 partials and sums
+before one FP16 cast. Q8 weights/scales are preserved, but FP32 association changes,
+so this is an explicitly different compute profile. Existing defaults and FP16
+draft arithmetic remain unchanged. It applies to scalar and packed target calls,
+not native PP, paged KV, a whole-model graph or an automatic workload router.
+
+Qualified two-V100 three-repeat results: single post-first decode **47.63 TPS**
+(previous 42.81); best complete-HTTP TPS at 1/2/4/8 requests is
+**37.69/50.64/61.71/73.84**, with different explicitly selected strategies. The full
+external >=5% objective remains unfinished: single decode still needs **52.29 TPS**.
+See `benchmarks/v100-native-column-mlp/summary.md` for exact commands, correctness,
+stronger retained external controls, timing scopes and CPU/GPU tradeoffs.
+
+### Explicit residual-A8 MTP draft (SM70)
+
+`--mtp-draft-projection-profile q8-residual` selects an independently qualified
+two-pass residual-A8/FP32-scale draft body. The API equivalent is
+`NativeQwenMTPModel.from_q8(target, weights, draft_projection_profile="q8-residual")`.
+It requires a resident FP16 non-PP target on SM70 and matching optional native
+exports; the original typed FP16/BF16 draft path remains the default. Stored Q8
+weights and FP16 KV storage stay unchanged, but draft arithmetic/cache values
+can differ; this is not FP16 byte equivalence. Shared vocabulary/head keep the
+target's profile. Scalar MTP2 and native MTP1 verification cohorts are supported.
+
+Same-library three-repeat single decode improves **47.66 ->48.41 TPS**; MTP1
+cohort HTTP at2/4/8 improves **50.56/61.74/66.60 ->51.82/63.66/68.91 TPS**.
+Ordinary256's retained73.84 TPS is still stronger at8 requests. No automatic
+router or complete external-goal acceptance: single decode still needs52.29 TPS.
+See `benchmarks/v100-mtp-draft-residual/summary.md` for correctness, precision,
+CPU/GPU data, preserved setup failures and explicit retained-baseline scopes.
+
+A subsequent unchanged-engine metadata audit counted13,348 checkpoint `stat`
+syscalls per fixed23/32-token MTP2 generation. Independent warm CPU loops suggest
+about11.1ms of potential work (~1.4% of raw generation), not a critical-path
+speedup prediction. No guard was removed or source-check optimization adopted.
+See `benchmarks/v100-source-validation/summary.md` for the bounded follow-up gate.
+
+That follow-up is now measured and **rejected**, not shipped. A guard-preserving
+resident scope reduced checkpoint syscalls13348→568 but produced only0.05% C1
+MTP2 decode change and failed all three paired performance gates. Production
+sources were restored exactly; correctness alone and fewer syscalls are not a
+TPS/CPU-efficiency win. Results, profiles and the retained prototype are in
+`benchmarks/v100-source-scope/summary.md`. The52.29 TPS single goal remains unmet.
+
+### Native semantic-head GDN TP (explicit two-V100 profile)
+
+`--projection-profile q8-residual-column-mlp-head-gdn` adds native semantic GDN
+head partitioning to the qualified column-MLP profile. Each rank owns half of the
+convolution/recurrent caches, including private MTP checkpoints/prefixes. Stored
+Q8 weights/scales and original small-parameter values are preserved. Output
+partials sum in FP32 before one FP16 cast; that changed association is separately
+qualified, not original-profile byte equivalence. Defaults stay unchanged.
+Resident SM70 FP16 activations/KV, eligible geometry and explicit host TP are
+required. Unsupported dtype/PP/transport/architecture or old native libraries
+fail closed. No Python token/layer loop, paged attention or automatic strategy
+router is implied.
+
+Three-repeat fixed23/32-token results on two V100s: **52.96 single native
+post-first TPS** with scalar MTP2; complete HTTP1/2/4/8 with scalar MTP2 for1
+and packed MTP1 for2/4/8 is **42.27/57.30/70.29/76.46 TPS**. Subsequently,
+the independently qualified ordinary packed row256 configuration reaches
+**83.85 HTTP TPS at8 requests** across three repeats, without MTP. The same
+ordinary mode remains slower than llama.cpp for single decoding; modes are
+selected explicitly, and historical results above are not universal-mode claims.
+All rates exclude loading and use256 context/eight prepared slots and FP16 KV.
+
+Final fresh three-repeat single post-first decode is **52.95 versus 50.05 TPS
+(+5.79%)**; complete HTTP at 1/2/4/8 requests is **42.11/57.23/70.30/82.97 TPS** with explicit
+MTP2/packed-MTP1/ordinary strategies. These clear the strongest retained or fresh
+repeated external floors by >=5%, including the stronger fresh C4 MTP1 control.
+They also clear all valid one-repeat screens. Native 98-row reference checks
+pass; cross-engine aligned top1 agrees 10/11, not exact-math/corpus parity.
+
+SSH recovery and evidence capture are complete, but the full goal remains open:
+the pinned comparator cannot repeatably complete paired MTP1 controls at 2/8
+requests across the bounded tested configurations. Failed arms are not zero TPS.
+CPU, latency, VRAM/NVML, separate timeline/resource evidence, unavailable achieved
+hardware counters, retained losses and the actual remote CLI example are in
+`benchmarks/v100-native-head-controls/summary.md` and `usage.md` there.
+Use `python -m venturi qwen-native --help` in the installed environment if the
+`venturi` console entry point is not on PATH; CUDA execution requires the remote
+Linux GPU environment and an explicitly matching backend library.
+
+### Opt-in adaptive MTP (2026-10-21)
+
+`NativeQwenMTPModel.create_adaptive_batch` now provides fresh-cohort measured-cost
+selection between ordinary packed decoding, packed MTP1 and scalar-prefix MTP2.
+The reusable `AdaptiveMTPPolicy` learns from successful cohort wall/output costs,
+with labelled cold probes and periodic rechecks; no trained confidence head or
+mid-generation state migration is implied. Fixed native paths/defaults and the
+XHarness production route remain unchanged.
+
+On the same two V100s, one common row256 configuration, 23 prompt/32 output tokens,
+FP16 KV and three timed repeats after explicit warmup/calibration, automatic
+1/2/4/8-request cohort throughput is **42.60/59.52/72.43/84.13 TPS**. It selects
+MTP2/MTP1/MTP1/ordinary respectively. This is complete native cohort timing, not
+post-first decode or HTTP TPS. It tracks the best fixed candidate within ~0.3%
+on this workload, not a new kernel speedup. Exploration costs and extra resident
+bank memory are reported separately; no universal/long-context claim is made.
+
+See `docs/adaptive-mtp.md` for the API and opt-in benchmark HTTP flag, and
+`benchmarks/v100-adaptive-mtp/summary.md` for controls, correctness, CPU/GPU data,
+limitations and the verified production restoration record.
+
+### Experimental VRAM-first KV (2026-10-23)
+
+Resident native Qwen sessions and cohorts can opt into demand-grown GPU KV with
+bounded RAM spill. The default remains `kv_cache="static"`. The new path reserves
+contiguous CUDA virtual addresses, commits physical pages as prefixes grow, and
+allocates no CPU backing while the admitted KV fits in VRAM. It preserves the
+existing attention kernels and KV bytes; it is not a new paged-attention kernel,
+weight offload, or a throughput optimization. MTP and PP are explicitly rejected
+with tiered KV.
+
+```python
+# Additional NativeQwenModel.from_q8 options; keep existing device/library options.
+kv_cache="vram-first",
+kv_gpu_budget_bytes=0,          # automatic free-VRAM-based budget
+kv_ram_budget_bytes=4 * 2**30,  # explicit backing quota, not a context guarantee
+```
+
+On the same two V100s, native Qwen3.8-27B Q8, FP16 KV, no MTP, 16 input/32 output
+tokens and capacity 256, the final paired post-first decode recheck measured
+**32.77/133.37 TPS** for static C1/C8 and **32.73/132.49 TPS** for GPU-resident
+dynamic KV. A forced 128 MiB KV pool reduced C8 to **77.35 aggregate TPS**. C1 did
+not spill. Earlier three-repeat controls and separate longer-prompt results are
+retained in the report; these rates are not full-call/HTTP throughput or a
+llama.cpp comparison.
+
+Full-model logits, greedy tokens and committed KV/GDN states matched the static
+reference exactly. A declared C8 capacity of 65536 was tested only with short
+prompts: there is no full-64K/256K speed or quality qualification. Copies currently
+remain synchronous; async prefetch and dirty-tail copies are future work. The
+original production service was restored, not replaced with this prototype.
+
+See the [configuration and limitations guide](docs/vram-first-kv.md) and the
+[correctness, timing and GPU evidence](benchmarks/v100-vram-first-kv/README.md).

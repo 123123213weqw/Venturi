@@ -42,29 +42,22 @@ class AdaBackend:
     def _error(self) -> RuntimeError:
         return RuntimeError(self._native.venturi_ada_error().decode("utf-8", "replace"))
 
-    def prepare_linear(
-        self,
-        weight: Q4RowSplitWeight,
-        *,
-        tokens: int,
-        dtype: torch.dtype = torch.bfloat16,
-        device: str | torch.device = "cuda:0",
-        route: str = "auto",
-    ) -> "PreparedLinear":
-        """Own GPU copies and initialize the fixed-shape route outside graph capture.
-
-        Preparation may allocate, copy, and synchronize. No model architecture is
-        consulted. A separate plan is needed for each token count and dtype.
-        """
+    def upload_linear(self, weight, *, device="cuda:0"):
+        """Copy Q4 planes once; resident storage can bind multiple shapes/dtypes."""
         if not isinstance(weight, Q4RowSplitWeight):
             raise TypeError("Venturi Ada currently supports Q4RowSplitWeight only")
         weight.validate()
-        if type(tokens) is not int or not 0 < tokens <= 4 * 65535:
-            raise ValueError("tokens must be an integer in [1, 262140]")
-        if dtype not in (torch.float16, torch.bfloat16):
-            raise ValueError("activations and output must be float16 or bfloat16")
-        if route not in ("auto", "generic", "tuned", "mma"):
-            raise ValueError("route must be auto, generic, tuned, or mma")
+        target = self._device(device)
+        with torch.cuda.device(target):
+            codes = weight.codes.detach().to(target, copy=True)
+            scales = weight.scales.detach().to(target, copy=True)
+            if not bool(torch.isfinite(scales).all()):
+                raise ValueError("scales must be finite")
+            owned = Q4RowSplitWeight(codes, scales, weight.in_features)
+            torch.cuda.current_stream(target).synchronize()
+        return ResidentQ4Weight(self, owned)
+
+    def _device(self, device):
         target = torch.device(device)
         if target.type != "cuda":
             raise ValueError("Ada execution requires an explicit CUDA device")
@@ -76,24 +69,60 @@ class AdaBackend:
                 raise ValueError(
                     "Venturi Ada currently requires compute capability 8.9"
                 )
-            native_route = self._native.venturi_q4_prepare(
-                weight.out_features,
-                weight.in_features,
+        return target
+
+    def prepare_linear(
+        self, weight, *, tokens, dtype=torch.bfloat16, device="cuda:0", route="auto"
+    ):
+        """Compatibility helper: upload once, then bind one fixed token shape."""
+        _configuration(tokens, dtype, route)
+        return self.upload_linear(weight, device=device).prepare(
+            tokens=tokens, dtype=dtype, route=route
+        )
+
+
+def _configuration(tokens, dtype, route):
+    if type(tokens) is not int or not 0 < tokens <= 4 * 65535:
+        raise ValueError("tokens must be an integer in [1, 262140]")
+    if dtype not in (torch.float16, torch.bfloat16):
+        raise ValueError("activations and output must be float16 or bfloat16")
+    if route not in ("auto", "generic", "tuned", "mma"):
+        raise ValueError("route must be auto, generic, tuned, or mma")
+
+
+@dataclass(frozen=True)
+class ResidentQ4Weight:
+    """Owned read-only-by-contract Q4 planes. Do not mutate storage during use.
+
+    Plans retain these tensors even after the resident wrapper is released.
+    Keep every plan and graph operand alive until asynchronous work completes.
+    """
+
+    _backend: AdaBackend
+    _weight: Q4RowSplitWeight
+
+    @property
+    def storage_tensors(self):
+        return (self._weight.codes, self._weight.scales)
+
+    @property
+    def storage_nbytes(self):
+        return sum(t.numel() * t.element_size() for t in self.storage_tensors)
+
+    def prepare(self, *, tokens, dtype=torch.bfloat16, route="auto"):
+        _configuration(tokens, dtype, route)
+        target = self._backend._device(self._weight.codes.device)
+        with torch.cuda.device(target):
+            native_route = self._backend._native.venturi_q4_prepare(
+                self._weight.out_features,
+                self._weight.in_features,
                 tokens,
                 int(dtype == torch.bfloat16),
                 {"auto": -1, "generic": 0, "tuned": 1, "mma": 2}[route],
             )
             if native_route < 0:
-                raise self._error()
-            # Explicit copies also detach preparation from any autograd graph.
-            codes = weight.codes.detach().to(target, copy=True)
-            scales = weight.scales.detach().to(target, copy=True)
-            if not bool(torch.isfinite(scales).all()):
-                raise ValueError("scales must be finite")
-            owned = Q4RowSplitWeight(codes, scales, weight.in_features)
-            # Establish ownership readiness before execution on any caller stream.
-            torch.cuda.current_stream(target).synchronize()
-        return PreparedLinear(self, owned, tokens, dtype, native_route)
+                raise self._backend._error()
+        return PreparedLinear(self._backend, self._weight, tokens, dtype, native_route)
 
 
 @dataclass(frozen=True)

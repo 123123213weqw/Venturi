@@ -20,6 +20,10 @@ def main():
     parser.add_argument("--output", required=True)
     parser.add_argument("--cuda", default="/usr/local/cuda")
     parser.add_argument(
+        "--ops-object",
+        help="Explicit experimental replacement object, linked before unchanged native archives",
+    )
+    parser.add_argument(
         "--runner-source",
         help="Explicit alternative transport/probe C++ source; does not change the production runner",
     )
@@ -28,6 +32,7 @@ def main():
         lambda p: Path(p).resolve(), (args.source, args.build, args.output)
     )
     output.parent.mkdir(parents=True, exist_ok=True)
+    ops_object = Path(args.ops_object).resolve(strict=True) if args.ops_object else None
     temporary = output.with_name(output.name + f".building-{os.getpid()}")
     commands = subprocess.check_output(
         ["ninja", "-C", str(build), "-t", "commands", "apps/ninfer"], text=True
@@ -54,20 +59,24 @@ def main():
             / "src/venturi/backends/csrc/qwen_runner.cpp"
         )
     )
-    command = [
-        link[0],
-        "-std=c++20",
-        "-O3",
-        "-DNDEBUG",
-        "-DSPDLOG_COMPILED_LIB",
-        "-I" + str(source / "include"),
-        "-I" + str(source / "third_party"),
-        "-I" + str(source / "third_party/spdlog/include"),
-        "-I" + str(Path(args.cuda) / "include"),
-        str(cpp),
-        "-o",
-        str(temporary),
-    ] + link[index + 2 :]
+    command = (
+        [
+            link[0],
+            "-std=c++20",
+            "-O3",
+            "-DNDEBUG",
+            "-DSPDLOG_COMPILED_LIB",
+            "-I" + str(source / "include"),
+            "-I" + str(source / "third_party"),
+            "-I" + str(source / "third_party/spdlog/include"),
+            "-I" + str(Path(args.cuda) / "include"),
+            str(cpp),
+            "-o",
+            str(temporary),
+        ]
+        + ([str(ops_object)] if ops_object else [])
+        + link[index + 2 :]
+    )
     try:
         subprocess.run(command, cwd=build, check=True)
         os.replace(temporary, output)
@@ -90,6 +99,14 @@ def main():
             (source / "include/ninfer/engine.h").read_bytes()
         ).hexdigest(),
         "external_attribution_sha256": hashes,
+        "experimental_ops_object": (
+            {
+                "path": str(ops_object),
+                "sha256": hashlib.sha256(ops_object.read_bytes()).hexdigest(),
+            }
+            if ops_object
+            else None
+        ),
         "linked_archive_sha256": {
             str(
                 Path(p).resolve() if Path(p).is_absolute() else (build / p).resolve()
@@ -100,7 +117,11 @@ def main():
             if p.endswith(".a")
         },
         "command": command,
-        "scope": "Own transport linked to existing external native implementation; not a new Qwen kernel implementation.",
+        "scope": (
+            "Own transport plus an explicitly selected experimental ops object; remaining native implementation is external."
+            if ops_object
+            else "Own transport linked to existing external native implementation; not a new Qwen kernel implementation."
+        ),
     }
     output.with_suffix(".build.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))
