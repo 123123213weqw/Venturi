@@ -1,0 +1,21 @@
+..FF...........................................                          [100%]
+=================================== FAILURES ===================================
+______ test_real_native_single_parallel_switch_and_state_isolation[bf16] _______
+tests/test_qwen_real.py:112: in test_real_native_single_parallel_switch_and_state_isolation
+    assert [r["generated_ids"] for r in a["results"]] == [
+E   assert [[13602, 2480...76, 314, ...]] == [[13602, 2480...76, 314, ...]]
+E     
+E     At index 2 diff: [37134, 369, 279, 15346, 5176, 314, 31296, 421, 31950, 660, 5978, 440, 2973, 466, 4649, 8574, 799, 2361, 13, 248046] != [37134, 369, 279, 15346, 5176, 314, 31296, 421, 31950, 5978, 440, 2973, 8574, 799, 2361, 11, 9716, 4156, 494, 279, 11051, 314, 31784, 310, 279, 4255, 314, 449, 22544, 13, 248046]
+E     Use -v to get more diff
+______ test_real_native_single_parallel_switch_and_state_isolation[k8v4] _______
+tests/test_qwen_real.py:93: in test_real_native_single_parallel_switch_and_state_isolation
+    assert [r["generated_ids"] for r in parallel["results"]] == [
+E   AssertionError: assert [[11751, 13, ...46, ...], ...] == [[11751, 13, ...46, ...], ...]
+E     
+E     At index 2 diff: [279, 1727, 4496, 1602, 220, 16, 15, 11, 2614, 264, 12594, 5215, 314, 7594, 220, 17, 310, 1754, 36497, 1324, 13, 1061, 33633, 31639, 369, 264, 85188, 7059, 303, 3988, 36352, 11, 10163, 50392, 14838, 321, 12663, 4145, 33625, 12261, 13, 561, 5759, 314, 1680, 22958, 91229, 279, 4374, 314, 6570, 6463, 1881, 23173, 3665, 11, 864, 369, 7326, 364, 10894, 1324, 5357, 321] != [279, 1727, 4496, 1602, 220, 16, 15, 11, 2614, 264, 12594, 5215, 314, 7594, 220, 17, 310, 1754, 36497, 1324, 13, 1061, 33633, 31639, 369, 264, 85188, 7059, 303, 3988, 36352, 11, 10163, 5039...
+E     
+E     ...Full output truncated (2 lines hidden), use '-vv' to show
+=========================== short test summary info ============================
+FAILED tests/test_qwen_real.py::test_real_native_single_parallel_switch_and_state_isolation[bf16]
+FAILED tests/test_qwen_real.py::test_real_native_single_parallel_switch_and_state_isolation[k8v4]
+2 failed, 45 passed in 46.95s

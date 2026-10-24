@@ -1,0 +1,31 @@
+{
+  "route": [
+    "ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ForwardAgent=no",
+    "-o",
+    "StrictHostKeyChecking=yes",
+    "-o",
+    "ControlMaster=auto",
+    "-o",
+    "ControlPath=/tmp/venturi-v100-head-readonly-%C",
+    "-o",
+    "ControlPersist=600",
+    "-o",
+    "ProxyCommand=none",
+    "-o",
+    "ConnectTimeout=45",
+    "-o",
+    "ServerAliveInterval=15",
+    "-o",
+    "ServerAliveCountMax=4",
+    "WZU_Server",
+    "python3 -"
+  ],
+  "seconds": 33.386988041,
+  "rc": 0,
+  "stdout": "{\"preserved_failure_label\": \"screen-llama-tensor-mtp2-cpu-sampling-c2c4\", \"server_exit_code\": null, \"benchmark_tail\": \" jobs]\\n  File \\\"/usr/lib/python3.10/concurrent/futures/_base.py\\\", line 458, in result\\n    return self.__get_result()\\n  File \\\"/usr/lib/python3.10/concurrent/futures/_base.py\\\", line 403, in __get_result\\n    raise self._exception\\n  File \\\"/usr/lib/python3.10/concurrent/futures/thread.py\\\", line 58, in run\\n    result = self.fn(*self.args, **self.kwargs)\\n  File \\\"/home/data/wangyue/repos/codex-build/Venturi/native-head-gdn-src-v3/tools/benchmark_completion_api.py\\\", line 98, in run\\n    result = post(args.url+\\\"/completion\\\",body)\\n  File \\\"/home/data/wangyue/repos/codex-build/Venturi/native-head-gdn-src-v3/tools/benchmark_completion_api.py\\\", line 20, in post\\n    with urlopen(request, timeout=180) as response:\\n  File \\\"/usr/lib/python3.10/urllib/request.py\\\", line 216, in urlopen\\n    return opener.open(url, data, timeout)\\n  File \\\"/usr/lib/python3.10/urllib/request.py\\\", line 519, in open\\n    response = self._open(req, data)\\n  File \\\"/usr/lib/python3.10/urllib/request.py\\\", line 536, in _open\\n    result = self._call_chain(self.handle_open, protocol, protocol +\\n  File \\\"/usr/lib/python3.10/urllib/request.py\\\", line 496, in _call_chain\\n    result = func(*args)\\n  File \\\"/usr/lib/python3.10/urllib/request.py\\\", line 1377, in http_open\\n    return self.do_open(http.client.HTTPConnection, req)\\n  File \\\"/usr/lib/python3.10/urllib/request.py\\\", line 1352, in do_open\\n    r = h.getresponse()\\n  File \\\"/usr/lib/python3.10/http/client.py\\\", line 1404, in getresponse\\n    response.begin()\\n  File \\\"/usr/lib/python3.10/http/client.py\\\", line 323, in begin\\n    version, status, reason = self._read_status()\\n  File \\\"/usr/lib/python3.10/http/client.py\\\", line 292, in _read_status\\n    raise RemoteDisconnected(\\\"Remote end closed connection without\\\"\\nhttp.client.RemoteDisconnected: Remote end closed connection without response\\n\"}\n{\"name\": \"venturi-native-head-controls-v10\", \"process\": {\"pid\": 3720759, \"started_unix\": 1792472467.6226742}, \"cmdline\": \"python3\\u0000/home/data/wangyue/artifacts/venturi-native-head-controls-v10/worker.py\\u0000\"}\n{\"name\": \"venturi-native-head-aligned-v11\", \"process\": {\"pid\": 3720760, \"started_unix\": 1792472467.6259456}, \"cmdline\": \"python3\\u0000/home/data/wangyue/artifacts/venturi-native-head-aligned-v11/worker.py\\u0000\"}\n{\"name\": \"venturi-native-head-controls-profile-v12\", \"process\": {\"pid\": 3720761, \"started_unix\": 1792472467.628765}, \"cmdline\": \"python3\\u0000/home/data/wangyue/artifacts/venturi-native-head-controls-profile-v12/worker.py\\u0000\"}\n",
+  "stderr": ""
+}

@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/home/data/wangyue/artifacts/venturi-native-head-controls-v7/worker.py", line 147, in <module>
+    if not tensor_valid:tensor_parallel_search('cpu-sampling')
+  File "/home/data/wangyue/artifacts/venturi-native-head-controls-v7/worker.py", line 127, in tensor_parallel_search
+    value=optional(f'screen-llama-tensor-mtp{depth}-{tag}-c2c4','tensor',depth,'2,4')
+  File "/home/data/wangyue/artifacts/venturi-native-head-controls-v7/worker.py", line 107, in optional
+    try:return experiment(label,'llama',mode,depth,counts,repeats)
+  File "/home/data/wangyue/artifacts/venturi-native-head-controls-v7/worker.py", line 65, in experiment
+    run(cmd if engine=='venturi' else cmd[:-1],directory/'benchmark.log',timeout=600);measured=json.loads((directory/'timed/report.json').read_text());assert measured['completed'] and measured['all_outputs_equal_first_wave'],'Fixed greedy outputs unstable'
+  File "/home/data/wangyue/artifacts/venturi-native-head-controls-v7/worker.py", line 24, in run
+    if rc:raise RuntimeError(f'Owned command exited {rc}: {path}')
+RuntimeError: Owned command exited 1: /home/data/wangyue/artifacts/venturi-native-head-controls-v7/screen-llama-tensor-mtp2-cpu-sampling-c2c4/benchmark.log

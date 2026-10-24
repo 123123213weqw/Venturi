@@ -1,0 +1,1729 @@
+{
+  "scope": "Remote-only GDN frontend and generic Q8 primitive qualification/timing.\n\nActual small checkpoint constants with synthetic activations; synthetic generic\nQ8 projection weights. Not full Qwen execution, trained-model quality, model TPS,\nor a comparison with an optimized quantized engine. No model download here.\n",
+  "artifact_id": "d3ae5782742a48c8b058196297a7ddff",
+  "cuda": "13.0",
+  "torch": "2.9.1+cu130",
+  "gpu": "NVIDIA GeForce RTX 4090 D",
+  "native_library": "/home/test/wangyue/venturi-work/qwen/own-blocks-build/8600ad41ddd46902/libventuri_blocks.so",
+  "cases": [
+    {
+      "name": "conv-t1",
+      "tokens": 1,
+      "source": "Actual layer-0 checkpoint constants; synthetic BF16 activation inputs",
+      "timing": "Fixed-state graph replay wrapper; not autoregressive decoding",
+      "qualification": {
+        "native": {
+          "passed": true,
+          "max_rounded_abs_error": 0.0,
+          "max_unrounded_abs_error": 0.0004060636140188201,
+          "elements": 10240,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": [],
+          "history_exact": true
+        },
+        "torch-reference": {
+          "passed": true,
+          "max_rounded_abs_error": 0.0,
+          "max_unrounded_abs_error": 0.0004060636140188201,
+          "elements": 10240,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": [],
+          "history_exact": true
+        }
+      },
+      "phases": [
+        {
+          "mode": "single",
+          "start_unix": 1792339449.337147,
+          "end_unix": 1792339451.337309,
+          "calls": 65070,
+          "wall_seconds": 2.0001260299468413,
+          "process_cpu_seconds": 1.9991849999999998,
+          "process_cpu_percent": 99.95295146741995,
+          "wall_us_per_call": 30.738067157627803,
+          "event_us_per_call": 28.34132732802022,
+          "calls_per_second": 32532.949937024423,
+          "condition": "torch-reference"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339451.3380702,
+          "end_unix": 1792339453.3381267,
+          "calls": 270940,
+          "wall_seconds": 2.0000497549772263,
+          "process_cpu_seconds": 2.0002500000000003,
+          "process_cpu_percent": 100.01001200206524,
+          "wall_us_per_call": 7.38189176562053,
+          "event_us_per_call": 5.237811430931232,
+          "calls_per_second": 135466.62993045646,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339453.3389118,
+          "end_unix": 1792339455.3389907,
+          "calls": 272050,
+          "wall_seconds": 2.0000660120276734,
+          "process_cpu_seconds": 1.9991150000000006,
+          "process_cpu_percent": 99.95245096802037,
+          "wall_us_per_call": 7.351832427964247,
+          "event_us_per_call": 5.219487901150556,
+          "calls_per_second": 136020.51050514818,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339455.3392823,
+          "end_unix": 1792339457.3395946,
+          "calls": 64980,
+          "wall_seconds": 2.0003046659985557,
+          "process_cpu_seconds": 1.9997420000000012,
+          "process_cpu_percent": 99.97187098504948,
+          "wall_us_per_call": 30.783389750670295,
+          "event_us_per_call": 28.392029517648698,
+          "calls_per_second": 32485.05145468021,
+          "condition": "torch-reference"
+        }
+      ],
+      "medians": {
+        "torch-reference": {
+          "wall_us_per_call": 30.76072845414905,
+          "event_us_per_call": 28.36667842283446,
+          "process_cpu_percent": 99.9624112262347,
+          "calls_per_second": 32509.000695852315
+        },
+        "native": {
+          "wall_us_per_call": 7.366862096792389,
+          "event_us_per_call": 5.228649666040894,
+          "process_cpu_percent": 99.9812314850428,
+          "calls_per_second": 135743.5702178023
+        }
+      },
+      "telemetry": {
+        "native": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 29.8,
+            "minimum": 28.0,
+            "maximum": 31.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 822.0,
+            "minimum": 822.0,
+            "maximum": 822.0
+          },
+          "power.draw": {
+            "mean": 96.5,
+            "minimum": 87.81,
+            "maximum": 105.34
+          },
+          "temperature.gpu": {
+            "mean": 41.0,
+            "minimum": 41.0,
+            "maximum": 41.0
+          },
+          "clocks.sm": {
+            "mean": 2628.0,
+            "minimum": 2520.0,
+            "maximum": 2790.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        },
+        "torch-reference": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 91.8,
+            "minimum": 91.0,
+            "maximum": 92.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 822.0,
+            "minimum": 822.0,
+            "maximum": 822.0
+          },
+          "power.draw": {
+            "mean": 102.723,
+            "minimum": 95.84,
+            "maximum": 106.87
+          },
+          "temperature.gpu": {
+            "mean": 41.0,
+            "minimum": 41.0,
+            "maximum": 41.0
+          },
+          "clocks.sm": {
+            "mean": 2790.0,
+            "minimum": 2790.0,
+            "maximum": 2790.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        }
+      }
+    },
+    {
+      "name": "gates-t1",
+      "tokens": 1,
+      "source": "Actual layer-0 checkpoint constants; synthetic BF16 activation inputs",
+      "timing": "Fixed-state graph replay wrapper; not autoregressive decoding",
+      "qualification": {
+        "native": {
+          "passed": true,
+          "max_g_abs_error": 9.967542768940518e-08,
+          "max_beta_abs_error": 0.0
+        },
+        "torch-reference": {
+          "passed": true,
+          "max_g_abs_error": 9.967542768940518e-08,
+          "max_beta_abs_error": 0.0
+        }
+      },
+      "phases": [
+        {
+          "mode": "single",
+          "start_unix": 1792339457.3689942,
+          "end_unix": 1792339459.3691308,
+          "calls": 146180,
+          "wall_seconds": 2.0001247910549864,
+          "process_cpu_seconds": 1.9989870000000014,
+          "process_cpu_percent": 99.94311399668292,
+          "wall_us_per_call": 13.682615891742964,
+          "event_us_per_call": 11.043455429606569,
+          "calls_per_second": 73085.43979543188,
+          "condition": "torch-reference"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339459.3693426,
+          "end_unix": 1792339461.3694093,
+          "calls": 258380,
+          "wall_seconds": 2.000049449969083,
+          "process_cpu_seconds": 1.9992230000000006,
+          "process_cpu_percent": 99.95867852321875,
+          "wall_us_per_call": 7.74072857794366,
+          "event_us_per_call": 5.5489032686665585,
+          "calls_per_second": 129186.80585822219,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339461.3696377,
+          "end_unix": 1792339463.369698,
+          "calls": 207900,
+          "wall_seconds": 2.000033808988519,
+          "process_cpu_seconds": 1.999099000000001,
+          "process_cpu_percent": 99.95326034068441,
+          "wall_us_per_call": 9.620172241407017,
+          "event_us_per_call": 7.051399400338581,
+          "calls_per_second": 103948.24280752617,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339463.3700168,
+          "end_unix": 1792339465.3701463,
+          "calls": 151710,
+          "wall_seconds": 2.00012144097127,
+          "process_cpu_seconds": 1.9993179999999988,
+          "process_cpu_percent": 99.95983039055463,
+          "wall_us_per_call": 13.183847083061567,
+          "event_us_per_call": 10.909398960305786,
+          "calls_per_second": 75850.39432722084,
+          "condition": "torch-reference"
+        }
+      ],
+      "medians": {
+        "torch-reference": {
+          "wall_us_per_call": 13.433231487402265,
+          "event_us_per_call": 10.976427194956177,
+          "process_cpu_percent": 99.95147219361877,
+          "calls_per_second": 74467.91706132636
+        },
+        "native": {
+          "wall_us_per_call": 8.680450409675338,
+          "event_us_per_call": 6.300151334502569,
+          "process_cpu_percent": 99.95596943195159,
+          "calls_per_second": 116567.52433287418
+        }
+      },
+      "telemetry": {
+        "native": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 24.0,
+            "minimum": 21.0,
+            "maximum": 27.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 822.0,
+            "minimum": 822.0,
+            "maximum": 822.0
+          },
+          "power.draw": {
+            "mean": 92.923,
+            "minimum": 80.31,
+            "maximum": 104.0
+          },
+          "temperature.gpu": {
+            "mean": 41.3,
+            "minimum": 41.0,
+            "maximum": 42.0
+          },
+          "clocks.sm": {
+            "mean": 2655.0,
+            "minimum": 2520.0,
+            "maximum": 2790.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        },
+        "torch-reference": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 79.0,
+            "minimum": 76.0,
+            "maximum": 82.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 822.0,
+            "minimum": 822.0,
+            "maximum": 822.0
+          },
+          "power.draw": {
+            "mean": 102.231,
+            "minimum": 95.38,
+            "maximum": 104.09
+          },
+          "temperature.gpu": {
+            "mean": 41.5,
+            "minimum": 41.0,
+            "maximum": 42.0
+          },
+          "clocks.sm": {
+            "mean": 2790.0,
+            "minimum": 2790.0,
+            "maximum": 2790.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        }
+      }
+    },
+    {
+      "name": "gated-norm-t1",
+      "tokens": 1,
+      "source": "Actual layer-0 checkpoint constants; synthetic BF16 activation inputs",
+      "timing": "Fixed-state graph replay wrapper; not autoregressive decoding",
+      "qualification": {
+        "native": {
+          "passed": true,
+          "max_rounded_abs_error": 0.0,
+          "max_unrounded_abs_error": 0.002196113283590595,
+          "elements": 6144,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": []
+        },
+        "torch-reference": {
+          "passed": true,
+          "max_rounded_abs_error": 0.0,
+          "max_unrounded_abs_error": 0.002196113283590595,
+          "elements": 6144,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": []
+        }
+      },
+      "phases": [
+        {
+          "mode": "single",
+          "start_unix": 1792339465.4189618,
+          "end_unix": 1792339467.419075,
+          "calls": 89040,
+          "wall_seconds": 2.0000945929205045,
+          "process_cpu_seconds": 1.9979280000000017,
+          "process_cpu_percent": 99.89167547734134,
+          "wall_us_per_call": 22.462877278981406,
+          "event_us_per_call": 19.71030501600251,
+          "calls_per_second": 44517.8944611741,
+          "condition": "torch-reference"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339467.4193087,
+          "end_unix": 1792339469.41937,
+          "calls": 207940,
+          "wall_seconds": 2.000046634930186,
+          "process_cpu_seconds": 1.999134999999999,
+          "process_cpu_percent": 99.95441931631665,
+          "wall_us_per_call": 9.618383355439963,
+          "event_us_per_call": 7.057472641296837,
+          "calls_per_second": 103967.57573968188,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339469.4195673,
+          "end_unix": 1792339471.4196186,
+          "calls": 271110,
+          "wall_seconds": 2.0000374329974875,
+          "process_cpu_seconds": 1.9994730000000018,
+          "process_cpu_percent": 99.9717788783263,
+          "wall_us_per_call": 7.377217487357484,
+          "event_us_per_call": 5.252055580479424,
+          "calls_per_second": 135552.46293249782,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339471.4198563,
+          "end_unix": 1792339473.4199991,
+          "calls": 91060,
+          "wall_seconds": 2.000135315931402,
+          "process_cpu_seconds": 1.9992990000000006,
+          "process_cpu_percent": 99.95818703241025,
+          "wall_us_per_call": 21.965026531203627,
+          "event_us_per_call": 19.601505338759466,
+          "calls_per_second": 45526.919741225676,
+          "condition": "torch-reference"
+        }
+      ],
+      "medians": {
+        "torch-reference": {
+          "wall_us_per_call": 22.213951905092514,
+          "event_us_per_call": 19.655905177380987,
+          "process_cpu_percent": 99.92493125487579,
+          "calls_per_second": 45022.40710119989
+        },
+        "native": {
+          "wall_us_per_call": 8.497800421398724,
+          "event_us_per_call": 6.154764110888131,
+          "process_cpu_percent": 99.96309909732148,
+          "calls_per_second": 119760.01933608984
+        }
+      },
+      "telemetry": {
+        "native": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 24.7,
+            "minimum": 19.0,
+            "maximum": 30.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 822.0,
+            "minimum": 822.0,
+            "maximum": 822.0
+          },
+          "power.draw": {
+            "mean": 94.931,
+            "minimum": 84.26,
+            "maximum": 104.27
+          },
+          "temperature.gpu": {
+            "mean": 42.0,
+            "minimum": 42.0,
+            "maximum": 42.0
+          },
+          "clocks.sm": {
+            "mean": 2655.0,
+            "minimum": 2520.0,
+            "maximum": 2790.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        },
+        "torch-reference": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 87.0,
+            "minimum": 85.0,
+            "maximum": 89.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 822.0,
+            "minimum": 822.0,
+            "maximum": 822.0
+          },
+          "power.draw": {
+            "mean": 103.475,
+            "minimum": 98.12,
+            "maximum": 105.21
+          },
+          "temperature.gpu": {
+            "mean": 42.0,
+            "minimum": 42.0,
+            "maximum": 42.0
+          },
+          "clocks.sm": {
+            "mean": 2790.0,
+            "minimum": 2790.0,
+            "maximum": 2790.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        }
+      }
+    },
+    {
+      "name": "zero-norm-t1",
+      "tokens": 1,
+      "source": "Actual layer-0 checkpoint constants; synthetic BF16 activation inputs",
+      "timing": "Fixed-state graph replay wrapper; not autoregressive decoding",
+      "qualification": {
+        "native": {
+          "passed": true,
+          "max_rounded_abs_error": 0.0,
+          "max_unrounded_abs_error": 0.0077485584847480915,
+          "elements": 5120,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": []
+        },
+        "torch-reference": {
+          "passed": true,
+          "max_rounded_abs_error": 0.0,
+          "max_unrounded_abs_error": 0.0077485584847480915,
+          "elements": 5120,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": []
+        }
+      },
+      "phases": [
+        {
+          "mode": "single",
+          "start_unix": 1792339473.4259806,
+          "end_unix": 1792339475.4261289,
+          "calls": 152080,
+          "wall_seconds": 2.0001248839544132,
+          "process_cpu_seconds": 1.9991979999999998,
+          "process_cpu_percent": 99.95365869592199,
+          "wall_us_per_call": 13.151794344781782,
+          "event_us_per_call": 10.509479059291506,
+          "calls_per_second": 76035.25220851469,
+          "condition": "torch-reference"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339475.426449,
+          "end_unix": 1792339477.4264712,
+          "calls": 232480,
+          "wall_seconds": 2.0000160799827427,
+          "process_cpu_seconds": 1.999575,
+          "process_cpu_percent": 99.97794617817542,
+          "wall_us_per_call": 8.602959738397896,
+          "event_us_per_call": 6.43384219387627,
+          "calls_per_second": 116239.06543891686,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339477.4266465,
+          "end_unix": 1792339479.4266572,
+          "calls": 187380,
+          "wall_seconds": 2.000002471031621,
+          "process_cpu_seconds": 1.9989560000000033,
+          "process_cpu_percent": 99.94767651306562,
+          "wall_us_per_call": 10.673510892473162,
+          "event_us_per_call": 7.931461174799292,
+          "calls_per_second": 93689.88424466673,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339479.4268663,
+          "end_unix": 1792339481.4269443,
+          "calls": 151880,
+          "wall_seconds": 2.0000719689996913,
+          "process_cpu_seconds": 1.9992650000000012,
+          "process_cpu_percent": 99.95965300188205,
+          "wall_us_per_call": 13.168764610216561,
+          "event_us_per_call": 10.520387934714611,
+          "calls_per_second": 75937.26743541169,
+          "condition": "torch-reference"
+        }
+      ],
+      "medians": {
+        "torch-reference": {
+          "wall_us_per_call": 13.160279477499172,
+          "event_us_per_call": 10.514933497003058,
+          "process_cpu_percent": 99.95665584890202,
+          "calls_per_second": 75986.25982196319
+        },
+        "native": {
+          "wall_us_per_call": 9.63823531543553,
+          "event_us_per_call": 7.182651684337781,
+          "process_cpu_percent": 99.96281134562051,
+          "calls_per_second": 104964.47484179179
+        }
+      },
+      "telemetry": {
+        "native": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 64.8,
+            "minimum": 57.0,
+            "maximum": 72.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 822.0,
+            "minimum": 822.0,
+            "maximum": 822.0
+          },
+          "power.draw": {
+            "mean": 103.878,
+            "minimum": 103.64,
+            "maximum": 104.06
+          },
+          "temperature.gpu": {
+            "mean": 42.1,
+            "minimum": 42.0,
+            "maximum": 43.0
+          },
+          "clocks.sm": {
+            "mean": 2790.0,
+            "minimum": 2790.0,
+            "maximum": 2790.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        },
+        "torch-reference": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 74.7,
+            "minimum": 74.0,
+            "maximum": 75.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 822.0,
+            "minimum": 822.0,
+            "maximum": 822.0
+          },
+          "power.draw": {
+            "mean": 104.768,
+            "minimum": 104.39,
+            "maximum": 105.07
+          },
+          "temperature.gpu": {
+            "mean": 42.5,
+            "minimum": 42.0,
+            "maximum": 43.0
+          },
+          "clocks.sm": {
+            "mean": 2790.0,
+            "minimum": 2790.0,
+            "maximum": 2790.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        }
+      }
+    },
+    {
+      "name": "q8-projection-t1",
+      "tokens": 1,
+      "source": "Synthetic Q8 [-127,127]/group-32 FP16 planes, not trained weights",
+      "shape": [
+        17408,
+        5120
+      ],
+      "native_weight_bytes": 94699520,
+      "timing": "Graph replay wrapper. Reference materializes weights as FP32 during preparation, not each call; not another optimized Q8 implementation",
+      "qualification": {
+        "native": {
+          "passed": true,
+          "max_rounded_abs_error": 0.0009765625,
+          "max_unrounded_abs_error": 0.015577332845893466,
+          "elements": 17408,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 0.0002",
+          "first_failure_indices": []
+        },
+        "torch-reference": {
+          "passed": true,
+          "max_rounded_abs_error": 0.00390625,
+          "max_unrounded_abs_error": 0.015577332845893466,
+          "elements": 17408,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 0.0002",
+          "first_failure_indices": []
+        }
+      },
+      "phases": [
+        {
+          "mode": "single",
+          "start_unix": 1792339483.8227692,
+          "end_unix": 1792339485.8256655,
+          "calls": 5250,
+          "wall_seconds": 2.0028836019337177,
+          "process_cpu_seconds": 2.0016940000000005,
+          "process_cpu_percent": 99.94060553830644,
+          "wall_us_per_call": 381.5016384635653,
+          "event_us_per_call": 378.15045097896035,
+          "calls_per_second": 2621.2207214294926,
+          "condition": "torch-reference"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339485.8258765,
+          "end_unix": 1792339487.827052,
+          "calls": 11920,
+          "wall_seconds": 2.001168693997897,
+          "process_cpu_seconds": 1.9988880000000009,
+          "process_cpu_percent": 99.88603189702414,
+          "wall_us_per_call": 167.88327969781017,
+          "event_us_per_call": 164.6786616652604,
+          "calls_per_second": 5956.519325807785,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339487.827257,
+          "end_unix": 1792339489.8281686,
+          "calls": 11930,
+          "wall_seconds": 2.0009043789468706,
+          "process_cpu_seconds": 1.9999949999999984,
+          "process_cpu_percent": 99.95455160394268,
+          "wall_us_per_call": 167.72040058230266,
+          "event_us_per_call": 164.66306914627702,
+          "calls_per_second": 5962.303908934958,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339489.8283544,
+          "end_unix": 1792339491.83018,
+          "calls": 5250,
+          "wall_seconds": 2.0018118870211765,
+          "process_cpu_seconds": 2.000752999999996,
+          "process_cpu_percent": 99.94710357011836,
+          "wall_us_per_call": 381.2975022897479,
+          "event_us_per_call": 378.1365778332665,
+          "calls_per_second": 2622.6240507605007,
+          "condition": "torch-reference"
+        }
+      ],
+      "medians": {
+        "torch-reference": {
+          "wall_us_per_call": 381.3995703766566,
+          "event_us_per_call": 378.1435144061134,
+          "process_cpu_percent": 99.94385455421241,
+          "calls_per_second": 2621.922386094997
+        },
+        "native": {
+          "wall_us_per_call": 167.8018401400564,
+          "event_us_per_call": 164.67086540576872,
+          "process_cpu_percent": 99.92029175048341,
+          "calls_per_second": 5959.411617371372
+        }
+      },
+      "telemetry": {
+        "native": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 98.0,
+            "minimum": 98.0,
+            "maximum": 98.0
+          },
+          "utilization.memory": {
+            "mean": 73.2,
+            "minimum": 73.0,
+            "maximum": 74.0
+          },
+          "memory.used": {
+            "mean": 1298.0,
+            "minimum": 1298.0,
+            "maximum": 1298.0
+          },
+          "power.draw": {
+            "mean": 400.34999999999997,
+            "minimum": 379.63,
+            "maximum": 406.91
+          },
+          "temperature.gpu": {
+            "mean": 53.8,
+            "minimum": 53.0,
+            "maximum": 54.0
+          },
+          "clocks.sm": {
+            "mean": 2775.0,
+            "minimum": 2775.0,
+            "maximum": 2775.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        },
+        "torch-reference": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 99.0,
+            "minimum": 99.0,
+            "maximum": 99.0
+          },
+          "utilization.memory": {
+            "mean": 100.0,
+            "minimum": 100.0,
+            "maximum": 100.0
+          },
+          "memory.used": {
+            "mean": 1298.0,
+            "minimum": 1298.0,
+            "maximum": 1298.0
+          },
+          "power.draw": {
+            "mean": 282.274,
+            "minimum": 239.82,
+            "maximum": 311.1
+          },
+          "temperature.gpu": {
+            "mean": 47.1,
+            "minimum": 46.0,
+            "maximum": 48.0
+          },
+          "clocks.sm": {
+            "mean": 2782.5,
+            "minimum": 2775.0,
+            "maximum": 2790.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        }
+      }
+    },
+    {
+      "name": "conv-t128",
+      "tokens": 128,
+      "source": "Actual layer-0 checkpoint constants; synthetic BF16 activation inputs",
+      "timing": "Fixed-state graph replay wrapper; not autoregressive decoding",
+      "qualification": {
+        "native": {
+          "passed": true,
+          "max_rounded_abs_error": 0.0,
+          "max_unrounded_abs_error": 0.0008936475946773603,
+          "elements": 1310720,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": [],
+          "history_exact": true
+        },
+        "torch-reference": {
+          "passed": true,
+          "max_rounded_abs_error": 0.0,
+          "max_unrounded_abs_error": 0.0008936475946773603,
+          "elements": 1310720,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": [],
+          "history_exact": true
+        }
+      },
+      "phases": [
+        {
+          "mode": "single",
+          "start_unix": 1792339492.0684638,
+          "end_unix": 1792339494.068714,
+          "calls": 24500,
+          "wall_seconds": 2.0002398299984634,
+          "process_cpu_seconds": 1.9988799999999998,
+          "process_cpu_percent": 99.93201665229991,
+          "wall_us_per_call": 81.64244204075361,
+          "event_us_per_call": 78.90464627012915,
+          "calls_per_second": 12248.531217388478,
+          "condition": "torch-reference"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339494.0688992,
+          "end_unix": 1792339496.0691674,
+          "calls": 39950,
+          "wall_seconds": 2.000261015025899,
+          "process_cpu_seconds": 2.0001689999999996,
+          "process_cpu_percent": 99.9953998490593,
+          "wall_us_per_call": 50.069111765354165,
+          "event_us_per_call": 47.73269227807304,
+          "calls_per_second": 19972.393452602853,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339496.0693579,
+          "end_unix": 1792339498.0697553,
+          "calls": 39510,
+          "wall_seconds": 2.0003910009982064,
+          "process_cpu_seconds": 1.9984010000000012,
+          "process_cpu_percent": 99.90051939859697,
+          "wall_us_per_call": 50.629992432250226,
+          "event_us_per_call": 47.91000887385745,
+          "calls_per_second": 19751.138642537528,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339498.069972,
+          "end_unix": 1792339500.0707765,
+          "calls": 24340,
+          "wall_seconds": 2.000768705038354,
+          "process_cpu_seconds": 1.9997410000000002,
+          "process_cpu_percent": 99.94863449054527,
+          "wall_us_per_call": 82.2008506589299,
+          "event_us_per_call": 79.09032439441101,
+          "calls_per_second": 12165.324226986753,
+          "condition": "torch-reference"
+        }
+      ],
+      "medians": {
+        "torch-reference": {
+          "wall_us_per_call": 81.92164634984175,
+          "event_us_per_call": 78.99748533227009,
+          "process_cpu_percent": 99.94032557142259,
+          "calls_per_second": 12206.927722187615
+        },
+        "native": {
+          "wall_us_per_call": 50.34955209880219,
+          "event_us_per_call": 47.82135057596524,
+          "process_cpu_percent": 99.94795962382813,
+          "calls_per_second": 19861.766047570192
+        }
+      },
+      "telemetry": {
+        "native": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 94.6,
+            "minimum": 93.0,
+            "maximum": 95.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 912.0,
+            "minimum": 912.0,
+            "maximum": 912.0
+          },
+          "power.draw": {
+            "mean": 155.277,
+            "minimum": 150.07,
+            "maximum": 195.81
+          },
+          "temperature.gpu": {
+            "mean": 46.8,
+            "minimum": 46.0,
+            "maximum": 47.0
+          },
+          "clocks.sm": {
+            "mean": 2775.0,
+            "minimum": 2775.0,
+            "maximum": 2775.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        },
+        "torch-reference": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 95.9,
+            "minimum": 95.0,
+            "maximum": 97.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 912.0,
+            "minimum": 912.0,
+            "maximum": 912.0
+          },
+          "power.draw": {
+            "mean": 246.767,
+            "minimum": 209.16,
+            "maximum": 255.07
+          },
+          "temperature.gpu": {
+            "mean": 49.7,
+            "minimum": 49.0,
+            "maximum": 50.0
+          },
+          "clocks.sm": {
+            "mean": 2775.0,
+            "minimum": 2775.0,
+            "maximum": 2775.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        }
+      }
+    },
+    {
+      "name": "gates-t128",
+      "tokens": 128,
+      "source": "Actual layer-0 checkpoint constants; synthetic BF16 activation inputs",
+      "timing": "Fixed-state graph replay wrapper; not autoregressive decoding",
+      "qualification": {
+        "native": {
+          "passed": true,
+          "max_g_abs_error": 3.830901524892738e-07,
+          "max_beta_abs_error": 0.0
+        },
+        "torch-reference": {
+          "passed": true,
+          "max_g_abs_error": 3.830901524892738e-07,
+          "max_beta_abs_error": 0.0
+        }
+      },
+      "phases": [
+        {
+          "mode": "single",
+          "start_unix": 1792339500.0787756,
+          "end_unix": 1792339502.078856,
+          "calls": 123200,
+          "wall_seconds": 2.000072547001764,
+          "process_cpu_seconds": 1.9989200000000054,
+          "process_cpu_percent": 99.94237474018198,
+          "wall_us_per_call": 16.23435508930003,
+          "event_us_per_call": 13.730797022823001,
+          "calls_per_second": 61597.76563339396,
+          "condition": "torch-reference"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339502.0790417,
+          "end_unix": 1792339504.0791428,
+          "calls": 229480,
+          "wall_seconds": 2.0000931670656428,
+          "process_cpu_seconds": 1.9991139999999987,
+          "process_cpu_percent": 99.95104392726462,
+          "wall_us_per_call": 8.71576245017275,
+          "event_us_per_call": 6.326773461618058,
+          "calls_per_second": 114734.6552544212,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339504.0793245,
+          "end_unix": 1792339506.0793679,
+          "calls": 235790,
+          "wall_seconds": 2.0000357599928975,
+          "process_cpu_seconds": 1.9991440000000011,
+          "process_cpu_percent": 99.9554127975742,
+          "wall_us_per_call": 8.482275584176163,
+          "event_us_per_call": 6.128377295877901,
+          "calls_per_second": 117892.89207550835,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339506.0795531,
+          "end_unix": 1792339508.0796664,
+          "calls": 121560,
+          "wall_seconds": 2.0001020479248837,
+          "process_cpu_seconds": 1.999206000000001,
+          "process_cpu_percent": 99.95519988963501,
+          "wall_us_per_call": 16.453620005963174,
+          "event_us_per_call": 13.900138104077662,
+          "calls_per_second": 60776.89892179208,
+          "condition": "torch-reference"
+        }
+      ],
+      "medians": {
+        "torch-reference": {
+          "wall_us_per_call": 16.343987547631603,
+          "event_us_per_call": 13.815467563450332,
+          "process_cpu_percent": 99.94878731490849,
+          "calls_per_second": 61187.33227759302
+        },
+        "native": {
+          "wall_us_per_call": 8.599019017174456,
+          "event_us_per_call": 6.2275753787479795,
+          "process_cpu_percent": 99.95322836241941,
+          "calls_per_second": 116313.77366496477
+        }
+      },
+      "telemetry": {
+        "native": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 24.4,
+            "minimum": 20.0,
+            "maximum": 30.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 872.0,
+            "minimum": 872.0,
+            "maximum": 872.0
+          },
+          "power.draw": {
+            "mean": 95.498,
+            "minimum": 85.18,
+            "maximum": 105.48
+          },
+          "temperature.gpu": {
+            "mean": 43.5,
+            "minimum": 43.0,
+            "maximum": 44.0
+          },
+          "clocks.sm": {
+            "mean": 2647.5,
+            "minimum": 2520.0,
+            "maximum": 2775.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        },
+        "torch-reference": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 82.3,
+            "minimum": 80.0,
+            "maximum": 85.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 872.0,
+            "minimum": 872.0,
+            "maximum": 872.0
+          },
+          "power.draw": {
+            "mean": 110.19800000000001,
+            "minimum": 93.54,
+            "maximum": 169.48
+          },
+          "temperature.gpu": {
+            "mean": 44.5,
+            "minimum": 44.0,
+            "maximum": 45.0
+          },
+          "clocks.sm": {
+            "mean": 2775.0,
+            "minimum": 2775.0,
+            "maximum": 2775.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        }
+      }
+    },
+    {
+      "name": "gated-norm-t128",
+      "tokens": 128,
+      "source": "Actual layer-0 checkpoint constants; synthetic BF16 activation inputs",
+      "timing": "Fixed-state graph replay wrapper; not autoregressive decoding",
+      "qualification": {
+        "native": {
+          "passed": true,
+          "max_rounded_abs_error": 0.00048828125,
+          "max_unrounded_abs_error": 0.004529119780368518,
+          "elements": 786432,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": []
+        },
+        "torch-reference": {
+          "passed": true,
+          "max_rounded_abs_error": 0.0009765625,
+          "max_unrounded_abs_error": 0.004529119780368518,
+          "elements": 786432,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": []
+        }
+      },
+      "phases": [
+        {
+          "mode": "single",
+          "start_unix": 1792339508.1020951,
+          "end_unix": 1792339510.1024897,
+          "calls": 47600,
+          "wall_seconds": 2.0003731349715963,
+          "process_cpu_seconds": 1.9983589999999936,
+          "process_cpu_percent": 99.89931203652006,
+          "wall_us_per_call": 42.02464569268059,
+          "event_us_per_call": 39.067895043672635,
+          "calls_per_second": 23795.560522100233,
+          "condition": "torch-reference"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339510.1027095,
+          "end_unix": 1792339512.1028063,
+          "calls": 177150,
+          "wall_seconds": 2.00008829892613,
+          "process_cpu_seconds": 1.999317000000005,
+          "process_cpu_percent": 99.96143675624026,
+          "wall_us_per_call": 11.290365785640022,
+          "event_us_per_call": 8.843123105675561,
+          "calls_per_second": 88571.08963394958,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339512.1031823,
+          "end_unix": 1792339514.1032722,
+          "calls": 175340,
+          "wall_seconds": 2.0000834800302982,
+          "process_cpu_seconds": 1.9992300000000114,
+          "process_cpu_percent": 99.95732777962478,
+          "wall_us_per_call": 11.40688650638929,
+          "event_us_per_call": 8.90734580569492,
+          "calls_per_second": 87666.34080560671,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339514.103468,
+          "end_unix": 1792339516.1036425,
+          "calls": 47570,
+          "wall_seconds": 2.0001594469649717,
+          "process_cpu_seconds": 2.0002679999999913,
+          "process_cpu_percent": 100.00542721907418,
+          "wall_us_per_call": 42.04665644240008,
+          "event_us_per_call": 39.121175141226274,
+          "calls_per_second": 23783.103928130527,
+          "condition": "torch-reference"
+        }
+      ],
+      "medians": {
+        "torch-reference": {
+          "wall_us_per_call": 42.035651067540336,
+          "event_us_per_call": 39.094535092449455,
+          "process_cpu_percent": 99.95236962779711,
+          "calls_per_second": 23789.33222511538
+        },
+        "native": {
+          "wall_us_per_call": 11.348626146014656,
+          "event_us_per_call": 8.875234455685241,
+          "process_cpu_percent": 99.95938226793251,
+          "calls_per_second": 88118.71521977815
+        }
+      },
+      "telemetry": {
+        "native": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 74.7,
+            "minimum": 72.0,
+            "maximum": 78.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 892.0,
+            "minimum": 892.0,
+            "maximum": 892.0
+          },
+          "power.draw": {
+            "mean": 238.776,
+            "minimum": 229.6,
+            "maximum": 244.48
+          },
+          "temperature.gpu": {
+            "mean": 50.0,
+            "minimum": 50.0,
+            "maximum": 50.0
+          },
+          "clocks.sm": {
+            "mean": 2775.0,
+            "minimum": 2775.0,
+            "maximum": 2775.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        },
+        "torch-reference": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 92.0,
+            "minimum": 92.0,
+            "maximum": 92.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 892.0,
+            "minimum": 892.0,
+            "maximum": 892.0
+          },
+          "power.draw": {
+            "mean": 218.378,
+            "minimum": 168.62,
+            "maximum": 228.64
+          },
+          "temperature.gpu": {
+            "mean": 48.5,
+            "minimum": 48.0,
+            "maximum": 49.0
+          },
+          "clocks.sm": {
+            "mean": 2775.0,
+            "minimum": 2775.0,
+            "maximum": 2775.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        }
+      }
+    },
+    {
+      "name": "zero-norm-t128",
+      "tokens": 128,
+      "source": "Actual layer-0 checkpoint constants; synthetic BF16 activation inputs",
+      "timing": "Fixed-state graph replay wrapper; not autoregressive decoding",
+      "qualification": {
+        "native": {
+          "passed": true,
+          "max_rounded_abs_error": 0.0078125,
+          "max_unrounded_abs_error": 0.015154988162658256,
+          "elements": 655360,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": []
+        },
+        "torch-reference": {
+          "passed": true,
+          "max_rounded_abs_error": 0.0078125,
+          "max_unrounded_abs_error": 0.015154988162658256,
+          "elements": 655360,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": []
+        }
+      },
+      "phases": [
+        {
+          "mode": "single",
+          "start_unix": 1792339516.1191144,
+          "end_unix": 1792339518.1192005,
+          "calls": 79960,
+          "wall_seconds": 2.0000728680752218,
+          "process_cpu_seconds": 1.9994200000000006,
+          "process_cpu_percent": 99.96735778552662,
+          "wall_us_per_call": 25.013417559720132,
+          "event_us_per_call": 22.482627968659333,
+          "calls_per_second": 39978.5434202454,
+          "condition": "torch-reference"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339518.1194236,
+          "end_unix": 1792339520.119534,
+          "calls": 192180,
+          "wall_seconds": 2.0001021469943225,
+          "process_cpu_seconds": 1.9990680000000083,
+          "process_cpu_percent": 99.94829529102459,
+          "wall_us_per_call": 10.407441705663036,
+          "event_us_per_call": 7.765648104634241,
+          "calls_per_second": 96085.09259829595,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339520.119732,
+          "end_unix": 1792339522.1197672,
+          "calls": 187410,
+          "wall_seconds": 2.0000282740220428,
+          "process_cpu_seconds": 2.000056999999998,
+          "process_cpu_percent": 100.00143627859309,
+          "wall_us_per_call": 10.671939992647365,
+          "event_us_per_call": 7.945739867198582,
+          "calls_per_second": 93703.6753101094,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339522.119958,
+          "end_unix": 1792339524.1201828,
+          "calls": 80140,
+          "wall_seconds": 2.0002173950197175,
+          "process_cpu_seconds": 1.9993580000000009,
+          "process_cpu_percent": 99.95703491921147,
+          "wall_us_per_call": 24.959039119287713,
+          "event_us_per_call": 22.461582870332563,
+          "calls_per_second": 40065.64496416151,
+          "condition": "torch-reference"
+        }
+      ],
+      "medians": {
+        "torch-reference": {
+          "wall_us_per_call": 24.986228339503924,
+          "event_us_per_call": 22.472105419495946,
+          "process_cpu_percent": 99.96219635236903,
+          "calls_per_second": 40022.094192203454
+        },
+        "native": {
+          "wall_us_per_call": 10.5396908491552,
+          "event_us_per_call": 7.855693985916412,
+          "process_cpu_percent": 99.97486578480884,
+          "calls_per_second": 94894.38395420267
+        }
+      },
+      "telemetry": {
+        "native": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 62.4,
+            "minimum": 62.0,
+            "maximum": 63.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 892.0,
+            "minimum": 892.0,
+            "maximum": 892.0
+          },
+          "power.draw": {
+            "mean": 143.507,
+            "minimum": 140.36,
+            "maximum": 163.61
+          },
+          "temperature.gpu": {
+            "mean": 46.0,
+            "minimum": 46.0,
+            "maximum": 46.0
+          },
+          "clocks.sm": {
+            "mean": 2775.0,
+            "minimum": 2775.0,
+            "maximum": 2775.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        },
+        "torch-reference": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 87.9,
+            "minimum": 86.0,
+            "maximum": 90.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 892.0,
+            "minimum": 892.0,
+            "maximum": 892.0
+          },
+          "power.draw": {
+            "mean": 180.874,
+            "minimum": 161.38,
+            "maximum": 199.46
+          },
+          "temperature.gpu": {
+            "mean": 47.0,
+            "minimum": 47.0,
+            "maximum": 47.0
+          },
+          "clocks.sm": {
+            "mean": 2775.0,
+            "minimum": 2775.0,
+            "maximum": 2775.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        }
+      }
+    },
+    {
+      "name": "q8-projection-t128",
+      "tokens": 128,
+      "source": "Synthetic Q8 [-127,127]/group-32 FP16 planes, not trained weights",
+      "shape": [
+        17408,
+        5120
+      ],
+      "native_weight_bytes": 94699520,
+      "timing": "Graph replay wrapper. Reference materializes weights as FP32 during preparation, not each call; not another optimized Q8 implementation",
+      "qualification": {
+        "native": {
+          "passed": true,
+          "max_rounded_abs_error": 0.015625,
+          "max_unrounded_abs_error": 0.015624217048070932,
+          "elements": 2228224,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 0.0002",
+          "first_failure_indices": []
+        },
+        "torch-reference": {
+          "passed": true,
+          "max_rounded_abs_error": 0.015625,
+          "max_unrounded_abs_error": 0.015624217048070932,
+          "elements": 2228224,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 0.0002",
+          "first_failure_indices": []
+        }
+      },
+      "phases": [
+        {
+          "mode": "single",
+          "start_unix": 1792339526.836514,
+          "end_unix": 1792339528.8414495,
+          "calls": 2790,
+          "wall_seconds": 2.004922552034259,
+          "process_cpu_seconds": 2.002931000000004,
+          "process_cpu_percent": 99.90066688450213,
+          "wall_us_per_call": 718.6102337040354,
+          "event_us_per_call": 715.8128740112414,
+          "calls_per_second": 1391.5749499496508,
+          "condition": "torch-reference"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339528.841701,
+          "end_unix": 1792339530.8960476,
+          "calls": 100,
+          "wall_seconds": 2.054339956957847,
+          "process_cpu_seconds": 2.0544030000000078,
+          "process_cpu_percent": 100.0030687735955,
+          "wall_us_per_call": 20543.39956957847,
+          "event_us_per_call": 20538.577880859375,
+          "calls_per_second": 48.67743513497358,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339530.8962224,
+          "end_unix": 1792339532.9486659,
+          "calls": 100,
+          "wall_seconds": 2.0524363999720663,
+          "process_cpu_seconds": 2.051665000000014,
+          "process_cpu_percent": 99.9624154019066,
+          "wall_us_per_call": 20524.363999720663,
+          "event_us_per_call": 20519.58465576172,
+          "calls_per_second": 48.72258161147454,
+          "condition": "native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792339532.9488497,
+          "end_unix": 1792339534.949869,
+          "calls": 2710,
+          "wall_seconds": 2.0010110900038853,
+          "process_cpu_seconds": 1.9999329999999986,
+          "process_cpu_percent": 99.9461227371866,
+          "wall_us_per_call": 738.3804760161938,
+          "event_us_per_call": 735.602043475612,
+          "calls_per_second": 1354.3153326525232,
+          "condition": "torch-reference"
+        }
+      ],
+      "medians": {
+        "torch-reference": {
+          "wall_us_per_call": 728.4953548601146,
+          "event_us_per_call": 725.7074587434267,
+          "process_cpu_percent": 99.92339481084437,
+          "calls_per_second": 1372.945141301087
+        },
+        "native": {
+          "wall_us_per_call": 20533.881784649566,
+          "event_us_per_call": 20529.081268310547,
+          "process_cpu_percent": 99.98274208775105,
+          "calls_per_second": 48.70000837322406
+        }
+      },
+      "telemetry": {
+        "native": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 100.0,
+            "minimum": 100.0,
+            "maximum": 100.0
+          },
+          "utilization.memory": {
+            "mean": 77.0,
+            "minimum": 77.0,
+            "maximum": 77.0
+          },
+          "memory.used": {
+            "mean": 1356.0,
+            "minimum": 1356.0,
+            "maximum": 1356.0
+          },
+          "power.draw": {
+            "mean": 422.9,
+            "minimum": 415.91,
+            "maximum": 425.25
+          },
+          "temperature.gpu": {
+            "mean": 55.5,
+            "minimum": 55.0,
+            "maximum": 56.0
+          },
+          "clocks.sm": {
+            "mean": 2746.5,
+            "minimum": 2730.0,
+            "maximum": 2775.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        },
+        "torch-reference": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 99.9,
+            "minimum": 99.0,
+            "maximum": 100.0
+          },
+          "utilization.memory": {
+            "mean": 66.6,
+            "minimum": 66.0,
+            "maximum": 67.0
+          },
+          "memory.used": {
+            "mean": 1356.0,
+            "minimum": 1356.0,
+            "maximum": 1356.0
+          },
+          "power.draw": {
+            "mean": 422.544,
+            "minimum": 404.9,
+            "maximum": 432.92
+          },
+          "temperature.gpu": {
+            "mean": 55.7,
+            "minimum": 55.0,
+            "maximum": 57.0
+          },
+          "clocks.sm": {
+            "mean": 1879.5,
+            "minimum": 1845.0,
+            "maximum": 1905.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        }
+      }
+    }
+  ],
+  "counters": "Achieved occupancy/SM/DRAM/cache/stall counters not measured; RmProfilingAdminOnly=1. No profiler in timed phases."
+}

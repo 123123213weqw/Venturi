@@ -1,0 +1,471 @@
+{
+  "task": "Measure the current Qwen27B GPU utilization/bottleneck gap and require GPU diagnostics for future inference optimizations",
+  "recorded_utc": "2026-10-16T11:39:24.870389+00:00",
+  "source_state": "Uncommitted diagnostics/workflow changes; no engine/model/kernel implementation change; previous uncommitted work preserved; no commit or push.",
+  "workflow": "Repository AGENTS.md now requires relevant correctness, unprofiled before/after comparisons and GPU diagnostics, with blocked hardware counters recorded explicitly and profiler runs kept separate.",
+  "scope": "RTX 4090D, current protocol-3 runner, one C4-capable resident model with shared KV capacity8192, context2048, chunk512, BF16 KV, CUDA Graphs, no speculation/reuse. Eight raw509-token requests with64 fixed output tokens per wave; warm both modes; two measured waves/mode in single/parallel/parallel/single order. GPU sampling200ms; exclude first1s of each wave from telemetry statistics.",
+  "method": "Throughput and CPU come from unprofiled production Python API calls. NVML samples are whole-device/time based and include the known GNOME desktop process. Nsight Systems node traces capture a separate warmed wave per mode. NCU requests one existing Q4 kernel using basic counters; denied. No driver/system/privilege settings changed.",
+  "current_blocking": {
+    "summaries": {
+      "single": {
+        "output_tokens": 1024,
+        "client_wall_seconds": 22.127157750015613,
+        "output_tokens_per_second": 46.277972596786746,
+        "native_cpu_percent": 2.169279965474377,
+        "mean_decode_batch": 1.0
+      },
+      "parallel": {
+        "output_tokens": 1024,
+        "client_wall_seconds": 8.907884592015762,
+        "output_tokens_per_second": 114.95434066555183,
+        "native_cpu_percent": 2.918762555961284,
+        "mean_decode_batch": 3.9069767441860463
+      }
+    },
+    "telemetry": {
+      "single": {
+        "samples": 101,
+        "utilization.gpu": {
+          "mean": 98.8019801980198,
+          "minimum": 98.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 87.97029702970298,
+          "minimum": 20.0,
+          "maximum": 100.0
+        },
+        "memory.used": {
+          "mean": 16914.0,
+          "minimum": 16914.0,
+          "maximum": 16914.0
+        },
+        "power.draw": {
+          "mean": 414.4912871287129,
+          "minimum": 399.83,
+          "maximum": 417.91
+        },
+        "temperature.gpu": {
+          "mean": 55.68316831683168,
+          "minimum": 53.0,
+          "maximum": 59.0
+        },
+        "clocks.sm": {
+          "mean": 2763.5643564356437,
+          "minimum": 2760.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      },
+      "parallel": {
+        "samples": 34,
+        "utilization.gpu": {
+          "mean": 98.91176470588235,
+          "minimum": 98.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 68.29411764705883,
+          "minimum": 20.0,
+          "maximum": 100.0
+        },
+        "memory.used": {
+          "mean": 16914.0,
+          "minimum": 16914.0,
+          "maximum": 16914.0
+        },
+        "power.draw": {
+          "mean": 403.6291176470588,
+          "minimum": 381.81,
+          "maximum": 418.93
+        },
+        "temperature.gpu": {
+          "mean": 55.73529411764706,
+          "minimum": 54.0,
+          "maximum": 58.0
+        },
+        "clocks.sm": {
+          "mean": 2758.676470588235,
+          "minimum": 2745.0,
+          "maximum": 2760.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      }
+    }
+  },
+  "prior_auto_policy": {
+    "summaries": {
+      "single": {
+        "output_tokens": 1024,
+        "client_wall_seconds": 21.843117310025264,
+        "output_tokens_per_second": 46.87975555256566,
+        "native_cpu_percent": 100.26041470714726,
+        "mean_decode_batch": 1.0
+      },
+      "parallel": {
+        "output_tokens": 1024,
+        "client_wall_seconds": 8.809330397925805,
+        "output_tokens_per_second": 116.24038987584177,
+        "native_cpu_percent": 100.12111706102777,
+        "mean_decode_batch": 3.9069767441860463
+      }
+    },
+    "telemetry": {
+      "single": {
+        "samples": 99,
+        "utilization.gpu": {
+          "mean": 99.94949494949495,
+          "minimum": 99.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 86.56565656565657,
+          "minimum": 20.0,
+          "maximum": 100.0
+        },
+        "memory.used": {
+          "mean": 16914.0,
+          "minimum": 16914.0,
+          "maximum": 16914.0
+        },
+        "power.draw": {
+          "mean": 419.91767676767677,
+          "minimum": 404.18,
+          "maximum": 423.03
+        },
+        "temperature.gpu": {
+          "mean": 57.98989898989899,
+          "minimum": 55.0,
+          "maximum": 61.0
+        },
+        "clocks.sm": {
+          "mean": 2769.242424242424,
+          "minimum": 2745.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      },
+      "parallel": {
+        "samples": 34,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 56.44117647058823,
+          "minimum": 20.0,
+          "maximum": 100.0
+        },
+        "memory.used": {
+          "mean": 16914.0,
+          "minimum": 16914.0,
+          "maximum": 16914.0
+        },
+        "power.draw": {
+          "mean": 407.55058823529413,
+          "minimum": 389.84,
+          "maximum": 422.56
+        },
+        "temperature.gpu": {
+          "mean": 57.6764705882353,
+          "minimum": 56.0,
+          "maximum": 61.0
+        },
+        "clocks.sm": {
+          "mean": 2772.3529411764707,
+          "minimum": 2730.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      }
+    },
+    "caution": "Separate session run after blocking and profiler sessions, not counterbalanced across wait policies. Cross-policy small power/temperature differences do not establish causal energy savings. Earlier CPU-policy ABBA experiment is stronger for the throughput tradeoff."
+  },
+  "throughput_ratio_parallel_to_single": 2.483996904253613,
+  "profile_summary": {
+    "single": {
+      "kernel_interval_coverage_fraction": 0.902696654293638,
+      "instrumented_kernel_timeline_span_seconds": 12.115806085,
+      "instrumented_request_wall_seconds": 12.585978805,
+      "phases": {
+        "prefill": {
+          "kernel_count": 7496,
+          "summed_kernel_seconds": 2.037919679,
+          "projection_fraction": 0.9607537358689002,
+          "top_groups": [
+            {
+              "name": "q4_linear_swiglu_mma_split_half_pair_kernel",
+              "fraction": 0.4037876872575212
+            },
+            {
+              "name": "q4_rowsplit_gemm_mma_kernel",
+              "fraction": 0.34151926750200445
+            },
+            {
+              "name": "rowsplit_grouped_mma_kernel",
+              "fraction": 0.20797986023079176
+            },
+            {
+              "name": "state_passing_kernel",
+              "fraction": 0.008867818092255637
+            }
+          ]
+        },
+        "decode": {
+          "kernel_count": 301392,
+          "summed_kernel_seconds": 8.903890729,
+          "projection_fraction": 0.9428965695475124,
+          "top_groups": [
+            {
+              "name": "q4_linear_swiglu_gemv_pair_kernel",
+              "fraction": 0.3847732797126064
+            },
+            {
+              "name": "q4_rowsplit_gemv_kernel",
+              "fraction": 0.29378541714132034
+            },
+            {
+              "name": "ada_small_t_mma_dual_kernel",
+              "fraction": 0.18419435064026154
+            },
+            {
+              "name": "q8_ksplit_mma_kernel",
+              "fraction": 0.08007020017417377
+            }
+          ]
+        }
+      },
+      "limitation": "Instrumented kernel timing/launch-resource analysis, not unprofiled throughput or hardware occupancy. Profiling increased wall time; uncovered timeline is not production idle headroom."
+    },
+    "parallel": {
+      "kernel_interval_coverage_fraction": 0.9321001478190374,
+      "instrumented_kernel_timeline_span_seconds": 4.704079475,
+      "instrumented_request_wall_seconds": 5.15297362,
+      "phases": {
+        "prefill": {
+          "kernel_count": 7496,
+          "summed_kernel_seconds": 2.03804126,
+          "projection_fraction": 0.9607533671815849,
+          "top_groups": [
+            {
+              "name": "q4_linear_swiglu_mma_split_half_pair_kernel",
+              "fraction": 0.40379063375782687
+            },
+            {
+              "name": "q4_rowsplit_gemm_mma_kernel",
+              "fraction": 0.3415004782582272
+            },
+            {
+              "name": "rowsplit_grouped_mma_kernel",
+              "fraction": 0.20799341520691295
+            },
+            {
+              "name": "state_passing_kernel",
+              "fraction": 0.008875952295489837
+            }
+          ]
+        },
+        "decode": {
+          "kernel_count": 77142,
+          "summed_kernel_seconds": 2.346668107,
+          "projection_fraction": 0.8980970418071992,
+          "top_groups": [
+            {
+              "name": "ada_small_t_mma_kernel",
+              "fraction": 0.6289701200596749
+            },
+            {
+              "name": "ada_small_t_mma_dual_kernel",
+              "fraction": 0.17837501636953895
+            },
+            {
+              "name": "q8_ksplit_mma_kernel",
+              "fraction": 0.08046475870905932
+            },
+            {
+              "name": "recurrent_batch_update_kernel",
+              "fraction": 0.04959210791370763
+            }
+          ]
+        }
+      },
+      "limitation": "Instrumented kernel timing/launch-resource analysis, not unprofiled throughput or hardware occupancy. Profiling increased wall time; uncovered timeline is not production idle headroom."
+    }
+  },
+  "counter_status": {
+    "status": "blocked",
+    "error": "ERR_NVGPUCTRPERM",
+    "exit_code": 1,
+    "driver_policy": "RmProfilingAdminOnly: 1",
+    "requested": "ncu --profile-from-start off --set basic --kernel-name-base function --kernel-name regex:.*q4_linear_swiglu.* --launch-count 1",
+    "unavailable": [
+      "achieved SM occupancy",
+      "compute/Tensor Core utilization",
+      "DRAM GB/s and percent of sustained bandwidth",
+      "L2 hit rate",
+      "warp stall reasons"
+    ],
+    "note": "Theoretical launch resource ceilings retained in full trace summaries must not be presented as achieved occupancy. No quantitative unused-compute/roofline headroom is established."
+  },
+  "findings": [
+    "Single and parallel both show about99% GPU busy, while parallel aggregate throughput is about2.48x. GPU busy time is not compute efficiency.",
+    "The dominant measured work is projection kernels: about96.08% prefill,94.29% B1 decode,89.81% compact C4 decode kernel duration.",
+    "B1 decode Q4 SwiGLU GEMV38.48% + Q4 row-split GEMV29.38% = about67.86% of decode kernel duration. Prioritize these hot projection routes for single-request kernel investigation.",
+    "Restoring CUDA auto waits recovers about1%throughput but consumes aboutone CPU core. Large single-request improvements are not supported by evidence for another Python-only rewrite.",
+    "NVML memory-controller busy is not bandwidth utilization and mixes different prefill/decode proportions. Sample windows are coarse; lower controller busy under parallel is not proof of inefficiency.",
+    "Node tracing reduces kernel timeline coverage to90.27%/93.21% but increases wall time; these are not actual unprofiled idle fractions.",
+    "Achieved occupancy/DRAM counters remain blocked. The current exact gap to GPU peak, or to llama.cpp on this checkpoint, has not been measured."
+  ],
+  "output_validation": {
+    "single": {
+      "repeated_unprofiled_ids_equal": true,
+      "profiled_ids_equal_by_row": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "profiled_wall_seconds": 12.585978805
+    },
+    "parallel": {
+      "repeated_unprofiled_ids_equal": true,
+      "profiled_ids_equal_by_row": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "profiled_wall_seconds": 5.15297362
+    },
+    "cross_mode_equal_by_row": [
+      true,
+      true,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false
+    ]
+  },
+  "policy_output_validation": {
+    "single": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "parallel": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "validation": {
+    "cpu": "311 passed,56 skipped",
+    "affected_measurement_tests": "5 passed locally;2 telemetry tests passed remotely",
+    "gpu": "All unprofiled/profiled production requests succeeded. Repeated outputs stable within each mode, profile outputs match unprofiled per mode, all32 cross-wait-policy request comparisons equal. Cross-single/parallel IDs differed on3/8 rows and are retained; no universal lossless batching claim.",
+    "static": "ruff check src tests tools; git diff --check; measurement CLI --help passed"
+  },
+  "runtime": {
+    "runner_sha256": "3c7da6aeb337ee374ce912934c9335252e39326cd9cba3e2163696c06d15dfb4",
+    "remote_source": "/home/test/wangyue/venturi-work/qwen/src",
+    "remote_evidence": "/home/test/wangyue/venturi-work/qwen/gpu-gap",
+    "binary_traces": "single/parallel.nsys-rep and SQLite exports retained on server, not downloaded or committed",
+    "final_state": "2026-10-16T19:38:32+08:00\nname, memory.used [MiB], utilization.gpu [%]\nNVIDIA GeForce RTX 4090 D, 387 MiB, 0 %\n2662, /usr/libexec/gnome-remote-desktop-daemon, 354 MiB\nRmProfilingAdminOnly: 1\n3c7da6aeb337ee374ce912934c9335252e39326cd9cba3e2163696c06d15dfb4  /home/test/wangyue/venturi-work/qwen/native/venturi-qwen-runner\n"
+  },
+  "references": [
+    "https://docs.nvidia.com/deploy/nvidia-smi/index.html",
+    "https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html",
+    "https://developer.nvidia.com/ERR_NVGPUCTRPERM"
+  ],
+  "reproduction": {
+    "unprofiled": "PYTHONPATH=src python tools/benchmark_qwen_gpu.py <existing-stage> --runner <protocol-3-runner> --cpu-wait blocking|auto --output-directory <new-directory>",
+    "profiled": "nsys profile --trace=cuda,nvtx --cuda-graph-trace=node --sample=none --cpuctxsw=none --capture-range=cudaProfilerApi --capture-range-end=stop --force-overwrite=false -o <mode-report> <runner> <existing-stage> < <mode>.input.jsonl; nsys export --type sqlite --output <mode>.sqlite <mode>.nsys-rep; python tools/analyze_qwen_trace.py <mode>.sqlite --hardware hardware.json --output <mode>-profile.json"
+  },
+  "source_sha256": {
+    "AGENTS.md": "d87d731caaa55b9577a8a92bbf8daba238b2721114225c9a44d5af353f2fb38c",
+    "tools/benchmark_qwen_gpu.py": "89cede77e62fc57aab729bee1701f211c2a7ecbe7e75ffe99260dad8943a3b5d",
+    "tools/benchmark_qwen_cpu.py": "f39045215533d9057453fa55a56f1b2f40d6fbe425dbfd79f3fbb412c922468d",
+    "tools/analyze_qwen_trace.py": "615c12e95b0f27dab9c10b090e2a4b1b0790e1eded403490f94b202a0ec73f12",
+    "tests/test_qwen_gpu_tool.py": "a61636dbc138ac2afc8cefd89d25a552c3da71bbbb4a70c940020c44428e8843"
+  },
+  "evidence_sha256": {
+    "blocking-tool-source.py": "ecfb1c3fc176a89910b0b20c930d8939df605931026d6a0d27bf160202aae28c",
+    "counter-exit.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "counter.input.jsonl": "640f67b85e7c5c88287e905d36dbb712c5bd6e3d6db629f12a279090c87f0bc2",
+    "counter.stderr": "25c905917d3f2ec8d24c38a456b6f3b2c7991d886f0c37fc674e886bf3ccc55e",
+    "counter.stdout": "1ccbc471867cc588f1de611edec65f7d0aeaee3d5fcb63ae693143ca07e8305b",
+    "cpu-tests.log": "8c49a2908797ad495fd602b7439eed37e8b4b79d4a968b1de22d786be9a9727a",
+    "hardware.json": "db792a095538cc2fbcbd65ea5970082ab9c8f7158f2efe98cc2b8c9c006de166",
+    "output-checks.json": "9ac71119bd86e1fbc0f7f7c26389811299e77323802767a3a55c3b5cf0690838",
+    "parallel-export.log": "40fda2c94831038a65e2097f5871886c12ec7a544e1c05a25fec676f95b7e210",
+    "parallel-profile.json": "30a0325022810c14bcc5639739fbe5c84b54f8b528f7effdbbaf3dd9ccb206de",
+    "parallel.input.jsonl": "38c8d7d1a48800cf4135991f726c7c6ff368b178b6cd9d848e277575fe01249d",
+    "parallel.stderr": "63881f79a7eedd90dfdc0016eb5a1dd54ea19f56cae8b26bdd49ed8f98be5c7a",
+    "parallel.stdout": "c05499f8d17b610b95bffd955d786f465244811befe66f490df0a7b28d8737ab",
+    "policy-output-checks.json": "e94144d119d62221bf8ae1a0449cadc0bc6e0676b8dd5c44084c859d631e049c",
+    "server-final-check.txt": "d4cb72684c6e6f09ca15bb5e3297d9c6778fe33d4f00b3f7a725c2238b14aa3c",
+    "single-export.log": "70de84458e2d33bb734d7c147385ad9ed0b8f5969798a69c0ba437299218dda9",
+    "single-profile.json": "bcbd9227eea2d4450a02220c6c959349e11270b3750646a2c7d53dad9587aa13",
+    "single.input.jsonl": "5ec4af552703a7a39ad9fdbe0cd0aa44aa645ceaa307439e609e999f5459155c",
+    "single.stderr": "71184fc16a9d8c6130b6e8ab3f706e9065785280f543d2a65ac6f985b6ad5a02",
+    "single.stdout": "0535e9092a4b157eceab1396170b3d5a3c904817bb6af11fb58f4fe002668dcc",
+    "unprofiled/results.json": "0591158ba4fe215a071c6b05eeba247b916382cd896573f5215e4e1cafba7866",
+    "unprofiled/telemetry.csv": "9b35fc03d64db83f852ff4c3f4ec141f0eb74c255edf546ccdeb8bf2168331e9",
+    "unprofiled-auto/results.json": "22cba7b513e68144e5d64e483e9f93a64420fee5ff3009e041183b24af9012ea",
+    "unprofiled-auto/telemetry.csv": "bf5626ac197e7f76beb73042e5ff9f7d4d858f87a3d44a47068e995df58708aa",
+    "unprofiled-auto.log": "33314453e7a2ff31618b512346a3fe2ce32b4d4b60dca4787cc0a90a7b7bb696",
+    "unprofiled.log": "27f29d0eb868359f5dd13df52054be31394d5ab7a3c8b2e051eb974504f4a05c"
+  }
+}

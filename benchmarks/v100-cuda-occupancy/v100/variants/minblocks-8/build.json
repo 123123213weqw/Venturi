@@ -1,0 +1,31 @@
+{
+  "architecture": "sm70",
+  "source_sha256": {
+    "qwen_pipeline.cuh": "0a6635f395e73ad57b50a671dcc2913cd7ca615e1daf45d47cdaf4ecf4d92299",
+    "blocks.cu": "8666b55c9f2491e880a11027c0f78a3f32d07d27ddd6b616707bce08a6c14a10",
+    "qwen_runtime.cuh": "d5923c276f3edff8805d4c34cd08f08348326fd38ab8f1098cb025e309b11215"
+  },
+  "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Tue_May_27_02:21:03_PDT_2025\nCuda compilation tools, release 12.9, V12.9.86\nBuild cuda_12.9.r12.9/compiler.36037853_0\n",
+  "command": [
+    "/usr/local/cuda/bin/nvcc",
+    "--ptxas-options=-v",
+    "-O3",
+    "-std=c++20",
+    "-lineinfo",
+    "-shared",
+    "--cudart=static",
+    "-Xcompiler=-fPIC",
+    "-gencode=arch=compute_70,code=sm_70",
+    "-gencode=arch=compute_70,code=compute_70",
+    "-DVENTURI_BLOCKS_ARCH=70",
+    "-DVENTURI_Q8_TOKEN_TILE=4",
+    "-DVENTURI_Q8_ROW_TILE=4",
+    "-DVENTURI_Q8_DECODE_MODE=0",
+    "/home/wzu/codex-build/Venturi/v100-occupancy-variants-v1/minblocks-8/blocks.cu",
+    "-lcublas",
+    "-o",
+    "/home/wzu/codex-build/Venturi/v100-occupancy-variants-v1/minblocks-8/libventuri_blocks.so"
+  ],
+  "library_sha256": "345d3138ad249b294906bd26dcde312fc2c867eba7bebda9c3d40981bdd07ac1",
+  "experiment": "Only add __launch_bounds__(256,8) to q8_tiled; diagnostic candidate, not promoted"
+}

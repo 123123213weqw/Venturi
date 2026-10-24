@@ -1,0 +1,35 @@
+{
+  "recorded_unix": 1792595548.3744519,
+  "host": "WZU_Server physical GPU0 V100, SM70",
+  "production": "Keep qwen38-27b running, unchanged. Idle checks, no stop/restart. Initial free >2 GiB, process Torch reserve <1 GiB.",
+  "arithmetic": "Stable SwiGLU exactly as blocks.cu; explicitly round intermediate to F16 before group32 two-pass residual A8/F32 scales. Q8 weights unchanged. No single-pass arithmetic.",
+  "variants": [
+    "Pinned separate SwiGLU + quantize",
+    "Same-source clone separate control",
+    "Fused producer 128 threads",
+    "Fused producer 256 threads"
+  ],
+  "correctness": "Full workspace bytes and all Down F32 outputs must match pinned separate path. Finite F16 intermediate bits, subnormal/zero/nonfinite/overflow/group tails, guards, exact input alias and forbidden overlaps; dynamic graph replay. Exhaustive F16 gate bit patterns with several up values.",
+  "layers": [
+    0,
+    31,
+    63
+  ],
+  "tokens": [
+    1,
+    2,
+    4,
+    8,
+    23,
+    32
+  ],
+  "scopes": [
+    "Producer only: SwiGLU+two-pass quantization",
+    "Producer + TP Down projection",
+    "MLP TP projection shard: input quantization + gate/up + producer + Down. Excludes norms, residuals, TP transport/sum, recurrence, attention and serving."
+  ],
+  "input_source": "Production Qwen3.8 GGUF Q8_0 gate/up/down TP-half weight bytes; gate/up outputs from synthetic F16 hidden inputs. Not actual full-model activations.",
+  "timing": "20-node micrographs, 5 replays/100 logical calls per wave, 7 alternating repeats. Independent confirm layer0 T1/T8, same four arms and scopes. CPU/wall and GPU events separate.",
+  "promotion": "Research only, no default integration/production deployment. Retain a variant only with byte correctness, >=5% producer latency reduction and >=1% median producer+Down latency reduction in screen and confirmation, with no >2% confirmed regression at tested T1/T8.",
+  "diagnostics": "Separate NCU producer-only counters, two separate kernels versus one fused kernel. Keep normal timing separate. No profiling policy or clock changes."
+}

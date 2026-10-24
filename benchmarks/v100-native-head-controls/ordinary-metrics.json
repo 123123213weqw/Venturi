@@ -1,0 +1,859 @@
+{
+  "scope": "Ordinary Q8, no speculative decoding: 32*N/global complete-cohort wall; single post-first=31/(generation-first-ready). Admission, prefill and HTTP overhead stay in the complete-cohort denominator.",
+  "library_sha256": "33a4becb5f9c8440492e9cc6352ea87fccab2692a01adc48e6cc756fa93bc7b8",
+  "projection_rows": 256,
+  "physical_gpus": [
+    1,
+    0
+  ],
+  "matrices": {
+    "control": [
+      {
+        "requests": 1,
+        "trials": 3,
+        "http_tps": 25.862586363453214,
+        "trial_http_tps": [
+          25.885223080910404,
+          25.867694987507434,
+          25.834891515444706
+        ],
+        "mean_cohort_seconds": 1.2373085796716623,
+        "mean_server_cpu_core_seconds": 1.2099999999999984,
+        "mean_client_completion_seconds": 1.2368018316531864,
+        "max_client_completion_seconds": 1.2383190899854526,
+        "mean_admission_seconds": 0.025134098657872528,
+        "nvml_by_physical_gpu": {
+          "1": {
+            "samples": 36,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 76.75,
+                "min": 60.0,
+                "max": 84.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 55.916666666666664,
+                "min": 32.0,
+                "max": 60.0
+              },
+              "device_used_mib": {
+                "mean": 21969.0,
+                "min": 21969.0,
+                "max": 21969.0
+              },
+              "power_watts": {
+                "mean": 123.0025,
+                "min": 47.52,
+                "max": 185.45
+              },
+              "temperature_c": {
+                "mean": 38.138888888888886,
+                "min": 37.0,
+                "max": 40.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 36,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 58.69444444444444,
+                "min": 46.0,
+                "max": 66.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 54.888888888888886,
+                "min": 33.0,
+                "max": 58.0
+              },
+              "device_used_mib": {
+                "mean": 17319.0,
+                "min": 17319.0,
+                "max": 17319.0
+              },
+              "power_watts": {
+                "mean": 105.71722222222222,
+                "min": 46.54,
+                "max": 150.55
+              },
+              "temperature_c": {
+                "mean": 38.05555555555556,
+                "min": 37.0,
+                "max": 39.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        "native_post_first_tps": 29.59780064310076,
+        "trial_native_post_first_tps": [
+          29.640876192579288,
+          29.602427481346727,
+          29.550238132130914
+        ],
+        "mean_native_first_ready_seconds": 0.15009048534557223
+      },
+      {
+        "requests": 2,
+        "trials": 3,
+        "http_tps": 41.84943770169577,
+        "trial_http_tps": [
+          41.84020786372326,
+          41.853830730531065,
+          41.854277567671474
+        ],
+        "mean_cohort_seconds": 1.529291754316849,
+        "mean_server_cpu_core_seconds": 1.5033333333333327,
+        "mean_client_completion_seconds": 1.5282012310053688,
+        "max_client_completion_seconds": 1.5288126840023324,
+        "mean_admission_seconds": 0.02490617980947718,
+        "nvml_by_physical_gpu": {
+          "1": {
+            "samples": 43,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 78.69767441860465,
+                "min": 60.0,
+                "max": 88.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 50.883720930232556,
+                "min": 38.0,
+                "max": 56.0
+              },
+              "device_used_mib": {
+                "mean": 21969.0,
+                "min": 21969.0,
+                "max": 21969.0
+              },
+              "power_watts": {
+                "mean": 144.43302325581396,
+                "min": 128.57,
+                "max": 200.13
+              },
+              "temperature_c": {
+                "mean": 40.883720930232556,
+                "min": 40.0,
+                "max": 43.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 43,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 57.23255813953488,
+                "min": 41.0,
+                "max": 70.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 48.674418604651166,
+                "min": 36.0,
+                "max": 52.0
+              },
+              "device_used_mib": {
+                "mean": 17319.0,
+                "min": 17319.0,
+                "max": 17319.0
+              },
+              "power_watts": {
+                "mean": 121.54697674418604,
+                "min": 109.07,
+                "max": 164.41
+              },
+              "temperature_c": {
+                "mean": 39.83720930232558,
+                "min": 39.0,
+                "max": 41.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        }
+      },
+      {
+        "requests": 4,
+        "trials": 3,
+        "http_tps": 60.89158723612303,
+        "trial_http_tps": [
+          60.909638135702764,
+          60.88474707293086,
+          60.880384679057144
+        ],
+        "mean_cohort_seconds": 2.102096624672413,
+        "mean_server_cpu_core_seconds": 2.076666666666668,
+        "mean_client_completion_seconds": 2.100126288826383,
+        "max_client_completion_seconds": 2.101328282034956,
+        "mean_admission_seconds": 0.024062149575911462,
+        "nvml_by_physical_gpu": {
+          "1": {
+            "samples": 61,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 82.49180327868852,
+                "min": 59.0,
+                "max": 89.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 45.91803278688525,
+                "min": 33.0,
+                "max": 48.0
+              },
+              "device_used_mib": {
+                "mean": 21969.0,
+                "min": 21969.0,
+                "max": 21969.0
+              },
+              "power_watts": {
+                "mean": 165.0527868852459,
+                "min": 54.27,
+                "max": 211.77
+              },
+              "temperature_c": {
+                "mean": 44.42622950819672,
+                "min": 43.0,
+                "max": 46.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 60,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 56.18333333333333,
+                "min": 38.0,
+                "max": 71.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 41.9,
+                "min": 29.0,
+                "max": 45.0
+              },
+              "device_used_mib": {
+                "mean": 17319.0,
+                "min": 17319.0,
+                "max": 17319.0
+              },
+              "power_watts": {
+                "mean": 137.4685,
+                "min": 70.83,
+                "max": 182.81
+              },
+              "temperature_c": {
+                "mean": 42.266666666666666,
+                "min": 42.0,
+                "max": 44.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        }
+      },
+      {
+        "requests": 8,
+        "trials": 3,
+        "http_tps": 74.62567643373983,
+        "trial_http_tps": [
+          74.65720203753665,
+          74.6064086097548,
+          74.613438949483
+        ],
+        "mean_cohort_seconds": 3.430454666997927,
+        "mean_server_cpu_core_seconds": 3.4266666666666645,
+        "mean_client_completion_seconds": 3.426327219912006,
+        "max_client_completion_seconds": 3.429606571968179,
+        "mean_admission_seconds": 0.0031162223725308045,
+        "nvml_by_physical_gpu": {
+          "1": {
+            "samples": 99,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 84.32323232323232,
+                "min": 65.0,
+                "max": 90.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 37.121212121212125,
+                "min": 27.0,
+                "max": 46.0
+              },
+              "device_used_mib": {
+                "mean": 21969.0,
+                "min": 21969.0,
+                "max": 21969.0
+              },
+              "power_watts": {
+                "mean": 173.46080808080808,
+                "min": 99.66,
+                "max": 225.51
+              },
+              "temperature_c": {
+                "mean": 47.73737373737374,
+                "min": 45.0,
+                "max": 50.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 99,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 57.898989898989896,
+                "min": 45.0,
+                "max": 72.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 33.36363636363637,
+                "min": 25.0,
+                "max": 46.0
+              },
+              "device_used_mib": {
+                "mean": 17319.0,
+                "min": 17319.0,
+                "max": 17319.0
+              },
+              "power_watts": {
+                "mean": 137.58676767676766,
+                "min": 53.18,
+                "max": 197.04
+              },
+              "temperature_c": {
+                "mean": 44.515151515151516,
+                "min": 43.0,
+                "max": 46.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        }
+      }
+    ],
+    "candidate": [
+      {
+        "requests": 1,
+        "trials": 3,
+        "http_tps": 28.234020780102256,
+        "trial_http_tps": [
+          28.235186301164543,
+          28.20769030494123,
+          28.2592328539872
+        ],
+        "mean_cohort_seconds": 1.1333844459926088,
+        "mean_server_cpu_core_seconds": 1.1033333333333342,
+        "mean_client_completion_seconds": 1.1327414923386339,
+        "max_client_completion_seconds": 1.1337183369905688,
+        "mean_admission_seconds": 0.02515666066513707,
+        "nvml_by_physical_gpu": {
+          "1": {
+            "samples": 33,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 79.51515151515152,
+                "min": 62.0,
+                "max": 85.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 60.93939393939394,
+                "min": 43.0,
+                "max": 65.0
+              },
+              "device_used_mib": {
+                "mean": 20791.0,
+                "min": 20791.0,
+                "max": 20791.0
+              },
+              "power_watts": {
+                "mean": 131.32939393939395,
+                "min": 113.83,
+                "max": 195.24
+              },
+              "temperature_c": {
+                "mean": 39.42424242424242,
+                "min": 38.0,
+                "max": 41.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 33,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 69.78787878787878,
+                "min": 54.0,
+                "max": 81.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 60.24242424242424,
+                "min": 40.0,
+                "max": 65.0
+              },
+              "device_used_mib": {
+                "mean": 18151.0,
+                "min": 18151.0,
+                "max": 18151.0
+              },
+              "power_watts": {
+                "mean": 125.58060606060606,
+                "min": 110.71,
+                "max": 178.11
+              },
+              "temperature_c": {
+                "mean": 39.36363636363637,
+                "min": 38.0,
+                "max": 41.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        "native_post_first_tps": 32.31652789478215,
+        "trial_native_post_first_tps": [
+          32.33528872166426,
+          32.26901637260658,
+          32.345385174310906
+        ],
+        "mean_native_first_ready_seconds": 0.13351502601290122
+      },
+      {
+        "requests": 2,
+        "trials": 3,
+        "http_tps": 46.52788569541704,
+        "trial_http_tps": [
+          46.53287337701985,
+          46.55787198760601,
+          46.492957808968505
+        ],
+        "mean_cohort_seconds": 1.375519197647615,
+        "mean_server_cpu_core_seconds": 1.3500000000000014,
+        "mean_client_completion_seconds": 1.3745446576504037,
+        "max_client_completion_seconds": 1.375886249996256,
+        "mean_admission_seconds": 0.024811429165614147,
+        "nvml_by_physical_gpu": {
+          "1": {
+            "samples": 40,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 81.275,
+                "min": 63.0,
+                "max": 89.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 55.275,
+                "min": 40.0,
+                "max": 60.0
+              },
+              "device_used_mib": {
+                "mean": 20791.0,
+                "min": 20791.0,
+                "max": 20791.0
+              },
+              "power_watts": {
+                "mean": 142.39325,
+                "min": 62.13,
+                "max": 203.72
+              },
+              "temperature_c": {
+                "mean": 41.9,
+                "min": 40.0,
+                "max": 44.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 40,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 73.1,
+                "min": 53.0,
+                "max": 87.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 55.375,
+                "min": 39.0,
+                "max": 60.0
+              },
+              "device_used_mib": {
+                "mean": 18151.0,
+                "min": 18151.0,
+                "max": 18151.0
+              },
+              "power_watts": {
+                "mean": 135.8575,
+                "min": 56.99,
+                "max": 194.37
+              },
+              "temperature_c": {
+                "mean": 41.475,
+                "min": 40.0,
+                "max": 43.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        }
+      },
+      {
+        "requests": 4,
+        "trials": 3,
+        "http_tps": 67.69414113943307,
+        "trial_http_tps": [
+          67.68562277606479,
+          67.707354877721,
+          67.68944974050301
+        ],
+        "mean_cohort_seconds": 1.8908578769963544,
+        "mean_server_cpu_core_seconds": 1.8633333333333344,
+        "mean_client_completion_seconds": 1.888888513664521,
+        "max_client_completion_seconds": 1.890358111995738,
+        "mean_admission_seconds": 0.023800854915558983,
+        "nvml_by_physical_gpu": {
+          "1": {
+            "samples": 55,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 83.32727272727273,
+                "min": 61.0,
+                "max": 90.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 49.18181818181818,
+                "min": 35.0,
+                "max": 52.0
+              },
+              "device_used_mib": {
+                "mean": 20791.0,
+                "min": 20791.0,
+                "max": 20791.0
+              },
+              "power_watts": {
+                "mean": 167.11654545454545,
+                "min": 55.73,
+                "max": 216.1
+              },
+              "temperature_c": {
+                "mean": 45.03636363636364,
+                "min": 43.0,
+                "max": 47.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 54,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 73.0925925925926,
+                "min": 53.0,
+                "max": 88.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 48.833333333333336,
+                "min": 34.0,
+                "max": 51.0
+              },
+              "device_used_mib": {
+                "mean": 18151.0,
+                "min": 18151.0,
+                "max": 18151.0
+              },
+              "power_watts": {
+                "mean": 157.13407407407408,
+                "min": 50.06,
+                "max": 200.38
+              },
+              "temperature_c": {
+                "mean": 44.05555555555556,
+                "min": 42.0,
+                "max": 45.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        }
+      },
+      {
+        "requests": 8,
+        "trials": 3,
+        "http_tps": 83.85089461883457,
+        "trial_http_tps": [
+          83.8503920820848,
+          83.93834463564023,
+          83.76412812686475
+        ],
+        "mean_cohort_seconds": 3.0530383863369934,
+        "mean_server_cpu_core_seconds": 3.0499999999999994,
+        "mean_client_completion_seconds": 3.0494358111779243,
+        "max_client_completion_seconds": 3.0553346870001405,
+        "mean_admission_seconds": 0.0030385799351885603,
+        "nvml_by_physical_gpu": {
+          "1": {
+            "samples": 87,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 85.9080459770115,
+                "min": 68.0,
+                "max": 90.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 39.95402298850575,
+                "min": 28.0,
+                "max": 51.0
+              },
+              "device_used_mib": {
+                "mean": 20791.0,
+                "min": 20791.0,
+                "max": 20791.0
+              },
+              "power_watts": {
+                "mean": 174.3851724137931,
+                "min": 151.26,
+                "max": 217.61
+              },
+              "temperature_c": {
+                "mean": 48.18390804597701,
+                "min": 45.0,
+                "max": 50.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 88,
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 76.04545454545455,
+                "min": 56.0,
+                "max": 89.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 39.53409090909091,
+                "min": 28.0,
+                "max": 51.0
+              },
+              "device_used_mib": {
+                "mean": 18151.0,
+                "min": 18151.0,
+                "max": 18151.0
+              },
+              "power_watts": {
+                "mean": 163.6505681818182,
+                "min": 64.39,
+                "max": 211.57
+              },
+              "temperature_c": {
+                "mean": 46.69318181818182,
+                "min": 45.0,
+                "max": 48.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "native_ratios": [
+    {
+      "requests": 1,
+      "http_ratio": 1.0916936296827664,
+      "paired_trial_http_ratios": [
+        1.0907839663157923,
+        1.090460140285552,
+        1.0938398110591316
+      ],
+      "cpu_ratio": 0.9118457300275501
+    },
+    {
+      "requests": 2,
+      "http_ratio": 1.111792374059346,
+      "paired_trial_http_ratios": [
+        1.1121568403431683,
+        1.1123921317348735,
+        1.1108292989598745
+      ],
+      "cpu_ratio": 0.8980044345898017
+    },
+    {
+      "requests": 4,
+      "http_ratio": 1.1117158249945327,
+      "paired_trial_http_ratios": [
+        1.1112465095469057,
+        1.112057750631988,
+        1.111843331761801
+      ],
+      "cpu_ratio": 0.8972712680577849
+    },
+    {
+      "requests": 8,
+      "http_ratio": 1.1236198936606736,
+      "paired_trial_http_ratios": [
+        1.1231386898202524,
+        1.1250822308670316,
+        1.122641300363829
+      ],
+      "cpu_ratio": 0.8900778210116735
+    }
+  ],
+  "full_goal_complete": false,
+  "achieved_hardware_counters": null,
+  "raw_manifest": {
+    "v100/controls-v1/matrix-ordinary256-control/timed/report.json": "78dc88044e5a1fa3dafc076b9448aa907c61bf22e340b24bbfe37e0516fba8a9",
+    "v100/controls-v1/matrix-ordinary256-control/command.json": "0806e73da12cee4736358cf12db767c78313818d3928da238d7194e962bb4a03",
+    "v100/controls-v1/matrix-ordinary256-control/gpu-0-samples.csv": "3fe6bcd5f03a1a04df12cd464367c4ca71479ae7b0422f03d8d3ab757991db30",
+    "v100/controls-v1/matrix-ordinary256-control/gpu-1-samples.csv": "3df61b02244f1ba83a52cf0c028b678ea513f8659e0e26828b9cce6cbda94de0",
+    "v100/controls-v1/matrix-ordinary256-candidate/timed/report.json": "5c9b28d204071424041664ad72a658f7d8decc8a5569a335c2a20082a55804bb",
+    "v100/controls-v1/matrix-ordinary256-candidate/command.json": "f3a05b5350a9b155fde4a1ebbba5a1142dfae3d573ff9b4c319df152e5d5c678",
+    "v100/controls-v1/matrix-ordinary256-candidate/gpu-0-samples.csv": "ca8921dfb6b535ff12c7eb5fa2b89fa7996f0730a46e80ace14a01135d79cc03",
+    "v100/controls-v1/matrix-ordinary256-candidate/gpu-1-samples.csv": "d47066f2d67e158c43fc461466f186722136947abba463bb8b46a223a56b009e"
+  }
+}

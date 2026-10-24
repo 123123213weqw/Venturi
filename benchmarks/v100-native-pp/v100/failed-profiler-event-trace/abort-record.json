@@ -1,0 +1,35 @@
+{
+  "time_unix": 1792379946.051499,
+  "reason": "Profiler-only TP c8 target stopped progressing with both GPUs idle for several minutes; Nsight explicitly warns device-side event completion tracing can create false cross-stream dependencies",
+  "pids": {
+    "worker": 4182961,
+    "nsys": 4184769,
+    "target": 4184789
+  },
+  "commands": {
+    "worker": "bash /home/wzu/codex-build/Venturi/v100-pp-diagnostics-v2/worker.sh ",
+    "nsys": "nsys profile --sample=none --cpuctxsw=none --trace=cuda,nvtx --stats=true --output=/home/wzu/codex-build/Venturi/v100-pp-diagnostics-v2/tp-c8/trace /home/data/wangyue/repos/codex-build/.venvs/b2-v100/bin/python tools/benchmark_qwen_native_parallel.py /home/wzu/codex-build/Venturi/models/qwen3.5-27b-text-q8.ninfer --library /home/data/wangyue/repos/codex-build/Venturi/v100-pp-build/a0025ea463ceda9a/libventuri_blocks.so --case /home/wzu/codex-build/Venturi/v100-pp-final-v1/case.json --mode tp --output-directory /home/wzu/codex-build/Venturi/v100-pp-diagnostics-v2/tp-c8/profiled-run --concurrency 8 --repeats 1 --new-tokens 8 --split-layer 32 --profile-nvtx ",
+    "target": "/home/data/wangyue/repos/codex-build/.venvs/b2-v100/bin/python tools/benchmark_qwen_native_parallel.py /home/wzu/codex-build/Venturi/models/qwen3.5-27b-text-q8.ninfer --library /home/data/wangyue/repos/codex-build/Venturi/v100-pp-build/a0025ea463ceda9a/libventuri_blocks.so --case /home/wzu/codex-build/Venturi/v100-pp-final-v1/case.json --mode tp --output-directory /home/wzu/codex-build/Venturi/v100-pp-diagnostics-v2/tp-c8/profiled-run --concurrency 8 --repeats 1 --new-tokens 8 --split-layer 32 --profile-nvtx "
+  },
+  "report_completed": false,
+  "cohorts": [
+    {
+      "count": 8,
+      "trials": 0,
+      "warmup_completed": false
+    }
+  ],
+  "recovery": "Retry diagnostic capture with documented --cuda-event-trace=false; unprofiled correctness and ABBA timings are unaffected",
+  "owned_samplers_stopped": [],
+  "owned_samplers_stopped_after_resolving_symlinked_log_path": [
+    {
+      "pid": 4184875,
+      "stdout": "/home/data/wangyue/repos/codex-build/Venturi/v100-pp-diagnostics-v2/tp-c8/profiled-run/gpu-1-samples.csv"
+    },
+    {
+      "pid": 4184876,
+      "stdout": "/home/data/wangyue/repos/codex-build/Venturi/v100-pp-diagnostics-v2/tp-c8/profiled-run/gpu-0-samples.csv"
+    }
+  ],
+  "raw_worker_exit_marker_not_a_success_indicator": true
+}

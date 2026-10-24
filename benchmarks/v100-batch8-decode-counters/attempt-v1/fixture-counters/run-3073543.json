@@ -1,0 +1,988 @@
+{
+  "utc": "2026-10-21T05:53:23.375734+00:00",
+  "pid": 3073543,
+  "args": {
+    "artifact": null,
+    "case": null,
+    "library": "/home/data/wangyue/artifacts/venturi-native-head-gdn-fixtures-v2/build/68769d5f68c715ef/libventuri_blocks.so",
+    "output_directory": "/home/data/wangyue/artifacts/venturi-batch8-decode-counters-v1/fixture-counters",
+    "mode": "fixture",
+    "selected": 1,
+    "repeats": 3,
+    "profile_fixture": true
+  },
+  "scope": "Decode-only native cohort measurement; no build or service management.\n\nThe prefix call emits token 0 outside the measured range. Continuation consumes\nthat pending token and emits tokens 1..31 with the existing native generator.\nIts first one-row-per-sequence group is labelled prefill by the API, but executes\nthe same group computation as decode; the boolean only increments counters.\nThis scope includes one API re-entry, not prompt prefill or first-token work.\n",
+  "profiled": true,
+  "batch_size": 8,
+  "max_new_tokens": 8,
+  "measured_output_tokens": 56,
+  "prompt_lengths": [
+    1,
+    2,
+    3,
+    4,
+    1,
+    2,
+    3,
+    4
+  ],
+  "model_config": {
+    "attention_bias": false,
+    "attn_output_gate": true,
+    "dtype": "bfloat16",
+    "head_dim": 64,
+    "hidden_act": "silu",
+    "hidden_size": 32,
+    "intermediate_size": 64,
+    "layer_types": [
+      "linear_attention",
+      "full_attention",
+      "linear_attention",
+      "full_attention"
+    ],
+    "linear_conv_kernel_dim": 4,
+    "linear_key_head_dim": 64,
+    "linear_num_key_heads": 2,
+    "linear_num_value_heads": 6,
+    "linear_value_head_dim": 64,
+    "max_position_embeddings": 128,
+    "model_type": "qwen3_5_text",
+    "mtp_num_hidden_layers": 1,
+    "mtp_use_dedicated_embeddings": false,
+    "num_attention_heads": 2,
+    "num_hidden_layers": 4,
+    "num_key_value_heads": 1,
+    "rms_norm_eps": 1e-06,
+    "rope_parameters": {
+      "mrope_interleaved": true,
+      "mrope_section": [
+        3,
+        3,
+        2
+      ],
+      "partial_rotary_factor": 0.25,
+      "rope_theta": 10000000,
+      "rope_type": "default"
+    },
+    "tie_word_embeddings": false,
+    "vocab_size": 17
+  },
+  "library_sha256": "33a4becb5f9c8440492e9cc6352ea87fccab2692a01adc48e6cc756fa93bc7b8",
+  "artifact_id": "60e862f1c867479684637a3f8e7dc7ed",
+  "devices": [
+    {
+      "logical": 0,
+      "name": "Tesla V100-PCIE-32GB",
+      "uuid": "f65db2e8-87bb-c88d-363f-23c79f793548"
+    },
+    {
+      "logical": 1,
+      "name": "Tesla V100-PCIE-32GB",
+      "uuid": "18fbf081-3c6d-d65b-11b8-288a4ce1ab28"
+    }
+  ],
+  "runs": [
+    {
+      "phase": "split-correctness",
+      "repeat": 0,
+      "counters_enabled": false,
+      "outputs": [
+        [
+          0,
+          14,
+          14,
+          0,
+          0,
+          0,
+          15,
+          0
+        ],
+        [
+          14,
+          14,
+          0,
+          0,
+          0,
+          0,
+          16,
+          14
+        ],
+        [
+          14,
+          0,
+          14,
+          14,
+          7,
+          0,
+          0,
+          14
+        ],
+        [
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14
+        ],
+        [
+          0,
+          14,
+          14,
+          0,
+          0,
+          0,
+          15,
+          0
+        ],
+        [
+          14,
+          14,
+          0,
+          0,
+          0,
+          0,
+          16,
+          14
+        ],
+        [
+          14,
+          0,
+          14,
+          14,
+          7,
+          0,
+          0,
+          14
+        ],
+        [
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14
+        ]
+      ],
+      "start_monotonic": 579688.584092285,
+      "end_monotonic": 579688.788068561,
+      "wall_seconds": 0.2039762759814039,
+      "process_cpu_seconds": 0.40112385100000036,
+      "info": {
+        "slot_count": 8,
+        "shared_batch_workspace_device_bytes": 18032,
+        "all_request_device_bytes": 1233792,
+        "model_device_bytes": 4514752,
+        "peer_model_device_bytes": 322448,
+        "shared_model_pinned_host_bytes": 8402944,
+        "group_forward_calls": 7,
+        "input_rows": 56,
+        "decode_group_calls": 6,
+        "prefill_group_calls": 1,
+        "head_calls": 7,
+        "head_rows": 56,
+        "max_group_rows": 8,
+        "peer_input_copy_bytes": 163840,
+        "peer_output_copy_bytes": 245248,
+        "requests": [
+          {
+            "position": 8,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.02750781096983701,
+            "native_generation_seconds": 0.202870188979432
+          },
+          {
+            "position": 9,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.02750781096983701,
+            "native_generation_seconds": 0.2028705639531836
+          },
+          {
+            "position": 10,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.02750781096983701,
+            "native_generation_seconds": 0.20287061494309455
+          },
+          {
+            "position": 11,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.02750781096983701,
+            "native_generation_seconds": 0.20287066092714667
+          },
+          {
+            "position": 8,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.02750781096983701,
+            "native_generation_seconds": 0.20287069503683597
+          },
+          {
+            "position": 9,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.02750781096983701,
+            "native_generation_seconds": 0.2028707549907267
+          },
+          {
+            "position": 10,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.02750781096983701,
+            "native_generation_seconds": 0.20287079398985952
+          },
+          {
+            "position": 11,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.02750781096983701,
+            "native_generation_seconds": 0.20287084800656885
+          }
+        ],
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 6912,
+        "peer_projection_workspace_bytes": 6912,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 1024,
+          "primary_remote_fp32_bytes": 1024,
+          "peer_partial_fp32_bytes": 1024,
+          "peer_gate_up_bytes": 1024,
+          "peer_activation_bytes": 512,
+          "pinned_fp32_partial_bytes": 1024,
+          "column_down_matrices": 4
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 19744,
+        "head_gdn_peer_workspace_bytes": 19744,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "all_peer_request_device_bytes": 817152,
+        "all_peer_target_backup_device_bytes": 0,
+        "distributed_memory_scope": "all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
+        "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+      },
+      "aggregate_decode_tps": 274.5417315350213
+    },
+    {
+      "phase": "measured",
+      "repeat": 1,
+      "counters_enabled": true,
+      "outputs": [
+        [
+          0,
+          14,
+          14,
+          0,
+          0,
+          0,
+          15,
+          0
+        ],
+        [
+          14,
+          14,
+          0,
+          0,
+          0,
+          0,
+          16,
+          14
+        ],
+        [
+          14,
+          0,
+          14,
+          14,
+          7,
+          0,
+          0,
+          14
+        ],
+        [
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14
+        ],
+        [
+          0,
+          14,
+          14,
+          0,
+          0,
+          0,
+          15,
+          0
+        ],
+        [
+          14,
+          14,
+          0,
+          0,
+          0,
+          0,
+          16,
+          14
+        ],
+        [
+          14,
+          0,
+          14,
+          14,
+          7,
+          0,
+          0,
+          14
+        ],
+        [
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14
+        ]
+      ],
+      "start_monotonic": 579688.997692873,
+      "end_monotonic": 579689.068121445,
+      "wall_seconds": 0.07042857201304287,
+      "process_cpu_seconds": 0.2097282190000005,
+      "info": {
+        "slot_count": 8,
+        "shared_batch_workspace_device_bytes": 18032,
+        "all_request_device_bytes": 1233792,
+        "model_device_bytes": 4514752,
+        "peer_model_device_bytes": 322448,
+        "shared_model_pinned_host_bytes": 8402944,
+        "group_forward_calls": 7,
+        "input_rows": 56,
+        "decode_group_calls": 6,
+        "prefill_group_calls": 1,
+        "head_calls": 7,
+        "head_rows": 56,
+        "max_group_rows": 8,
+        "peer_input_copy_bytes": 245760,
+        "peer_output_copy_bytes": 367872,
+        "requests": [
+          {
+            "position": 8,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010068354080431163,
+            "native_generation_seconds": 0.06897098105400801
+          },
+          {
+            "position": 9,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010068354080431163,
+            "native_generation_seconds": 0.06897111202124506
+          },
+          {
+            "position": 10,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010068354080431163,
+            "native_generation_seconds": 0.06897115206811577
+          },
+          {
+            "position": 11,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010068354080431163,
+            "native_generation_seconds": 0.06897121609654278
+          },
+          {
+            "position": 8,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010068354080431163,
+            "native_generation_seconds": 0.06897125008981675
+          },
+          {
+            "position": 9,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010068354080431163,
+            "native_generation_seconds": 0.06897128408309072
+          },
+          {
+            "position": 10,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010068354080431163,
+            "native_generation_seconds": 0.06897133903112262
+          },
+          {
+            "position": 11,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010068354080431163,
+            "native_generation_seconds": 0.0689713740721345
+          }
+        ],
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 6912,
+        "peer_projection_workspace_bytes": 6912,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 1024,
+          "primary_remote_fp32_bytes": 1024,
+          "peer_partial_fp32_bytes": 1024,
+          "peer_gate_up_bytes": 1024,
+          "peer_activation_bytes": 512,
+          "pinned_fp32_partial_bytes": 1024,
+          "column_down_matrices": 4
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 19744,
+        "head_gdn_peer_workspace_bytes": 19744,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "all_peer_request_device_bytes": 817152,
+        "all_peer_target_backup_device_bytes": 0,
+        "distributed_memory_scope": "all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
+        "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+      },
+      "aggregate_decode_tps": null
+    },
+    {
+      "phase": "measured",
+      "repeat": 2,
+      "counters_enabled": true,
+      "outputs": [
+        [
+          0,
+          14,
+          14,
+          0,
+          0,
+          0,
+          15,
+          0
+        ],
+        [
+          14,
+          14,
+          0,
+          0,
+          0,
+          0,
+          16,
+          14
+        ],
+        [
+          14,
+          0,
+          14,
+          14,
+          7,
+          0,
+          0,
+          14
+        ],
+        [
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14
+        ],
+        [
+          0,
+          14,
+          14,
+          0,
+          0,
+          0,
+          15,
+          0
+        ],
+        [
+          14,
+          14,
+          0,
+          0,
+          0,
+          0,
+          16,
+          14
+        ],
+        [
+          14,
+          0,
+          14,
+          14,
+          7,
+          0,
+          0,
+          14
+        ],
+        [
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14
+        ]
+      ],
+      "start_monotonic": 579689.375684026,
+      "end_monotonic": 579689.452696007,
+      "wall_seconds": 0.07701198093127459,
+      "process_cpu_seconds": 0.22864876600000006,
+      "info": {
+        "slot_count": 8,
+        "shared_batch_workspace_device_bytes": 18032,
+        "all_request_device_bytes": 1233792,
+        "model_device_bytes": 4514752,
+        "peer_model_device_bytes": 322448,
+        "shared_model_pinned_host_bytes": 8402944,
+        "group_forward_calls": 7,
+        "input_rows": 56,
+        "decode_group_calls": 6,
+        "prefill_group_calls": 1,
+        "head_calls": 7,
+        "head_rows": 56,
+        "max_group_rows": 8,
+        "peer_input_copy_bytes": 327680,
+        "peer_output_copy_bytes": 490496,
+        "requests": [
+          {
+            "position": 8,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.011811978998593986,
+            "native_generation_seconds": 0.07572666194755584
+          },
+          {
+            "position": 9,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.011811978998593986,
+            "native_generation_seconds": 0.07572675391566008
+          },
+          {
+            "position": 10,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.011811978998593986,
+            "native_generation_seconds": 0.07572679396253079
+          },
+          {
+            "position": 11,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.011811978998593986,
+            "native_generation_seconds": 0.07572682900354266
+          },
+          {
+            "position": 8,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.011811978998593986,
+            "native_generation_seconds": 0.07572686392813921
+          },
+          {
+            "position": 9,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.011811978998593986,
+            "native_generation_seconds": 0.07572690292727202
+          },
+          {
+            "position": 10,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.011811978998593986,
+            "native_generation_seconds": 0.07572695892304182
+          },
+          {
+            "position": 11,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.011811978998593986,
+            "native_generation_seconds": 0.07572699198499322
+          }
+        ],
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 6912,
+        "peer_projection_workspace_bytes": 6912,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 1024,
+          "primary_remote_fp32_bytes": 1024,
+          "peer_partial_fp32_bytes": 1024,
+          "peer_gate_up_bytes": 1024,
+          "peer_activation_bytes": 512,
+          "pinned_fp32_partial_bytes": 1024,
+          "column_down_matrices": 4
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 19744,
+        "head_gdn_peer_workspace_bytes": 19744,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "all_peer_request_device_bytes": 817152,
+        "all_peer_target_backup_device_bytes": 0,
+        "distributed_memory_scope": "all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
+        "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+      },
+      "aggregate_decode_tps": null
+    },
+    {
+      "phase": "measured",
+      "repeat": 3,
+      "counters_enabled": true,
+      "outputs": [
+        [
+          0,
+          14,
+          14,
+          0,
+          0,
+          0,
+          15,
+          0
+        ],
+        [
+          14,
+          14,
+          0,
+          0,
+          0,
+          0,
+          16,
+          14
+        ],
+        [
+          14,
+          0,
+          14,
+          14,
+          7,
+          0,
+          0,
+          14
+        ],
+        [
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14
+        ],
+        [
+          0,
+          14,
+          14,
+          0,
+          0,
+          0,
+          15,
+          0
+        ],
+        [
+          14,
+          14,
+          0,
+          0,
+          0,
+          0,
+          16,
+          14
+        ],
+        [
+          14,
+          0,
+          14,
+          14,
+          7,
+          0,
+          0,
+          14
+        ],
+        [
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14,
+          14
+        ]
+      ],
+      "start_monotonic": 579689.629031003,
+      "end_monotonic": 579689.701407438,
+      "wall_seconds": 0.07237643504049629,
+      "process_cpu_seconds": 0.21546742900000027,
+      "info": {
+        "slot_count": 8,
+        "shared_batch_workspace_device_bytes": 18032,
+        "all_request_device_bytes": 1233792,
+        "model_device_bytes": 4514752,
+        "peer_model_device_bytes": 322448,
+        "shared_model_pinned_host_bytes": 8402944,
+        "group_forward_calls": 7,
+        "input_rows": 56,
+        "decode_group_calls": 6,
+        "prefill_group_calls": 1,
+        "head_calls": 7,
+        "head_rows": 56,
+        "max_group_rows": 8,
+        "peer_input_copy_bytes": 409600,
+        "peer_output_copy_bytes": 613120,
+        "requests": [
+          {
+            "position": 8,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010227574966847897,
+            "native_generation_seconds": 0.0714312179479748
+          },
+          {
+            "position": 9,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010227574966847897,
+            "native_generation_seconds": 0.0714313309872523
+          },
+          {
+            "position": 10,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010227574966847897,
+            "native_generation_seconds": 0.07143136695958674
+          },
+          {
+            "position": 11,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010227574966847897,
+            "native_generation_seconds": 0.07143141399137676
+          },
+          {
+            "position": 8,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010227574966847897,
+            "native_generation_seconds": 0.07143144693691283
+          },
+          {
+            "position": 9,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010227574966847897,
+            "native_generation_seconds": 0.0714314819779247
+          },
+          {
+            "position": 10,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010227574966847897,
+            "native_generation_seconds": 0.07143151597119868
+          },
+          {
+            "position": 11,
+            "failed": false,
+            "capacity": 64,
+            "request_device_bytes": 154224,
+            "native_time_to_first_token_seconds": 0.010227574966847897,
+            "native_generation_seconds": 0.07143156800884753
+          }
+        ],
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 6912,
+        "peer_projection_workspace_bytes": 6912,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 1024,
+          "primary_remote_fp32_bytes": 1024,
+          "peer_partial_fp32_bytes": 1024,
+          "peer_gate_up_bytes": 1024,
+          "peer_activation_bytes": 512,
+          "pinned_fp32_partial_bytes": 1024,
+          "column_down_matrices": 4
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 19744,
+        "head_gdn_peer_workspace_bytes": 19744,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "all_peer_request_device_bytes": 817152,
+        "all_peer_target_backup_device_bytes": 0,
+        "distributed_memory_scope": "all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
+        "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+      },
+      "aggregate_decode_tps": null
+    }
+  ],
+  "expected_outputs": [
+    [
+      0,
+      14,
+      14,
+      0,
+      0,
+      0,
+      15,
+      0
+    ],
+    [
+      14,
+      14,
+      0,
+      0,
+      0,
+      0,
+      16,
+      14
+    ],
+    [
+      14,
+      0,
+      14,
+      14,
+      7,
+      0,
+      0,
+      14
+    ],
+    [
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14
+    ],
+    [
+      0,
+      14,
+      14,
+      0,
+      0,
+      0,
+      15,
+      0
+    ],
+    [
+      14,
+      14,
+      0,
+      0,
+      0,
+      0,
+      16,
+      14
+    ],
+    [
+      14,
+      0,
+      14,
+      14,
+      7,
+      0,
+      0,
+      14
+    ],
+    [
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14,
+      14
+    ]
+  ],
+  "reference_positions": [
+    8,
+    9,
+    10,
+    11,
+    8,
+    9,
+    10,
+    11
+  ],
+  "passed": true,
+  "canonical_state_bitwise_checked": true
+}

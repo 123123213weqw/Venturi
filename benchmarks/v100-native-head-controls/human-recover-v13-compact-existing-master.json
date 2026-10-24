@@ -1,0 +1,26 @@
+{
+  "route": [
+    "ssh",
+    "-v",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ForwardAgent=no",
+    "-o",
+    "StrictHostKeyChecking=yes",
+    "-o",
+    "ControlMaster=no",
+    "-o",
+    "ConnectTimeout=60",
+    "-o",
+    "ServerAliveInterval=15",
+    "-o",
+    "ServerAliveCountMax=4",
+    "WZU_Server",
+    "python3 -"
+  ],
+  "seconds": 8.389849542,
+  "rc": 0,
+  "stdout": "{\"name\": \"venturi-native-head-controls-v13\", \"cmd\": null, \"exit-code.txt\": \"0\\n\", \"experiments\": [[\"compat-llama-layer-mtp1-no-graphs\", true], [\"repeat-llama-layer-mtp1-no-graphs\", false], [\"compat-llama-tensor-mtp1-no-graphs\", false], [\"confirm-native-mtp2-c1\", true], [\"confirm-native-mtp1-c8\", true]]}\n{\"name\": \"venturi-native-head-aligned-v14\", \"cmd\": null, \"exit-code.txt\": \"1\\n\", \"failure.txt\": \"Traceback (most recent call last):\\n  File \\\"/home/data/wangyue/artifacts/venturi-native-head-aligned-v14/worker.py\\\", line 52, in <module>\\n    command[2]='external';run(command,out/'external.log',timeout=900)\\n  File \\\"/home/data/wangyue/artifacts/venturi-native-head-aligned-v14/worker.py\\\", line 22, in run\\n    if rc:raise RuntimeError(f'Owned command exited{rc}: {path}')\\nRuntimeError: Owned command exited1: /home/data/wangyue/artifacts/venturi-native-head-aligned-v14/external.log\\n\"}\n{\"name\": \"venturi-native-head-controls-profile-v15\", \"cmd\": \"python3\\u0000/home/data/wangyue/artifacts/venturi-native-head-controls-profile-v15/worker.py\\u0000\"}\n",
+  "stderr": "debug1: OpenSSH_10.2p1, LibreSSL 3.3.6\ndebug1: Reading configuration data /Users/wangyue/.ssh/config\ndebug1: /Users/wangyue/.ssh/config line 39: Applying options for WZU_Server\ndebug1: Reading configuration data /etc/ssh/ssh_config\ndebug1: Reading configuration data /etc/ssh/ssh_config.d/100-macos.conf\ndebug1: /etc/ssh/ssh_config.d/100-macos.conf line 1: Applying options for *\ndebug1: Reading configuration data /etc/ssh/crypto.conf\ndebug1: Authenticator provider $SSH_SK_PROVIDER did not resolve; disabling\ndebug1: mux_client_request_session: master session id: 12\n"
+}

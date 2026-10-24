@@ -1,0 +1,450 @@
+--- src/venturi/models/qwen_native.py (previous frozen)
++++ src/venturi/models/qwen_native.py (native column MLP)
+@@ -190,8 +190,15 @@
+             )
+         if dtype not in (torch.float16, torch.bfloat16):
+             raise ValueError("Native Qwen supports explicit FP16/BF16 only")
+-        if projection_profile not in ("fp16", "q8-residual"):
+-            raise ValueError("Projection profile must be explicit fp16/q8-residual")
++        column_profile = projection_profile == "q8-residual-column-mlp"
++        if projection_profile not in ("fp16", "q8-residual", "q8-residual-column-mlp"):
++            raise ValueError(
++                "Projection profile must be explicit fp16/q8-residual/q8-residual-column-mlp"
++            )
++        if column_profile and (
++            tensor_parallel_device is None or tensor_parallel_transport != "host"
++        ):
++            raise ValueError("Column MLP requires explicit two-device host TP")
+         if projection_profile != "fp16" and (
+             dtype != torch.float16
+             or weight_mode != "resident"
+@@ -203,7 +210,12 @@
+         profiled_create = None
+         if projection_profile != "fp16":
+             try:
+-                profiled_create = backend._native.venturi_qwen_create_profiled
++                profiled_create = getattr(
++                    backend._native,
++                    "venturi_qwen_create_column_mlp"
++                    if column_profile
++                    else "venturi_qwen_create_profiled",
++                )
+             except AttributeError as e:
+                 raise RuntimeError(
+                     "Explicit projection profile exports absent; rebuild blocks"
+@@ -227,6 +239,8 @@
+                 and torch.cuda.can_device_access_peer(peer.index, target.index)
+             ):
+                 raise ValueError("Bidirectional CUDA peer access is required")
++        if column_profile and torch.cuda.get_device_capability(target) != (7, 0):
++            raise ValueError("Column MLP requires an explicit SM70 target")
+         _outside_capture(target)
+         owned = QwenQ8Weights.from_ninfer(NInferArtifact(weights.artifact.path))
+         cfg = copy.deepcopy(owned.config)
+@@ -245,6 +259,8 @@
+                 raise ValueError(
+                     "Internal pipeline stage requires a valid resident non-TP range"
+                 )
++        if column_profile and cfg["intermediate_size"] % 64:
++            raise ValueError("Column MLP requires group-aligned equal input halves")
+         rope = QwenTextRoPE.from_config(cfg)
+         q8_bytes = []
+         for spec in owned.plan.bindings:
+@@ -304,13 +320,30 @@
+                 padded = (k + 127) // 128 * 128
+                 half = 1 + (n - 1) // 2
+                 embedding = spec.binding == "text/token_embedding"
+-                primary += (n if embedding else half) * (padded + padded // 32 * 2)
+-                secondary += (
+-                    n - half if not embedding or owned.plan.tied_embeddings else 0
+-                ) * (padded + padded // 32 * 2)
++                if column_profile and spec.binding.endswith("/mlp/down"):
++                    local_pad = ((k // 2 + 127) // 128) * 128
++                    encoded = n * (local_pad + local_pad // 32 * 2)
++                    primary += encoded
++                    secondary += encoded
++                else:
++                    primary += (n if embedding else half) * (padded + padded // 32 * 2)
++                    secondary += (
++                        n - half if not embedding or owned.plan.tied_embeddings else 0
++                    ) * (padded + padded // 32 * 2)
+                 max_k, max_rows = max(max_k, k), max(max_rows, half)
++            column_partial = (
++                max_tokens * cfg["hidden_size"] * 4 if column_profile else 0
++            )
++            column_peer_extra = (
++                column_partial + max_tokens * cfg["intermediate_size"] * 3
++                if column_profile
++                else 0
++            )
++            if column_profile:
++                max_rows = max(max_rows, cfg["intermediate_size"])
+             required = (
+                 primary
++                + column_partial * 2
+                 + 2 * small
+                 + 4 * 2**20
+                 + rope.rotary_dim * 2
+@@ -318,14 +351,19 @@
+             )
+             _memory_guard(
+                 peer,
+-                secondary + max_tokens * (max_k + max_rows) * 2 + quant_bytes,
++                secondary
++                + max_tokens * (max_k + max_rows) * 2
++                + quant_bytes
++                + column_peer_extra,
+                 reserve_bytes,
+                 None,
+             )
+         _memory_guard(target, required + quant_bytes, reserve_bytes, None)
+         native = _bind(backend)
+         if profiled_create is not None:
+-            profiled_create.argtypes = native.venturi_qwen_create.argtypes + [C.c_int]
++            profiled_create.argtypes = native.venturi_qwen_create.argtypes + (
++                [] if column_profile else [C.c_int]
++            )
+             profiled_create.restype = C.c_void_p
+         initial_digest = _digest(owned)
+         initial_stamps = tuple(
+@@ -470,7 +508,11 @@
+             C.byref(head),
+             final_norm,
+             rope.inverse_frequency.data_ptr(),
+-            *((2,) if profiled_create is not None else (_stage_range or ())),
++            *(
++                (2,)
++                if profiled_create is not None and not column_profile
++                else (_stage_range or ())
++            ),
+         )
+         if not handle:
+             backend._check(-1)
+@@ -490,6 +532,10 @@
+             peer_projection_workspace_bytes=quant_bytes if peer is not None else 0,
+             projection_precision_scope=f"Original Q8 weights/scales; {dtype} storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic.",
+         )
++        if column_profile:
++            self._projection_info["projection_precision_scope"] += (
++                " Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity."
++            )
+         if profiled_create is not None:
+             try:
+                 query = native.venturi_qwen_projection_info
+@@ -506,6 +552,55 @@
+                 ]:
+                     raise RuntimeError(
+                         "Native projection workspace/profile accounting mismatch"
++                    )
++                if column_profile:
++                    query = native.venturi_qwen_column_mlp_info
++                    query.argtypes, query.restype = (
++                        [C.c_void_p, C.POINTER(C.c_uint64)],
++                        C.c_int,
++                    )
++                    values = (C.c_uint64 * 8)()
++                    backend._check(query(handle, values))
++                    partial = max_tokens * cfg["hidden_size"] * 4
++                    unique_down = len(
++                        {
++                            owned._object(f"text/layers/{i}/mlp/down")["offset"]
++                            for i in range(cfg["num_hidden_layers"])
++                        }
++                    )
++                    expected = [
++                        1,
++                        partial,
++                        partial,
++                        partial,
++                        max_tokens * cfg["intermediate_size"] * 2,
++                        max_tokens * cfg["intermediate_size"],
++                        partial,
++                        unique_down,
++                    ]
++                    if list(values) != expected:
++                        raise RuntimeError(
++                            "Native column MLP memory/layout accounting mismatch"
++                        )
++                    self._projection_info.update(
++                        column_mlp_enabled=True,
++                        column_mlp_buffers=dict(
++                            zip(
++                                [
++                                    "enabled",
++                                    "primary_local_fp32_bytes",
++                                    "primary_remote_fp32_bytes",
++                                    "peer_partial_fp32_bytes",
++                                    "peer_gate_up_bytes",
++                                    "peer_activation_bytes",
++                                    "pinned_fp32_partial_bytes",
++                                    "column_down_matrices",
++                                ],
++                                map(int, values),
++                            )
++                        ),
++                        mlp_down_weight_layout="bit-preserving input-column halves, original group32 scales",
++                        partial_and_host_transport_dtype="float32",
+                     )
+             except Exception:
+                 native.venturi_qwen_destroy(handle)
+--- src/venturi/ops/csrc/qwen_runtime.cuh (previous frozen)
++++ src/venturi/ops/csrc/qwen_runtime.cuh (native column MLP)
+@@ -146,6 +146,10 @@
+     // Explicit alternate arithmetic only. Scratch is shared by serialized model
+     // calls, not by independent request caches; no quantized weights are copied.
+     int activation_passes=0;
++    bool column_mlp_enabled=false;
++    std::set<std::uint64_t> column_down;
++    Buffer column_local,column_remote,column_peer,column_gu,column_activation;
++    Pinned column_host;
+     Buffer first_quant,second_quant;
+     Stream stream;
+     Stream second_stream;
+@@ -254,6 +258,7 @@
+         auto result=out->ptr;device_bytes=add(device_bytes,bytes);constants.push_back(std::move(out));return result;
+     }
+     std::pair<const std::int8_t*,const __half*> weight(const VRMatrix& m) {
++        require(!column_down.count(m.offset),"column-packed down requires the explicit MLP path");
+         source();const Buffer* b=nullptr;
+         if (c.resident) b=resident_weights.at(m.offset).get();
+         else { upload(arena.ptr,m.offset,codes(m));upload(arena.at(codes(m)),m.scales,scales(m));b=&arena; }
+@@ -389,13 +394,87 @@
+             first=true;second=second || second_rows(*p.first)>0;
+         }
+     }
+-    Model(const VRConfig& cfg,const VRSpan* spans,int count,const VRLayer* ls,const VRMatrix& emb,const VRMatrix& h,const void* final_norm,const float* inv,int first=0,int last=-1,bool staged=false,const VRMatrix* mtp_input=nullptr,int profile=0):c(cfg),embedding(emb),head(h),begin(first),end(last<0?cfg.layers:last),stage(staged),activation_passes(profile) {
++    VRMatrix column_descriptor(const VRMatrix& m) const {
++        require(column_mlp_enabled && column_down.count(m.offset),"matrix is not a column-packed down projection");
++        return VRMatrix{m.offset,m.scales,m.n,m.k/2};
++    }
++    void upload_columns(Buffer& target,const VRMatrix& m,int rank) {
++        source();const auto local=column_descriptor(m);
++        for(bool scale:{false,true}) {
++            const auto stride=scale?mul(padded(local)/32,2):static_cast<std::uint64_t>(padded(local));
++            const auto copied=scale?mul(local.k/32,2):static_cast<std::uint64_t>(local.k);
++            const auto source_stride=scale?mul(padded(m)/32,2):static_cast<std::uint64_t>(padded(m));
++            require(stride<=stage_bytes,"column-packed row exceeds bounded staging");
++            for(std::uint64_t row=0;row<static_cast<std::uint64_t>(m.n);) {
++                const auto rows=std::min(static_cast<std::uint64_t>(m.n)-row,stage_bytes/stride);
++                std::memset(staging.ptr,0,mul(rows,stride));
++                for(std::uint64_t i=0;i<rows;++i)
++                    read_bytes(static_cast<char*>(staging.ptr)+mul(i,stride),add(scale?m.scales:m.offset,add(mul(row+i,source_stride),mul(rank,copied))),copied);
++                const auto offset=add(scale?plane(local,local.n):0,mul(row,stride));
++                if(rank) {
++                    Device device(c.second_device);
++                    check(cudaMemcpyAsync(target.at(offset),staging.ptr,mul(rows,stride),cudaMemcpyHostToDevice,second_stream.ptr));
++                    check(cudaStreamSynchronize(second_stream.ptr));
++                } else {
++                    check(cudaMemcpyAsync(target.at(offset),staging.ptr,mul(rows,stride),cudaMemcpyHostToDevice,stream.ptr));
++                    check(cudaStreamSynchronize(stream.ptr));
++                }
++                uploaded=add(uploaded,mul(rows,stride));row+=rows;
++            }
++        }
++        source();
++    }
++    void mlp(const VRLayer& l,const void* x,void* gate,void* up,void* out,int t) {
++        if(!column_mlp_enabled) {
++            shared_linears(x,t,{{&l.matrix[4],gate},{&l.matrix[5],up}});
++            op(venturi_swiglu_run(gate,up,gate,mul(t,c.intermediate),c.dtype,stream.ptr));
++            linear(l.matrix[6],gate,out,t);return;
++        }
++        const int half=c.intermediate/2;const auto xb=mul(mul(t,c.hidden),2),partial_bytes=mul(xb,2);
++        require(t>0 && t<=c.max_tokens && x && gate && up && out,"invalid column MLP operands");
++        auto gw=weight(l.matrix[4]),uw=weight(l.matrix[5]);const auto local=column_descriptor(l.matrix[6]);source();
++        const auto& down=*resident_weights.at(local.offset);
++        const auto half_bytes=mul(mul(t,half),2);
++        VQFOutput first[2]={{gw.first,gw.second,static_cast<__half*>(gate),half,half},{uw.first,uw.second,static_cast<__half*>(up),half,half}};
++        // The primary producer follows the prior gather before permitting peer
++        // scratch reuse. The peer consumer fences its FP32 partial transport.
++        check(cudaMemcpyAsync(host_input.ptr,x,xb,cudaMemcpyDeviceToHost,stream.ptr));
++        check(cudaEventRecord(first_ready.ptr,stream.ptr));
++        {
++            Device device(c.second_device);check(cudaStreamWaitEvent(second_stream.ptr,first_ready.ptr,0));
++            check(cudaMemcpyAsync(second_input.ptr,host_input.ptr,xb,cudaMemcpyHostToDevice,second_stream.ptr));
++            VQFOutput peer[2]{};
++            for(int i=0;i<2;++i) {
++                const auto& matrix=l.matrix[4+i];const auto& b=*second_weights.at(matrix.offset);
++                peer[i]={static_cast<const std::int8_t*>(b.ptr),reinterpret_cast<const __half*>(b.at(plane(matrix,half))),reinterpret_cast<__half*>(column_gu.at(mul(i,half_bytes))),half,half};
++            }
++            op(venturi_q8_dp4a_quantize(second_input.ptr,second_quant.ptr,second_quant.bytes,t,c.hidden,2,second_stream.ptr));
++            op(venturi_q8_fused_run(second_quant.ptr,second_quant.bytes,peer,2,t,c.hidden,padded(l.matrix[4]),2,second_stream.ptr));
++            op(venturi_swiglu_run(column_gu.ptr,column_gu.at(half_bytes),column_activation.ptr,mul(t,half),0,second_stream.ptr));
++            op(venturi_q8_dp4a_quantize(column_activation.ptr,second_quant.ptr,second_quant.bytes,t,half,2,second_stream.ptr));
++            const auto& b=*second_weights.at(local.offset);
++            op(venturi_q8_column_partial_run(second_quant.ptr,second_quant.bytes,static_cast<const std::int8_t*>(b.ptr),reinterpret_cast<const __half*>(b.at(plane(local,local.n))),static_cast<float*>(column_peer.ptr),t,c.hidden,half,padded(local),second_stream.ptr));
++            check(cudaMemcpyAsync(column_host.ptr,column_peer.ptr,partial_bytes,cudaMemcpyDeviceToHost,second_stream.ptr));
++            check(cudaEventRecord(second_ready.ptr,second_stream.ptr));
++        }
++        op(venturi_q8_dp4a_quantize(x,first_quant.ptr,first_quant.bytes,t,c.hidden,2,stream.ptr));
++        op(venturi_q8_fused_run(first_quant.ptr,first_quant.bytes,first,2,t,c.hidden,padded(l.matrix[4]),2,stream.ptr));
++        op(venturi_swiglu_run(gate,up,gate,mul(t,half),0,stream.ptr));
++        op(venturi_q8_dp4a_quantize(gate,first_quant.ptr,first_quant.bytes,t,half,2,stream.ptr));
++        op(venturi_q8_column_partial_run(first_quant.ptr,first_quant.bytes,static_cast<const std::int8_t*>(down.ptr),reinterpret_cast<const __half*>(down.at(plane(local,local.n))),static_cast<float*>(column_local.ptr),t,c.hidden,half,padded(local),stream.ptr));
++        check(cudaStreamWaitEvent(stream.ptr,second_ready.ptr,0));
++        check(cudaMemcpyAsync(column_remote.ptr,column_host.ptr,partial_bytes,cudaMemcpyHostToDevice,stream.ptr));
++        op(venturi_q8_column_sum(static_cast<const float*>(column_local.ptr),static_cast<const float*>(column_remote.ptr),out,static_cast<int>(mul(t,c.hidden)),stream.ptr));
++        peer_input_bytes=add(peer_input_bytes,xb);peer_output_bytes=add(peer_output_bytes,partial_bytes);
++    }
++    Model(const VRConfig& cfg,const VRSpan* spans,int count,const VRLayer* ls,const VRMatrix& emb,const VRMatrix& h,const void* final_norm,const float* inv,int first=0,int last=-1,bool staged=false,const VRMatrix* mtp_input=nullptr,int profile=0,bool columns=false):c(cfg),embedding(emb),head(h),begin(first),end(last<0?cfg.layers:last),stage(staged),activation_passes(profile),column_mlp_enabled(columns) {
+         require(begin>=0 && begin<end && end<=c.layers,"invalid native stage range");
+         require(!stage || (c.resident==1 && c.second_device==-1),"pipeline stages require resident non-TP weights");
+         require(profile==0 || (profile==2 && c.dtype==0 && c.resident==1 && !stage && !mtp_input),"residual activation profile requires an explicit complete resident FP16 target");
+         require(c.dtype==0 || c.dtype==1,"native Qwen needs explicit FP16/BF16");(void)data_type(c.dtype);
+         require(c.second_device>=-1 && c.second_device!=c.device,"invalid native Qwen peer device");
+         require(c.peer_transport==0 || c.peer_transport==1,"invalid native Qwen peer transport");
++        require(!columns || (VENTURI_BLOCKS_ARCH==70 && profile==2 && parallel() && c.peer_transport==1 && c.intermediate>0 && c.intermediate%64==0 && mul(c.max_tokens,c.hidden)<INT32_MAX-256),"column MLP requires resident SM70 FP16 residual host TP and group-aligned halves");
+         if (parallel()) {
+             require(c.resident==1,"tensor parallel requires explicit resident weights");
+             int count=0;check(cudaGetDeviceCount(&count));require(c.second_device<count,"peer device out of range");
+@@ -441,6 +520,14 @@
+             }
+             validate_matrix(l.matrix[4],c.intermediate,c.hidden);validate_matrix(l.matrix[5],c.intermediate,c.hidden);validate_matrix(l.matrix[6],c.hidden,c.intermediate);
+         }
++        if(columns) {
++            std::set<std::uint64_t> other_roles{embedding.offset,head.offset};
++            for(const auto& l:layers) {
++                column_down.insert(l.matrix[6].offset);
++                for(int j=0;j<6;++j)if(l.kind==1 || j!=3)other_roles.insert(l.matrix[j].offset);
++            }
++            for(const auto offset:column_down)require(!other_roles.count(offset),"down projection aliases a non-column role");
++        }
+         if (stage) {
+             std::set<std::uint64_t> used;
+             if (begin==0) used.insert(embedding.offset);
+@@ -452,7 +539,9 @@
+         }
+         std::uint64_t all=0,other=0,maxk=0,maxn=0,peak=mul(c.max_tokens,add(padded(embedding),padded(embedding)/32*2));
+         for (const auto& [_,m]:matrices) {
+-            all=add(all,encoded(m,first_rows(m)));other=add(other,encoded(m,second_rows(m)));
++            if(column_down.count(m.offset)) {
++                const auto local=column_descriptor(m);all=add(all,encoded(local,local.n));other=add(other,encoded(local,local.n));
++            } else {all=add(all,encoded(m,first_rows(m)));other=add(other,encoded(m,second_rows(m)));}
+             maxk=std::max(maxk,static_cast<std::uint64_t>(m.k));maxn=std::max(maxn,static_cast<std::uint64_t>(1+(m.n-1)/2));
+             peak=std::max(peak,add(codes(m),scales(m)));
+         }
+@@ -470,9 +559,12 @@
+ #endif
+         const auto scratch=parallel()?mul(mul(c.max_tokens,maxn),2):0;
+         const auto quant=profile?vdq::bytes(c.max_tokens,static_cast<int>(maxk),profile):0;
+-        guard(add(add(add(add(c.resident?all:peak,constant_bytes),scratch),4*1024*1024+mul(c.rotary/2,4)),quant));
++        const auto column_partial=columns?mul(mul(c.max_tokens,c.hidden),4):0;
++        const auto column_gu_bytes=columns?mul(mul(c.max_tokens,c.intermediate),2):0;
++        const auto column_activation_bytes=columns?mul(c.max_tokens,c.intermediate):0;
++        guard(add(add(add(add(add(c.resident?all:peak,constant_bytes),scratch),4*1024*1024+mul(c.rotary/2,4)),quant),mul(column_partial,2)));
+         if (parallel()) {
+-            Device d(c.second_device);guard(add(add(other,add(scratch,mul(mul(c.max_tokens,maxk),2))),quant));
++            Device d(c.second_device);guard(add(add(add(other,add(scratch,mul(mul(c.max_tokens,maxk),2))),quant),add(column_partial,add(column_gu_bytes,column_activation_bytes))));
+             if (c.peer_transport==0) {
+                 auto status=cudaDeviceEnablePeerAccess(c.device,0);
+                 if (status==cudaErrorPeerAccessAlreadyEnabled) (void)cudaGetLastError();else check(status);
+@@ -481,6 +573,7 @@
+             second_input.allocate(mul(mul(c.max_tokens,maxk),2));second_output.allocate(scratch);
+             second_device_bytes=add(second_input.bytes,second_output.bytes);
+             if(quant){second_quant.allocate(quant);second_device_bytes=add(second_device_bytes,quant);}
++            if(columns) {column_peer.allocate(column_partial);column_gu.allocate(column_gu_bytes);column_activation.allocate(column_activation_bytes);second_device_bytes=add(second_device_bytes,add(column_partial,add(column_gu_bytes,column_activation_bytes)));}
+         }
+         if(quant){first_quant.allocate(quant);device_bytes=add(device_bytes,quant);}
+         if (parallel()) {
+@@ -491,12 +584,19 @@
+             first_ready.create();first_output.allocate(scratch);device_bytes=add(device_bytes,scratch);
+             if (c.peer_transport==1) { host_input.allocate(second_input.bytes);host_output.allocate(scratch); }
+         }
++        if(columns) {column_local.allocate(column_partial);column_remote.allocate(column_partial);column_host.allocate(column_partial);device_bytes=add(device_bytes,mul(column_partial,2));}
+         stream.create();staging.allocate(stage_bytes);
+         if (parallel() && c.peer_transport==0) probe_peer();
+         // No large CPU expansion: validation walks the mapped encoded planes.
+         for (const auto& [_,m]:matrices) validate_codes(m);
+         if (c.resident) {
+             for (const auto& [offset,m]:matrices) {
++                if(column_down.count(offset)) {
++                    const auto local=column_descriptor(m);auto b=std::make_unique<Buffer>();b->allocate(encoded(local,local.n));
++                    upload_columns(*b,m,0);device_bytes=add(device_bytes,b->bytes);resident_weights.emplace(offset,std::move(b));
++                    {Device d(c.second_device);b=std::make_unique<Buffer>();b->allocate(encoded(local,local.n));}
++                    upload_columns(*b,m,1);second_device_bytes=add(second_device_bytes,b->bytes);second_weights.emplace(offset,std::move(b));continue;
++                }
+                 const int nf=first_rows(m),ns=second_rows(m);auto b=std::make_unique<Buffer>();b->allocate(encoded(m,nf));
+                 upload(b->ptr,m.offset,plane(m,nf));upload(b->at(plane(m,nf)),m.scales,mul(nf,padded(m)/32*2));
+                 device_bytes=add(device_bytes,b->bytes);resident_weights.emplace(offset,std::move(b));
+@@ -646,9 +746,8 @@
+         }
+         op(venturi_add_run(x,p("projected"),p("residual"),count,c.dtype,s));
+         op(venturi_rms_run(p("residual"),static_cast<const float*>(l.post),p("mlp_norm"),t,c.hidden,c.dtype,c.epsilon,s));
+-        m.shared_linears(p("mlp_norm"),t,{{&l.matrix[4],p("mlp_gate")},{&l.matrix[5],p("mlp_up")}});
+-        op(venturi_swiglu_run(p("mlp_gate"),p("mlp_up"),p("mlp_gate"),mul(t,c.intermediate),c.dtype,s));
+-        m.linear(l.matrix[6],p("mlp_gate"),p("projected"),t);op(venturi_add_run(p("residual"),p("projected"),out,count,c.dtype,s));
++        m.mlp(l,p("mlp_norm"),p("mlp_gate"),p("mlp_up"),p("projected"),t);
++        op(venturi_add_run(p("residual"),p("projected"),out,count,c.dtype,s));
+     }
+     void* run_layers(int pos,int t,void* x,void* trace,int n,int start) {
+         auto& m=*model;const auto& c=m.c;void* out=p("out");
+@@ -715,6 +814,19 @@
+         return new vr::Handle(std::make_shared<vr::Model>(*c,spans,count,layers,*embedding,*head,norm,inverse,0,-1,false,nullptr,profile));
+     }catch(const std::exception& e){error_text=e.what();return nullptr;}
+ }
++// Additive opt-in constructor; existing profile IDs/layouts stay unchanged.
++extern "C" void* venturi_qwen_create_column_mlp(const VRConfig* c,const VRSpan* spans,int count,const VRLayer* layers,const VRMatrix* embedding,const VRMatrix* head,const void* norm,const float* inverse) {
++    try {vr::require(c && embedding && head,"null column MLP model descriptor");vr::Device device(c->device);
++        cudaDeviceProp prop{};check(cudaGetDeviceProperties(&prop,c->device));vr::require(prop.major*10+prop.minor==VENTURI_BLOCKS_ARCH,"native Qwen architecture mismatch");
++        return new vr::Handle(std::make_shared<vr::Model>(*c,spans,count,layers,*embedding,*head,norm,inverse,0,-1,false,nullptr,2,true));
++    }catch(const std::exception& e){error_text=e.what();return nullptr;}
++}
++extern "C" int venturi_qwen_column_mlp_info(void* h,std::uint64_t* out) {
++    try {vr::require(h && out,"null column MLP info");auto m=*static_cast<vr::Handle*>(h);std::lock_guard<std::mutex> lock(m->mutex);
++        const std::uint64_t values[]={m->column_mlp_enabled?1ULL:0ULL,m->column_local.bytes,m->column_remote.bytes,m->column_peer.bytes,m->column_gu.bytes,m->column_activation.bytes,m->column_host.bytes,m->column_down.size()};
++        std::copy(values,values+8,out);return 0;
++    }catch(const std::exception& e){error_text=e.what();return -1;}
++}
+ extern "C" int venturi_qwen_projection_info(void* h,std::uint64_t* out) {
+     try {vr::require(h && out,"null projection profile info");auto m=*static_cast<vr::Handle*>(h);std::lock_guard<std::mutex> lock(m->mutex);
+         out[0]=m->activation_passes;out[1]=m->first_quant.bytes;out[2]=m->second_quant.bytes;return 0;
+@@ -733,6 +845,26 @@
+             ((!trace && !trace_elements) || (trace && trace_elements==vr::mul(vr::mul(n,m.c.hidden),m.c.layers))),"native Qwen output/trace shape mismatch");
+         s.forward(ids,n,logits,all,trace);return 0;
+     } catch (const std::exception& e) { error_text=e.what();return -1; }
++}
++// Untimed host diagnostic for independent full-MLP tests; no private caches or
++// cursors are advanced. Production generation never calls this entry point.
++extern "C" int venturi_qwen_column_mlp_debug(void* h,int layer,const void* input,int t,void* output,void* activation,float* partials) {
++    try {vr::require(h && input && output && activation && partials,"null column MLP diagnostic operand");
++        auto& r=*static_cast<vr::Session*>(h);auto& m=*r.model;vr::Device device(m.c.device);
++        std::lock_guard<std::mutex> a(r.mutex),b(m.mutex);
++        vr::require(m.column_mlp_enabled && !r.failed && layer>=0 && layer<m.c.layers && t>0 && t<=m.c.max_tokens,"invalid column MLP diagnostic state/shape");
++        m.source();const auto half=m.c.intermediate/2,hidden=m.c.hidden;const auto bytes=vr::mul(vr::mul(t,hidden),2);
++        try {
++            check(cudaMemcpyAsync(r.p("mlp_norm"),input,bytes,cudaMemcpyHostToDevice,m.stream.ptr));
++            m.mlp(m.layers[layer],r.p("mlp_norm"),r.p("mlp_gate"),r.p("mlp_up"),r.p("projected"),t);
++            check(cudaMemcpyAsync(output,r.p("projected"),bytes,cudaMemcpyDeviceToHost,m.stream.ptr));
++            check(cudaMemcpy2DAsync(activation,m.c.intermediate*2ULL,r.p("mlp_gate"),half*2ULL,half*2ULL,t,cudaMemcpyDeviceToHost,m.stream.ptr));
++            check(cudaMemcpyAsync(partials,m.column_local.ptr,bytes*2,cudaMemcpyDeviceToHost,m.stream.ptr));
++            check(cudaMemcpyAsync(partials+vr::mul(t,hidden),m.column_remote.ptr,bytes*2,cudaMemcpyDeviceToHost,m.stream.ptr));m.sync();
++            {vr::Device peer(m.c.second_device);check(cudaMemcpy2DAsync(static_cast<char*>(activation)+half*2ULL,m.c.intermediate*2ULL,m.column_activation.ptr,half*2ULL,half*2ULL,t,cudaMemcpyDeviceToHost,m.second_stream.ptr));}m.sync();m.source();
++        }catch(...){r.failed=true;try{m.sync();}catch(...){}throw;}
++        return 0;
++    }catch(const std::exception& e){error_text=e.what();return -1;}
+ }
+ extern "C" int venturi_qwen_generate(void* h,const std::int64_t* prompt,int n,int maximum,const std::int64_t* eos,int eos_count,std::int64_t* tokens,int* count) {
+     const double begun=vr::native_clock();
+@@ -759,7 +891,7 @@
+ extern "C" int venturi_qwen_info(void* h,std::uint64_t* out) {
+     try { vr::require(h && out,"null native Qwen info");auto& s=*static_cast<vr::Session*>(h);auto& m=*s.model;
+         std::lock_guard<std::mutex> a(s.mutex),b(m.mutex);
+-        const std::uint64_t v[]={static_cast<std::uint64_t>(s.position),s.failed?1ULL:0ULL,m.device_bytes,s.device_bytes,m.stage_bytes+m.host_input.bytes+m.host_output.bytes,m.payload,m.uploaded,m.embedding_uploaded};
++        const std::uint64_t v[]={static_cast<std::uint64_t>(s.position),s.failed?1ULL:0ULL,m.device_bytes,s.device_bytes,m.stage_bytes+m.host_input.bytes+m.host_output.bytes+m.column_host.bytes,m.payload,m.uploaded,m.embedding_uploaded};
+         std::copy(v,v+8,out);return 0;
+     } catch (const std::exception& e) { error_text=e.what();return -1; }
+ }
+--- src/venturi/ops/csrc/qwen_batch.cuh (previous frozen)
++++ src/venturi/ops/csrc/qwen_batch.cuh (native column MLP)
+@@ -90,9 +90,8 @@
+             }
+             op(venturi_add_run(x,w.p("projected"),w.p("residual"),mul(n,c.hidden),c.dtype,stream));
+             op(venturi_rms_run(w.p("residual"),static_cast<const float*>(l.post),w.p("mlp_norm"),n,c.hidden,c.dtype,c.epsilon,stream));
+-            m.shared_linears(w.p("mlp_norm"),n,{{&l.matrix[4],w.p("mlp_gate")},{&l.matrix[5],w.p("mlp_up")}});
+-            op(venturi_swiglu_run(w.p("mlp_gate"),w.p("mlp_up"),w.p("mlp_gate"),mul(n,c.intermediate),c.dtype,stream));
+-            m.linear(l.matrix[6],w.p("mlp_gate"),w.p("projected"),n);op(venturi_add_run(w.p("residual"),w.p("projected"),out,mul(n,c.hidden),c.dtype,stream));
++            m.mlp(l,w.p("mlp_norm"),w.p("mlp_gate"),w.p("mlp_up"),w.p("projected"),n);
++            op(venturi_add_run(w.p("residual"),w.p("projected"),out,mul(n,c.hidden),c.dtype,stream));
+             std::swap(x,out);
+             for(const auto& segment:segments) {
+                 auto& request=*requests[segment.slot];

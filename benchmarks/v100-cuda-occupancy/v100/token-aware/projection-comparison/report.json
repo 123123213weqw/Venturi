@@ -1,0 +1,1786 @@
+{
+  "scope": "Matched Q8 projection-only tile ablation using real checkpoint matrices.\n\nAll libraries share the same immutable GPU Q8 planes and activation values.\nEvery candidate must match original output bytes before timing. Graph replay\namortizes Python launch overhead for this microbenchmark only; it does not imply\nwhole-model graph support. CUDA-event intervals include graph/timeline gaps and\nare not hardware-counter bandwidth or full-engine serving measurements.\n",
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "gpu": "Tesla V100-PCIE-32GB",
+  "dtype": "fp16",
+  "libraries": [
+    {
+      "name": "baseline",
+      "library": "/home/data/wangyue/repos/codex-build/Venturi/v100-pp-build/a0025ea463ceda9a/libventuri_blocks.so",
+      "sha256": "29c2a8cc614387a9029b1cfd16dc78ebd3d9524f4083e1293eea6ea21737e6d4"
+    },
+    {
+      "name": "prefill-only",
+      "library": "/home/wzu/codex-build/Venturi/v100-occupancy-prefill-v1/candidate/libventuri_blocks.so",
+      "sha256": "f64d8b6561751407f364cd510676e726d0085688d44ef990a9bc60740190898b"
+    }
+  ],
+  "graph_nodes": 5,
+  "graph_replays_per_wave": 5,
+  "warmup_replays": 3,
+  "decode_only": false,
+  "hardware_counters_available": false,
+  "cases": [
+    {
+      "shape": [
+        248320,
+        5120
+      ],
+      "role": "text/output_head",
+      "occurrences": 2,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.9065216064453123,
+          "wall_seconds": 0.07273188402177766,
+          "process_cpu_seconds": 0.07272699999999688
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.378671417236328,
+          "wall_seconds": 0.05951689404901117,
+          "process_cpu_seconds": 0.05956899999999976
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.4082432556152344,
+          "wall_seconds": 0.06025416200282052,
+          "process_cpu_seconds": 0.06025499999999795
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.9439987182617187,
+          "wall_seconds": 0.07365224801469594,
+          "process_cpu_seconds": 0.07371199999999867
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.9133197021484376,
+          "wall_seconds": 0.07287589699262753,
+          "process_cpu_seconds": 0.07291500000000006
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.3280857849121093,
+          "wall_seconds": 0.05824029998620972,
+          "process_cpu_seconds": 0.05823999999999785
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.428395538330078,
+          "wall_seconds": 0.06074643798638135,
+          "process_cpu_seconds": 0.060789000000001536
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.9297854614257814,
+          "wall_seconds": 0.0732827460160479,
+          "process_cpu_seconds": 0.07333999999999996
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 2.9215525817871093,
+        "prefill-only": 2.393457336425781
+      }
+    },
+    {
+      "shape": [
+        17408,
+        5120
+      ],
+      "role": "text/layers/63/mlp/up",
+      "occurrences": 128,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.21372928619384765,
+          "wall_seconds": 0.005392274993937463,
+          "process_cpu_seconds": 0.00538699999999892
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1740390396118164,
+          "wall_seconds": 0.0043852709932252765,
+          "process_cpu_seconds": 0.004386999999999475
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17494016647338867,
+          "wall_seconds": 0.0044215900124982,
+          "process_cpu_seconds": 0.004426000000000485
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.21417984008789062,
+          "wall_seconds": 0.005397410015575588,
+          "process_cpu_seconds": 0.00539799999999957
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.21336063385009765,
+          "wall_seconds": 0.005366048018913716,
+          "process_cpu_seconds": 0.005366999999999678
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17395711898803712,
+          "wall_seconds": 0.004379504011012614,
+          "process_cpu_seconds": 0.004379999999999384
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.174202880859375,
+          "wall_seconds": 0.004388259956613183,
+          "process_cpu_seconds": 0.004388999999999754
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.21331968307495117,
+          "wall_seconds": 0.005365996970795095,
+          "process_cpu_seconds": 0.005366999999999678
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.21354496002197265,
+        "prefill-only": 0.1741209602355957
+      }
+    },
+    {
+      "shape": [
+        17408,
+        5120
+      ],
+      "role": "text/layers/63/mlp/up",
+      "occurrences": 128,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.4666572952270508,
+          "wall_seconds": 0.01172726700315252,
+          "process_cpu_seconds": 0.0117219999999989
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.40792064666748046,
+          "wall_seconds": 0.010233448003418744,
+          "process_cpu_seconds": 0.010287999999999187
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.4077977752685547,
+          "wall_seconds": 0.010228927014395595,
+          "process_cpu_seconds": 0.010228999999998933
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.465715217590332,
+          "wall_seconds": 0.011674592038616538,
+          "process_cpu_seconds": 0.011674999999996771
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.4657139205932617,
+          "wall_seconds": 0.011673922999761999,
+          "process_cpu_seconds": 0.011673999999999296
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.40783870697021485,
+          "wall_seconds": 0.010228416009340435,
+          "process_cpu_seconds": 0.010228999999998933
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.40800254821777343,
+          "wall_seconds": 0.010233125009108335,
+          "process_cpu_seconds": 0.010232999999999493
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.46575614929199216,
+          "wall_seconds": 0.01167536003049463,
+          "process_cpu_seconds": 0.0116759999999978
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.4657356834411621,
+        "prefill-only": 0.4078796768188476
+      }
+    },
+    {
+      "shape": [
+        17408,
+        5120
+      ],
+      "role": "text/layers/63/mlp/up",
+      "occurrences": 128,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.1035391235351564,
+          "wall_seconds": 0.07770228199660778,
+          "process_cpu_seconds": 0.07774200000000064
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7178189086914064,
+          "wall_seconds": 0.06800059700617567,
+          "process_cpu_seconds": 0.06806799999999846
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7257650756835936,
+          "wall_seconds": 0.06818630901398137,
+          "process_cpu_seconds": 0.06818699999999822
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.1078399658203124,
+          "wall_seconds": 0.07773568504489958,
+          "process_cpu_seconds": 0.0777990000000024
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.0945703125,
+          "wall_seconds": 0.07740593398921192,
+          "process_cpu_seconds": 0.07746799999999965
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.689925231933594,
+          "wall_seconds": 0.06728644098620862,
+          "process_cpu_seconds": 0.06728600000000107
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.736988220214844,
+          "wall_seconds": 0.06846168398624286,
+          "process_cpu_seconds": 0.06852200000000153
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.105832824707031,
+          "wall_seconds": 0.0776811980176717,
+          "process_cpu_seconds": 0.0777429999999999
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 3.104685974121094,
+        "prefill-only": 2.7217919921875
+      }
+    },
+    {
+      "shape": [
+        5120,
+        17408
+      ],
+      "role": "text/layers/63/mlp/down",
+      "occurrences": 64,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.21340288162231447,
+          "wall_seconds": 0.005389383004512638,
+          "process_cpu_seconds": 0.0053849999999968645
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.176496639251709,
+          "wall_seconds": 0.004445562954060733,
+          "process_cpu_seconds": 0.004446000000001504
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17661951065063478,
+          "wall_seconds": 0.004449733009096235,
+          "process_cpu_seconds": 0.004450999999995986
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2128691291809082,
+          "wall_seconds": 0.005354175984393805,
+          "process_cpu_seconds": 0.005354000000004078
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.21295103073120117,
+          "wall_seconds": 0.00535677996231243,
+          "process_cpu_seconds": 0.0053569999999965034
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17604608535766603,
+          "wall_seconds": 0.004434337024576962,
+          "process_cpu_seconds": 0.004435000000000855
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1762508773803711,
+          "wall_seconds": 0.00443884200649336,
+          "process_cpu_seconds": 0.004440000000002442
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2127872085571289,
+          "wall_seconds": 0.006818556983489543,
+          "process_cpu_seconds": 0.00683000000000078
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.21291007995605468,
+        "prefill-only": 0.17637375831604005
+      }
+    },
+    {
+      "shape": [
+        5120,
+        17408
+      ],
+      "role": "text/layers/63/mlp/down",
+      "occurrences": 64,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.5677056121826172,
+          "wall_seconds": 0.014246329956222326,
+          "process_cpu_seconds": 0.014241000000001947
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.38670337677001954,
+          "wall_seconds": 0.00970252399565652,
+          "process_cpu_seconds": 0.00970299999999824
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3866214370727539,
+          "wall_seconds": 0.009700460999738425,
+          "process_cpu_seconds": 0.009700999999999738
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.5693849563598633,
+          "wall_seconds": 0.014267774997279048,
+          "process_cpu_seconds": 0.014267999999997727
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.571596794128418,
+          "wall_seconds": 0.01432192901847884,
+          "process_cpu_seconds": 0.014323000000004527
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.38195201873779294,
+          "wall_seconds": 0.009581388963852078,
+          "process_cpu_seconds": 0.009582000000001756
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3801497650146484,
+          "wall_seconds": 0.009534781973343343,
+          "process_cpu_seconds": 0.009535999999997102
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.5599641418457031,
+          "wall_seconds": 0.014030877966433764,
+          "process_cpu_seconds": 0.014032000000000266
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.5685452842712402,
+        "prefill-only": 0.3842867279052734
+      }
+    },
+    {
+      "shape": [
+        5120,
+        17408
+      ],
+      "role": "text/layers/63/mlp/down",
+      "occurrences": 64,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.615498352050781,
+          "wall_seconds": 0.09045062999939546,
+          "process_cpu_seconds": 0.0904689999999988
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.6911962890625,
+          "wall_seconds": 0.0673382090171799,
+          "process_cpu_seconds": 0.06741599999999792
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7565261840820314,
+          "wall_seconds": 0.06896440300624818,
+          "process_cpu_seconds": 0.06903099999999895
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.600177917480469,
+          "wall_seconds": 0.09004406101303175,
+          "process_cpu_seconds": 0.09012000000000242
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.4585394287109374,
+          "wall_seconds": 0.08650563296396285,
+          "process_cpu_seconds": 0.08630499999999941
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.6263156127929688,
+          "wall_seconds": 0.06569920899346471,
+          "process_cpu_seconds": 0.06576300000000046
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.782003173828125,
+          "wall_seconds": 0.06958822399610654,
+          "process_cpu_seconds": 0.06965699999999941
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.691231994628906,
+          "wall_seconds": 0.09231839998392388,
+          "process_cpu_seconds": 0.09237999999999857
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 3.607838134765625,
+        "prefill-only": 2.7238612365722656
+      }
+    },
+    {
+      "shape": [
+        10240,
+        5120
+      ],
+      "role": "text/layers/62/gdn/qkv",
+      "occurrences": 48,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12521471977233886,
+          "wall_seconds": 0.003183708991855383,
+          "process_cpu_seconds": 0.0031789999999993768
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.10215423583984375,
+          "wall_seconds": 0.0025874220300465822,
+          "process_cpu_seconds": 0.0025890000000003965
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.10223615646362305,
+          "wall_seconds": 0.002587299037259072,
+          "process_cpu_seconds": 0.0025879999999993686
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12492799758911133,
+          "wall_seconds": 0.003152428020257503,
+          "process_cpu_seconds": 0.0031530000000010716
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12488703727722168,
+          "wall_seconds": 0.003151784010697156,
+          "process_cpu_seconds": 0.0031520000000000437
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.10203136444091797,
+          "wall_seconds": 0.0025818360154516995,
+          "process_cpu_seconds": 0.0025830000000013342
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1021132755279541,
+          "wall_seconds": 0.0025828969664871693,
+          "process_cpu_seconds": 0.0025830000000013342
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12472319602966309,
+          "wall_seconds": 0.0034986499813385308,
+          "process_cpu_seconds": 0.003507999999996514
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.1249075174331665,
+        "prefill-only": 0.10213375568389893
+      }
+    },
+    {
+      "shape": [
+        10240,
+        5120
+      ],
+      "role": "text/layers/62/gdn/qkv",
+      "occurrences": 48,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2634137535095215,
+          "wall_seconds": 0.00664243201026693,
+          "process_cpu_seconds": 0.006637000000001336
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2287615966796875,
+          "wall_seconds": 0.0057528800098225474,
+          "process_cpu_seconds": 0.005753999999999593
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2285158348083496,
+          "wall_seconds": 0.00574654497904703,
+          "process_cpu_seconds": 0.0057469999999995025
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2628812789916992,
+          "wall_seconds": 0.006604456983041018,
+          "process_cpu_seconds": 0.006605000000000416
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2627993583679199,
+          "wall_seconds": 0.0066017130156978965,
+          "process_cpu_seconds": 0.006650000000000489
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2285977554321289,
+          "wall_seconds": 0.005746681010350585,
+          "process_cpu_seconds": 0.0057480000000005305
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.22847488403320312,
+          "wall_seconds": 0.005745616042986512,
+          "process_cpu_seconds": 0.0057459999999984746
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2628812789916992,
+          "wall_seconds": 0.006603515997994691,
+          "process_cpu_seconds": 0.006604000000002941
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.2628812789916992,
+        "prefill-only": 0.22855679512023924
+      }
+    },
+    {
+      "shape": [
+        10240,
+        5120
+      ],
+      "role": "text/layers/62/gdn/qkv",
+      "occurrences": 48,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.8047386169433595,
+          "wall_seconds": 0.04517802398186177,
+          "process_cpu_seconds": 0.0452300000000001
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.5844966125488282,
+          "wall_seconds": 0.03965063201030716,
+          "process_cpu_seconds": 0.03965000000000174
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.603706817626953,
+          "wall_seconds": 0.0401817390229553,
+          "process_cpu_seconds": 0.04011700000000218
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.8380799865722657,
+          "wall_seconds": 0.0459966579801403,
+          "process_cpu_seconds": 0.04604699999999795
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.8121932983398437,
+          "wall_seconds": 0.04534134897403419,
+          "process_cpu_seconds": 0.04533699999999996
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.5703245544433593,
+          "wall_seconds": 0.03929296997375786,
+          "process_cpu_seconds": 0.03936000000000206
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.6109567260742188,
+          "wall_seconds": 0.04030579701066017,
+          "process_cpu_seconds": 0.04030499999999648
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.8456576538085938,
+          "wall_seconds": 0.04618906299583614,
+          "process_cpu_seconds": 0.046277000000003454
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 1.8251366424560547,
+        "prefill-only": 1.5941017150878907
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "role": "text/layers/62/gdn/z",
+      "occurrences": 48,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07876607894897461,
+          "wall_seconds": 0.0020237889839336276,
+          "process_cpu_seconds": 0.002014000000002625
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06467584133148194,
+          "wall_seconds": 0.0016504930099472404,
+          "process_cpu_seconds": 0.0016519999999999868
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06463488101959229,
+          "wall_seconds": 0.0016454790020361543,
+          "process_cpu_seconds": 0.0016460000000009245
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0785203218460083,
+          "wall_seconds": 0.001991814002394676,
+          "process_cpu_seconds": 0.0019929999999988013
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07831552028656005,
+          "wall_seconds": 0.001986832998227328,
+          "process_cpu_seconds": 0.001986999999999739
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06471680164337158,
+          "wall_seconds": 0.0016471249982714653,
+          "process_cpu_seconds": 0.0016479999999994277
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06455296039581299,
+          "wall_seconds": 0.0016436810255981982,
+          "process_cpu_seconds": 0.0016439999999988686
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07839744091033936,
+          "wall_seconds": 0.001990459975786507,
+          "process_cpu_seconds": 0.001991000000003851
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.07845888137817383,
+        "prefill-only": 0.06465536117553711
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "role": "text/layers/62/gdn/z",
+      "occurrences": 48,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16265216827392578,
+          "wall_seconds": 0.004115962015930563,
+          "process_cpu_seconds": 0.0041099999999971715
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14024703979492187,
+          "wall_seconds": 0.0035410420387052,
+          "process_cpu_seconds": 0.003593999999999653
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14024703979492187,
+          "wall_seconds": 0.0035375700099393725,
+          "process_cpu_seconds": 0.003537999999998931
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16211967468261718,
+          "wall_seconds": 0.0040828800410963595,
+          "process_cpu_seconds": 0.004083000000001391
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1622015953063965,
+          "wall_seconds": 0.00408412900287658,
+          "process_cpu_seconds": 0.004084000000002419
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13991935729980468,
+          "wall_seconds": 0.00352733297040686,
+          "process_cpu_seconds": 0.0035270000000018342
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14012415885925292,
+          "wall_seconds": 0.003531171998474747,
+          "process_cpu_seconds": 0.0035310000000023933
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16211967468261718,
+          "wall_seconds": 0.0040958840399980545,
+          "process_cpu_seconds": 0.004096000000004096
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.16216063499450684,
+        "prefill-only": 0.1401855993270874
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "role": "text/layers/62/gdn/z",
+      "occurrences": 48,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0747904205322265,
+          "wall_seconds": 0.026926113991066813,
+          "process_cpu_seconds": 0.026921000000001527
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9331097412109375,
+          "wall_seconds": 0.023365878965705633,
+          "process_cpu_seconds": 0.023424999999999585
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9584639739990234,
+          "wall_seconds": 0.02399351599160582,
+          "process_cpu_seconds": 0.023993000000004372
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.1120639801025392,
+          "wall_seconds": 0.02783262700540945,
+          "process_cpu_seconds": 0.027831999999996526
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.10993408203125,
+          "wall_seconds": 0.02777860197238624,
+          "process_cpu_seconds": 0.027778999999998888
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9522380828857422,
+          "wall_seconds": 0.023839596018660814,
+          "process_cpu_seconds": 0.023900999999998618
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9462989044189453,
+          "wall_seconds": 0.023689766007009894,
+          "process_cpu_seconds": 0.02368900000000096
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.1021517181396485,
+          "wall_seconds": 0.02758341800654307,
+          "process_cpu_seconds": 0.02758400000000094
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 1.1060429000854493,
+        "prefill-only": 0.9492684936523437
+      }
+    },
+    {
+      "shape": [
+        5120,
+        6144
+      ],
+      "role": "text/layers/63/attention/o",
+      "occurrences": 64,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07868415832519532,
+          "wall_seconds": 0.0020147080067545176,
+          "process_cpu_seconds": 0.0020090000000010377
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06414336204528809,
+          "wall_seconds": 0.0016353389946743846,
+          "process_cpu_seconds": 0.0016359999999977504
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06463488101959229,
+          "wall_seconds": 0.0016467159730382264,
+          "process_cpu_seconds": 0.0016479999999994277
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07827455997467041,
+          "wall_seconds": 0.0019869180396199226,
+          "process_cpu_seconds": 0.0020469999999974675
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07831552028656005,
+          "wall_seconds": 0.0019877490121871233,
+          "process_cpu_seconds": 0.001988999999998242
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0642252779006958,
+          "wall_seconds": 0.0016342499875463545,
+          "process_cpu_seconds": 0.0016350000000002751
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0644710397720337,
+          "wall_seconds": 0.0016398999723605812,
+          "process_cpu_seconds": 0.0016409999999993374
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07815167903900147,
+          "wall_seconds": 0.0019818649743683636,
+          "process_cpu_seconds": 0.001981999999998152
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.07829504013061522,
+        "prefill-only": 0.06434815883636474
+      }
+    },
+    {
+      "shape": [
+        5120,
+        6144
+      ],
+      "role": "text/layers/63/attention/o",
+      "occurrences": 64,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1597439956665039,
+          "wall_seconds": 0.004041937994770706,
+          "process_cpu_seconds": 0.00403599999999571
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13803520202636718,
+          "wall_seconds": 0.0034813840175047517,
+          "process_cpu_seconds": 0.0034819999999982088
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13803520202636718,
+          "wall_seconds": 0.0034791840007528663,
+          "process_cpu_seconds": 0.0034799999999997056
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15949824333190918,
+          "wall_seconds": 0.004019272979348898,
+          "process_cpu_seconds": 0.004020000000000579
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15962112426757813,
+          "wall_seconds": 0.004020396969281137,
+          "process_cpu_seconds": 0.004020000000000579
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13791232109069823,
+          "wall_seconds": 0.003476901038084179,
+          "process_cpu_seconds": 0.0034780000000012024
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13791232109069823,
+          "wall_seconds": 0.003476089972537011,
+          "process_cpu_seconds": 0.0034759999999991464
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15958016395568847,
+          "wall_seconds": 0.004017983039375395,
+          "process_cpu_seconds": 0.004019000000003103
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.1596006441116333,
+        "prefill-only": 0.1379737615585327
+      }
+    },
+    {
+      "shape": [
+        5120,
+        6144
+      ],
+      "role": "text/layers/63/attention/o",
+      "occurrences": 64,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0532864379882811,
+          "wall_seconds": 0.026390883955173194,
+          "process_cpu_seconds": 0.026447000000000997
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9204940795898438,
+          "wall_seconds": 0.02304727298906073,
+          "process_cpu_seconds": 0.023047000000001816
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9388851165771485,
+          "wall_seconds": 0.023503792006522417,
+          "process_cpu_seconds": 0.02350399999999908
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0885529327392578,
+          "wall_seconds": 0.027243428048677742,
+          "process_cpu_seconds": 0.027242999999998574
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0880614471435548,
+          "wall_seconds": 0.027233266038820148,
+          "process_cpu_seconds": 0.027291999999999206
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.948305892944336,
+          "wall_seconds": 0.02373911702306941,
+          "process_cpu_seconds": 0.023740000000000094
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9485107421875,
+          "wall_seconds": 0.02374141599284485,
+          "process_cpu_seconds": 0.023741000000004675
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0855628967285156,
+          "wall_seconds": 0.02716804703231901,
+          "process_cpu_seconds": 0.027167999999999637
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 1.0868121719360353,
+        "prefill-only": 0.9435955047607423
+      }
+    },
+    {
+      "shape": [
+        12288,
+        5120
+      ],
+      "role": "text/layers/63/attention/q",
+      "occurrences": 16,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14721023559570312,
+          "wall_seconds": 0.0037310690386220813,
+          "process_cpu_seconds": 0.003725000000002865
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12005375862121583,
+          "wall_seconds": 0.0030331560410559177,
+          "process_cpu_seconds": 0.003033999999999537
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12013567924499512,
+          "wall_seconds": 0.0030321439844556153,
+          "process_cpu_seconds": 0.0030320000000045866
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14700544357299805,
+          "wall_seconds": 0.003703163005411625,
+          "process_cpu_seconds": 0.0037039999999990414
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14684160232543944,
+          "wall_seconds": 0.0037022699834778905,
+          "process_cpu_seconds": 0.0036350000000027194
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12025856018066407,
+          "wall_seconds": 0.0030369580490514636,
+          "process_cpu_seconds": 0.0030369999999990682
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.11988991737365723,
+          "wall_seconds": 0.003033134969882667,
+          "process_cpu_seconds": 0.003033999999999537
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14692352294921876,
+          "wall_seconds": 0.003701788024045527,
+          "process_cpu_seconds": 0.003703000000001566
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.1469644832611084,
+        "prefill-only": 0.12009471893310547
+      }
+    },
+    {
+      "shape": [
+        12288,
+        5120
+      ],
+      "role": "text/layers/63/attention/q",
+      "occurrences": 16,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3111731147766113,
+          "wall_seconds": 0.00782863498898223,
+          "process_cpu_seconds": 0.007822999999998359
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2705817604064941,
+          "wall_seconds": 0.00679436803329736,
+          "process_cpu_seconds": 0.006793999999999301
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.27054079055786134,
+          "wall_seconds": 0.006793703010771424,
+          "process_cpu_seconds": 0.006793999999999301
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.31080448150634765,
+          "wall_seconds": 0.007803901971783489,
+          "process_cpu_seconds": 0.007804000000000144
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3107635116577148,
+          "wall_seconds": 0.007801597996149212,
+          "process_cpu_seconds": 0.007849000000000217
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.27078655242919925,
+          "wall_seconds": 0.006800585018936545,
+          "process_cpu_seconds": 0.006801000000002944
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.27037696838378905,
+          "wall_seconds": 0.006789120030589402,
+          "process_cpu_seconds": 0.006789000000001266
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3107635116577148,
+          "wall_seconds": 0.007797750004101545,
+          "process_cpu_seconds": 0.007798000000001082
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.31078399658203126,
+        "prefill-only": 0.27056127548217773
+      }
+    },
+    {
+      "shape": [
+        12288,
+        5120
+      ],
+      "role": "text/layers/63/attention/q",
+      "occurrences": 16,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.1821849060058596,
+          "wall_seconds": 0.05462446599267423,
+          "process_cpu_seconds": 0.054697000000000884
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.9059507751464844,
+          "wall_seconds": 0.047686388017609715,
+          "process_cpu_seconds": 0.047685999999998785
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.9271270751953125,
+          "wall_seconds": 0.04821596102556214,
+          "process_cpu_seconds": 0.04826100000000366
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.197831726074219,
+          "wall_seconds": 0.05497849202947691,
+          "process_cpu_seconds": 0.05497700000000094
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.190417938232422,
+          "wall_seconds": 0.05479418899631128,
+          "process_cpu_seconds": 0.054838000000000164
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.9156991577148437,
+          "wall_seconds": 0.04792679799720645,
+          "process_cpu_seconds": 0.047927000000001385
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.9156172180175781,
+          "wall_seconds": 0.047922990983352065,
+          "process_cpu_seconds": 0.04796899999999482
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.1996339416503905,
+          "wall_seconds": 0.055027073016390204,
+          "process_cpu_seconds": 0.055072000000002674
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 2.1941248321533204,
+        "prefill-only": 1.915658187866211
+      }
+    },
+    {
+      "shape": [
+        1024,
+        5120
+      ],
+      "role": "text/layers/63/attention/v",
+      "occurrences": 32,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.01597440004348755,
+          "wall_seconds": 0.0004456000169739127,
+          "process_cpu_seconds": 0.00044100000000213413
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.014909440279006958,
+          "wall_seconds": 0.0004018459585495293,
+          "process_cpu_seconds": 0.0004020000000011237
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.014827519655227661,
+          "wall_seconds": 0.00039907603058964014,
+          "process_cpu_seconds": 0.0003990000000015925
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.01572864055633545,
+          "wall_seconds": 0.0004212050116620958,
+          "process_cpu_seconds": 0.0004220000000003665
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.015646719932556154,
+          "wall_seconds": 0.00041938701178878546,
+          "process_cpu_seconds": 0.0004199999999983106
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.014827519655227661,
+          "wall_seconds": 0.0003978610038757324,
+          "process_cpu_seconds": 0.0003990000000015925
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.014786560535430909,
+          "wall_seconds": 0.0003980320179834962,
+          "process_cpu_seconds": 0.00039799999999701186
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0156876802444458,
+          "wall_seconds": 0.00041887903353199363,
+          "process_cpu_seconds": 0.00041900000000083537
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.015708160400390622,
+        "prefill-only": 0.014827519655227661
+      }
+    },
+    {
+      "shape": [
+        1024,
+        5120
+      ],
+      "role": "text/layers/63/attention/v",
+      "occurrences": 32,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.030392320156097413,
+          "wall_seconds": 0.000806350028142333,
+          "process_cpu_seconds": 0.0008009999999991635
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.027402238845825197,
+          "wall_seconds": 0.00071763398591429,
+          "process_cpu_seconds": 0.0007179999999991082
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.027443199157714843,
+          "wall_seconds": 0.0007164929993450642,
+          "process_cpu_seconds": 0.0007179999999991082
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.030105600357055663,
+          "wall_seconds": 0.0007822460029274225,
+          "process_cpu_seconds": 0.0007830000000019766
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.02998271942138672,
+          "wall_seconds": 0.0007785740308463573,
+          "process_cpu_seconds": 0.0007790000000014174
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.027402238845825197,
+          "wall_seconds": 0.0007126430282369256,
+          "process_cpu_seconds": 0.0007129999999975212
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.02732032060623169,
+          "wall_seconds": 0.0007108509889803827,
+          "process_cpu_seconds": 0.000710999999999018
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.030064640045166017,
+          "wall_seconds": 0.0007832599803805351,
+          "process_cpu_seconds": 0.0007839999999994518
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.03008512020111084,
+        "prefill-only": 0.027402238845825197
+      }
+    },
+    {
+      "shape": [
+        1024,
+        5120
+      ],
+      "role": "text/layers/63/attention/v",
+      "occurrences": 32,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17092607498168946,
+          "wall_seconds": 0.0043239909573458135,
+          "process_cpu_seconds": 0.004318000000001376
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15835007667541504,
+          "wall_seconds": 0.003988177981227636,
+          "process_cpu_seconds": 0.0039879999999996585
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15843328475952148,
+          "wall_seconds": 0.003992752986960113,
+          "process_cpu_seconds": 0.0039940000000022735
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1716223907470703,
+          "wall_seconds": 0.0043220160296186805,
+          "process_cpu_seconds": 0.004374999999999574
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17129472732543946,
+          "wall_seconds": 0.0043133399449288845,
+          "process_cpu_seconds": 0.00431599999999932
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15831040382385253,
+          "wall_seconds": 0.0039865170256234705,
+          "process_cpu_seconds": 0.003985999999997603
+        },
+        {
+          "name": "prefill-only",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1581875228881836,
+          "wall_seconds": 0.00398585299262777,
+          "process_cpu_seconds": 0.003985999999997603
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17129472732543946,
+          "wall_seconds": 0.0043112149578519166,
+          "process_cpu_seconds": 0.004310999999997733
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.17129472732543946,
+        "prefill-only": 0.15833024024963377
+      }
+    }
+  ],
+  "completed": true
+}

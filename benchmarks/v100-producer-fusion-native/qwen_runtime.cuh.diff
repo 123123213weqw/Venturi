@@ -1,0 +1,40 @@
+--- benchmarks/v100-producer-fusion-native/pre-edit/src/venturi/ops/csrc/qwen_runtime.cuh	2026-10-21 22:01:11
++++ src/venturi/ops/csrc/qwen_runtime.cuh	2026-10-22 13:09:50
+@@ -431,7 +431,7 @@
+         }
+         source();
+     }
+-    void mlp(const VRLayer& l,const void* x,void* gate,void* up,void* out,int t) {
++    void mlp(const VRLayer& l,const void* x,void* gate,void* up,void* out,int t,bool materialize=false) {
+         if(!column_mlp_enabled) {
+             shared_linears(x,t,{{&l.matrix[4],gate},{&l.matrix[5],up}});
+             op(venturi_swiglu_run(gate,up,gate,mul(t,c.intermediate),c.dtype,stream.ptr));
+@@ -457,8 +457,7 @@
+             }
+             op(venturi_q8_dp4a_quantize(second_input.ptr,second_quant.ptr,second_quant.bytes,t,c.hidden,2,second_stream.ptr));
+             op(vprojection::fused(second_quant.ptr,second_quant.bytes,peer,2,t,c.hidden,padded(l.matrix[4]),2,second_stream.ptr));
+-            op(venturi_swiglu_run(column_gu.ptr,column_gu.at(half_bytes),column_activation.ptr,mul(t,half),0,second_stream.ptr));
+-            op(venturi_q8_dp4a_quantize(column_activation.ptr,second_quant.ptr,second_quant.bytes,t,half,2,second_stream.ptr));
++            op(vproducer::run(column_gu.ptr,column_gu.at(half_bytes),column_activation.ptr,second_quant.ptr,second_quant.bytes,t,half,second_stream.ptr,materialize));
+             const auto& b=*second_weights.at(local.offset);
+             op(vprojection::partial(second_quant.ptr,second_quant.bytes,static_cast<const std::int8_t*>(b.ptr),reinterpret_cast<const __half*>(b.at(plane(local,local.n))),static_cast<float*>(column_peer.ptr),t,c.hidden,half,padded(local),second_stream.ptr));
+             check(cudaMemcpyAsync(column_host.ptr,column_peer.ptr,partial_bytes,cudaMemcpyDeviceToHost,second_stream.ptr));
+@@ -466,8 +465,7 @@
+         }
+         op(venturi_q8_dp4a_quantize(x,first_quant.ptr,first_quant.bytes,t,c.hidden,2,stream.ptr));
+         op(vprojection::fused(first_quant.ptr,first_quant.bytes,first,2,t,c.hidden,padded(l.matrix[4]),2,stream.ptr));
+-        op(venturi_swiglu_run(gate,up,gate,mul(t,half),0,stream.ptr));
+-        op(venturi_q8_dp4a_quantize(gate,first_quant.ptr,first_quant.bytes,t,half,2,stream.ptr));
++        op(vproducer::run(gate,up,gate,first_quant.ptr,first_quant.bytes,t,half,stream.ptr,materialize));
+         op(vprojection::partial(first_quant.ptr,first_quant.bytes,static_cast<const std::int8_t*>(down.ptr),reinterpret_cast<const __half*>(down.at(plane(local,local.n))),static_cast<float*>(column_local.ptr),t,c.hidden,half,padded(local),stream.ptr));
+         check(cudaStreamWaitEvent(stream.ptr,second_ready.ptr,0));
+         check(cudaMemcpyAsync(column_remote.ptr,column_host.ptr,partial_bytes,cudaMemcpyHostToDevice,stream.ptr));
+@@ -917,7 +915,7 @@
+         m.source();const auto half=m.c.intermediate/2,hidden=m.c.hidden;const auto bytes=vr::mul(vr::mul(t,hidden),2);
+         try {
+             check(cudaMemcpyAsync(r.p("mlp_norm"),input,bytes,cudaMemcpyHostToDevice,m.stream.ptr));
+-            m.mlp(m.layers[layer],r.p("mlp_norm"),r.p("mlp_gate"),r.p("mlp_up"),r.p("projected"),t);
++            m.mlp(m.layers[layer],r.p("mlp_norm"),r.p("mlp_gate"),r.p("mlp_up"),r.p("projected"),t,true);
+             check(cudaMemcpyAsync(output,r.p("projected"),bytes,cudaMemcpyDeviceToHost,m.stream.ptr));
+             check(cudaMemcpy2DAsync(activation,m.c.intermediate*2ULL,r.p("mlp_gate"),half*2ULL,half*2ULL,t,cudaMemcpyDeviceToHost,m.stream.ptr));
+             check(cudaMemcpyAsync(partials,m.column_local.ptr,bytes*2,cudaMemcpyDeviceToHost,m.stream.ptr));

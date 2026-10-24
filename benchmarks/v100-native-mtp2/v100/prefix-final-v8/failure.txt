@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/home/data/wangyue/artifacts/venturi-native-mtp2-prefix-final-v8/worker.py", line 19, in <module>
+    pid=json.loads((gate/'process.json').read_text())['pid'];cmdline=pathlib.Path(f'/proc/{pid}/cmdline');assert cmdline.exists() and str(gate/'worker.py').encode() in cmdline.read_bytes(),'Pinned predecessor absent';assert time.monotonic()<deadline,'Bounded predecessor wait elapsed';time.sleep(10)
+AssertionError: Pinned predecessor absent

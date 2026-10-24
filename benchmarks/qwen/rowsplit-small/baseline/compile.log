@@ -1,0 +1,446 @@
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=17408, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 121 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=17408, TokenTiles=1, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 170 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=17408, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 124 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=17408, TokenTiles=1, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 170 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=17408, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 121 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=17408, TokenTiles=2, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 172 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=17408, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 124 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=17408, TokenTiles=2, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 172 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=6144, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 121 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=6144, TokenTiles=1, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 176 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=6144, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 124 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=6144, TokenTiles=1, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 176 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=6144, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 121 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=6144, TokenTiles=2, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 178 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=6144, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 124 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=6144, TokenTiles=2, Epilogue=ninfer::ops::detail::AdaNormHandoffResidualEpilogue]" at line 178 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=17408, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 121 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=17408, TokenTiles=1, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 148 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada<K,TokenTiles>(const ninfer::Tensor &, const ninfer::Weight &, ninfer::Tensor &, cudaStream_t) [with K=17408, TokenTiles=1]" at line 191 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=17408, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 124 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=17408, TokenTiles=1, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 148 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada<K,TokenTiles>(const ninfer::Tensor &, const ninfer::Weight &, ninfer::Tensor &, cudaStream_t) [with K=17408, TokenTiles=1]" at line 191 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=17408, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 121 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=17408, TokenTiles=2, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 148 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada<K,TokenTiles>(const ninfer::Tensor &, const ninfer::Weight &, ninfer::Tensor &, cudaStream_t) [with K=17408, TokenTiles=2]" at line 192 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=17408, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=17408, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 124 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=17408, TokenTiles=2, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 148 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada<K,TokenTiles>(const ninfer::Tensor &, const ninfer::Weight &, ninfer::Tensor &, cudaStream_t) [with K=17408, TokenTiles=2]" at line 192 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 1, 8, 3, true, true>, K=6144, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 121 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=6144, TokenTiles=1, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 148 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada<K,TokenTiles>(const ninfer::Tensor &, const ninfer::Weight &, ninfer::Tensor &, cudaStream_t) [with K=6144, TokenTiles=1]" at line 200 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 1, 8, 3, true, true>, K=6144, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 124 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=6144, TokenTiles=1, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 148 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada<K,TokenTiles>(const ninfer::Tensor &, const ninfer::Weight &, ninfer::Tensor &, cudaStream_t) [with K=6144, TokenTiles=1]" at line 200 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3Odd, 5, 8, 2, 8, 3, true, true>, K=6144, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 121 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=6144, TokenTiles=2, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 148 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada<K,TokenTiles>(const ninfer::Tensor &, const ninfer::Weight &, ninfer::Tensor &, cudaStream_t) [with K=6144, TokenTiles=2]" at line 201 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+/home/test/wangyue/engine/src/ops/linear/ada_small_t_mma.cuh(246): warning #128-D: loop is not reachable
+          for (int i = tid; i < kRows * kCodeChunks; i += S::kThreads) {
+          ^
+          detected during:
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_cta<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, const Epilogue &, int, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 503
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_kernel<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, Epilogue, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 564
+            instantiation of "void ninfer::ops::detail::ada_small_t_mma_launch<S,K,RowMap,Epilogue>(const __nv_bfloat16 *, int32_t, const uint8_t *, const uint8_t *, const uint8_t *, int32_t, int32_t, Epilogue, cudaStream_t, const float *) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=6144, RowMap=ninfer::ops::detail::AdaContiguousRows, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 96 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_q3<S,K,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with S=ninfer::ops::detail::AdaSmallTSchedule<ninfer::ops::detail::AdaWeightFormat::Q3, 5, 8, 2, 8, 3, true, true>, K=6144, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 124 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada_with<K,TokenTiles,Epilogue>(const ninfer::Tensor &, const ninfer::Weight &, const Epilogue &, cudaStream_t) [with K=6144, TokenTiles=2, Epilogue=ninfer::ops::detail::<unnamed>::AdaResidualEpilogue]" at line 148 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+            instantiation of "void ninfer::ops::detail::<unnamed>::launch_ada<K,TokenTiles>(const ninfer::Tensor &, const ninfer::Weight &, ninfer::Tensor &, cudaStream_t) [with K=6144, TokenTiles=2]" at line 201 of /home/test/wangyue/venturi-work/qwen/rowsplit-small/baseline/q4_linear_add.cu
+
+ptxas info    : 0 bytes gmem
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail20q4_ksplit_mma_kernelINS1_16Q4LinearGeometryILi5120ELi6144EEELi32ELi32ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b22KSplitResidualEpilogueENS1_20Q4KSplitIdentityRowsELb1ELi1ELi1ELi8ELi1ELi6EEEvPK13__nv_bfloat16PKhSC_PS8_T2_T3_i' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail20q4_ksplit_mma_kernelINS1_16Q4LinearGeometryILi5120ELi6144EEELi32ELi32ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b22KSplitResidualEpilogueENS1_20Q4KSplitIdentityRowsELb1ELi1ELi1ELi8ELi1ELi6EEEvPK13__nv_bfloat16PKhSC_PS8_T2_T3_i
+    136 bytes stack frame, 772 bytes spill stores, 812 bytes spill loads
+ptxas info    : Used 40 registers, used 1 barriers, 136 bytes cumulative stack size, 37120 bytes smem, 408 bytes cmem[0]
+ptxas info    : Compile time = 276.824 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail20q4_ksplit_mma_kernelINS1_16Q4LinearGeometryILi5120ELi6144EEELi24ELi24ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b22KSplitResidualEpilogueENS1_20Q4KSplitIdentityRowsELb1ELi1ELi1ELi8ELi1ELi6EEEvPK13__nv_bfloat16PKhSC_PS8_T2_T3_i' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail20q4_ksplit_mma_kernelINS1_16Q4LinearGeometryILi5120ELi6144EEELi24ELi24ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b22KSplitResidualEpilogueENS1_20Q4KSplitIdentityRowsELb1ELi1ELi1ELi8ELi1ELi6EEEvPK13__nv_bfloat16PKhSC_PS8_T2_T3_i
+    104 bytes stack frame, 416 bytes spill stores, 564 bytes spill loads
+ptxas info    : Used 40 registers, used 1 barriers, 104 bytes cumulative stack size, 28928 bytes smem, 408 bytes cmem[0]
+ptxas info    : Compile time = 260.643 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail20q4_ksplit_mma_kernelINS1_16Q4LinearGeometryILi5120ELi6144EEELi16ELi16ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b22KSplitResidualEpilogueENS1_20Q4KSplitIdentityRowsELb1ELi1ELi1ELi8ELi1ELi6EEEvPK13__nv_bfloat16PKhSC_PS8_T2_T3_i' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail20q4_ksplit_mma_kernelINS1_16Q4LinearGeometryILi5120ELi6144EEELi16ELi16ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b22KSplitResidualEpilogueENS1_20Q4KSplitIdentityRowsELb1ELi1ELi1ELi8ELi1ELi6EEEvPK13__nv_bfloat16PKhSC_PS8_T2_T3_i
+    88 bytes stack frame, 144 bytes spill stores, 624 bytes spill loads
+ptxas info    : Used 40 registers, used 1 barriers, 88 bytes cumulative stack size, 20736 bytes smem, 408 bytes cmem[0]
+ptxas info    : Compile time = 212.834 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail20q4_ksplit_mma_kernelINS1_16Q4LinearGeometryILi5120ELi6144EEELi8ELi8ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b22KSplitResidualEpilogueENS1_20Q4KSplitIdentityRowsELb1ELi1ELi1ELi8ELi1ELi6EEEvPK13__nv_bfloat16PKhSC_PS8_T2_T3_i' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail20q4_ksplit_mma_kernelINS1_16Q4LinearGeometryILi5120ELi6144EEELi8ELi8ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b22KSplitResidualEpilogueENS1_20Q4KSplitIdentityRowsELb1ELi1ELi1ELi8ELi1ELi6EEEvPK13__nv_bfloat16PKhSC_PS8_T2_T3_i
+    8 bytes stack frame, 4 bytes spill stores, 40 bytes spill loads
+ptxas info    : Used 40 registers, used 1 barriers, 8 bytes cumulative stack size, 12544 bytes smem, 408 bytes cmem[0]
+ptxas info    : Compile time = 227.579 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail20q4_ksplit_mma_kernelINS1_16Q4LinearGeometryILi5120ELi6144EEELi8ELi4ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b22KSplitResidualEpilogueENS1_20Q4KSplitIdentityRowsELb1ELi1ELi1ELi8ELi1ELi6EEEvPK13__nv_bfloat16PKhSC_PS8_T2_T3_i' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail20q4_ksplit_mma_kernelINS1_16Q4LinearGeometryILi5120ELi6144EEELi8ELi4ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b22KSplitResidualEpilogueENS1_20Q4KSplitIdentityRowsELb1ELi1ELi1ELi8ELi1ELi6EEEvPK13__nv_bfloat16PKhSC_PS8_T2_T3_i
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 40 registers, used 1 barriers, 12544 bytes smem, 408 bytes cmem[0]
+ptxas info    : Compile time = 218.727 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi2ELi8ELi2ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi2ELi8ELi2ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 1 barriers, 424 bytes cmem[0]
+ptxas info    : Compile time = 60.322 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 119 registers, used 1 barriers, 424 bytes cmem[0]
+ptxas info    : Compile time = 115.092 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 108 registers, used 1 barriers, 424 bytes cmem[0]
+ptxas info    : Compile time = 97.529 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 122 registers, used 1 barriers, 424 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 110.422 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 114 registers, used 1 barriers, 424 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 93.649 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi2ELi8ELi1ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi2ELi8ELi1ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 72 registers, used 1 barriers, 424 bytes cmem[0]
+ptxas info    : Compile time = 54.261 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 1 barriers, 424 bytes cmem[0]
+ptxas info    : Compile time = 106.872 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 1 barriers, 424 bytes cmem[0]
+ptxas info    : Compile time = 92.144 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 1 barriers, 424 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 112.316 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 1 barriers, 424 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 89.522 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail23q4_rowsplit_gemv_kernelINS1_22Q4RowSplitGemvScheduleILi1ELi8ELi16ELi1ELNS1_22Q4GemvActivationAccessE0ELNS1_17Q4GemvLaneMappingE0ELNS1_16Q4GemvDecodeModeE0ELNS1_18Q4GemvCodeTransferE0ELNS1_17Q4GemvScaleAccessE0ELNS0_5CacheE0ELi96ELi1EEELb0ELi0ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b20GemvResidualEpilogueELb0ELb0EEEvPK13__nv_bfloat16PKhSH_PSD_SI_iiT2_' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail23q4_rowsplit_gemv_kernelINS1_22Q4RowSplitGemvScheduleILi1ELi8ELi16ELi1ELNS1_22Q4GemvActivationAccessE0ELNS1_17Q4GemvLaneMappingE0ELNS1_16Q4GemvDecodeModeE0ELNS1_18Q4GemvCodeTransferE0ELNS1_17Q4GemvScaleAccessE0ELNS0_5CacheE0ELi96ELi1EEELb0ELi0ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b20GemvResidualEpilogueELb0ELb0EEEvPK13__nv_bfloat16PKhSH_PSD_SI_iiT2_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 32 registers, used 1 barriers, 4128 bytes smem, 401 bytes cmem[0]
+ptxas info    : Compile time = 16.286 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail27q4_rowsplit_gemm_mma_kernelINS1_25Q4RowSplitMmaGemmScheduleILi64ELi128ELi64ELi64ELi32ELi2ELi1ELNS1_18Q4FragmentPipelineE0ELNS0_5CacheE1ELS5_1ELNS1_11Q4ScaleLoadE1EEELb0ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b16ResidualEpilogueEEEvPK13__nv_bfloat16PKhSE_PSA_iiiiT1_' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail27q4_rowsplit_gemm_mma_kernelINS1_25Q4RowSplitMmaGemmScheduleILi64ELi128ELi64ELi64ELi32ELi2ELi1ELNS1_18Q4FragmentPipelineE0ELNS0_5CacheE1ELS5_1ELNS1_11Q4ScaleLoadE1EEELb0ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b16ResidualEpilogueEEEvPK13__nv_bfloat16PKhSE_PSA_iiiiT1_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 154 registers, used 1 barriers, 45568 bytes smem, 401 bytes cmem[0]
+ptxas info    : Compile time = 81.269 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail27q4_rowsplit_gemm_mma_kernelINS1_25Q4RowSplitMmaGemmScheduleILi64ELi128ELi64ELi64ELi32ELi2ELi1ELNS1_18Q4FragmentPipelineE0ELNS0_5CacheE1ELS5_1ELNS1_11Q4ScaleLoadE1EEELb1ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b16ResidualEpilogueEEEvPK13__nv_bfloat16PKhSE_PSA_iiiiT1_' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail27q4_rowsplit_gemm_mma_kernelINS1_25Q4RowSplitMmaGemmScheduleILi64ELi128ELi64ELi64ELi32ELi2ELi1ELNS1_18Q4FragmentPipelineE0ELNS0_5CacheE1ELS5_1ELNS1_11Q4ScaleLoadE1EEELb1ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b16ResidualEpilogueEEEvPK13__nv_bfloat16PKhSE_PSA_iiiiT1_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 147 registers, used 1 barriers, 45568 bytes smem, 401 bytes cmem[0]
+ptxas info    : Compile time = 66.437 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail27q4_rowsplit_gemm_mma_kernelINS1_25Q4RowSplitMmaGemmScheduleILi32ELi64ELi64ELi16ELi32ELi3ELi2ELNS1_18Q4FragmentPipelineE0ELNS0_5CacheE1ELS5_1ELNS1_11Q4ScaleLoadE1EEELb0ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b16ResidualEpilogueEEEvPK13__nv_bfloat16PKhSE_PSA_iiiiT1_' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail27q4_rowsplit_gemm_mma_kernelINS1_25Q4RowSplitMmaGemmScheduleILi32ELi64ELi64ELi16ELi32ELi3ELi2ELNS1_18Q4FragmentPipelineE0ELNS0_5CacheE1ELS5_1ELNS1_11Q4ScaleLoadE1EEELb0ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b16ResidualEpilogueEEEvPK13__nv_bfloat16PKhSE_PSA_iiiiT1_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 71 registers, used 1 barriers, 32128 bytes smem, 401 bytes cmem[0]
+ptxas info    : Compile time = 46.493 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail27q4_rowsplit_gemm_mma_kernelINS1_25Q4RowSplitMmaGemmScheduleILi32ELi64ELi64ELi16ELi32ELi3ELi2ELNS1_18Q4FragmentPipelineE0ELNS0_5CacheE1ELS5_1ELNS1_11Q4ScaleLoadE1EEELb1ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b16ResidualEpilogueEEEvPK13__nv_bfloat16PKhSE_PSA_iiiiT1_' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail27q4_rowsplit_gemm_mma_kernelINS1_25Q4RowSplitMmaGemmScheduleILi32ELi64ELi64ELi16ELi32ELi3ELi2ELNS1_18Q4FragmentPipelineE0ELNS0_5CacheE1ELS5_1ELNS1_11Q4ScaleLoadE1EEELb1ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b16ResidualEpilogueEEEvPK13__nv_bfloat16PKhSE_PSA_iiiiT1_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 70 registers, used 1 barriers, 32128 bytes smem, 401 bytes cmem[0]
+ptxas info    : Compile time = 37.708 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail27q4_rowsplit_gemm_mma_kernelINS1_25Q4RowSplitMmaGemmScheduleILi32ELi32ELi64ELi16ELi16ELi3ELi2ELNS1_18Q4FragmentPipelineE0ELNS0_5CacheE1ELS5_1ELNS1_11Q4ScaleLoadE1EEELb0ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b16ResidualEpilogueEEEvPK13__nv_bfloat16PKhSE_PSA_iiiiT1_' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail27q4_rowsplit_gemm_mma_kernelINS1_25Q4RowSplitMmaGemmScheduleILi32ELi32ELi64ELi16ELi16ELi3ELi2ELNS1_18Q4FragmentPipelineE0ELNS0_5CacheE1ELS5_1ELNS1_11Q4ScaleLoadE1EEELb0ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b16ResidualEpilogueEEEvPK13__nv_bfloat16PKhSE_PSA_iiiiT1_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 56 registers, used 1 barriers, 19840 bytes smem, 401 bytes cmem[0]
+ptxas info    : Compile time = 38.705 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail27q4_rowsplit_gemm_mma_kernelINS1_25Q4RowSplitMmaGemmScheduleILi32ELi32ELi64ELi16ELi16ELi3ELi2ELNS1_18Q4FragmentPipelineE0ELNS0_5CacheE1ELS5_1ELNS1_11Q4ScaleLoadE1EEELb1ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b16ResidualEpilogueEEEvPK13__nv_bfloat16PKhSE_PSA_iiiiT1_' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail27q4_rowsplit_gemm_mma_kernelINS1_25Q4RowSplitMmaGemmScheduleILi32ELi32ELi64ELi16ELi16ELi3ELi2ELNS1_18Q4FragmentPipelineE0ELNS0_5CacheE1ELS5_1ELNS1_11Q4ScaleLoadE1EEELb1ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b16ResidualEpilogueEEEvPK13__nv_bfloat16PKhSE_PSA_iiiiT1_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 56 registers, used 1 barriers, 19840 bytes smem, 401 bytes cmem[0]
+ptxas info    : Compile time = 32.300 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail20q4_ksplit_mma_kernelINS1_16Q4LinearGeometryILi5120ELi17408EEELi32ELi32ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b22KSplitResidualEpilogueENS1_20Q4KSplitIdentityRowsELb1ELi1ELi1ELi8ELi1ELi6EEEvPK13__nv_bfloat16PKhSC_PS8_T2_T3_i' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail20q4_ksplit_mma_kernelINS1_16Q4LinearGeometryILi5120ELi17408EEELi32ELi32ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b22KSplitResidualEpilogueENS1_20Q4KSplitIdentityRowsELb1ELi1ELi1ELi8ELi1ELi6EEEvPK13__nv_bfloat16PKhSC_PS8_T2_T3_i
+    128 bytes stack frame, 2272 bytes spill stores, 2464 bytes spill loads
+ptxas info    : Used 40 registers, used 1 barriers, 128 bytes cumulative stack size, 37120 bytes smem, 408 bytes cmem[0]
+ptxas info    : Compile time = 811.971 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail20q4_ksplit_mma_kernelINS1_16Q4LinearGeometryILi5120ELi17408EEELi24ELi24ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b22KSplitResidualEpilogueENS1_20Q4KSplitIdentityRowsELb1ELi1ELi1ELi8ELi1ELi6EEEvPK13__nv_bfloat16PKhSC_PS8_T2_T3_i' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail20q4_ksplit_mma_kernelINS1_16Q4LinearGeometryILi5120ELi17408EEELi24ELi24ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b22KSplitResidualEpilogueENS1_20Q4KSplitIdentityRowsELb1ELi1ELi1ELi8ELi1ELi6EEEvPK13__nv_bfloat16PKhSC_PS8_T2_T3_i
+    128 bytes stack frame, 1072 bytes spill stores, 2020 bytes spill loads
+ptxas info    : Used 40 registers, used 1 barriers, 128 bytes cumulative stack size, 28928 bytes smem, 408 bytes cmem[0]
+ptxas info    : Compile time = 780.416 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi5ELi8ELi2ELi8ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi5ELi8ELi2ELi8ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 1 barriers, 424 bytes cmem[0]
+ptxas info    : Compile time = 101.876 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 160 registers, used 1 barriers, 424 bytes cmem[0]
+ptxas info    : Compile time = 190.934 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 151 registers, used 1 barriers, 424 bytes cmem[0]
+ptxas info    : Compile time = 149.337 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 122 registers, used 1 barriers, 424 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 114.109 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 114 registers, used 1 barriers, 424 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 94.302 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi5ELi8ELi1ELi8ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi5ELi8ELi1ELi8ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 64 registers, used 1 barriers, 424 bytes cmem[0]
+ptxas info    : Compile time = 89.657 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 127 registers, used 1 barriers, 424 bytes cmem[0]
+ptxas info    : Compile time = 172.456 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 115 registers, used 1 barriers, 424 bytes cmem[0]
+ptxas info    : Compile time = 127.042 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 1 barriers, 424 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 113.290 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b19AdaResidualEpilogueEEEvPK13__nv_bfloat16iPKhSD_SD_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 80 registers, used 1 barriers, 424 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 84.754 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail23q4_rowsplit_gemv_kernelINS1_22Q4RowSplitGemvScheduleILi1ELi8ELi16ELi1ELNS1_22Q4GemvActivationAccessE0ELNS1_17Q4GemvLaneMappingE0ELNS1_16Q4GemvDecodeModeE0ELNS1_18Q4GemvCodeTransferE0ELNS1_17Q4GemvScaleAccessE0ELNS0_5CacheE0ELi0ELi1EEELb0ELi0ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b20GemvResidualEpilogueELb0ELb0EEEvPK13__nv_bfloat16PKhSH_PSD_SI_iiT2_' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail23q4_rowsplit_gemv_kernelINS1_22Q4RowSplitGemvScheduleILi1ELi8ELi16ELi1ELNS1_22Q4GemvActivationAccessE0ELNS1_17Q4GemvLaneMappingE0ELNS1_16Q4GemvDecodeModeE0ELNS1_18Q4GemvCodeTransferE0ELNS1_17Q4GemvScaleAccessE0ELNS0_5CacheE0ELi0ELi1EEELb0ELi0ENS1_49_GLOBAL__N__42e4cb8b_16_q4_linear_add_cu_a4cb6d3b20GemvResidualEpilogueELb0ELb0EEEvPK13__nv_bfloat16PKhSH_PSD_SI_iiT2_
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 33 registers, used 1 barriers, 4128 bytes smem, 401 bytes cmem[0]
+ptxas info    : Compile time = 12.503 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi2ELi8ELi2ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi2ELi8ELi2ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 73 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0]
+ptxas info    : Compile time = 88.748 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 120 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0]
+ptxas info    : Compile time = 152.584 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 121 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0]
+ptxas info    : Compile time = 152.765 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 121 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 146.804 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 121 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 146.541 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi2ELi8ELi1ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi2ELi8ELi1ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 70 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0]
+ptxas info    : Compile time = 80.851 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 85 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0]
+ptxas info    : Compile time = 146.985 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi8ELi2ELb1ELb0EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 84 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0]
+ptxas info    : Compile time = 143.415 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 83 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 138.866 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi6144ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 83 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 139.799 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi5ELi8ELi2ELi8ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi5ELi8ELi2ELi8ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 96 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0]
+ptxas info    : Compile time = 134.243 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 158 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0]
+ptxas info    : Compile time = 231.490 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 159 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0]
+ptxas info    : Compile time = 236.433 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 121 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 148.452 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi2ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 121 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 145.983 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi5ELi8ELi1ELi8ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE0ELi5ELi8ELi1ELi8ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 70 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0]
+ptxas info    : Compile time = 115.898 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 123 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0]
+ptxas info    : Compile time = 211.487 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi16ELi2ELb1ELb0EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 123 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0]
+ptxas info    : Compile time = 213.767 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE2ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 83 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 138.628 ms
+ptxas info    : Compiling entry function '_ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf' for 'sm_89'
+ptxas info    : Function properties for _ZN6ninfer3ops6detail22ada_small_t_mma_kernelINS1_17AdaSmallTScheduleILNS1_15AdaWeightFormatE3ELi5ELi8ELi1ELi8ELi3ELb1ELb1EEELi17408ENS1_17AdaContiguousRowsENS1_30AdaNormHandoffResidualEpilogueEEEvPK13__nv_bfloat16iPKhSC_SC_iT2_PKf
+    0 bytes stack frame, 0 bytes spill stores, 0 bytes spill loads
+ptxas info    : Used 83 registers, used 1 barriers, 2560 bytes smem, 472 bytes cmem[0], 40 bytes cmem[2]
+ptxas info    : Compile time = 138.800 ms

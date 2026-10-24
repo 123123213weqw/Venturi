@@ -1,0 +1,22 @@
+...................F
+=================================== FAILURES ===================================
+______ test_mid_mtp_mutation_poisoned_without_returned_generation[target] ______
+tests/test_resident_source_scope.py:317: in test_mid_mtp_mutation_poisoned_without_returned_generation
+    assert s.failed
+src/venturi/models/qwen_native.py:785: in failed
+    return bool(self.info()["failed"])
+src/venturi/models/qwen_mtp_native.py:602: in info
+    mtp=self.stats(),
+src/venturi/models/qwen_mtp_native.py:552: in stats
+    self._check()
+src/venturi/models/qwen_native.py:727: in _check
+    self.model._metadata()
+src/venturi/models/qwen_mtp_native.py:350: in _metadata
+    self.target._metadata()
+src/venturi/models/qwen_native.py:685: in _metadata
+    raise RuntimeError("Native Qwen source changed; recreate and verify model")
+E   RuntimeError: Native Qwen source changed; recreate and verify model
+=========================== short test summary info ============================
+FAILED tests/test_resident_source_scope.py::test_mid_mtp_mutation_poisoned_without_returned_generation[target]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 19 passed in 2.93s

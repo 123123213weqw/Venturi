@@ -1,0 +1,247 @@
+{
+  "scope": "Native two-V100 GDN sublayer pilot, not whole-model or serving TPS.\n\nIncludes input norm, QKV/Z/A/B, convolution, gates, independent recurrence,\ngated norm, output projection and residual. Both arms have primary-only FP16\ninput/output; distributed mutable state is joined only in untimed diagnostics.\n",
+  "completed": true,
+  "profiled": true,
+  "cells": [
+    {
+      "layer": 0,
+      "sequences": 1,
+      "tokens_per_sequence": 1,
+      "total_rows": 1,
+      "prefix_count": 0,
+      "exact_pre_projection_state_and_history": true,
+      "output_relative_l2_vs_row": 8.34075645444261e-06,
+      "independent_reference": [
+        {
+          "relative_l2": 0.00046523474612260735,
+          "cosine": 0.9999998975801134,
+          "source": "Independent original-source represented-Q8/FP64 staged GDN equations; no BF16 corpus-quality claim"
+        }
+      ],
+      "final_state_signature": {
+        "dtype": "torch.float32",
+        "shape": [
+          1,
+          48,
+          128,
+          128
+        ],
+        "bytes": 3145728,
+        "sha256": "d69df763254aeac2a878145b5ad00f3b888f1e8dfc68813a6122426a17d79bb6"
+      },
+      "trials": [
+        {
+          "mode": "row",
+          "trial": 1,
+          "start_unix": 1792456174.465917,
+          "end_unix": 1792456174.4760046,
+          "host_wall_seconds": 0.010074430028907955,
+          "process_cpu_core_seconds": 0.024478000000000222,
+          "native_wall_seconds": 0.009586386,
+          "h2d_bytes": 1409024,
+          "d2h_bytes": 1409024,
+          "h2d_calls": 160,
+          "d2h_calls": 128,
+          "d2d_calls": 0,
+          "iterations": 32,
+          "pinned_bytes": 49152
+        },
+        {
+          "mode": "head",
+          "trial": 1,
+          "start_unix": 1792456174.4847221,
+          "end_unix": 1792456174.4922624,
+          "host_wall_seconds": 0.007531910960096866,
+          "process_cpu_core_seconds": 0.02586700000000164,
+          "native_wall_seconds": 0.007359166,
+          "h2d_bytes": 983040,
+          "d2h_bytes": 983040,
+          "h2d_calls": 64,
+          "d2h_calls": 64,
+          "d2d_calls": 0,
+          "iterations": 32,
+          "pinned_bytes": 49152
+        }
+      ],
+      "median_block_seconds": {
+        "row": 0.0002995745625,
+        "head": 0.0002299739375
+      },
+      "speedup": 1.3026457074076057
+    },
+    {
+      "layer": 0,
+      "sequences": 1,
+      "tokens_per_sequence": 3,
+      "total_rows": 3,
+      "prefix_count": 2,
+      "exact_pre_projection_state_and_history": true,
+      "output_relative_l2_vs_row": 7.58028971471603e-07,
+      "independent_reference": [
+        {
+          "relative_l2": 0.0002828643117359372,
+          "cosine": 0.9999999603443396,
+          "source": "Independent original-source represented-Q8/FP64 staged GDN equations; no BF16 corpus-quality claim"
+        }
+      ],
+      "final_state_signature": {
+        "dtype": "torch.float32",
+        "shape": [
+          1,
+          48,
+          128,
+          128
+        ],
+        "bytes": 3145728,
+        "sha256": "442bfaad191ef99e0d75338aeab63e2ddbd4de18f3931bd842e9cae7c784d550"
+      },
+      "trials": [
+        {
+          "mode": "row",
+          "trial": 1,
+          "start_unix": 1792456174.866231,
+          "end_unix": 1792456174.8791115,
+          "host_wall_seconds": 0.012868725985754281,
+          "process_cpu_core_seconds": 0.02751400000000004,
+          "native_wall_seconds": 0.012631477,
+          "h2d_bytes": 4227072,
+          "d2h_bytes": 4227072,
+          "h2d_calls": 160,
+          "d2h_calls": 128,
+          "d2d_calls": 32,
+          "iterations": 32,
+          "pinned_bytes": 147456
+        },
+        {
+          "mode": "head",
+          "trial": 1,
+          "start_unix": 1792456174.88833,
+          "end_unix": 1792456174.8981307,
+          "host_wall_seconds": 0.009789363015443087,
+          "process_cpu_core_seconds": 0.025443000000000993,
+          "native_wall_seconds": 0.009587811,
+          "h2d_bytes": 2949120,
+          "d2h_bytes": 2949120,
+          "h2d_calls": 64,
+          "d2h_calls": 64,
+          "d2d_calls": 0,
+          "iterations": 32,
+          "pinned_bytes": 147456
+        }
+      ],
+      "median_block_seconds": {
+        "row": 0.00039473365625,
+        "head": 0.00029961909375
+      },
+      "speedup": 1.3174516060026633
+    },
+    {
+      "layer": 0,
+      "sequences": 8,
+      "tokens_per_sequence": 1,
+      "total_rows": 8,
+      "prefix_count": 0,
+      "exact_pre_projection_state_and_history": true,
+      "output_relative_l2_vs_row": 9.202199255065366e-06,
+      "independent_reference": [
+        {
+          "relative_l2": 0.0004449189385957244,
+          "cosine": 0.9999999012173405,
+          "source": "Independent original-source represented-Q8/FP64 staged GDN equations; no BF16 corpus-quality claim"
+        },
+        {
+          "relative_l2": 0.00045024516793595035,
+          "cosine": 0.999999920464838,
+          "source": "Independent original-source represented-Q8/FP64 staged GDN equations; no BF16 corpus-quality claim"
+        },
+        {
+          "relative_l2": 0.0002203740006111969,
+          "cosine": 0.9999999757177133,
+          "source": "Independent original-source represented-Q8/FP64 staged GDN equations; no BF16 corpus-quality claim"
+        },
+        {
+          "relative_l2": 0.0005146281446692346,
+          "cosine": 0.9999999382287386,
+          "source": "Independent original-source represented-Q8/FP64 staged GDN equations; no BF16 corpus-quality claim"
+        },
+        {
+          "relative_l2": 0.0003409518958409076,
+          "cosine": 0.9999999421293227,
+          "source": "Independent original-source represented-Q8/FP64 staged GDN equations; no BF16 corpus-quality claim"
+        },
+        {
+          "relative_l2": 0.00021147713435671996,
+          "cosine": 0.9999999776614339,
+          "source": "Independent original-source represented-Q8/FP64 staged GDN equations; no BF16 corpus-quality claim"
+        },
+        {
+          "relative_l2": 0.00016125837070321775,
+          "cosine": 0.9999999870384064,
+          "source": "Independent original-source represented-Q8/FP64 staged GDN equations; no BF16 corpus-quality claim"
+        },
+        {
+          "relative_l2": 0.00038034197969232826,
+          "cosine": 0.9999999279185183,
+          "source": "Independent original-source represented-Q8/FP64 staged GDN equations; no BF16 corpus-quality claim"
+        }
+      ],
+      "final_state_signature": {
+        "dtype": "torch.float32",
+        "shape": [
+          8,
+          48,
+          128,
+          128
+        ],
+        "bytes": 25165824,
+        "sha256": "0ec8c904edc1040fa00ae2cc79b0fd47a550f851820d5e477b63aa7f38950070"
+      },
+      "trials": [
+        {
+          "mode": "row",
+          "trial": 1,
+          "start_unix": 1792456175.7988353,
+          "end_unix": 1792456175.8234408,
+          "host_wall_seconds": 0.024589665001258254,
+          "process_cpu_core_seconds": 0.038082999999998535,
+          "native_wall_seconds": 0.024298032,
+          "h2d_bytes": 11272192,
+          "d2h_bytes": 11272192,
+          "h2d_calls": 160,
+          "d2h_calls": 128,
+          "d2d_calls": 32,
+          "iterations": 32,
+          "pinned_bytes": 393216
+        },
+        {
+          "mode": "head",
+          "trial": 1,
+          "start_unix": 1792456175.8764522,
+          "end_unix": 1792456175.894475,
+          "host_wall_seconds": 0.018009308027103543,
+          "process_cpu_core_seconds": 0.034072999999999354,
+          "native_wall_seconds": 0.017706473,
+          "h2d_bytes": 7864320,
+          "d2h_bytes": 7864320,
+          "h2d_calls": 64,
+          "d2h_calls": 64,
+          "d2d_calls": 0,
+          "iterations": 32,
+          "pinned_bytes": 393216
+        }
+      ],
+      "median_block_seconds": {
+        "row": 0.0007593135,
+        "head": 0.00055332728125
+      },
+      "speedup": 1.3722683224377887
+    }
+  ],
+  "model_integration": false,
+  "model_tps_claim": false,
+  "achieved_hardware_counters": null,
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "blocks_sha256": "6d43160ce4e993b4be5ed600d9be21aad070634729d8e5f7b3f74b734da85de2",
+  "host_library_sha256": "202a38580846334ac9d08893b4f85064f6f5eae8f65f451c2200cfe0c78fa8e1",
+  "precision": "Unchanged stored Q8/F16 scales and two residual-A8/F32-scale passes; original small-parameter flags, FP16 activations/KV-independent operator, packed FP32 GDN state. Head-local output uses FP32 column partial/transport/sum before one FP16 cast: changed association."
+}

@@ -1,0 +1,40 @@
+{
+  "recorded_unix": 1792593493.89007,
+  "host": "WZU_Server; physical GPU0 V100, SM70",
+  "production": "Leave qwen38-27b running; never stop/restart/reconfigure. Each case/repeat waits for idle. Torch reserve <1 GiB; initial free >2 GiB.",
+  "checkpoint": "Actual production Qwen3.8-27B-Uncensored Q8_0 GGUF bytes, no weight requantization.",
+  "comparison": "Pinned opt-in native two-pass row-pair library vs same-source two-pass control vs same-geometry single-pass A8. No full model/native Qwen3.8 or serving claim.",
+  "tokens": [
+    1,
+    2,
+    4,
+    8,
+    23,
+    32
+  ],
+  "shapes": [
+    "TP MLP gate/up",
+    "MLP down FP32 partial",
+    "GDN qkv/z",
+    "GDN out FP32 partial",
+    "attention q/k/v"
+  ],
+  "arithmetic": "Group32, signed Q8, FP16 weight scales, FP32 activation scales, F16 outputs/F32 TP partials; passes=1 changes numerical profile.",
+  "scopes": [
+    "Packed projection only",
+    "Quantization plus projection; no activation function, transport, recurrence, attention, or serving."
+  ],
+  "timing": "100 graph-replayed calls/wave; 7 alternating arm waves; warmup; GPU event and process CPU/wall stored separately. Separate NCU.",
+  "correctness": [
+    "Pass2 output bytes must match pinned two-pass native path.",
+    "Pass1 fused bytes must match existing one-pass operator; FP32 partials checked against independent FP64 represented-activation reference.",
+    "Tails, guards, zero/nonfinite/restored-input graph replay; invalid geometry fails closed."
+  ],
+  "quality": "Full output comparisons to F32 reference using unquantized F16 activations and represented Q8 weights; independent F64 sample validates reference. Also Gaussian, group-outlier, mixed-range inputs, and a deliberately lost-small-feature counterexample.",
+  "screen_only_thresholds": {
+    "relative_l2_max": 0.01,
+    "centered_cosine_min": 0.9999
+  },
+  "promotion": "No default enable/production deployment. Speed screen requires >=5% median quant+projection saving with no regression >2% across measured shapes at a token count. Operator error screen is NOT model quality: full-model teacher/logit/trajectory/corpus gates remain required.",
+  "confirmation": "Second unprofiled run at T1 and T8, same five cases, seven repeats; specified before performance results."
+}

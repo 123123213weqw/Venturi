@@ -1,0 +1,49 @@
+GDN T=1, checkpoint geometry
+GDN T=128, checkpoint geometry
+binding text/token_embedding
+binding text/output_head
+{
+  "gdn-t1": {
+    "torch-reference": {
+      "wall_us_per_call": 49.88906919720565,
+      "event_us_per_call": 47.1578083514882,
+      "process_cpu_percent": 99.95823547344553,
+      "calls_per_second": 20049.13949604387
+    },
+    "native": {
+      "wall_us_per_call": 22.03109281103502,
+      "event_us_per_call": 19.44501775346722,
+      "process_cpu_percent": 99.95292398033706,
+      "calls_per_second": 45403.28622420929
+    }
+  },
+  "gdn-t128": {
+    "torch-reference": {
+      "wall_us_per_call": 3584.7614857110393,
+      "event_us_per_call": 3581.1288901737757,
+      "process_cpu_percent": 99.95579300261485,
+      "calls_per_second": 278.9592256448411
+    },
+    "native": {
+      "wall_us_per_call": 1852.7439523259764,
+      "event_us_per_call": 1849.5082837563973,
+      "process_cpu_percent": 99.95837134695176,
+      "calls_per_second": 539.7400024113281
+    }
+  },
+  "text-token_embedding": "lookup passed",
+  "text-output_head": {
+    "torch-reference": {
+      "wall_us_per_call": 106265.03759995103,
+      "event_us_per_call": 106260.39123535156,
+      "process_cpu_percent": 99.93077243128289,
+      "calls_per_second": 9.410565139571226
+    },
+    "native": {
+      "wall_us_per_call": 2294.9365702280247,
+      "event_us_per_call": 2291.07174210663,
+      "process_cpu_percent": 99.95030857157309,
+      "calls_per_second": 435.7449023390035
+    }
+  }
+}

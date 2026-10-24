@@ -1,0 +1,23 @@
+--- before/tests/test_qwen_source.py
++++ after/tests/test_qwen_source.py
+@@ -693,3 +693,20 @@
+     report.write_text(json.dumps(result))
+     with pytest.raises(ValueError, match="sample differs|code -128"):
+         verify_qwen_q8_export(source, path, report)
++
++
++def test_bf16_gated_norm_is_exactly_widened_not_reinterpreted(tmp_path):
++    raw=fixture_tensors();name='model.language_model.layers.0.linear_attn.norm.weight'
++    raw[name]=(torch.arange(13,dtype=torch.float32)*0.03125+0.875).bfloat16()
++    source=write_source(tmp_path/'qwen38-schema',tensors=raw)
++    checkpoint=inspect_checkpoint(source);plan=QwenSourcePlan.from_config(dict(checkpoint.config))
++    plan.validate_checkpoint(checkpoint)
++    out=export_qwen_q8(source,tmp_path/'bf16-norm.ninfer')
++    from venturi.models import QwenQ8Weights
++    weights=QwenQ8Weights.from_ninfer(NInferArtifact(out['output']))
++    actual=weights.read_float('text/layers/0/gdn/norm')
++    assert actual.dtype==torch.float32 and torch.equal(actual,raw[name].float())
++    raw[name]=raw[name].to(torch.int8)
++    invalid=write_source(tmp_path/'unsupported-int8-norm',tensors=raw)
++    with pytest.raises(CheckpointError,match='dtype mismatch'):
++        QwenSourcePlan.from_config(dict(inspect_checkpoint(invalid).config)).validate_checkpoint(inspect_checkpoint(invalid))

@@ -1,0 +1,6 @@
+{
+  "scope": "Diagnostic helper, not native kernel",
+  "failure": "CPU FP64 .cpu().double() may return the original Tensor; in-place SwiGLU overwrote the supposed oracle input before its expected value was calculated.",
+  "observed": "All four FP64 layer cases failed the SwiGLU helper with 64/64 or 576/576 mismatches, while CPU BF16 cases passed.",
+  "repair": "Clone the independent saved gate/up values before the in-place operation. No operator bounds or runtime math changed."
+}

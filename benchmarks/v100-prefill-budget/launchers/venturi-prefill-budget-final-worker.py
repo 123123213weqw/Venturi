@@ -1,0 +1,41 @@
+import pathlib,subprocess,os,time,json,hashlib,signal,traceback
+root=pathlib.Path('/home/data/wangyue');src=root/'repos/codex-build/Venturi/prefill-budget-src-v1';out=root/'artifacts/venturi-prefill-budget-final-v3';py=str(root/'repos/codex-build/.venvs/b2-v100/bin/python')
+env=os.environ.copy();env.update(CUDA_VISIBLE_DEVICES='1,0',PYTHONPATH=str(root/'repos/codex-build/Venturi/v100-tp-diagnostics-v2/python-deps')+':'+str(src/'src')+':'+str(src/'tests'),OMP_NUM_THREADS='4',MKL_NUM_THREADS='4',PYTEST_DISABLE_PLUGIN_AUTOLOAD='1')
+def stop(p):
+ if p.poll() is None:
+  os.killpg(p.pid,signal.SIGTERM)
+  try:p.wait(timeout=20)
+  except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);p.wait()
+def run(cmd,name,timeout=300):
+ (out/(name+'.command.json')).write_text(json.dumps(cmd,indent=2)+'\n')
+ with (out/name).open('wb') as log:
+  p=subprocess.Popen(cmd,cwd=src,env=env,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+  try:rc=p.wait(timeout=timeout)
+  except BaseException:stop(p);raise
+  if rc:raise RuntimeError(f'Owned command exited {rc}: {name}')
+try:
+ gate=root/'artifacts/venturi-prefill-budget-campaign-v2';deadline=time.monotonic()+1500
+ while not (gate/'exit-code.txt').exists():
+  pid=json.loads((gate/'process.json').read_text())['pid'];cmdline=pathlib.Path(f'/proc/{pid}/cmdline');assert cmdline.exists() and str(gate/'worker.py').encode() in cmdline.read_bytes(),'Pinned predecessor absent';assert time.monotonic()<deadline,'Bounded predecessor wait elapsed';time.sleep(10)
+ assert (gate/'exit-code.txt').read_text().strip()=='0';campaign=json.loads((gate/'campaign-report.json').read_text());assert campaign['completed']
+ chosen=campaign.get('promoted_projection_rows',256)
+ previous=root/'artifacts/venturi-prefill-budget-model-v1';library=(previous/'library.txt').read_text().strip();(out/'library.txt').write_text(library+'\n');build=json.loads(pathlib.Path(library).with_name('build.json').read_text());baseline=str(root/'artifacts/venturi-projection-fusion-model-v3/build/671f471635529cef/libventuri_blocks.so')
+ for rel,h in build['source_sha256'].items():assert hashlib.sha256((src/'src/venturi/ops/csrc'/rel).read_bytes()).hexdigest()==h
+ (out/'reused-fixture-tests.json').write_text(json.dumps(dict(path=str(previous),sha256=hashlib.sha256((previous/'full-tests.log').read_bytes()).hexdigest(),scope='Same exact library and nine sources: full fixture suite reused, not rerun.'),indent=2)+'\n')
+ target=root/'repos/codex-build/Venturi/models/qwen3.5-27b-text-q8.ninfer';nsys='/usr/local/bin/nsys';case=json.loads((root/'repos/codex-build/Venturi/v100-pp-final-v1/case.json').read_text());case['expected_generated_ids']=case['expected_generated_ids'][:8];(out/'profile-case.json').write_text(json.dumps(case,indent=2)+'\n');traces=[]
+ old=root/'artifacts/venturi-gdn-compact-final-v5';assert hashlib.sha256((out/'profile-case.json').read_bytes()).hexdigest()==hashlib.sha256((old/'profile-case.json').read_bytes()).hexdigest()
+ (out/'reused-control-profiles.json').write_text(json.dumps({name:dict(path=str(old/name),sha256=hashlib.sha256((old/name).read_bytes()).hexdigest(),scope='Explicitly reused unchanged 23-prompt/8-output control on same hardware/library/workload; not a new execution.') for name in ['candidate-c1-attribution.json','candidate-c8-attribution.json','candidate-mtp-c1-attribution.json','resources.json']},indent=2)+'\n')
+ for label,count,mode,selected in [('candidate',1,'scalar',library),('candidate',8,'batch',library)]:
+  name=f'{label}-c{count}';prefix=out/name
+  run([nsys,'profile','--trace=cuda,nvtx','--sample=none','--cpuctxsw=none','--cuda-event-trace=false','--force-overwrite=false','--output',str(prefix),py,'tools/profile_qwen_batch.py',str(target),'--library',selected,'--case',str(out/'profile-case.json'),'--mode',mode,'--count',str(count),'--projection-profile','q8-residual','--projection-rows',str(chosen),'--output',str(out/(name+'-metadata.json'))],name+'-profile.log',timeout=240)
+  run([nsys,'export','--type','sqlite','--output',str(prefix)+'.sqlite',str(prefix)+'.nsys-rep'],name+'-export.log',timeout=120)
+  run([py,'tools/summarize_native_parallel_trace.py',str(prefix)+'.sqlite','--output',str(out/(name+'-attribution.json'))],name+'-attribution.log',timeout=90)
+  if label=='candidate':traces+=['--trace',name+'='+str(prefix)+'.sqlite']
+ run([py,'tools/inspect_cuda_occupancy.py','--library',library,'--expected-sha256',hashlib.sha256(pathlib.Path(library).read_bytes()).hexdigest(),*traces,'--output',str(out/'resources.json')],'resources.log',timeout=180)
+ (out/'remote-retained-files.json').write_text(json.dumps({str(p):dict(bytes=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in out.iterdir() if p.suffix in ['.sqlite','.nsys-rep']},indent=2)+'\n')
+ (out/'executed-source.json').write_text(json.dumps({str(p.relative_to(src)):hashlib.sha256(p.read_bytes()).hexdigest() for d in ['src','tests','tools'] for p in (src/d).rglob('*') if p.is_file() and '__pycache__' not in p.parts},indent=2)+'\n')
+ (out/'counter-policy.txt').write_text(next(s for s in pathlib.Path('/proc/driver/nvidia/params').read_text().splitlines() if 'RmProfilingAdminOnly' in s)+'\n')
+ run(['nvidia-smi','--query-gpu=index,name,memory.used,memory.free,utilization.gpu','--format=csv,noheader'],'gpu-after.txt')
+ (out/'completed.json').write_text(json.dumps(dict(completed=True,library=library,sha256=hashlib.sha256(pathlib.Path(library).read_bytes()).hexdigest(),ended_unix=time.time()),indent=2)+'\n');rc=0
+except BaseException:(out/'failure.txt').write_text(traceback.format_exc());rc=1
+(out/'exit-code.txt').write_text(str(rc)+'\n');raise SystemExit(rc)

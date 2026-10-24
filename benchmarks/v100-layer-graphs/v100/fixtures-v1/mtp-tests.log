@@ -1,0 +1,18 @@
+F
+=================================== FAILURES ===================================
+__________ test_graph_exact_recurrent_kv_prefix_eos_and_reset[native] __________
+tests/test_qwen_layer_graph.py:49: in test_graph_exact_recurrent_kv_prefix_eos_and_reset
+    prior.test_depth2_output_target_and_corrected_draft_caches(
+tests/test_qwen_mtp2.py:78: in test_depth2_output_target_and_corrected_draft_caches
+    actual = s.generate(
+tests/test_qwen_layer_graph.py:37: in generate
+    self.enable_target_layer_graph()
+src/venturi/models/qwen_mtp_native.py:400: in enable_target_layer_graph
+    self.model._backend._check(fn(self._handle, int(enabled)))
+src/venturi/ops/blocks.py:274: in _check
+    raise RuntimeError(
+E   RuntimeError: layer graph requires resident SM70 residual FP16 target and host TP
+=========================== short test summary info ============================
+FAILED tests/test_qwen_layer_graph.py::test_graph_exact_recurrent_kv_prefix_eos_and_reset[native]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed in 1.44s

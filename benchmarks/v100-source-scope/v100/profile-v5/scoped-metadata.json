@@ -1,0 +1,128 @@
+{
+  "scope": "Mark raw native MTP2 calls for a separate checkpoint-metadata syscall audit.\n\nNo source guard is disabled. Loading, SDK validation, reset and result validation\nare outside the marked ctypes call; output IDs and acceptance remain checked.\n",
+  "instrumented": true,
+  "calls": [
+    {
+      "start_unix": 1792453541.8904912,
+      "end_unix": 1792453542.7391968,
+      "native_call_wall_seconds": 0.8486989070079289,
+      "process_cpu_seconds": 0.729660226,
+      "thread_cpu_seconds": 0.7283424410000023,
+      "output_ids": [
+        4413,
+        220,
+        22,
+        18,
+        19,
+        11,
+        3750,
+        310,
+        279,
+        2342,
+        12313,
+        852,
+        11653,
+        279,
+        13626,
+        430,
+        328,
+        57517,
+        1288,
+        557,
+        5995,
+        364,
+        15579,
+        13,
+        11116,
+        27374,
+        24296,
+        1362,
+        10817,
+        264,
+        36320,
+        314
+      ],
+      "output_ids_equal": true,
+      "stats": {
+        "proposed_tokens": 26,
+        "accepted_tokens": 17,
+        "verification_calls": 13,
+        "replayed_input_tokens": 0,
+        "rollback_calls": 7,
+        "target_forward_calls": 15,
+        "target_input_tokens": 63,
+        "draft_forward_calls": 45,
+        "draft_input_tokens": 67,
+        "emitted_tokens": 32,
+        "forced_proposals": 0,
+        "draft_position": 54,
+        "mtp_model_device_bytes": 456767616,
+        "mtp_request_device_bytes": 27357408,
+        "primary_target_backup_bytes": 153944064,
+        "secondary_target_backup_bytes": 0,
+        "mtp_remote_embedding_bytes": 0,
+        "mtp_pinned_bridge_bytes": 0,
+        "mtp_device_index": 0,
+        "secondary_target_request_bytes": 0,
+        "draft_wall_seconds_including_warmup_catchup": 0.1083656161208637,
+        "verification_wall_seconds": 0.5492046461440623,
+        "rollback_replay_wall_seconds": 0.004480383882764727,
+        "prefill_wall_seconds": 0.15514121198793873,
+        "checkpoint_save_wall_seconds": 0.0,
+        "draft_tokens_per_round": 2,
+        "acceptance_rate": 0.6538461538461539,
+        "accepted_by_depth": [
+          11,
+          6
+        ],
+        "proposed_by_depth": [
+          13,
+          13
+        ],
+        "sampling": "target greedy; overall acceptance counts accepted prefix tokens / all drafted proposals; conditional depth acceptance uses verified proposals only",
+        "fresh_generation_only": true,
+        "verified_by_depth": [
+          13,
+          11
+        ],
+        "draft_rewind_calls": 13,
+        "verified_draft_catchup_inputs": 17,
+        "verification_calls_by_input_width": {
+          "2": 0,
+          "3": 13
+        },
+        "forced_by_depth": [
+          0,
+          0
+        ],
+        "unused_suffix_proposals": 2,
+        "conditional_acceptance_by_depth": [
+          0.8461538461538461,
+          0.5454545454545454
+        ],
+        "prefix_trace_extra_primary_bytes": 153944064,
+        "prefix_trace_extra_secondary_bytes": 0,
+        "target_recovery": "prefix-trace"
+      }
+    }
+  ],
+  "checkpoint_paths": [
+    "/home/data/wangyue/repos/codex-build/Venturi/models/qwen3.5-27b-text-q8.ninfer",
+    "/home/data/wangyue/repos/codex-build/Venturi/models/qwen3.5-27b-mtp-q8.ninfer"
+  ],
+  "library": "/home/data/wangyue/artifacts/venturi-source-scope-fixtures-v1/build/fb37c600c0b94279/libventuri_blocks.so",
+  "library_sha256": "1b82d19104f4987db96672e74430d3cf0a6da51997c951a4e54ecd57fcef18b9",
+  "profiles": {
+    "target": "q8-residual-column-mlp",
+    "draft": "q8-residual",
+    "kv": "fp16"
+  },
+  "projection_rows": 32,
+  "prepared_slots": 8,
+  "capacity_per_slot": 256,
+  "source_guards_unchanged": false,
+  "source_integrity_predicate_preserved": true,
+  "source_validation_policy": "resident-forward-boundaries; unscoped/streaming per-weight",
+  "python_math_in_marked_call": false,
+  "no_http_throughput_claim": true
+}

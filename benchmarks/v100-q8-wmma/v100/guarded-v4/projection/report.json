@@ -1,0 +1,6037 @@
+{
+  "scope": "Byte-exact old/new residual-activation projection schedule microbenchmark.\n\nPinned control/candidate binaries use the same original-source Q8 planes and\nFP16 inputs. Sampled FP64 gates, exact residual output bytes and CPU/event/wall\nmeasurements precede any inference-performance claim. Not full-model quality.\n",
+  "library_sha256": "ccf03d8caa89ced089b80cd5b8eb49cb494e53baf855c78c99e9c8f5ed9627c5",
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "baseline_library_sha256": "861b528b0d7464c53ce51a4f29140984bda1ebfccf55b539aa82d5492f0f1ed4",
+  "dtype": "FP16 input/output; original Q8/F16-scale weights. Original FP16 and residual A8 remain separate arithmetic profiles. Control/candidate residual math must be byte-identical.",
+  "row_mode": "tp-first",
+  "profiles": [
+    "original-fp16",
+    "w8-a8-g32-f32scale-residual-a8",
+    "control-w8-a8-g32-f32scale-residual-a8"
+  ],
+  "graph_nodes": 3,
+  "graph_replays": 3,
+  "measured_repeats": 3,
+  "cases": [
+    {
+      "shape": [
+        124160,
+        5120
+      ],
+      "original_shape": [
+        248320,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/output_head",
+      "tokens": 1,
+      "independent_sample_rows": [
+        0,
+        124159,
+        30920,
+        87841,
+        31559,
+        24904,
+        2736,
+        14660,
+        8376,
+        62216,
+        44789,
+        81630,
+        42395,
+        31451,
+        11277,
+        25629,
+        23165,
+        98366,
+        40423,
+        39476,
+        80662,
+        38847,
+        114516,
+        23253,
+        66010,
+        77576,
+        51228,
+        47506,
+        122419,
+        66509,
+        90553,
+        57506
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00017510975161247664,
+          "max_absolute": 0.00043522937659190575,
+          "cosine": 0.9999999862047333
+        },
+        {
+          "relative_l2": 0.0001733737640798021,
+          "max_absolute": 0.00043064450367436,
+          "cosine": 0.9999999866093365
+        },
+        {
+          "relative_l2": 0.0001733737640798021,
+          "max_absolute": 0.00043064450367436,
+          "cosine": 0.9999999866093365
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000004
+        },
+        {
+          "relative_l2": 9.56305934877651e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999954273953
+        },
+        {
+          "relative_l2": 9.56305934877651e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999954273953
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        11520,
+        11520
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407547.7176182,
+          "end_unix": 1792407547.7285626,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.2101582421196833,
+          "wall_seconds": 0.010953092016279697,
+          "cpu_core_seconds": 0.01094799999999907
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407547.7286103,
+          "end_unix": 1792407547.7357469,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.7897351053025987,
+          "wall_seconds": 0.007140656991396099,
+          "cpu_core_seconds": 0.007139999999999702
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407547.7357788,
+          "end_unix": 1792407547.7429152,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.7898026572333442,
+          "wall_seconds": 0.007140789995901287,
+          "cpu_core_seconds": 0.00714100000000073
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407547.7429545,
+          "end_unix": 1792407547.7500842,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.7889635297987196,
+          "wall_seconds": 0.007134400017093867,
+          "cpu_core_seconds": 0.007205000000000794
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407547.7501178,
+          "end_unix": 1792407547.7572434,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.7886044184366862,
+          "wall_seconds": 0.0071305070305243134,
+          "cpu_core_seconds": 0.007131999999998584
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407547.7572818,
+          "end_unix": 1792407547.768192,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.2092195087009006,
+          "wall_seconds": 0.010915108025074005,
+          "cpu_core_seconds": 0.010915999999999926
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407547.768226,
+          "end_unix": 1792407547.7791345,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.2089351018269856,
+          "wall_seconds": 0.010914059996139258,
+          "cpu_core_seconds": 0.010914999999998898
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407547.7791739,
+          "end_unix": 1792407547.7863007,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.7889884312947592,
+          "wall_seconds": 0.007131976017262787,
+          "cpu_core_seconds": 0.007132999999999612
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407547.7863321,
+          "end_unix": 1792407547.793462,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.7892835405137804,
+          "wall_seconds": 0.007133990002330393,
+          "cpu_core_seconds": 0.00713400000000064
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 1.2092195087009006,
+        "w8-a8-g32-f32scale-residual-a8": 0.7889884312947592,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.7892835405137804
+      }
+    },
+    {
+      "shape": [
+        124160,
+        5120
+      ],
+      "original_shape": [
+        248320,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/output_head",
+      "tokens": 2,
+      "independent_sample_rows": [
+        0,
+        124159,
+        30920,
+        87841,
+        31559,
+        24904,
+        2736,
+        14660,
+        8376,
+        62216,
+        44789,
+        81630,
+        42395,
+        31451,
+        11277,
+        25629,
+        23165,
+        98366,
+        40423,
+        39476,
+        80662,
+        38847,
+        114516,
+        23253,
+        66010,
+        77576,
+        51228,
+        47506,
+        122419,
+        66509,
+        90553,
+        57506
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00017649784778435039,
+          "max_absolute": 0.0004538030467529097,
+          "cosine": 0.9999999849118789
+        },
+        {
+          "relative_l2": 0.0001843044618957567,
+          "max_absolute": 0.00047452099830014305,
+          "cosine": 0.9999999835111361
+        },
+        {
+          "relative_l2": 0.0001843044618957567,
+          "max_absolute": 0.00047452099830014305,
+          "cosine": 0.9999999835111361
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000004
+        },
+        {
+          "relative_l2": 9.637714059780124e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999953562634
+        },
+        {
+          "relative_l2": 9.637714059780124e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999953562634
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        23040,
+        23040
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407548.0156043,
+          "end_unix": 1792407548.0303416,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.63173336452908,
+          "wall_seconds": 0.014745416003279388,
+          "cpu_core_seconds": 0.014742000000000033
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407548.0303915,
+          "end_unix": 1792407548.0393338,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.9903288947211372,
+          "wall_seconds": 0.008946647983975708,
+          "cpu_core_seconds": 0.00894699999999915
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407548.0393674,
+          "end_unix": 1792407548.0482624,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.985290633307563,
+          "wall_seconds": 0.008899647975340486,
+          "cpu_core_seconds": 0.008900000000000574
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407548.0483005,
+          "end_unix": 1792407548.0571828,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.9838044908311632,
+          "wall_seconds": 0.008886871044524014,
+          "cpu_core_seconds": 0.008964000000000638
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407548.057218,
+          "end_unix": 1792407548.0661528,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.989731576707628,
+          "wall_seconds": 0.008938863000366837,
+          "cpu_core_seconds": 0.008940000000000836
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407548.0661952,
+          "end_unix": 1792407548.080904,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.6312213473849826,
+          "wall_seconds": 0.014714077988173813,
+          "cpu_core_seconds": 0.0147150000000007
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407548.0809493,
+          "end_unix": 1792407548.0958703,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.654929796854655,
+          "wall_seconds": 0.014925229013897479,
+          "cpu_core_seconds": 0.014924999999999855
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407548.0959044,
+          "end_unix": 1792407548.1048403,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.9898773829142252,
+          "wall_seconds": 0.008940571045968682,
+          "cpu_core_seconds": 0.008941000000000088
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407548.1048758,
+          "end_unix": 1792407548.1138694,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.9963412814670138,
+          "wall_seconds": 0.008998034987598658,
+          "cpu_core_seconds": 0.00899900000000109
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 1.63173336452908,
+        "w8-a8-g32-f32scale-residual-a8": 0.9898773829142252,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.985290633307563
+      }
+    },
+    {
+      "shape": [
+        124160,
+        5120
+      ],
+      "original_shape": [
+        248320,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/output_head",
+      "tokens": 8,
+      "independent_sample_rows": [
+        0,
+        124159,
+        30920,
+        87841,
+        31559,
+        24904,
+        2736,
+        14660,
+        8376,
+        62216,
+        44789,
+        81630,
+        42395,
+        31451,
+        11277,
+        25629,
+        23165,
+        98366,
+        40423,
+        39476,
+        80662,
+        38847,
+        114516,
+        23253,
+        66010,
+        77576,
+        51228,
+        47506,
+        122419,
+        66509,
+        90553,
+        57506
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00018827607357289314,
+          "max_absolute": 0.0008132404521603576,
+          "cosine": 0.9999999823753924
+        },
+        {
+          "relative_l2": 0.00018770963027925133,
+          "max_absolute": 0.0008192288249269097,
+          "cosine": 0.9999999823860658
+        },
+        {
+          "relative_l2": 0.00018770963027925133,
+          "max_absolute": 0.0008192288249269097,
+          "cosine": 0.9999999823860658
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000104
+        },
+        {
+          "relative_l2": 9.184611473671743e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999957821829
+        },
+        {
+          "relative_l2": 9.184611473671743e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999957821829
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        92160,
+        92160
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407548.4480906,
+          "end_unix": 1792407548.4980078,
+          "calls": 9,
+          "gpu_event_ms_per_call": 5.540796491834852,
+          "wall_seconds": 0.049925276020076126,
+          "cpu_core_seconds": 0.04998700000000156
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407548.498057,
+          "end_unix": 1792407548.5233822,
+          "calls": 9,
+          "gpu_event_ms_per_call": 2.8105636172824435,
+          "wall_seconds": 0.025329840020276606,
+          "cpu_core_seconds": 0.02533099999999955
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407548.5234194,
+          "end_unix": 1792407548.5522833,
+          "calls": 9,
+          "gpu_event_ms_per_call": 3.2039110395643444,
+          "wall_seconds": 0.02886892296373844,
+          "cpu_core_seconds": 0.028929999999999012
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407548.5523214,
+          "end_unix": 1792407548.5811794,
+          "calls": 9,
+          "gpu_event_ms_per_call": 3.2025207943386502,
+          "wall_seconds": 0.028862220991868526,
+          "cpu_core_seconds": 0.028863000000001193
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407548.5812116,
+          "end_unix": 1792407548.6064835,
+          "calls": 9,
+          "gpu_event_ms_per_call": 2.8051058451334634,
+          "wall_seconds": 0.025275980995502323,
+          "cpu_core_seconds": 0.025278000000000134
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407548.606516,
+          "end_unix": 1792407548.6558216,
+          "calls": 9,
+          "gpu_event_ms_per_call": 5.475466834174262,
+          "wall_seconds": 0.04930991696892306,
+          "cpu_core_seconds": 0.04936700000000016
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407548.6558576,
+          "end_unix": 1792407548.7061253,
+          "calls": 9,
+          "gpu_event_ms_per_call": 5.581724378797743,
+          "wall_seconds": 0.05027896905085072,
+          "cpu_core_seconds": 0.05028199999999927
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407548.7062037,
+          "end_unix": 1792407548.7319615,
+          "calls": 9,
+          "gpu_event_ms_per_call": 2.8537955813937717,
+          "wall_seconds": 0.025787832972127944,
+          "cpu_core_seconds": 0.025799000000001016
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407548.732187,
+          "end_unix": 1792407548.761423,
+          "calls": 9,
+          "gpu_event_ms_per_call": 3.242808871799045,
+          "wall_seconds": 0.029240698961075395,
+          "cpu_core_seconds": 0.029287999999997538
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 5.540796491834852,
+        "w8-a8-g32-f32scale-residual-a8": 2.8105636172824435,
+        "control-w8-a8-g32-f32scale-residual-a8": 3.2039110395643444
+      }
+    },
+    {
+      "shape": [
+        124160,
+        5120
+      ],
+      "original_shape": [
+        248320,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/output_head",
+      "tokens": 32,
+      "independent_sample_rows": [
+        0,
+        124159,
+        30920,
+        87841,
+        31559,
+        24904,
+        2736,
+        14660,
+        8376,
+        62216,
+        44789,
+        81630,
+        42395,
+        31451,
+        11277,
+        25629,
+        23165,
+        98366,
+        40423,
+        39476,
+        80662,
+        38847,
+        114516,
+        23253,
+        66010,
+        77576,
+        51228,
+        47506,
+        122419,
+        66509,
+        90553,
+        57506
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00020120569716945523,
+          "max_absolute": 0.0009646573570307737,
+          "cosine": 0.9999999797725952
+        },
+        {
+          "relative_l2": 0.0002017608557726143,
+          "max_absolute": 0.0009712221446749325,
+          "cosine": 0.9999999796480757
+        },
+        {
+          "relative_l2": 0.0002017608557726143,
+          "max_absolute": 0.0009712221446749325,
+          "cosine": 0.9999999796480757
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000728
+        },
+        {
+          "relative_l2": 9.499311846198305e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999954882319
+        },
+        {
+          "relative_l2": 9.499311846198305e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999954882319
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        368640,
+        368640
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407549.646835,
+          "end_unix": 1792407549.8458686,
+          "calls": 9,
+          "gpu_event_ms_per_call": 22.108313666449654,
+          "wall_seconds": 0.1990431240410544,
+          "cpu_core_seconds": 0.19917099999999976
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407549.84594,
+          "end_unix": 1792407549.9472108,
+          "calls": 9,
+          "gpu_event_ms_per_call": 11.248181660970053,
+          "wall_seconds": 0.10127810802077875,
+          "cpu_core_seconds": 0.10137699999999938
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407549.9472735,
+          "end_unix": 1792407550.065278,
+          "calls": 9,
+          "gpu_event_ms_per_call": 13.107715182834202,
+          "wall_seconds": 0.11801166000077501,
+          "cpu_core_seconds": 0.11818199999999734
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407550.0653431,
+          "end_unix": 1792407550.1819222,
+          "calls": 9,
+          "gpu_event_ms_per_call": 12.949532402886284,
+          "wall_seconds": 0.11658503400394693,
+          "cpu_core_seconds": 0.11664899999999889
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407550.1819715,
+          "end_unix": 1792407550.279816,
+          "calls": 9,
+          "gpu_event_ms_per_call": 10.86787584092882,
+          "wall_seconds": 0.09785017697140574,
+          "cpu_core_seconds": 0.09791300000000192
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407550.279864,
+          "end_unix": 1792407550.479444,
+          "calls": 9,
+          "gpu_event_ms_per_call": 22.17202419704861,
+          "wall_seconds": 0.199588728020899,
+          "cpu_core_seconds": 0.19957399999999836
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407550.479521,
+          "end_unix": 1792407550.6806972,
+          "calls": 9,
+          "gpu_event_ms_per_call": 22.348098754882812,
+          "wall_seconds": 0.20118839101633057,
+          "cpu_core_seconds": 0.20135299999999745
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407550.680787,
+          "end_unix": 1792407550.7820647,
+          "calls": 9,
+          "gpu_event_ms_per_call": 11.241308424207899,
+          "wall_seconds": 0.10131401900434867,
+          "cpu_core_seconds": 0.10140200000000021
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407550.782348,
+          "end_unix": 1792407550.9008284,
+          "calls": 9,
+          "gpu_event_ms_per_call": 13.157621595594618,
+          "wall_seconds": 0.11848721298156306,
+          "cpu_core_seconds": 0.11858799999999903
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 22.17202419704861,
+        "w8-a8-g32-f32scale-residual-a8": 11.241308424207899,
+        "control-w8-a8-g32-f32scale-residual-a8": 13.107715182834202
+      }
+    },
+    {
+      "shape": [
+        8704,
+        5120
+      ],
+      "original_shape": [
+        17408,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/mlp/up",
+      "tokens": 1,
+      "independent_sample_rows": [
+        0,
+        8703,
+        4296,
+        8481,
+        4167,
+        3656,
+        688,
+        5956,
+        4280,
+        2312,
+        7157,
+        5086,
+        4251,
+        3291,
+        6157,
+        4637,
+        4733,
+        8510,
+        7655,
+        52,
+        1814,
+        8639,
+        5204,
+        3285,
+        986,
+        4104,
+        7196,
+        4242,
+        1843,
+        3277,
+        6073,
+        8098
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.0002121922314630348,
+          "max_absolute": 0.0004805489888894954,
+          "cosine": 0.9999999778331745
+        },
+        {
+          "relative_l2": 0.00021375419692319973,
+          "max_absolute": 0.00048548859358699126,
+          "cosine": 0.9999999774302856
+        },
+        {
+          "relative_l2": 0.00021375419692319973,
+          "max_absolute": 0.00048548859358699126,
+          "cosine": 0.9999999774302856
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0
+        },
+        {
+          "relative_l2": 8.847995169230504e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999960856828
+        },
+        {
+          "relative_l2": 8.847995169230504e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999960856828
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        11520,
+        11520
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407551.420595,
+          "end_unix": 1792407551.4214523,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.09024710787667169,
+          "wall_seconds": 0.0008648459916003048,
+          "cpu_core_seconds": 0.000860999999996892
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407551.4214919,
+          "end_unix": 1792407551.4221172,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06665955649481879,
+          "wall_seconds": 0.0006295149796642363,
+          "cpu_core_seconds": 0.0006299999999974659
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407551.4221475,
+          "end_unix": 1792407551.4227686,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06620089213053386,
+          "wall_seconds": 0.0006249920115806162,
+          "cpu_core_seconds": 0.0006260000000004595
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407551.4227998,
+          "end_unix": 1792407551.423425,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06619022289911906,
+          "wall_seconds": 0.0006290699820965528,
+          "cpu_core_seconds": 0.0006299999999974659
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407551.4234645,
+          "end_unix": 1792407551.4240835,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.0660159985224406,
+          "wall_seconds": 0.0006229609716683626,
+          "cpu_core_seconds": 0.0006230000000009284
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407551.424112,
+          "end_unix": 1792407551.4249399,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.08921955691443549,
+          "wall_seconds": 0.0008314389851875603,
+          "cpu_core_seconds": 0.0008319999999990557
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407551.4249694,
+          "end_unix": 1792407551.4257984,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.08937955564922756,
+          "wall_seconds": 0.0008323410293087363,
+          "cpu_core_seconds": 0.0008330000000000837
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407551.425861,
+          "end_unix": 1792407551.426478,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06576355298360188,
+          "wall_seconds": 0.0006206649704836309,
+          "cpu_core_seconds": 0.0006209999999988725
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407551.4265053,
+          "end_unix": 1792407551.427127,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.0663964417245653,
+          "wall_seconds": 0.0006253949832171202,
+          "cpu_core_seconds": 0.0006260000000004595
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.08937955564922756,
+        "w8-a8-g32-f32scale-residual-a8": 0.0660159985224406,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.06620089213053386
+      }
+    },
+    {
+      "shape": [
+        8704,
+        5120
+      ],
+      "original_shape": [
+        17408,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/mlp/up",
+      "tokens": 2,
+      "independent_sample_rows": [
+        0,
+        8703,
+        4296,
+        8481,
+        4167,
+        3656,
+        688,
+        5956,
+        4280,
+        2312,
+        7157,
+        5086,
+        4251,
+        3291,
+        6157,
+        4637,
+        4733,
+        8510,
+        7655,
+        52,
+        1814,
+        8639,
+        5204,
+        3285,
+        986,
+        4104,
+        7196,
+        4242,
+        1843,
+        3277,
+        6073,
+        8098
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00022349295250369565,
+          "max_absolute": 0.000916907336886652,
+          "cosine": 0.9999999750733133
+        },
+        {
+          "relative_l2": 0.00022369924766310994,
+          "max_absolute": 0.0008989309133742296,
+          "cosine": 0.9999999750185474
+        },
+        {
+          "relative_l2": 0.00022369924766310994,
+          "max_absolute": 0.0008989309133742296,
+          "cosine": 0.9999999750185474
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 0.9999999999999999
+        },
+        {
+          "relative_l2": 9.876677015728916e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999951250856
+        },
+        {
+          "relative_l2": 9.876677015728916e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999951250856
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        23040,
+        23040
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407551.5938632,
+          "end_unix": 1792407551.5950024,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.1217457718319363,
+          "wall_seconds": 0.0011465440038591623,
+          "cpu_core_seconds": 0.0011410000000005027
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407551.5950453,
+          "end_unix": 1792407551.5957956,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.08032711346944173,
+          "wall_seconds": 0.0007546700071543455,
+          "cpu_core_seconds": 0.0007549999999980628
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407551.5958364,
+          "end_unix": 1792407551.596572,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.07889778084225124,
+          "wall_seconds": 0.0007393790292553604,
+          "cpu_core_seconds": 0.000738999999999379
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407551.5966039,
+          "end_unix": 1792407551.5973299,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.07776000102361043,
+          "wall_seconds": 0.0007300680154003203,
+          "cpu_core_seconds": 0.0007309999999982608
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407551.597359,
+          "end_unix": 1792407551.5981102,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.08067911201053196,
+          "wall_seconds": 0.0007554260082542896,
+          "cpu_core_seconds": 0.0007559999999990907
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407551.5981393,
+          "end_unix": 1792407551.59925,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.12060444884830052,
+          "wall_seconds": 0.0011148210032843053,
+          "cpu_core_seconds": 0.0011150000000021976
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407551.5992796,
+          "end_unix": 1792407551.6003933,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.12088178263770209,
+          "wall_seconds": 0.0011174950050190091,
+          "cpu_core_seconds": 0.0011180000000017287
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407551.6004214,
+          "end_unix": 1792407551.6011555,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.07878400219811334,
+          "wall_seconds": 0.0007380109746009111,
+          "cpu_core_seconds": 0.0007379999999983511
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407551.6011832,
+          "end_unix": 1792407551.6019068,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.07766399780909221,
+          "wall_seconds": 0.0007272299844771624,
+          "cpu_core_seconds": 0.0007270000000012544
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.12088178263770209,
+        "w8-a8-g32-f32scale-residual-a8": 0.08032711346944173,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.07776000102361043
+      }
+    },
+    {
+      "shape": [
+        8704,
+        5120
+      ],
+      "original_shape": [
+        17408,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/mlp/up",
+      "tokens": 8,
+      "independent_sample_rows": [
+        0,
+        8703,
+        4296,
+        8481,
+        4167,
+        3656,
+        688,
+        5956,
+        4280,
+        2312,
+        7157,
+        5086,
+        4251,
+        3291,
+        6157,
+        4637,
+        4733,
+        8510,
+        7655,
+        52,
+        1814,
+        8639,
+        5204,
+        3285,
+        986,
+        4104,
+        7196,
+        4242,
+        1843,
+        3277,
+        6073,
+        8098
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00019836281400227202,
+          "max_absolute": 0.00048656149783710134,
+          "cosine": 0.9999999803404055
+        },
+        {
+          "relative_l2": 0.00019787622652068018,
+          "max_absolute": 0.0004880629547778792,
+          "cosine": 0.9999999804267611
+        },
+        {
+          "relative_l2": 0.00019787622652068018,
+          "max_absolute": 0.0004880629547778792,
+          "cosine": 0.9999999804267611
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0
+        },
+        {
+          "relative_l2": 9.18898919157983e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999957782236
+        },
+        {
+          "relative_l2": 9.18898919157983e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999957782236
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        92160,
+        92160
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407551.7767932,
+          "end_unix": 1792407551.7802768,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.3799893326229519,
+          "wall_seconds": 0.0034900199971161783,
+          "cpu_core_seconds": 0.0034840000000002647
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407551.7803178,
+          "end_unix": 1792407551.782083,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.1931591166390313,
+          "wall_seconds": 0.0017696330323815346,
+          "cpu_core_seconds": 0.0017699999999969407
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407551.7821145,
+          "end_unix": 1792407551.7843063,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.2406968805525038,
+          "wall_seconds": 0.0021953139803372324,
+          "cpu_core_seconds": 0.002196000000001419
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407551.7843401,
+          "end_unix": 1792407551.786519,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.239153782526652,
+          "wall_seconds": 0.002183252014219761,
+          "cpu_core_seconds": 0.002184999999997217
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407551.7865558,
+          "end_unix": 1792407551.788305,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.19144177436828613,
+          "wall_seconds": 0.0017536290106363595,
+          "cpu_core_seconds": 0.0017540000000018097
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407551.7883384,
+          "end_unix": 1792407551.7917774,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.37921423382229275,
+          "wall_seconds": 0.0034425280173309147,
+          "cpu_core_seconds": 0.003443000000000751
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407551.7918112,
+          "end_unix": 1792407551.7952473,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.3788835472530789,
+          "wall_seconds": 0.003440820029936731,
+          "cpu_core_seconds": 0.003441999999999723
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407551.7952776,
+          "end_unix": 1792407551.7970285,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.19160889254675972,
+          "wall_seconds": 0.0017552769859321415,
+          "cpu_core_seconds": 0.001754999999999285
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407551.7970583,
+          "end_unix": 1792407551.7992334,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.2388870981004503,
+          "wall_seconds": 0.0021789660095237195,
+          "cpu_core_seconds": 0.0021799999999991826
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.37921423382229275,
+        "w8-a8-g32-f32scale-residual-a8": 0.19160889254675972,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.239153782526652
+      }
+    },
+    {
+      "shape": [
+        8704,
+        5120
+      ],
+      "original_shape": [
+        17408,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/mlp/up",
+      "tokens": 32,
+      "independent_sample_rows": [
+        0,
+        8703,
+        4296,
+        8481,
+        4167,
+        3656,
+        688,
+        5956,
+        4280,
+        2312,
+        7157,
+        5086,
+        4251,
+        3291,
+        6157,
+        4637,
+        4733,
+        8510,
+        7655,
+        52,
+        1814,
+        8639,
+        5204,
+        3285,
+        986,
+        4104,
+        7196,
+        4242,
+        1843,
+        3277,
+        6073,
+        8098
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00020448898211526483,
+          "max_absolute": 0.000969763330317619,
+          "cosine": 0.999999979151962
+        },
+        {
+          "relative_l2": 0.00020393511046879628,
+          "max_absolute": 0.0009726876327924572,
+          "cosine": 0.9999999792601632
+        },
+        {
+          "relative_l2": 0.00020393511046879628,
+          "max_absolute": 0.0009726876327924572,
+          "cosine": 0.9999999792601632
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000013
+        },
+        {
+          "relative_l2": 9.5999694499802e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999953920492
+        },
+        {
+          "relative_l2": 9.5999694499802e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999953920492
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        368640,
+        368640
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407552.017691,
+          "end_unix": 1792407552.0312054,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.4930737813313801,
+          "wall_seconds": 0.013526074995752424,
+          "cpu_core_seconds": 0.013525000000001342
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407552.0312963,
+          "end_unix": 1792407552.0382748,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.7715662320454916,
+          "wall_seconds": 0.006986295979004353,
+          "cpu_core_seconds": 0.006987999999999772
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407552.038329,
+          "end_unix": 1792407552.0465882,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.9142755932278104,
+          "wall_seconds": 0.008265279000625014,
+          "cpu_core_seconds": 0.008266000000002549
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407552.0466425,
+          "end_unix": 1792407552.0549374,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.9182187186347114,
+          "wall_seconds": 0.00830007204785943,
+          "cpu_core_seconds": 0.008302000000000476
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407552.0549774,
+          "end_unix": 1792407552.0619202,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.7676231066385905,
+          "wall_seconds": 0.006950572016648948,
+          "cpu_core_seconds": 0.007004000000002009
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407552.061977,
+          "end_unix": 1792407552.0753949,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.4858133527967665,
+          "wall_seconds": 0.013439305999781936,
+          "cpu_core_seconds": 0.013445999999998293
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407552.0755334,
+          "end_unix": 1792407552.089014,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.4926862716674805,
+          "wall_seconds": 0.01348912698449567,
+          "cpu_core_seconds": 0.013490999999998365
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407552.0890715,
+          "end_unix": 1792407552.0961032,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.7777777777777778,
+          "wall_seconds": 0.007038070994894952,
+          "cpu_core_seconds": 0.007038999999998907
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407552.0961547,
+          "end_unix": 1792407552.1045086,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.9250204298231337,
+          "wall_seconds": 0.008358222956303507,
+          "cpu_core_seconds": 0.008358999999998673
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 1.4926862716674805,
+        "w8-a8-g32-f32scale-residual-a8": 0.7715662320454916,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.9182187186347114
+      }
+    },
+    {
+      "shape": [
+        2560,
+        17408
+      ],
+      "original_shape": [
+        5120,
+        17408
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/mlp/down",
+      "tokens": 1,
+      "independent_sample_rows": [
+        0,
+        2559,
+        200,
+        801,
+        2119,
+        584,
+        176,
+        1860,
+        696,
+        776,
+        2549,
+        990,
+        155,
+        731,
+        1037,
+        29,
+        125,
+        2366,
+        2023,
+        1076,
+        1302,
+        447,
+        596,
+        213,
+        2010,
+        2056,
+        28,
+        146,
+        819,
+        1229,
+        953,
+        2466
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00019837439392715492,
+          "max_absolute": 0.0007500520685539414,
+          "cosine": 0.9999999806240568
+        },
+        {
+          "relative_l2": 0.0001977696432547409,
+          "max_absolute": 0.0007376535394216788,
+          "cosine": 0.9999999807706587
+        },
+        {
+          "relative_l2": 0.0001977696432547409,
+          "max_absolute": 0.0007376535394216788,
+          "cosine": 0.9999999807706587
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0
+        },
+        {
+          "relative_l2": 8.74556001877982e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999961917875
+        },
+        {
+          "relative_l2": 8.74556001877982e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999961917875
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        39168,
+        39168
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407552.553489,
+          "end_unix": 1792407552.5543866,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.09470222393671672,
+          "wall_seconds": 0.0009044799953699112,
+          "cpu_core_seconds": 0.0008999999999979025
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407552.554426,
+          "end_unix": 1792407552.5550623,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06774044699139065,
+          "wall_seconds": 0.0006405439926311374,
+          "cpu_core_seconds": 0.000641000000001668
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407552.5550928,
+          "end_unix": 1792407552.555725,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06747733222113715,
+          "wall_seconds": 0.0006358909886330366,
+          "cpu_core_seconds": 0.0006360000000000809
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407552.5557566,
+          "end_unix": 1792407552.5563855,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06692622105280559,
+          "wall_seconds": 0.0006331040058284998,
+          "cpu_core_seconds": 0.0007139999999985491
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407552.5564156,
+          "end_unix": 1792407552.5570455,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.0671608911620246,
+          "wall_seconds": 0.0006340229883790016,
+          "cpu_core_seconds": 0.000633999999998025
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407552.557075,
+          "end_unix": 1792407552.5579464,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.09408355421490139,
+          "wall_seconds": 0.0008754860027693212,
+          "cpu_core_seconds": 0.0008759999999981005
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407552.5579755,
+          "end_unix": 1792407552.558842,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.09349333577685887,
+          "wall_seconds": 0.0008700439939275384,
+          "cpu_core_seconds": 0.0008699999999990382
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407552.5588694,
+          "end_unix": 1792407552.559499,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06726755698521932,
+          "wall_seconds": 0.0006334079662337899,
+          "cpu_core_seconds": 0.000633999999998025
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407552.5595264,
+          "end_unix": 1792407552.5601554,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06719999843173557,
+          "wall_seconds": 0.0006329849711619318,
+          "cpu_core_seconds": 0.0006330000000005498
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.09408355421490139,
+        "w8-a8-g32-f32scale-residual-a8": 0.06726755698521932,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.06719999843173557
+      }
+    },
+    {
+      "shape": [
+        2560,
+        17408
+      ],
+      "original_shape": [
+        5120,
+        17408
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/mlp/down",
+      "tokens": 2,
+      "independent_sample_rows": [
+        0,
+        2559,
+        200,
+        801,
+        2119,
+        584,
+        176,
+        1860,
+        696,
+        776,
+        2549,
+        990,
+        155,
+        731,
+        1037,
+        29,
+        125,
+        2366,
+        2023,
+        1076,
+        1302,
+        447,
+        596,
+        213,
+        2010,
+        2056,
+        28,
+        146,
+        819,
+        1229,
+        953,
+        2466
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00023196791740481243,
+          "max_absolute": 0.0012806607095114941,
+          "cosine": 0.9999999749029322
+        },
+        {
+          "relative_l2": 0.00022908026517894252,
+          "max_absolute": 0.0012971764149769527,
+          "cosine": 0.999999975480952
+        },
+        {
+          "relative_l2": 0.00022908026517894252,
+          "max_absolute": 0.0012971764149769527,
+          "cosine": 0.999999975480952
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0
+        },
+        {
+          "relative_l2": 9.333499554291197e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999956451401
+        },
+        {
+          "relative_l2": 9.333499554291197e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999956451401
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        78336,
+        78336
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407552.7214155,
+          "end_unix": 1792407552.7225425,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.12027377552456325,
+          "wall_seconds": 0.0011335409944877028,
+          "cpu_core_seconds": 0.0011289999999988254
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407552.722582,
+          "end_unix": 1792407552.7234206,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.09008000294367473,
+          "wall_seconds": 0.0008429439621977508,
+          "cpu_core_seconds": 0.0008430000000032578
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407552.7234535,
+          "end_unix": 1792407552.7242606,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.08675199747085571,
+          "wall_seconds": 0.0008111099596135318,
+          "cpu_core_seconds": 0.0008119999999962602
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407552.724294,
+          "end_unix": 1792407552.725068,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.08309333191977607,
+          "wall_seconds": 0.0007781619788147509,
+          "cpu_core_seconds": 0.0007779999999968368
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407552.7250974,
+          "end_unix": 1792407552.7259371,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.09047822157541911,
+          "wall_seconds": 0.0008436379721388221,
+          "cpu_core_seconds": 0.000844000000000733
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407552.725966,
+          "end_unix": 1792407552.7270687,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.11977956030103895,
+          "wall_seconds": 0.0011065559810958803,
+          "cpu_core_seconds": 0.0011069999999975266
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407552.7270987,
+          "end_unix": 1792407552.7282,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.11963378058539496,
+          "wall_seconds": 0.0011052819900214672,
+          "cpu_core_seconds": 0.0011060000000000514
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407552.7282283,
+          "end_unix": 1792407552.7290704,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.09078755643632677,
+          "wall_seconds": 0.0008460400276817381,
+          "cpu_core_seconds": 0.0008470000000002642
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407552.7290998,
+          "end_unix": 1792407552.7298737,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.08324266804589166,
+          "wall_seconds": 0.0007781279855407774,
+          "cpu_core_seconds": 0.0007790000000014174
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.11977956030103895,
+        "w8-a8-g32-f32scale-residual-a8": 0.09047822157541911,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.08324266804589166
+      }
+    },
+    {
+      "shape": [
+        2560,
+        17408
+      ],
+      "original_shape": [
+        5120,
+        17408
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/mlp/down",
+      "tokens": 8,
+      "independent_sample_rows": [
+        0,
+        2559,
+        200,
+        801,
+        2119,
+        584,
+        176,
+        1860,
+        696,
+        776,
+        2549,
+        990,
+        155,
+        731,
+        1037,
+        29,
+        125,
+        2366,
+        2023,
+        1076,
+        1302,
+        447,
+        596,
+        213,
+        2010,
+        2056,
+        28,
+        146,
+        819,
+        1229,
+        953,
+        2466
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00020420950990285118,
+          "max_absolute": 0.001466943877801441,
+          "cosine": 0.9999999791746456
+        },
+        {
+          "relative_l2": 0.00020384979283835154,
+          "max_absolute": 0.0014825731469150227,
+          "cosine": 0.9999999793668577
+        },
+        {
+          "relative_l2": 0.00020384979283835154,
+          "max_absolute": 0.0014825731469150227,
+          "cosine": 0.9999999793668577
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000002
+        },
+        {
+          "relative_l2": 9.588346873729753e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999954032449
+        },
+        {
+          "relative_l2": 9.588346873729753e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999954032449
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        313344,
+        313344
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407552.9027166,
+          "end_unix": 1792407552.9062197,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.3838862313164605,
+          "wall_seconds": 0.003510999958962202,
+          "cpu_core_seconds": 0.0035060000000015634
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407552.9062626,
+          "end_unix": 1792407552.9080968,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.20074310567643908,
+          "wall_seconds": 0.001838785014115274,
+          "cpu_core_seconds": 0.0018390000000039208
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407552.9081292,
+          "end_unix": 1792407552.9106877,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.28139376640319824,
+          "wall_seconds": 0.002562562993261963,
+          "cpu_core_seconds": 0.0025630000000020914
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407552.9107215,
+          "end_unix": 1792407552.9132857,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.28202666176689994,
+          "wall_seconds": 0.0025680179824121296,
+          "cpu_core_seconds": 0.0025689999999940483
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407552.9133148,
+          "end_unix": 1792407552.91514,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.20000355773501927,
+          "wall_seconds": 0.001828620966989547,
+          "cpu_core_seconds": 0.0018280000000032715
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407552.9151688,
+          "end_unix": 1792407552.918635,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.3824000093672011,
+          "wall_seconds": 0.0034702509874477983,
+          "cpu_core_seconds": 0.0034709999999975594
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407552.9186654,
+          "end_unix": 1792407552.9221332,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.3824640115102132,
+          "wall_seconds": 0.003472295997198671,
+          "cpu_core_seconds": 0.0034729999999996153
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407552.922168,
+          "end_unix": 1792407552.923991,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.19973688655429417,
+          "wall_seconds": 0.001826649997383356,
+          "cpu_core_seconds": 0.0018269999999986908
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407552.924019,
+          "end_unix": 1792407552.9265826,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.2820160124037001,
+          "wall_seconds": 0.002566845971159637,
+          "cpu_core_seconds": 0.0025669999999990978
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.3824640115102132,
+        "w8-a8-g32-f32scale-residual-a8": 0.20000355773501927,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.2820160124037001
+      }
+    },
+    {
+      "shape": [
+        2560,
+        17408
+      ],
+      "original_shape": [
+        5120,
+        17408
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/mlp/down",
+      "tokens": 32,
+      "independent_sample_rows": [
+        0,
+        2559,
+        200,
+        801,
+        2119,
+        584,
+        176,
+        1860,
+        696,
+        776,
+        2549,
+        990,
+        155,
+        731,
+        1037,
+        29,
+        125,
+        2366,
+        2023,
+        1076,
+        1302,
+        447,
+        596,
+        213,
+        2010,
+        2056,
+        28,
+        146,
+        819,
+        1229,
+        953,
+        2466
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.0002013152986226813,
+          "max_absolute": 0.0016801544252444955,
+          "cosine": 0.9999999797651179
+        },
+        {
+          "relative_l2": 0.00020190405989894465,
+          "max_absolute": 0.001639205026296331,
+          "cosine": 0.9999999796219785
+        },
+        {
+          "relative_l2": 0.00020190405989894465,
+          "max_absolute": 0.001639205026296331,
+          "cosine": 0.9999999796219785
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000002
+        },
+        {
+          "relative_l2": 9.73155323358229e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999952648576
+        },
+        {
+          "relative_l2": 9.73155323358229e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999952648576
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        1253376,
+        1253376
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407553.1409621,
+          "end_unix": 1792407553.1542726,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.4735857645670574,
+          "wall_seconds": 0.013317787030246109,
+          "cpu_core_seconds": 0.01331300000000013
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407553.154314,
+          "end_unix": 1792407553.1616588,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.8129884401957194,
+          "wall_seconds": 0.007349168008659035,
+          "cpu_core_seconds": 0.007439999999999003
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407553.161691,
+          "end_unix": 1792407553.1710672,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.0388338300916884,
+          "wall_seconds": 0.00938040902838111,
+          "cpu_core_seconds": 0.009381000000001194
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407553.171103,
+          "end_unix": 1792407553.1804745,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.0383182101779513,
+          "wall_seconds": 0.009375908994115889,
+          "cpu_core_seconds": 0.009377000000000635
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407553.1805058,
+          "end_unix": 1792407553.187826,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.8103466563754611,
+          "wall_seconds": 0.007324044010601938,
+          "cpu_core_seconds": 0.007324000000000552
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407553.1878548,
+          "end_unix": 1792407553.2011213,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.4711679882473416,
+          "wall_seconds": 0.013270559022203088,
+          "cpu_core_seconds": 0.013270999999999589
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407553.2011561,
+          "end_unix": 1792407553.2144535,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.4744959937201605,
+          "wall_seconds": 0.013301081024110317,
+          "cpu_core_seconds": 0.013300999999998453
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407553.2144845,
+          "end_unix": 1792407553.2219455,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.8260835541619195,
+          "wall_seconds": 0.0074654530035331845,
+          "cpu_core_seconds": 0.007466000000000861
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407553.2219796,
+          "end_unix": 1792407553.2314975,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.0547200308905706,
+          "wall_seconds": 0.009521633968688548,
+          "cpu_core_seconds": 0.009522000000000475
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 1.4735857645670574,
+        "w8-a8-g32-f32scale-residual-a8": 0.8129884401957194,
+        "control-w8-a8-g32-f32scale-residual-a8": 1.0388338300916884
+      }
+    },
+    {
+      "shape": [
+        5120,
+        5120
+      ],
+      "original_shape": [
+        10240,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/62/gdn/qkv",
+      "tokens": 1,
+      "independent_sample_rows": [
+        0,
+        5119,
+        2760,
+        801,
+        2119,
+        584,
+        2736,
+        1860,
+        3256,
+        3336,
+        5109,
+        3550,
+        2715,
+        3291,
+        1037,
+        2589,
+        125,
+        2366,
+        2023,
+        1076,
+        3862,
+        3007,
+        596,
+        213,
+        2010,
+        2056,
+        2588,
+        2706,
+        3379,
+        1229,
+        3513,
+        5026
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00020283094366790877,
+          "max_absolute": 0.0006492799111015302,
+          "cosine": 0.9999999803038006
+        },
+        {
+          "relative_l2": 0.00020929403484415754,
+          "max_absolute": 0.0006764566221932888,
+          "cosine": 0.9999999796924908
+        },
+        {
+          "relative_l2": 0.00020929403484415754,
+          "max_absolute": 0.0006764566221932888,
+          "cosine": 0.9999999796924908
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 0.9999999999999999
+        },
+        {
+          "relative_l2": 0.00010007750207257659,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999949930716
+        },
+        {
+          "relative_l2": 0.00010007750207257659,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999949930716
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        11520,
+        11520
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407553.6182005,
+          "end_unix": 1792407553.6187813,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.0595911078982883,
+          "wall_seconds": 0.0005877139628864825,
+          "cpu_core_seconds": 0.000581999999997862
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407553.6188445,
+          "end_unix": 1792407553.6192672,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.04380444354481167,
+          "wall_seconds": 0.00042698998004198074,
+          "cpu_core_seconds": 0.0004269999999984009
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407553.6193001,
+          "end_unix": 1792407553.6197116,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.0429368880059984,
+          "wall_seconds": 0.00041554897325113416,
+          "cpu_core_seconds": 0.0004160000000013042
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407553.6197448,
+          "end_unix": 1792407553.6201546,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.042677332957585655,
+          "wall_seconds": 0.00041353097185492516,
+          "cpu_core_seconds": 0.0004139999999992483
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407553.6201842,
+          "end_unix": 1792407553.6205926,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.04263822237650553,
+          "wall_seconds": 0.0004122409736737609,
+          "cpu_core_seconds": 0.0004120000000007451
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407553.620621,
+          "end_unix": 1792407553.6211784,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.0588266650835673,
+          "wall_seconds": 0.0005609099753201008,
+          "cpu_core_seconds": 0.0005609999999975912
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407553.6212084,
+          "end_unix": 1792407553.6217594,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.058435552650027804,
+          "wall_seconds": 0.000554571975953877,
+          "cpu_core_seconds": 0.0005549999999985289
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407553.6217868,
+          "end_unix": 1792407553.6222003,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.0429368880059984,
+          "wall_seconds": 0.0004172789631411433,
+          "cpu_core_seconds": 0.00041700000000233217
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407553.6222284,
+          "end_unix": 1792407553.6226354,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.04251733422279358,
+          "wall_seconds": 0.0004102360107935965,
+          "cpu_core_seconds": 0.00041099999999971715
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.0588266650835673,
+        "w8-a8-g32-f32scale-residual-a8": 0.0429368880059984,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.042677332957585655
+      }
+    },
+    {
+      "shape": [
+        5120,
+        5120
+      ],
+      "original_shape": [
+        10240,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/62/gdn/qkv",
+      "tokens": 2,
+      "independent_sample_rows": [
+        0,
+        5119,
+        2760,
+        801,
+        2119,
+        584,
+        2736,
+        1860,
+        3256,
+        3336,
+        5109,
+        3550,
+        2715,
+        3291,
+        1037,
+        2589,
+        125,
+        2366,
+        2023,
+        1076,
+        3862,
+        3007,
+        596,
+        213,
+        2010,
+        2056,
+        2588,
+        2706,
+        3379,
+        1229,
+        3513,
+        5026
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.0002022934994162923,
+          "max_absolute": 0.0006551993074026541,
+          "cosine": 0.9999999800218371
+        },
+        {
+          "relative_l2": 0.00019713419137783617,
+          "max_absolute": 0.0006184506523139177,
+          "cosine": 0.9999999814267407
+        },
+        {
+          "relative_l2": 0.00019713419137783617,
+          "max_absolute": 0.0006184506523139177,
+          "cosine": 0.9999999814267407
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 0.9999999999999999
+        },
+        {
+          "relative_l2": 9.722903582169145e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999952750217
+        },
+        {
+          "relative_l2": 9.722903582169145e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999952750217
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        23040,
+        23040
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407553.7763822,
+          "end_unix": 1792407553.777144,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.07982577880223592,
+          "wall_seconds": 0.0007689140038564801,
+          "cpu_core_seconds": 0.0007650000000012369
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407553.777182,
+          "end_unix": 1792407553.7776933,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.05383822321891785,
+          "wall_seconds": 0.0005148149793967605,
+          "cpu_core_seconds": 0.0005150000000000432
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407553.7777221,
+          "end_unix": 1792407553.7781813,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.04824533396297031,
+          "wall_seconds": 0.0004630030016414821,
+          "cpu_core_seconds": 0.00046400000000090813
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407553.7782142,
+          "end_unix": 1792407553.7786722,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.04816355639033847,
+          "wall_seconds": 0.0004617980448529124,
+          "cpu_core_seconds": 0.0004619999999988522
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407553.7786996,
+          "end_unix": 1792407553.7791996,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.05281066563394335,
+          "wall_seconds": 0.0005036420188844204,
+          "cpu_core_seconds": 0.0005050000000004218
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407553.7792277,
+          "end_unix": 1792407553.7799637,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.07902222209506565,
+          "wall_seconds": 0.0007398499874398112,
+          "cpu_core_seconds": 0.0007399999999968543
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407553.779993,
+          "end_unix": 1792407553.7807295,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.07910755607816908,
+          "wall_seconds": 0.0007404189673252404,
+          "cpu_core_seconds": 0.0007410000000049877
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407553.7807572,
+          "end_unix": 1792407553.781254,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.05256177650557624,
+          "wall_seconds": 0.0005008170264773071,
+          "cpu_core_seconds": 0.0005009999999998627
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407553.7812815,
+          "end_unix": 1792407553.7817404,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.048369778527153864,
+          "wall_seconds": 0.00046254898188635707,
+          "cpu_core_seconds": 0.0004629999999998802
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.07910755607816908,
+        "w8-a8-g32-f32scale-residual-a8": 0.05281066563394335,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.04824533396297031
+      }
+    },
+    {
+      "shape": [
+        5120,
+        5120
+      ],
+      "original_shape": [
+        10240,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/62/gdn/qkv",
+      "tokens": 8,
+      "independent_sample_rows": [
+        0,
+        5119,
+        2760,
+        801,
+        2119,
+        584,
+        2736,
+        1860,
+        3256,
+        3336,
+        5109,
+        3550,
+        2715,
+        3291,
+        1037,
+        2589,
+        125,
+        2366,
+        2023,
+        1076,
+        3862,
+        3007,
+        596,
+        213,
+        2010,
+        2056,
+        2588,
+        2706,
+        3379,
+        1229,
+        3513,
+        5026
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00020518407592755284,
+          "max_absolute": 0.0008490220071166732,
+          "cosine": 0.9999999790104703
+        },
+        {
+          "relative_l2": 0.0002053147121851902,
+          "max_absolute": 0.0008444518047192595,
+          "cosine": 0.9999999789433421
+        },
+        {
+          "relative_l2": 0.0002053147121851902,
+          "max_absolute": 0.0008444518047192595,
+          "cosine": 0.9999999789433421
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000002
+        },
+        {
+          "relative_l2": 0.0001003891050961644,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999949621998
+        },
+        {
+          "relative_l2": 0.0001003891050961644,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999949621998
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        92160,
+        92160
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407553.9509144,
+          "end_unix": 1792407553.9531298,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.24113776948716906,
+          "wall_seconds": 0.0022229310125112534,
+          "cpu_core_seconds": 0.00221700000000169
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407553.9531693,
+          "end_unix": 1792407553.9542599,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.11821156077914768,
+          "wall_seconds": 0.0010945560061372817,
+          "cpu_core_seconds": 0.0010950000000029547
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407553.9542904,
+          "end_unix": 1792407553.955677,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.15128889348771837,
+          "wall_seconds": 0.0013905889936722815,
+          "cpu_core_seconds": 0.0013909999999981437
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407553.9557106,
+          "end_unix": 1792407553.9570744,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.1487004492017958,
+          "wall_seconds": 0.001367493998259306,
+          "cpu_core_seconds": 0.0013679999999993697
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407553.9571037,
+          "end_unix": 1792407553.9581826,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.11708445019192165,
+          "wall_seconds": 0.0010830470127984881,
+          "cpu_core_seconds": 0.0011440000000000339
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407553.9582148,
+          "end_unix": 1792407553.9604037,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.24034489525689018,
+          "wall_seconds": 0.0021934410324320197,
+          "cpu_core_seconds": 0.002193999999999363
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407553.9604368,
+          "end_unix": 1792407553.9626238,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.24008888668484157,
+          "wall_seconds": 0.002190886007156223,
+          "cpu_core_seconds": 0.002190999999999832
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407553.962653,
+          "end_unix": 1792407553.963735,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.11747554937998454,
+          "wall_seconds": 0.001086090982425958,
+          "cpu_core_seconds": 0.0010870000000018365
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407553.9637632,
+          "end_unix": 1792407553.9651446,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.15074843830532497,
+          "wall_seconds": 0.0013851599651388824,
+          "cpu_core_seconds": 0.0013860000000001094
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.24034489525689018,
+        "w8-a8-g32-f32scale-residual-a8": 0.11747554937998454,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.15074843830532497
+      }
+    },
+    {
+      "shape": [
+        5120,
+        5120
+      ],
+      "original_shape": [
+        10240,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/62/gdn/qkv",
+      "tokens": 32,
+      "independent_sample_rows": [
+        0,
+        5119,
+        2760,
+        801,
+        2119,
+        584,
+        2736,
+        1860,
+        3256,
+        3336,
+        5109,
+        3550,
+        2715,
+        3291,
+        1037,
+        2589,
+        125,
+        2366,
+        2023,
+        1076,
+        3862,
+        3007,
+        596,
+        213,
+        2010,
+        2056,
+        2588,
+        2706,
+        3379,
+        1229,
+        3513,
+        5026
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.0001984337324814946,
+          "max_absolute": 0.000973665774267829,
+          "cosine": 0.9999999803167984
+        },
+        {
+          "relative_l2": 0.00019868534567163377,
+          "max_absolute": 0.000973165075317084,
+          "cosine": 0.9999999802859492
+        },
+        {
+          "relative_l2": 0.00019868534567163377,
+          "max_absolute": 0.000973165075317084,
+          "cosine": 0.9999999802859492
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000002
+        },
+        {
+          "relative_l2": 9.59678619513007e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999953951058
+        },
+        {
+          "relative_l2": 9.59678619513007e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999953951058
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        368640,
+        368640
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407554.1706417,
+          "end_unix": 1792407554.179076,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.9315306345621744,
+          "wall_seconds": 0.008441210025921464,
+          "cpu_core_seconds": 0.008435999999999666
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407554.1791172,
+          "end_unix": 1792407554.1833682,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.4692408773634169,
+          "wall_seconds": 0.00425525801256299,
+          "cpu_core_seconds": 0.004256000000001592
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407554.183401,
+          "end_unix": 1792407554.1885536,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.5694755448235406,
+          "wall_seconds": 0.005156626983080059,
+          "cpu_core_seconds": 0.005157000000000522
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407554.1885886,
+          "end_unix": 1792407554.1937375,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.5691875351799859,
+          "wall_seconds": 0.005152846977580339,
+          "cpu_core_seconds": 0.005154000000000991
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407554.1937673,
+          "end_unix": 1792407554.1980152,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.46914487414889866,
+          "wall_seconds": 0.004252022015862167,
+          "cpu_core_seconds": 0.004252999999998508
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407554.1980503,
+          "end_unix": 1792407554.2064538,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.9307520124647353,
+          "wall_seconds": 0.008408975962083787,
+          "cpu_core_seconds": 0.008409999999997808
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407554.2064946,
+          "end_unix": 1792407554.214895,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.930389298333062,
+          "wall_seconds": 0.008405254979152232,
+          "cpu_core_seconds": 0.008406000000000802
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407554.2149305,
+          "end_unix": 1792407554.219174,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.4685155550638835,
+          "wall_seconds": 0.004247526987455785,
+          "cpu_core_seconds": 0.004247999999996921
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407554.2192051,
+          "end_unix": 1792407554.2243488,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.5687253210279677,
+          "wall_seconds": 0.0051474059582687914,
+          "cpu_core_seconds": 0.005147999999998376
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.9307520124647353,
+        "w8-a8-g32-f32scale-residual-a8": 0.46914487414889866,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.5691875351799859
+      }
+    },
+    {
+      "shape": [
+        3072,
+        5120
+      ],
+      "original_shape": [
+        6144,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/62/gdn/z",
+      "tokens": 1,
+      "independent_sample_rows": [
+        0,
+        3071,
+        2760,
+        1825,
+        71,
+        2632,
+        1712,
+        836,
+        184,
+        264,
+        3061,
+        478,
+        667,
+        2267,
+        13,
+        2589,
+        125,
+        1342,
+        999,
+        2100,
+        1814,
+        959,
+        1620,
+        2261,
+        986,
+        2056,
+        540,
+        1682,
+        307,
+        205,
+        2489,
+        930
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00018521711443392818,
+          "max_absolute": 0.00047966560998702334,
+          "cosine": 0.9999999829272228
+        },
+        {
+          "relative_l2": 0.00018860369507991024,
+          "max_absolute": 0.0004791797487206928,
+          "cosine": 0.9999999823906707
+        },
+        {
+          "relative_l2": 0.00018860369507991024,
+          "max_absolute": 0.0004791797487206928,
+          "cosine": 0.9999999823906707
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0
+        },
+        {
+          "relative_l2": 0.0001041548386852516,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999945786827
+        },
+        {
+          "relative_l2": 0.0001041548386852516,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999945786827
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        11520,
+        11520
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407554.546634,
+          "end_unix": 1792407554.5470326,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.039242668284310236,
+          "wall_seconds": 0.00040605594404041767,
+          "cpu_core_seconds": 0.00040100000000364844
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407554.5470731,
+          "end_unix": 1792407554.5473945,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03273955649799771,
+          "wall_seconds": 0.00032530399039387703,
+          "cpu_core_seconds": 0.00032500000000368345
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407554.5474236,
+          "end_unix": 1792407554.5477402,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.032440887557135686,
+          "wall_seconds": 0.0003205300308763981,
+          "cpu_core_seconds": 0.00031999999999499096
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407554.5477717,
+          "end_unix": 1792407554.5480924,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03286044465170966,
+          "wall_seconds": 0.00032460899092257023,
+          "cpu_core_seconds": 0.00032500000000368345
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407554.5481215,
+          "end_unix": 1792407554.5484333,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03195733494228787,
+          "wall_seconds": 0.00031586899422109127,
+          "cpu_core_seconds": 0.00031600000000509
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407554.5484607,
+          "end_unix": 1792407554.5488307,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.038346668084462486,
+          "wall_seconds": 0.00037393899401649833,
+          "cpu_core_seconds": 0.0003740000000007626
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407554.5488598,
+          "end_unix": 1792407554.5492313,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.038542220989863075,
+          "wall_seconds": 0.00037501397309824824,
+          "cpu_core_seconds": 0.00037499999999823785
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407554.5492587,
+          "end_unix": 1792407554.5495698,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.031975110371907554,
+          "wall_seconds": 0.0003148629912175238,
+          "cpu_core_seconds": 0.0003150000000005093
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407554.5495963,
+          "end_unix": 1792407554.5499105,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03222399950027466,
+          "wall_seconds": 0.0003180250059813261,
+          "cpu_core_seconds": 0.00031900000000462114
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.038542220989863075,
+        "w8-a8-g32-f32scale-residual-a8": 0.031975110371907554,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.032440887557135686
+      }
+    },
+    {
+      "shape": [
+        3072,
+        5120
+      ],
+      "original_shape": [
+        6144,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/62/gdn/z",
+      "tokens": 2,
+      "independent_sample_rows": [
+        0,
+        3071,
+        2760,
+        1825,
+        71,
+        2632,
+        1712,
+        836,
+        184,
+        264,
+        3061,
+        478,
+        667,
+        2267,
+        13,
+        2589,
+        125,
+        1342,
+        999,
+        2100,
+        1814,
+        959,
+        1620,
+        2261,
+        986,
+        2056,
+        540,
+        1682,
+        307,
+        205,
+        2489,
+        930
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00020557676748790107,
+          "max_absolute": 0.0007671007148246645,
+          "cosine": 0.999999980726921
+        },
+        {
+          "relative_l2": 0.00020698644062263906,
+          "max_absolute": 0.0007692910513892315,
+          "cosine": 0.9999999797999964
+        },
+        {
+          "relative_l2": 0.00020698644062263906,
+          "max_absolute": 0.0007692910513892315,
+          "cosine": 0.9999999797999964
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000002
+        },
+        {
+          "relative_l2": 0.00010020323147476197,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999949805805
+        },
+        {
+          "relative_l2": 0.00010020323147476197,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999949805805
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        23040,
+        23040
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407554.7163208,
+          "end_unix": 1792407554.716817,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.04975644416279263,
+          "wall_seconds": 0.0005035839858464897,
+          "cpu_core_seconds": 0.0004990000000013595
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407554.716858,
+          "end_unix": 1792407554.7172513,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.04078933265474108,
+          "wall_seconds": 0.00039750803261995316,
+          "cpu_core_seconds": 0.00039799999999701186
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407554.717283,
+          "end_unix": 1792407554.7176576,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03875199953715006,
+          "wall_seconds": 0.000378170982003212,
+          "cpu_core_seconds": 0.00037899999999879697
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407554.7176895,
+          "end_unix": 1792407554.7180705,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03947733177079095,
+          "wall_seconds": 0.0003850539796985686,
+          "cpu_core_seconds": 0.00038599999999888723
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407554.7181008,
+          "end_unix": 1792407554.718486,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.04004977809058295,
+          "wall_seconds": 0.0003889140207320452,
+          "cpu_core_seconds": 0.0003889999999984184
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407554.7185135,
+          "end_unix": 1792407554.7189784,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.048942221535576716,
+          "wall_seconds": 0.0004687150358222425,
+          "cpu_core_seconds": 0.00046999999999997044
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407554.719008,
+          "end_unix": 1792407554.7194736,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.04910577668084039,
+          "wall_seconds": 0.0004691869835369289,
+          "cpu_core_seconds": 0.0004690000000024952
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407554.7195005,
+          "end_unix": 1792407554.7198808,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03959111041492886,
+          "wall_seconds": 0.0003840120043605566,
+          "cpu_core_seconds": 0.000385000000001412
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407554.719909,
+          "end_unix": 1792407554.7202826,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03886222177081638,
+          "wall_seconds": 0.0003772510099224746,
+          "cpu_core_seconds": 0.00037700000000029377
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.04910577668084039,
+        "w8-a8-g32-f32scale-residual-a8": 0.04004977809058295,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.03886222177081638
+      }
+    },
+    {
+      "shape": [
+        3072,
+        5120
+      ],
+      "original_shape": [
+        6144,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/62/gdn/z",
+      "tokens": 8,
+      "independent_sample_rows": [
+        0,
+        3071,
+        2760,
+        1825,
+        71,
+        2632,
+        1712,
+        836,
+        184,
+        264,
+        3061,
+        478,
+        667,
+        2267,
+        13,
+        2589,
+        125,
+        1342,
+        999,
+        2100,
+        1814,
+        959,
+        1620,
+        2261,
+        986,
+        2056,
+        540,
+        1682,
+        307,
+        205,
+        2489,
+        930
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00020565975631849518,
+          "max_absolute": 0.0009738928960132398,
+          "cosine": 0.9999999788710655
+        },
+        {
+          "relative_l2": 0.0002048942360193459,
+          "max_absolute": 0.0009633987964079438,
+          "cosine": 0.9999999790918135
+        },
+        {
+          "relative_l2": 0.0002048942360193459,
+          "max_absolute": 0.0009633987964079438,
+          "cosine": 0.9999999790918135
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0
+        },
+        {
+          "relative_l2": 9.213241491651821e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999957565153
+        },
+        {
+          "relative_l2": 9.213241491651821e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999957565153
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        92160,
+        92160
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407554.9111135,
+          "end_unix": 1792407554.9124403,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.14255289236704508,
+          "wall_seconds": 0.0013339450233615935,
+          "cpu_core_seconds": 0.0013279999999973313
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407554.9124796,
+          "end_unix": 1792407554.9132345,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.08083911074532403,
+          "wall_seconds": 0.0007586629944853485,
+          "cpu_core_seconds": 0.0007599999999996498
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407554.9132664,
+          "end_unix": 1792407554.9141595,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.09642310937245686,
+          "wall_seconds": 0.0008971839561127126,
+          "cpu_core_seconds": 0.0008979999999993993
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407554.9141932,
+          "end_unix": 1792407554.9150944,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.0972977810435825,
+          "wall_seconds": 0.0009054539841599762,
+          "cpu_core_seconds": 0.0009049999999994895
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407554.9151247,
+          "end_unix": 1792407554.9158678,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.07981866598129272,
+          "wall_seconds": 0.0007471090066246688,
+          "cpu_core_seconds": 0.0007479999999979725
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407554.9158978,
+          "end_unix": 1792407554.9171994,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.14174221621619332,
+          "wall_seconds": 0.0013065459788776934,
+          "cpu_core_seconds": 0.0013070000000006132
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407554.9172335,
+          "end_unix": 1792407554.9185338,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.14152888456980386,
+          "wall_seconds": 0.0013046960229985416,
+          "cpu_core_seconds": 0.0013049999999985573
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407554.9185634,
+          "end_unix": 1792407554.9193082,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.08002489142947727,
+          "wall_seconds": 0.000748765014577657,
+          "cpu_core_seconds": 0.0007489999999990005
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407554.9193358,
+          "end_unix": 1792407554.9202316,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.0967751079135471,
+          "wall_seconds": 0.0008994499803520739,
+          "cpu_core_seconds": 0.0008999999999943498
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.14174221621619332,
+        "w8-a8-g32-f32scale-residual-a8": 0.08002489142947727,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.0967751079135471
+      }
+    },
+    {
+      "shape": [
+        3072,
+        5120
+      ],
+      "original_shape": [
+        6144,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/62/gdn/z",
+      "tokens": 32,
+      "independent_sample_rows": [
+        0,
+        3071,
+        2760,
+        1825,
+        71,
+        2632,
+        1712,
+        836,
+        184,
+        264,
+        3061,
+        478,
+        667,
+        2267,
+        13,
+        2589,
+        125,
+        1342,
+        999,
+        2100,
+        1814,
+        959,
+        1620,
+        2261,
+        986,
+        2056,
+        540,
+        1682,
+        307,
+        205,
+        2489,
+        930
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.0002093251913340918,
+          "max_absolute": 0.00097230807904225,
+          "cosine": 0.9999999781712338
+        },
+        {
+          "relative_l2": 0.0002091419467709461,
+          "max_absolute": 0.0009700129072989228,
+          "cosine": 0.999999978185033
+        },
+        {
+          "relative_l2": 0.0002091419467709461,
+          "max_absolute": 0.0009700129072989228,
+          "cosine": 0.999999978185033
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000004
+        },
+        {
+          "relative_l2": 9.492734089132163e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999954952488
+        },
+        {
+          "relative_l2": 9.492734089132163e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999954952488
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        368640,
+        368640
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407555.1210566,
+          "end_unix": 1792407555.125941,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.5374719831678603,
+          "wall_seconds": 0.0048918030224740505,
+          "cpu_core_seconds": 0.004885999999999058
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407555.1259806,
+          "end_unix": 1792407555.1285415,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.28153244654337567,
+          "wall_seconds": 0.0025651599862612784,
+          "cpu_core_seconds": 0.0025650000000005946
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407555.1285727,
+          "end_unix": 1792407555.1314328,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.31484444936116535,
+          "wall_seconds": 0.0028639810043387115,
+          "cpu_core_seconds": 0.0028649999999998954
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407555.1314664,
+          "end_unix": 1792407555.1342678,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.308497773276435,
+          "wall_seconds": 0.0028056710143573582,
+          "cpu_core_seconds": 0.0028060000000067475
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407555.1342978,
+          "end_unix": 1792407555.1368332,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.2789155642191569,
+          "wall_seconds": 0.002539431967306882,
+          "cpu_core_seconds": 0.0025389999999987367
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407555.1368642,
+          "end_unix": 1792407555.1417167,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.5363093482123481,
+          "wall_seconds": 0.004857251013163477,
+          "cpu_core_seconds": 0.004857999999995144
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407555.1417522,
+          "end_unix": 1792407555.1466024,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.5360462400648329,
+          "wall_seconds": 0.004854154016356915,
+          "cpu_core_seconds": 0.004853999999998138
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407555.146635,
+          "end_unix": 1792407555.1491792,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.27979376580980087,
+          "wall_seconds": 0.002548329997807741,
+          "cpu_core_seconds": 0.002548999999998358
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407555.1492093,
+          "end_unix": 1792407555.1520095,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.3082488907708062,
+          "wall_seconds": 0.0028038420132361352,
+          "cpu_core_seconds": 0.002804000000001139
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.5363093482123481,
+        "w8-a8-g32-f32scale-residual-a8": 0.27979376580980087,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.308497773276435
+      }
+    },
+    {
+      "shape": [
+        2560,
+        6144
+      ],
+      "original_shape": [
+        5120,
+        6144
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/attention/o",
+      "tokens": 1,
+      "independent_sample_rows": [
+        0,
+        2559,
+        200,
+        801,
+        2119,
+        584,
+        176,
+        1860,
+        696,
+        776,
+        2549,
+        990,
+        155,
+        731,
+        1037,
+        29,
+        125,
+        2366,
+        2023,
+        1076,
+        1302,
+        447,
+        596,
+        213,
+        2010,
+        2056,
+        28,
+        146,
+        819,
+        1229,
+        953,
+        2466
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.0001827639151313814,
+          "max_absolute": 0.0005848024148349396,
+          "cosine": 0.9999999876527828
+        },
+        {
+          "relative_l2": 0.00018163551063868642,
+          "max_absolute": 0.0005829394706631241,
+          "cosine": 0.9999999881511094
+        },
+        {
+          "relative_l2": 0.00018163551063868642,
+          "max_absolute": 0.0005829394706631241,
+          "cosine": 0.9999999881511094
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000002
+        },
+        {
+          "relative_l2": 9.357073016431939e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999956223129
+        },
+        {
+          "relative_l2": 9.357073016431939e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999956223129
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        13824,
+        13824
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407555.4849598,
+          "end_unix": 1792407555.4853532,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03895466526349386,
+          "wall_seconds": 0.00040042499313130975,
+          "cpu_core_seconds": 0.0003950000000010334
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407555.4853892,
+          "end_unix": 1792407555.4856958,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03113244308365716,
+          "wall_seconds": 0.00031025195494294167,
+          "cpu_core_seconds": 0.00031000000000247496
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407555.4857242,
+          "end_unix": 1792407555.48602,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03009777930047777,
+          "wall_seconds": 0.0002997550182044506,
+          "cpu_core_seconds": 0.0002999999999993008
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407555.486051,
+          "end_unix": 1792407555.4863462,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03013688988155789,
+          "wall_seconds": 0.00029887002892792225,
+          "cpu_core_seconds": 0.00029899999999827287
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407555.4863727,
+          "end_unix": 1792407555.4866695,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.030353777938418917,
+          "wall_seconds": 0.0003007490304298699,
+          "cpu_core_seconds": 0.0003010000000003288
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407555.4866967,
+          "end_unix": 1792407555.487064,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03803022371398078,
+          "wall_seconds": 0.00037074496503919363,
+          "cpu_core_seconds": 0.00037099999999767874
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407555.4871047,
+          "end_unix": 1792407555.4874752,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.038364443514082164,
+          "wall_seconds": 0.00037419103318825364,
+          "cpu_core_seconds": 0.0003739999999972099
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407555.487502,
+          "end_unix": 1792407555.4877975,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03025777803526984,
+          "wall_seconds": 0.00029921199893578887,
+          "cpu_core_seconds": 0.00029899999999827287
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407555.4878292,
+          "end_unix": 1792407555.4881248,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.030211554633246526,
+          "wall_seconds": 0.00029991200426593423,
+          "cpu_core_seconds": 0.0002999999999993008
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.038364443514082164,
+        "w8-a8-g32-f32scale-residual-a8": 0.030353777938418917,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.03013688988155789
+      }
+    },
+    {
+      "shape": [
+        2560,
+        6144
+      ],
+      "original_shape": [
+        5120,
+        6144
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/attention/o",
+      "tokens": 2,
+      "independent_sample_rows": [
+        0,
+        2559,
+        200,
+        801,
+        2119,
+        584,
+        176,
+        1860,
+        696,
+        776,
+        2549,
+        990,
+        155,
+        731,
+        1037,
+        29,
+        125,
+        2366,
+        2023,
+        1076,
+        1302,
+        447,
+        596,
+        213,
+        2010,
+        2056,
+        28,
+        146,
+        819,
+        1229,
+        953,
+        2466
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00016525398139747357,
+          "max_absolute": 0.0006905727715889043,
+          "cosine": 0.9999999864404822
+        },
+        {
+          "relative_l2": 0.0001649359541172006,
+          "max_absolute": 0.0006953574884809299,
+          "cosine": 0.9999999864014398
+        },
+        {
+          "relative_l2": 0.0001649359541172006,
+          "max_absolute": 0.0006953574884809299,
+          "cosine": 0.9999999864014398
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000002
+        },
+        {
+          "relative_l2": 8.867265701732148e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999960701755
+        },
+        {
+          "relative_l2": 8.867265701732148e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999960701755
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        27648,
+        27648
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407555.6597636,
+          "end_unix": 1792407555.6602576,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.050104889604780406,
+          "wall_seconds": 0.0005013920017518103,
+          "cpu_core_seconds": 0.0004959999999982756
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407555.6602962,
+          "end_unix": 1792407555.6606288,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.0340266658200158,
+          "wall_seconds": 0.00033630896359682083,
+          "cpu_core_seconds": 0.00033699999999825536
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407555.660657,
+          "end_unix": 1792407555.6609893,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03405866689152188,
+          "wall_seconds": 0.0003364960430189967,
+          "cpu_core_seconds": 0.0004039999999996269
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407555.661021,
+          "end_unix": 1792407555.6613452,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.033272888925340444,
+          "wall_seconds": 0.0003280829987488687,
+          "cpu_core_seconds": 0.0003279999999996619
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407555.6613717,
+          "end_unix": 1792407555.661698,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03350044290224711,
+          "wall_seconds": 0.0003308219602331519,
+          "cpu_core_seconds": 0.00033099999999919305
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407555.6617339,
+          "end_unix": 1792407555.6622012,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.0491555564933353,
+          "wall_seconds": 0.00047112698666751385,
+          "cpu_core_seconds": 0.00047199999999847364
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407555.6622298,
+          "end_unix": 1792407555.662692,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.04871111114819845,
+          "wall_seconds": 0.00046620500506833196,
+          "cpu_core_seconds": 0.0004670000000004393
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407555.6627188,
+          "end_unix": 1792407555.6630402,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.033123556110594005,
+          "wall_seconds": 0.00032538495725020766,
+          "cpu_core_seconds": 0.000325999999997606
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407555.6630664,
+          "end_unix": 1792407555.6633956,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.03399822115898132,
+          "wall_seconds": 0.00033262796932831407,
+          "cpu_core_seconds": 0.00033299999999769625
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.0491555564933353,
+        "w8-a8-g32-f32scale-residual-a8": 0.03350044290224711,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.03399822115898132
+      }
+    },
+    {
+      "shape": [
+        2560,
+        6144
+      ],
+      "original_shape": [
+        5120,
+        6144
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/attention/o",
+      "tokens": 8,
+      "independent_sample_rows": [
+        0,
+        2559,
+        200,
+        801,
+        2119,
+        584,
+        176,
+        1860,
+        696,
+        776,
+        2549,
+        990,
+        155,
+        731,
+        1037,
+        29,
+        125,
+        2366,
+        2023,
+        1076,
+        1302,
+        447,
+        596,
+        213,
+        2010,
+        2056,
+        28,
+        146,
+        819,
+        1229,
+        953,
+        2466
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.0002063821929373875,
+          "max_absolute": 0.0017425119480662943,
+          "cosine": 0.9999999787535662
+        },
+        {
+          "relative_l2": 0.00020503830429303578,
+          "max_absolute": 0.001745649137780525,
+          "cosine": 0.9999999790246097
+        },
+        {
+          "relative_l2": 0.00020503830429303578,
+          "max_absolute": 0.001745649137780525,
+          "cosine": 0.9999999790246097
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0
+        },
+        {
+          "relative_l2": 9.977097301121635e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999950230453
+        },
+        {
+          "relative_l2": 9.977097301121635e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999950230453
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        110592,
+        110592
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407555.8443823,
+          "end_unix": 1792407555.8456903,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.1404800017674764,
+          "wall_seconds": 0.001314811990596354,
+          "cpu_core_seconds": 0.0013100000000001444
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407555.8457284,
+          "end_unix": 1792407555.8464272,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.07484089003668891,
+          "wall_seconds": 0.000702582998201251,
+          "cpu_core_seconds": 0.0007029999999978997
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407555.8464558,
+          "end_unix": 1792407555.8472936,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.09038933118184407,
+          "wall_seconds": 0.0008422390092164278,
+          "cpu_core_seconds": 0.0008429999999997051
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407555.847328,
+          "end_unix": 1792407555.8481765,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.09149866633945042,
+          "wall_seconds": 0.0008521790150552988,
+          "cpu_core_seconds": 0.0008519999999982986
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407555.848205,
+          "end_unix": 1792407555.8488965,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.07416177458233303,
+          "wall_seconds": 0.0006952619878575206,
+          "cpu_core_seconds": 0.0006950000000003342
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407555.8489249,
+          "end_unix": 1792407555.850207,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.1397120025422838,
+          "wall_seconds": 0.001285849022679031,
+          "cpu_core_seconds": 0.0012860000000003424
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407555.850236,
+          "end_unix": 1792407555.8515174,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.13974755340152317,
+          "wall_seconds": 0.0012853200314566493,
+          "cpu_core_seconds": 0.0012860000000003424
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407555.851545,
+          "end_unix": 1792407555.8522341,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.07397688759697808,
+          "wall_seconds": 0.0006929769879207015,
+          "cpu_core_seconds": 0.0006939999999993063
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407555.8522627,
+          "end_unix": 1792407555.853108,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.09127466546164618,
+          "wall_seconds": 0.0008489130414091051,
+          "cpu_core_seconds": 0.0008489999999987674
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.13974755340152317,
+        "w8-a8-g32-f32scale-residual-a8": 0.07416177458233303,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.09127466546164618
+      }
+    },
+    {
+      "shape": [
+        2560,
+        6144
+      ],
+      "original_shape": [
+        5120,
+        6144
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/attention/o",
+      "tokens": 32,
+      "independent_sample_rows": [
+        0,
+        2559,
+        200,
+        801,
+        2119,
+        584,
+        176,
+        1860,
+        696,
+        776,
+        2549,
+        990,
+        155,
+        731,
+        1037,
+        29,
+        125,
+        2366,
+        2023,
+        1076,
+        1302,
+        447,
+        596,
+        213,
+        2010,
+        2056,
+        28,
+        146,
+        819,
+        1229,
+        953,
+        2466
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00020447583198351599,
+          "max_absolute": 0.0009743061512494933,
+          "cosine": 0.9999999791381228
+        },
+        {
+          "relative_l2": 0.0002041644272017037,
+          "max_absolute": 0.0009568996845983335,
+          "cosine": 0.9999999791605071
+        },
+        {
+          "relative_l2": 0.0002041644272017037,
+          "max_absolute": 0.0009568996845983335,
+          "cosine": 0.9999999791605071
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0
+        },
+        {
+          "relative_l2": 9.386522311428705e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999955946761
+        },
+        {
+          "relative_l2": 9.386522311428705e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999955946761
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        442368,
+        442368
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407556.0455809,
+          "end_unix": 1792407556.0503798,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.5280533366733127,
+          "wall_seconds": 0.004806213022675365,
+          "cpu_core_seconds": 0.004801000000000499
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407556.0504215,
+          "end_unix": 1792407556.0531313,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.2982293234931098,
+          "wall_seconds": 0.002713959023822099,
+          "cpu_core_seconds": 0.0027140000000009934
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407556.0531602,
+          "end_unix": 1792407556.0563035,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.34646399815877277,
+          "wall_seconds": 0.003147682989947498,
+          "cpu_core_seconds": 0.0031479999999994845
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407556.0563354,
+          "end_unix": 1792407556.0594833,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.34698666466606987,
+          "wall_seconds": 0.0031517769675701857,
+          "cpu_core_seconds": 0.0031520000000000437
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407556.0595112,
+          "end_unix": 1792407556.0622075,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.2968284553951687,
+          "wall_seconds": 0.002700198965612799,
+          "cpu_core_seconds": 0.0027649999999965758
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407556.0622358,
+          "end_unix": 1792407556.067001,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.5267199940151639,
+          "wall_seconds": 0.004769238003063947,
+          "cpu_core_seconds": 0.004769999999997054
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407556.0670452,
+          "end_unix": 1792407556.0718153,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.5268230968051486,
+          "wall_seconds": 0.004775020002853125,
+          "cpu_core_seconds": 0.0047749999999986414
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407556.0718446,
+          "end_unix": 1792407556.0745397,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.29678577846950954,
+          "wall_seconds": 0.002698986034374684,
+          "cpu_core_seconds": 0.002698999999999785
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407556.0745668,
+          "end_unix": 1792407556.0777166,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.34728532367282444,
+          "wall_seconds": 0.0031537989852949977,
+          "cpu_core_seconds": 0.0031540000000020996
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.5268230968051486,
+        "w8-a8-g32-f32scale-residual-a8": 0.2968284553951687,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.34698666466606987
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "original_shape": [
+        12288,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/attention/q",
+      "tokens": 1,
+      "independent_sample_rows": [
+        0,
+        6143,
+        2760,
+        4897,
+        3143,
+        2632,
+        1712,
+        3908,
+        3256,
+        264,
+        6133,
+        3550,
+        667,
+        2267,
+        13,
+        2589,
+        125,
+        4414,
+        4071,
+        5172,
+        1814,
+        4031,
+        4692,
+        2261,
+        986,
+        2056,
+        540,
+        4754,
+        3379,
+        3277,
+        5561,
+        4002
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00022417709440044885,
+          "max_absolute": 0.00047906369081829325,
+          "cosine": 0.9999999776951325
+        },
+        {
+          "relative_l2": 0.00022893740803112798,
+          "max_absolute": 0.000486051978021651,
+          "cosine": 0.9999999778611046
+        },
+        {
+          "relative_l2": 0.00022893740803112798,
+          "max_absolute": 0.000486051978021651,
+          "cosine": 0.9999999778611046
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0
+        },
+        {
+          "relative_l2": 9.856190355750014e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999951459912
+        },
+        {
+          "relative_l2": 9.856190355750014e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999951459912
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        11520,
+        11520
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407556.4899058,
+          "end_unix": 1792407556.4905639,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06799999872843425,
+          "wall_seconds": 0.0006650610012002289,
+          "cpu_core_seconds": 0.000658999999998855
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407556.4906006,
+          "end_unix": 1792407556.4910824,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.050634665621651545,
+          "wall_seconds": 0.00048564502503722906,
+          "cpu_core_seconds": 0.0004859999999986542
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407556.4911108,
+          "end_unix": 1792407556.4915836,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.0498595568868849,
+          "wall_seconds": 0.0004764040349982679,
+          "cpu_core_seconds": 0.00047599999999903275
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407556.4916136,
+          "end_unix": 1792407556.4920852,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.049639112419552274,
+          "wall_seconds": 0.0004756359849125147,
+          "cpu_core_seconds": 0.00047600000000258547
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407556.4921126,
+          "end_unix": 1792407556.4925847,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.04974577824274699,
+          "wall_seconds": 0.00047550699673593044,
+          "cpu_core_seconds": 0.0004750000000015575
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407556.4926112,
+          "end_unix": 1792407556.4932342,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06662399901284112,
+          "wall_seconds": 0.0006267529679462314,
+          "cpu_core_seconds": 0.0006270000000014875
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407556.4932618,
+          "end_unix": 1792407556.493887,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.0667911105685764,
+          "wall_seconds": 0.0006290180026553571,
+          "cpu_core_seconds": 0.0006289999999999907
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407556.4939132,
+          "end_unix": 1792407556.4943845,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.04978488882382711,
+          "wall_seconds": 0.00047513400204479694,
+          "cpu_core_seconds": 0.0004750000000015575
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407556.4944103,
+          "end_unix": 1792407556.4948816,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.049802667564815946,
+          "wall_seconds": 0.000474874977953732,
+          "cpu_core_seconds": 0.0004750000000015575
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.0667911105685764,
+        "w8-a8-g32-f32scale-residual-a8": 0.04978488882382711,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.049802667564815946
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "original_shape": [
+        12288,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/attention/q",
+      "tokens": 2,
+      "independent_sample_rows": [
+        0,
+        6143,
+        2760,
+        4897,
+        3143,
+        2632,
+        1712,
+        3908,
+        3256,
+        264,
+        6133,
+        3550,
+        667,
+        2267,
+        13,
+        2589,
+        125,
+        4414,
+        4071,
+        5172,
+        1814,
+        4031,
+        4692,
+        2261,
+        986,
+        2056,
+        540,
+        4754,
+        3379,
+        3277,
+        5561,
+        4002
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00024035957462252368,
+          "max_absolute": 0.0009202284718412557,
+          "cosine": 0.9999999715281622
+        },
+        {
+          "relative_l2": 0.00024393720783695886,
+          "max_absolute": 0.0009516928100454791,
+          "cosine": 0.9999999702479929
+        },
+        {
+          "relative_l2": 0.00024393720783695886,
+          "max_absolute": 0.0009516928100454791,
+          "cosine": 0.9999999702479929
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0
+        },
+        {
+          "relative_l2": 9.754988929846038e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.999999995242013
+        },
+        {
+          "relative_l2": 9.754988929846038e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.999999995242013
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        23040,
+        23040
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407556.6620693,
+          "end_unix": 1792407556.6629274,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.09015466769536336,
+          "wall_seconds": 0.0008664749911986291,
+          "cpu_core_seconds": 0.0009140000000016357
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407556.6629753,
+          "end_unix": 1792407556.6635742,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06341333521736993,
+          "wall_seconds": 0.0006030149525031447,
+          "cpu_core_seconds": 0.0006030000000016855
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407556.6636038,
+          "end_unix": 1792407556.6641953,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06305066744486491,
+          "wall_seconds": 0.0005954630323685706,
+          "cpu_core_seconds": 0.0005959999999980425
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407556.6642263,
+          "end_unix": 1792407556.6648176,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06286578045950995,
+          "wall_seconds": 0.0005959549453109503,
+          "cpu_core_seconds": 0.0005960000000015953
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407556.664849,
+          "end_unix": 1792407556.6654308,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.061738669872283936,
+          "wall_seconds": 0.0005853599868714809,
+          "cpu_core_seconds": 0.0005850000000009459
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407556.6654582,
+          "end_unix": 1792407556.6662817,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.08880711264080471,
+          "wall_seconds": 0.0008279359899461269,
+          "cpu_core_seconds": 0.0008289999999995246
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407556.6663167,
+          "end_unix": 1792407556.667145,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.08924444516499837,
+          "wall_seconds": 0.0008320339838974178,
+          "cpu_core_seconds": 0.0008330000000000837
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407556.6671734,
+          "end_unix": 1792407556.667751,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06148978074391683,
+          "wall_seconds": 0.0005822550156153738,
+          "cpu_core_seconds": 0.00058299999999889
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407556.6677814,
+          "end_unix": 1792407556.668374,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.06315377685758802,
+          "wall_seconds": 0.0005963750299997628,
+          "cpu_core_seconds": 0.0005959999999980425
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.08924444516499837,
+        "w8-a8-g32-f32scale-residual-a8": 0.061738669872283936,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.06305066744486491
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "original_shape": [
+        12288,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/attention/q",
+      "tokens": 8,
+      "independent_sample_rows": [
+        0,
+        6143,
+        2760,
+        4897,
+        3143,
+        2632,
+        1712,
+        3908,
+        3256,
+        264,
+        6133,
+        3550,
+        667,
+        2267,
+        13,
+        2589,
+        125,
+        4414,
+        4071,
+        5172,
+        1814,
+        4031,
+        4692,
+        2261,
+        986,
+        2056,
+        540,
+        4754,
+        3379,
+        3277,
+        5561,
+        4002
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00023518046779513217,
+          "max_absolute": 0.0009442115660931449,
+          "cosine": 0.9999999732965438
+        },
+        {
+          "relative_l2": 0.0002356997460540395,
+          "max_absolute": 0.000922500376243196,
+          "cosine": 0.9999999727651163
+        },
+        {
+          "relative_l2": 0.0002356997460540395,
+          "max_absolute": 0.000922500376243196,
+          "cosine": 0.9999999727651163
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000002
+        },
+        {
+          "relative_l2": 9.75406396299047e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.999999995242912
+        },
+        {
+          "relative_l2": 9.75406396299047e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.999999995242912
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        92160,
+        92160
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407556.8462625,
+          "end_unix": 1792407556.8487713,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.27385245429144967,
+          "wall_seconds": 0.002515651984140277,
+          "cpu_core_seconds": 0.0025100000000009004
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407556.8488462,
+          "end_unix": 1792407556.8501387,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.1406222184499105,
+          "wall_seconds": 0.0012968530063517392,
+          "cpu_core_seconds": 0.0012970000000009918
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407556.8501701,
+          "end_unix": 1792407556.8517215,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.1695999966727363,
+          "wall_seconds": 0.001555294031277299,
+          "cpu_core_seconds": 0.001556000000000779
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407556.8517535,
+          "end_unix": 1792407556.8533099,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.1700835492875841,
+          "wall_seconds": 0.0015611409908160567,
+          "cpu_core_seconds": 0.0015619999999998413
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407556.8533454,
+          "end_unix": 1792407556.8546276,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.13964800039927164,
+          "wall_seconds": 0.0012864309828728437,
+          "cpu_core_seconds": 0.0012869999999978177
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407556.8546581,
+          "end_unix": 1792407556.8571398,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.27309510442945695,
+          "wall_seconds": 0.0024858819670043886,
+          "cpu_core_seconds": 0.0024859999999975457
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407556.857171,
+          "end_unix": 1792407556.859651,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.27292444970872665,
+          "wall_seconds": 0.0024844760191626847,
+          "cpu_core_seconds": 0.0024850000000000705
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407556.8596804,
+          "end_unix": 1792407556.8609612,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.13965511322021484,
+          "wall_seconds": 0.001284767990000546,
+          "cpu_core_seconds": 0.0012849999999993145
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407556.8609886,
+          "end_unix": 1792407556.862554,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.1712248855166965,
+          "wall_seconds": 0.0015692380256950855,
+          "cpu_core_seconds": 0.0015700000000009595
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.27309510442945695,
+        "w8-a8-g32-f32scale-residual-a8": 0.13965511322021484,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.1700835492875841
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "original_shape": [
+        12288,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/attention/q",
+      "tokens": 32,
+      "independent_sample_rows": [
+        0,
+        6143,
+        2760,
+        4897,
+        3143,
+        2632,
+        1712,
+        3908,
+        3256,
+        264,
+        6133,
+        3550,
+        667,
+        2267,
+        13,
+        2589,
+        125,
+        4414,
+        4071,
+        5172,
+        1814,
+        4031,
+        4692,
+        2261,
+        986,
+        2056,
+        540,
+        4754,
+        3379,
+        3277,
+        5561,
+        4002
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00021591606351454865,
+          "max_absolute": 0.0009645746301885083,
+          "cosine": 0.9999999767811555
+        },
+        {
+          "relative_l2": 0.0002159656097676481,
+          "max_absolute": 0.00096816160692903,
+          "cosine": 0.99999997684378
+        },
+        {
+          "relative_l2": 0.0002159656097676481,
+          "max_absolute": 0.00096816160692903,
+          "cosine": 0.99999997684378
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.000000000000001
+        },
+        {
+          "relative_l2": 9.574687877277945e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999954162762
+        },
+        {
+          "relative_l2": 9.574687877277945e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999954162762
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        368640,
+        368640
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407557.0729823,
+          "end_unix": 1792407557.0825965,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.062936888800727,
+          "wall_seconds": 0.009621235018130392,
+          "cpu_core_seconds": 0.009615000000000151
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407557.0826385,
+          "end_unix": 1792407557.0877304,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.5627946853637695,
+          "wall_seconds": 0.005096644046716392,
+          "cpu_core_seconds": 0.005097000000002794
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407557.087765,
+          "end_unix": 1792407557.0934584,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.6297279993693033,
+          "wall_seconds": 0.005697444023098797,
+          "cpu_core_seconds": 0.005698000000002423
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407557.0934916,
+          "end_unix": 1792407557.0992718,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.6394417550828722,
+          "wall_seconds": 0.005784759996458888,
+          "cpu_core_seconds": 0.005784999999999485
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407557.0993013,
+          "end_unix": 1792407557.104389,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.5623822212219238,
+          "wall_seconds": 0.0050935010076500475,
+          "cpu_core_seconds": 0.005095000000000738
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407557.1044292,
+          "end_unix": 1792407557.1140108,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.0617066489325628,
+          "wall_seconds": 0.009586077998392284,
+          "cpu_core_seconds": 0.009587000000003343
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407557.1140451,
+          "end_unix": 1792407557.1236212,
+          "calls": 9,
+          "gpu_event_ms_per_call": 1.060970624287923,
+          "wall_seconds": 0.009581339021679014,
+          "cpu_core_seconds": 0.009582999999999231
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407557.1236634,
+          "end_unix": 1792407557.1287668,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.5641315778096517,
+          "wall_seconds": 0.005107358039822429,
+          "cpu_core_seconds": 0.00510799999999989
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407557.128796,
+          "end_unix": 1792407557.1345804,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.638737784491645,
+          "wall_seconds": 0.005795439996290952,
+          "cpu_core_seconds": 0.0057989999999996655
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 1.0617066489325628,
+        "w8-a8-g32-f32scale-residual-a8": 0.5627946853637695,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.638737784491645
+      }
+    },
+    {
+      "shape": [
+        512,
+        5120
+      ],
+      "original_shape": [
+        1024,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/attention/v",
+      "tokens": 1,
+      "independent_sample_rows": [
+        0,
+        511,
+        200,
+        289,
+        71,
+        72,
+        176,
+        324,
+        184,
+        264,
+        501,
+        478,
+        155,
+        219,
+        13,
+        29,
+        125,
+        318,
+        487,
+        52,
+        278,
+        447,
+        84,
+        213,
+        474,
+        8,
+        28,
+        146,
+        307,
+        205,
+        441,
+        418
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.0002612847492838685,
+          "max_absolute": 0.0015464122168395988,
+          "cosine": 0.9999999729889043
+        },
+        {
+          "relative_l2": 0.00026327372903259516,
+          "max_absolute": 0.0016201109338247477,
+          "cosine": 0.9999999734253143
+        },
+        {
+          "relative_l2": 0.00026327372903259516,
+          "max_absolute": 0.0016201109338247477,
+          "cosine": 0.9999999734253143
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 0.9999999999999999
+        },
+        {
+          "relative_l2": 6.197317215031283e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999980832986
+        },
+        {
+          "relative_l2": 6.197317215031283e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999980832986
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        11520,
+        11520
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407557.3596807,
+          "end_unix": 1792407557.3598416,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.013056000073750814,
+          "wall_seconds": 0.00016781396698206663,
+          "cpu_core_seconds": 0.0001619999999995514
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407557.3598785,
+          "end_unix": 1792407557.3600116,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.012067555553383298,
+          "wall_seconds": 0.00013682397548109293,
+          "cpu_core_seconds": 0.00013699999999872148
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407557.3600388,
+          "end_unix": 1792407557.3601637,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.011267555256684622,
+          "wall_seconds": 0.00012851401697844267,
+          "cpu_core_seconds": 0.00012900000000115597
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407557.360193,
+          "end_unix": 1792407557.3603163,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.011139555937714048,
+          "wall_seconds": 0.00012665498070418835,
+          "cpu_core_seconds": 0.00012699999999910005
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407557.3603423,
+          "end_unix": 1792407557.3604684,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.01145244472556644,
+          "wall_seconds": 0.0001300130388699472,
+          "cpu_core_seconds": 0.0001299999999986312
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407557.360495,
+          "end_unix": 1792407557.36063,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.012423111332787408,
+          "wall_seconds": 0.00013875099830329418,
+          "cpu_core_seconds": 0.00013899999999722468
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407557.360658,
+          "end_unix": 1792407557.3607924,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.01239466667175293,
+          "wall_seconds": 0.00013810599921271205,
+          "cpu_core_seconds": 0.0001370000000022742
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407557.3608243,
+          "end_unix": 1792407557.360952,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.011530666715568967,
+          "wall_seconds": 0.00013114797184243798,
+          "cpu_core_seconds": 0.00013200000000068712
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407557.360978,
+          "end_unix": 1792407557.3611002,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.011064888702498542,
+          "wall_seconds": 0.00012620497727766633,
+          "cpu_core_seconds": 0.00012599999999451938
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.012423111332787408,
+        "w8-a8-g32-f32scale-residual-a8": 0.011530666715568967,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.011139555937714048
+      }
+    },
+    {
+      "shape": [
+        512,
+        5120
+      ],
+      "original_shape": [
+        1024,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/attention/v",
+      "tokens": 2,
+      "independent_sample_rows": [
+        0,
+        511,
+        200,
+        289,
+        71,
+        72,
+        176,
+        324,
+        184,
+        264,
+        501,
+        478,
+        155,
+        219,
+        13,
+        29,
+        125,
+        318,
+        487,
+        52,
+        278,
+        447,
+        84,
+        213,
+        474,
+        8,
+        28,
+        146,
+        307,
+        205,
+        441,
+        418
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00020645921005851717,
+          "max_absolute": 0.001640257952516322,
+          "cosine": 0.999999980936022
+        },
+        {
+          "relative_l2": 0.00020702579614591417,
+          "max_absolute": 0.0016057605621639937,
+          "cosine": 0.9999999805029949
+        },
+        {
+          "relative_l2": 0.00020702579614591417,
+          "max_absolute": 0.0016057605621639937,
+          "cosine": 0.9999999805029949
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000002
+        },
+        {
+          "relative_l2": 9.483810535451517e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999955050228
+        },
+        {
+          "relative_l2": 9.483810535451517e-05,
+          "max_absolute": 0.001953125,
+          "cosine": 0.9999999955050228
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        23040,
+        23040
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407557.5187757,
+          "end_unix": 1792407557.518954,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.015242666006088257,
+          "wall_seconds": 0.0001851010019890964,
+          "cpu_core_seconds": 0.0001790000000028158
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407557.5189898,
+          "end_unix": 1792407557.519147,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.014705777168273926,
+          "wall_seconds": 0.00016101403161883354,
+          "cpu_core_seconds": 0.00016100000000207615
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407557.5191758,
+          "end_unix": 1792407557.5193248,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.013902222116788229,
+          "wall_seconds": 0.00015304400585591793,
+          "cpu_core_seconds": 0.00015399999999843317
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407557.5193548,
+          "end_unix": 1792407557.5195043,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.013991110854678683,
+          "wall_seconds": 0.00015329400775954127,
+          "cpu_core_seconds": 0.00015300000000095793
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407557.5195324,
+          "end_unix": 1792407557.5196824,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.013994667265150283,
+          "wall_seconds": 0.00015345599967986345,
+          "cpu_core_seconds": 0.00015399999999843317
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407557.5197089,
+          "end_unix": 1792407557.5198543,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.013543110754754808,
+          "wall_seconds": 0.00014949403703212738,
+          "cpu_core_seconds": 0.0001490000000003988
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407557.519883,
+          "end_unix": 1792407557.5200288,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.013564444250530668,
+          "wall_seconds": 0.0001494690077379346,
+          "cpu_core_seconds": 0.00015000000000142677
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407557.5200553,
+          "end_unix": 1792407557.5202048,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.014001778430408902,
+          "wall_seconds": 0.00015308399451896548,
+          "cpu_core_seconds": 0.00015400000000198588
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407557.5202308,
+          "end_unix": 1792407557.5203774,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.013784888717863295,
+          "wall_seconds": 0.00015035399701446295,
+          "cpu_core_seconds": 0.000150999999998902
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.013564444250530668,
+        "w8-a8-g32-f32scale-residual-a8": 0.014001778430408902,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.013902222116788229
+      }
+    },
+    {
+      "shape": [
+        512,
+        5120
+      ],
+      "original_shape": [
+        1024,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/attention/v",
+      "tokens": 8,
+      "independent_sample_rows": [
+        0,
+        511,
+        200,
+        289,
+        71,
+        72,
+        176,
+        324,
+        184,
+        264,
+        501,
+        478,
+        155,
+        219,
+        13,
+        29,
+        125,
+        318,
+        487,
+        52,
+        278,
+        447,
+        84,
+        213,
+        474,
+        8,
+        28,
+        146,
+        307,
+        205,
+        441,
+        418
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00019270764082040585,
+          "max_absolute": 0.0019317016067361692,
+          "cosine": 0.9999999814591621
+        },
+        {
+          "relative_l2": 0.0001920895964617804,
+          "max_absolute": 0.001943879420209349,
+          "cosine": 0.9999999815575894
+        },
+        {
+          "relative_l2": 0.0001920895964617804,
+          "max_absolute": 0.001943879420209349,
+          "cosine": 0.9999999815575894
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0000000000000002
+        },
+        {
+          "relative_l2": 9.125325042756795e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999958371694
+        },
+        {
+          "relative_l2": 9.125325042756795e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999958371694
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        92160,
+        92160
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407557.6769786,
+          "end_unix": 1792407557.6772902,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.030225776963763766,
+          "wall_seconds": 0.00031995796598494053,
+          "cpu_core_seconds": 0.0003150000000005093
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407557.677327,
+          "end_unix": 1792407557.6775773,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.02520177761713664,
+          "wall_seconds": 0.0002542980364523828,
+          "cpu_core_seconds": 0.0002539999999982001
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407557.6776047,
+          "end_unix": 1792407557.677841,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.023594665858480666,
+          "wall_seconds": 0.00024022103752940893,
+          "cpu_core_seconds": 0.00023999999999801958
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407557.6778722,
+          "end_unix": 1792407557.678106,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.023402666052182514,
+          "wall_seconds": 0.00023773300927132368,
+          "cpu_core_seconds": 0.0002380000000030691
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407557.6781323,
+          "end_unix": 1792407557.6783752,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.024440889557202656,
+          "wall_seconds": 0.00024645403027534485,
+          "cpu_core_seconds": 0.00024700000000166256
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407557.6784012,
+          "end_unix": 1792407557.6786857,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.029123554627100628,
+          "wall_seconds": 0.0002879240200854838,
+          "cpu_core_seconds": 0.0002880000000011762
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407557.6787126,
+          "end_unix": 1792407557.6790001,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.02933688958485921,
+          "wall_seconds": 0.00029124499997124076,
+          "cpu_core_seconds": 0.0002910000000042601
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407557.6790266,
+          "end_unix": 1792407557.6792696,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.024455111887719896,
+          "wall_seconds": 0.00024679501075297594,
+          "cpu_core_seconds": 0.00024700000000166256
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407557.6792955,
+          "end_unix": 1792407557.6795304,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.023623110519515142,
+          "wall_seconds": 0.00023848697310313582,
+          "cpu_core_seconds": 0.0002389999999934389
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.02933688958485921,
+        "w8-a8-g32-f32scale-residual-a8": 0.024455111887719896,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.023594665858480666
+      }
+    },
+    {
+      "shape": [
+        512,
+        5120
+      ],
+      "original_shape": [
+        1024,
+        5120
+      ],
+      "residual_control_output_bytes_equal": true,
+      "role": "text/layers/63/attention/v",
+      "tokens": 32,
+      "independent_sample_rows": [
+        0,
+        511,
+        200,
+        289,
+        71,
+        72,
+        176,
+        324,
+        184,
+        264,
+        501,
+        478,
+        155,
+        219,
+        13,
+        29,
+        125,
+        318,
+        487,
+        52,
+        278,
+        447,
+        84,
+        213,
+        474,
+        8,
+        28,
+        146,
+        307,
+        205,
+        441,
+        418
+      ],
+      "sampled_reference": [
+        {
+          "relative_l2": 0.00021686256869311935,
+          "max_absolute": 0.0019309163433263166,
+          "cosine": 0.9999999765117289
+        },
+        {
+          "relative_l2": 0.00021684327178786515,
+          "max_absolute": 0.0019347033637959754,
+          "cosine": 0.9999999765134843
+        },
+        {
+          "relative_l2": 0.00021684327178786515,
+          "max_absolute": 0.0019347033637959754,
+          "cosine": 0.9999999765134843
+        }
+      ],
+      "original_profile_comparison": [
+        {
+          "relative_l2": 0.0,
+          "max_absolute": 0.0,
+          "cosine": 1.0
+        },
+        {
+          "relative_l2": 9.07654782560774e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999958808828
+        },
+        {
+          "relative_l2": 9.07654782560774e-05,
+          "max_absolute": 0.00390625,
+          "cosine": 0.9999999958808828
+        }
+      ],
+      "same_original_top1": [
+        true,
+        true,
+        true
+      ],
+      "workspace_bytes": [
+        0,
+        368640,
+        368640
+      ],
+      "waves": [
+        {
+          "profile": "original-fp16",
+          "repeat": 0,
+          "start_unix": 1792407557.8452873,
+          "end_unix": 1792407557.8461874,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.09528177976608276,
+          "wall_seconds": 0.0009067800128832459,
+          "cpu_core_seconds": 0.0009019999999964057
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407557.846224,
+          "end_unix": 1792407557.8467824,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.05913244353400336,
+          "wall_seconds": 0.0005626609781756997,
+          "cpu_core_seconds": 0.0005640000000006751
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 0,
+          "start_unix": 1792407557.8468158,
+          "end_unix": 1792407557.8473656,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.05839288896984524,
+          "wall_seconds": 0.0005535639938898385,
+          "cpu_core_seconds": 0.0005540000000010536
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407557.8473964,
+          "end_unix": 1792407557.8479471,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.058449778291914195,
+          "wall_seconds": 0.0005544640007428825,
+          "cpu_core_seconds": 0.0005540000000010536
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 1,
+          "start_unix": 1792407557.8479738,
+          "end_unix": 1792407557.8485217,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.05832888682683309,
+          "wall_seconds": 0.0005515299853868783,
+          "cpu_core_seconds": 0.0005519999999989977
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 1,
+          "start_unix": 1792407557.8485487,
+          "end_unix": 1792407557.849423,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.09451378054089016,
+          "wall_seconds": 0.000878083985298872,
+          "cpu_core_seconds": 0.0008780000000001564
+        },
+        {
+          "profile": "original-fp16",
+          "repeat": 2,
+          "start_unix": 1792407557.8494515,
+          "end_unix": 1792407557.8503237,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.0943431125746833,
+          "wall_seconds": 0.000876143982168287,
+          "cpu_core_seconds": 0.0008760000000016532
+        },
+        {
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407557.8503506,
+          "end_unix": 1792407557.8508954,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.058005332946777344,
+          "wall_seconds": 0.0005486340378411114,
+          "cpu_core_seconds": 0.0005489999999994666
+        },
+        {
+          "profile": "control-w8-a8-g32-f32scale-residual-a8",
+          "repeat": 2,
+          "start_unix": 1792407557.8509223,
+          "end_unix": 1792407557.8514693,
+          "calls": 9,
+          "gpu_event_ms_per_call": 0.058225777414109975,
+          "wall_seconds": 0.000550578988622874,
+          "cpu_core_seconds": 0.0005500000000004945
+        }
+      ],
+      "median_gpu_event_ms": {
+        "original-fp16": 0.09451378054089016,
+        "w8-a8-g32-f32scale-residual-a8": 0.05832888682683309,
+        "control-w8-a8-g32-f32scale-residual-a8": 0.05839288896984524
+      }
+    }
+  ],
+  "full_model_quality_qualified": false,
+  "hardware_counters": null,
+  "completed": true
+}

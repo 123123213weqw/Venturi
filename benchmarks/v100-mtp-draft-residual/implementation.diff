@@ -1,0 +1,787 @@
+--- prior/src/venturi/models/qwen_mtp_native.py
++++ current/src/venturi/models/qwen_mtp_native.py
+@@ -71,6 +71,14 @@
+         fn = getattr(n, "venturi_qwen_mtp_" + suffix)
+         fn.argtypes, fn.restype = args, restype
+         result["venturi_qwen_" + suffix] = fn
++    for suffix, args, restype in (
++        ("create_profiled", signatures["create"][0] + [i], p),
++        ("projection_info", [p, C.POINTER(u)], i),
++    ):
++        fn = getattr(n, "venturi_qwen_mtp_" + suffix, None)
++        if fn is not None:
++            fn.argtypes, fn.restype = args, restype
++        result["venturi_qwen_" + suffix] = fn
+     # Additive exports: an older ABI16 library still supports depth one.
+     for suffix, args in (
+         ("generate2", signatures["generate"][0]),
+@@ -107,7 +115,14 @@
+ 
+ class NativeQwenMTPModel(NativeQwenModel):
+     @classmethod
+-    def from_q8(cls, target, weights, *, reserve_bytes=512 * 2**20):
++    def from_q8(
++        cls,
++        target,
++        weights,
++        *,
++        reserve_bytes=512 * 2**20,
++        draft_projection_profile="fp16",
++    ):
+         if (
+             not isinstance(target, NativeQwenModel)
+             or isinstance(target, cls)
+@@ -116,6 +131,22 @@
+             raise TypeError(
+                 "MTP requires an existing native target and explicit QwenMTPWeights"
+             )
++        if draft_projection_profile not in ("fp16", "q8-residual"):
++            raise ValueError("MTP draft profile must be explicit fp16/q8-residual")
++        residual = draft_projection_profile == "q8-residual"
++        if residual:
++            if target.dtype != torch.float16 or isinstance(
++                target, NativeQwenPipelineModel
++            ):
++                raise ValueError("Residual MTP draft requires FP16 non-PP target")
++            if any(
++                getattr(target._backend._native, "venturi_qwen_mtp_" + suffix, None)
++                is None
++                for suffix in ("create_profiled", "projection_info")
++            ):
++                raise RuntimeError(
++                    "Explicit MTP draft profile exports absent; rebuild blocks"
++                )
+         if target._mode != "resident" or target._max_tokens < 2:
+             raise ValueError("MTP target requires resident weights and max_tokens >= 2")
+         weights = QwenMTPWeights.from_ninfer(NInferArtifact(weights.artifact.path))
+@@ -127,14 +158,34 @@
+             else target.device
+         )
+         native = _bind(backend)
++        if residual and torch.cuda.get_device_capability(device) != (7, 0):
++            raise ValueError("Residual MTP draft requires SM70")
+         rope = QwenTextRoPE.from_config(cfg)
+         q8_bytes = sum(
+             s.nbytes for s in weights.plan.bindings if s.format == "q8_g32_fp16"
++        )
++        quant_bytes = (
++            target._max_tokens
++            * (
++                (
++                    max(
++                        s.shape[1]
++                        for s in weights.plan.bindings
++                        if s.format == "q8_g32_fp16"
++                    )
++                    + 31
++                )
++                // 32
++            )
++            * 72
++            if residual
++            else 0
+         )
+         _memory_guard(
+             device,
+             q8_bytes
+             + 4 * 2**20
++            + quant_bytes
+             + 2 * (8 * cfg["hidden_size"] + 2 * cfg["head_dim"]) * 4,
+             reserve_bytes,
+             None,
+@@ -231,7 +282,12 @@
+             if not target._finalizer.alive:
+                 raise RuntimeError("MTP target model closed")
+             target._metadata()
+-            handle = native.venturi_qwen_create(
++            create = (
++                native.venturi_qwen_create_profiled
++                if residual
++                else native.venturi_qwen_create
++            )
++            handle = create(
+                 target._handle,
+                 int(isinstance(target, NativeQwenPipelineModel)),
+                 C.byref(c),
+@@ -243,6 +299,7 @@
+                 embedding_norm,
+                 hidden_norm,
+                 rope.inverse_frequency.data_ptr(),
++                *([2] if residual else []),
+             )
+         if not handle:
+             backend._check(-1)
+@@ -254,7 +311,19 @@
+         self._projection_profile = target.projection_profile
+         self._projection_info = target.projection_info
+         self._projection_info["mtp_draft_projection_profile"] = (
+-            "fp16" if target.dtype == torch.float16 else "bf16"
++            draft_projection_profile
++            if residual or target.dtype == torch.float16
++            else "bf16"
++        )
++        self._projection_info.update(
++            mtp_draft_activation_quantization_passes=2 if residual else 0,
++            mtp_draft_primary_projection_workspace_bytes=quant_bytes,
++            mtp_draft_secondary_projection_workspace_bytes=0,
++            mtp_draft_precision_scope=(
++                "Original Q8 weights/FP16 scales and FP16 activations/KV; explicit two residual-A8 passes/FP32 activation scales and changed reduction arithmetic, not original FP16 parity. Shared vocabulary/head retain the target profile."
++                if residual
++                else "Original typed activation math; shared vocabulary/head retain the target profile."
++            ),
+         )
+         self.mtp_device = device
+         self._max_tokens, self._mode = target._max_tokens, "resident"
+@@ -264,6 +333,13 @@
+         self._lock = threading.RLock()
+         self._finalizer = weakref.finalize(self, native.venturi_qwen_destroy, handle)
+         try:
++            if native.venturi_qwen_projection_info is not None:
++                values = (C.c_uint64 * 3)()
++                backend._check(native.venturi_qwen_projection_info(handle, values))
++                if tuple(values) != (2 if residual else 0, quant_bytes, 0):
++                    raise RuntimeError(
++                        "MTP draft profile/workspace accounting mismatch"
++                    )
+             self._metadata()
+         except Exception:
+             self.close()
+--- prior/src/venturi/ops/csrc/qwen_mtp.cuh
++++ current/src/venturi/ops/csrc/qwen_mtp.cuh
+@@ -10,8 +10,9 @@
+     VRMatrix fc;
+     const float *enorm=nullptr,*hnorm=nullptr;
+     MTPModel(void* owner,bool pp,const VRConfig& cfg,const VRSpan* spans,int count,const VRLayer& layer,
+-             const VRMatrix& projection,const void* norm,const void* embnorm,const void* hiddennorm,const float* inv):fc(projection) {
++             const VRMatrix& projection,const void* norm,const void* embnorm,const void* hiddennorm,const float* inv,int profile=0):fc(projection) {
+         require(owner,"null MTP target");
++        require(profile==0 || (profile==2 && VENTURI_BLOCKS_ARCH==70 && !pp && cfg.dtype==0),"MTP residual draft requires explicit SM70 resident FP16 non-PP target");
+         if (pp) {pipeline=*static_cast<PipelineHandle*>(owner);first=pipeline->first;last=pipeline->second;}
+         else {target=*static_cast<Handle*>(owner);first=last=target;require(!target->stage,"MTP requires complete target");}
+         const auto& c=first->c;
+@@ -19,7 +20,7 @@
+             cfg.dtype==c.dtype && cfg.hidden==c.hidden && cfg.vocab==c.vocab && cfg.intermediate==c.intermediate && cfg.hq==c.hq && cfg.hkv==c.hkv && cfg.dim==c.dim && cfg.rotary==c.rotary &&
+             cfg.epsilon==c.epsilon && cfg.max_tokens==c.max_tokens && cfg.max_position==c.max_position && layer.kind==1,"MTP/target geometry or residency mismatch");
+         Device d(cfg.device);VRMatrix unused{0,0,c.vocab,c.hidden};
+-        base=std::make_shared<Model>(cfg,spans,count,&layer,unused,unused,norm,inv,0,1,false,&fc);
++        base=std::make_shared<Model>(cfg,spans,count,&layer,unused,unused,norm,inv,0,1,false,&fc,profile);
+         base->guard(mul(c.hidden,8));
+         enorm=static_cast<const float*>(base->copy_constant(embnorm,mul(c.hidden,4)));
+         hnorm=static_cast<const float*>(base->copy_constant(hiddennorm,mul(c.hidden,4)));base->sync();
+@@ -442,6 +443,16 @@
+     try {vr::require(c && layer && fc && (pipeline==0 || pipeline==1),"null/invalid MTP descriptor");return new vr::MTPHandle(std::make_shared<vr::MTPModel>(target,pipeline,*c,spans,count,*layer,*fc,norm,enorm,hnorm,inv));}
+     catch(const std::exception& e){error_text=e.what();return nullptr;}
+ }
++// Additive ABI16 exports. The original create entry retains typed FP16/BF16.
++extern "C" void* venturi_qwen_mtp_create_profiled(void* target,int pipeline,const VRConfig* c,const VRSpan* spans,int count,const VRLayer* layer,const VRMatrix* fc,const void* norm,const void* enorm,const void* hnorm,const float* inv,int profile) {
++    try {vr::require(c && layer && fc && pipeline==0 && profile==2,"invalid explicit MTP draft profile");return new vr::MTPHandle(std::make_shared<vr::MTPModel>(target,false,*c,spans,count,*layer,*fc,norm,enorm,hnorm,inv,profile));}
++    catch(const std::exception& e){error_text=e.what();return nullptr;}
++}
++extern "C" int venturi_qwen_mtp_projection_info(void* h,std::uint64_t* out) {
++    try {vr::require(h && out,"null MTP projection info");auto p=*static_cast<vr::MTPHandle*>(h);auto& m=*p->base;std::lock_guard<std::mutex> lock(m.mutex);
++        out[0]=m.activation_passes;out[1]=m.first_quant.bytes;out[2]=m.second_quant.bytes;return 0;
++    }catch(const std::exception& e){error_text=e.what();return -1;}
++}
+ extern "C" void venturi_qwen_mtp_destroy(void* h){delete static_cast<vr::MTPHandle*>(h);}
+ extern "C" void* venturi_qwen_mtp_session(void* h,int capacity){try{vr::require(h,"null MTP model");return new vr::MTPSession(*static_cast<vr::MTPHandle*>(h),capacity);}catch(const std::exception& e){error_text=e.what();return nullptr;}}
+ extern "C" void venturi_qwen_mtp_session_destroy(void* h){delete static_cast<vr::MTPSession*>(h);}
+--- prior/src/venturi/ops/csrc/qwen_runtime.cuh
++++ current/src/venturi/ops/csrc/qwen_runtime.cuh
+@@ -470,7 +470,8 @@
+     Model(const VRConfig& cfg,const VRSpan* spans,int count,const VRLayer* ls,const VRMatrix& emb,const VRMatrix& h,const void* final_norm,const float* inv,int first=0,int last=-1,bool staged=false,const VRMatrix* mtp_input=nullptr,int profile=0,bool columns=false):c(cfg),embedding(emb),head(h),begin(first),end(last<0?cfg.layers:last),stage(staged),activation_passes(profile),column_mlp_enabled(columns) {
+         require(begin>=0 && begin<end && end<=c.layers,"invalid native stage range");
+         require(!stage || (c.resident==1 && c.second_device==-1),"pipeline stages require resident non-TP weights");
+-        require(profile==0 || (profile==2 && c.dtype==0 && c.resident==1 && !stage && !mtp_input),"residual activation profile requires an explicit complete resident FP16 target");
++        require(profile==0 || (profile==2 && c.dtype==0 && c.resident==1 && !stage &&
++            (!mtp_input || (VENTURI_BLOCKS_ARCH==70 && c.layers==1 && c.second_device==-1))),"residual activation profile requires an explicit complete resident FP16 target or SM70 single-device MTP body");
+         require(c.dtype==0 || c.dtype==1,"native Qwen needs explicit FP16/BF16");(void)data_type(c.dtype);
+         require(c.second_device>=-1 && c.second_device!=c.device,"invalid native Qwen peer device");
+         require(c.peer_transport==0 || c.peer_transport==1,"invalid native Qwen peer transport");
+--- prior/src/venturi/qwen_native_cli.py
++++ current/src/venturi/qwen_native_cli.py
+@@ -91,6 +91,11 @@
+         choices=(1, 2),
+         default=1,
+         help="Explicit MTP proposal depth; depth one remains the default",
++    )
++    p.add_argument(
++        "--mtp-draft-projection-profile",
++        choices=("fp16", "q8-residual"),
++        default="fp16",
+     )
+     p.add_argument("--mtp-recovery", choices=("replay", "prefix"), default="replay")
+     p.add_argument(
+@@ -155,6 +160,15 @@
+                 )
+             )
+             return 0
++        if args.mtp_draft_projection_profile != "fp16" and (
++            not args.mtp_artifact
++            or args.dtype != "fp16"
++            or args.pipeline_device
++            or args.weight_mode != "resident"
++        ):
++            raise ValueError(
++                "Residual MTP draft requires an explicit artifact and resident FP16 non-PP target"
++            )
+         if args.mtp_recovery != "replay" and (
+             not args.mtp_artifact or args.mtp_draft_tokens != 2
+         ):
+@@ -248,6 +262,11 @@
+                 model = NativeQwenMTPModel.from_q8(
+                     target_model,
+                     QwenMTPWeights.from_ninfer(NInferArtifact(args.mtp_artifact)),
++                    **(
++                        {"draft_projection_profile": args.mtp_draft_projection_profile}
++                        if args.mtp_draft_projection_profile != "fp16"
++                        else {}
++                    ),
+                 )
+             finally:
+                 # The MTP native owner retains the shared target weights.
+@@ -289,7 +308,12 @@
+                         if args.dtype == "fp16" or args.projection_profile != "fp16"
+                         else "bf16",
+                     ),
+-                    mtp_draft_projection_profile=args.dtype
++                    mtp_draft_projection_profile=info.get(
++                        "mtp_draft_projection_profile",
++                        args.mtp_draft_projection_profile
++                        if args.dtype == "fp16"
++                        else args.dtype,
++                    )
+                     if args.mtp_artifact
+                     else None,
+                     tensor_parallel_device=args.tensor_parallel_device,
+--- prior/tests/test_mtp_draft_profile.py
++++ current/tests/test_mtp_draft_profile.py
+@@ -0,0 +1,281 @@
++"""Explicit changed draft arithmetic; target parity alone is insufficient."""
++
++import inspect
++import os
++from types import SimpleNamespace
++
++import pytest
++import torch
++
++import test_qwen_mtp2 as chain
++import test_qwen_mtp_batch as packed
++from test_mtp_prefix import prefix as prefix_fixture  # noqa: F401
++from test_qwen_mtp import mtp_fixture, load_models, mtp_oracle
++from test_qwen_mtp2 import same_draft
++from venturi.models import (
++    NativeQwenModel,
++    NativeQwenPipelineModel,
++    NativeQwenMTPModel,
++    QwenMTPWeights,
++)
++from venturi.models.qwen_mtp_native import _bind
++from venturi.ops import CudaBackend
++
++
++def test_explicit_draft_profile_cpu_preflight_and_default():
++    assert (
++        inspect.signature(NativeQwenMTPModel.from_q8)
++        .parameters["draft_projection_profile"]
++        .default
++        == "fp16"
++    )
++    weights = object.__new__(QwenMTPWeights)
++    target = object.__new__(NativeQwenModel)
++    target._dtype = torch.float16
++    target._backend = SimpleNamespace(_native=SimpleNamespace())
++    with pytest.raises(ValueError, match="explicit fp16/q8-residual"):
++        NativeQwenMTPModel.from_q8(target, weights, draft_projection_profile="auto")
++    with pytest.raises(RuntimeError, match="exports absent"):
++        NativeQwenMTPModel.from_q8(
++            target, weights, draft_projection_profile="q8-residual"
++        )
++    target._dtype = torch.bfloat16
++    with pytest.raises(ValueError, match="FP16 non-PP"):
++        NativeQwenMTPModel.from_q8(
++            target, weights, draft_projection_profile="q8-residual"
++        )
++    pp = object.__new__(NativeQwenPipelineModel)
++    pp._dtype = torch.float16
++    with pytest.raises(ValueError, match="FP16 non-PP"):
++        NativeQwenMTPModel.from_q8(pp, weights, draft_projection_profile="q8-residual")
++
++
++def test_additive_profile_exports_do_not_break_old_binding():
++    class Legacy:
++        def __getattr__(self, name):
++            if name in [
++                "venturi_qwen_mtp_create_profiled",
++                "venturi_qwen_mtp_projection_info",
++            ]:
++                raise AttributeError(name)
++            return SimpleNamespace()
++
++    native = _bind(SimpleNamespace(_native=Legacy()))
++    assert native.venturi_qwen_create_profiled is None
++    assert native.venturi_qwen_projection_info is None
++    assert native.venturi_qwen_create is not None
++
++
++def test_cli_draft_profile_requires_artifact_before_backend(
++    tmp_path, monkeypatch, capsys
++):
++    from venturi import qwen_native_cli
++    from test_qwen_model import hybrid_fixture
++
++    w, _ = hybrid_fixture(tmp_path)
++    monkeypatch.setattr(
++        qwen_native_cli,
++        "CudaBackend",
++        lambda *a: pytest.fail("Backend before preflight"),
++    )
++    with pytest.raises(SystemExit) as error:
++        qwen_native_cli.main(
++            [
++                "generate",
++                str(w.artifact.path),
++                "--token-ids",
++                "1,2",
++                "--mtp-draft-projection-profile",
++                "q8-residual",
++            ]
++        )
++    assert error.value.code == 1 and "explicit artifact" in capsys.readouterr().err
++
++
++@pytest.fixture
++def engine():
++    path = os.environ.get("VENTURI_MTP_DRAFT_PROFILE_LIBRARY")
++    if not path:
++        pytest.skip("Explicit SM70 residual-draft library required")
++    return CudaBackend(path), torch.float16, "cuda:0"
++
++
++@pytest.mark.parametrize("mode", ["single", "tp"])
++def test_independent_draft_hidden_logits_and_incremental_kv(tmp_path, engine, mode):
++    a, b, raw, _ = mtp_fixture(tmp_path)
++    target, model = load_models(
++        a,
++        b,
++        engine,
++        mode,
++        profile="q8-residual-column-mlp" if mode == "tp" else "q8-residual",
++        draft_profile="q8-residual",
++    )
++    session = model.create_session(32)
++    cache = None
++    try:
++        info = model.projection_info
++        assert info["mtp_draft_projection_profile"] == "q8-residual"
++        assert info["mtp_draft_activation_quantization_passes"] == 2
++        maximum = max(s.shape[1] for s in b.plan.bindings if s.format == "q8_g32_fp16")
++        assert (
++            info["mtp_draft_primary_projection_workspace_bytes"]
++            == 3 * ((maximum + 31) // 32) * 72
++        )
++        assert info["mtp_draft_secondary_projection_workspace_bytes"] == 0
++        for i, ids in enumerate([[1, 3, 2], [4], [5, 6]]):
++            hidden = (
++                torch.randn(
++                    len(ids),
++                    a.config["hidden_size"],
++                    generator=torch.Generator().manual_seed(397 + i),
++                )
++                * 0.31
++            ).half()
++            actual = session.draft_forward(ids, hidden)
++            out, logits, cache = mtp_oracle(raw, a.config, ids, hidden, cache)
++            for got, ref in [
++                (actual["hidden"], out),
++                (actual["logits"], logits),
++                (session.draft_snapshot()["keys"], cache[0]),
++                (session.draft_snapshot()["values"], cache[1]),
++            ]:
++                torch.testing.assert_close(got.double(), ref, atol=0.008, rtol=0.02)
++    finally:
++        session.close()
++        model.close()
++        target.close()
++
++
++@pytest.mark.parametrize("mode", ["single", "tp"])
++def test_default_draft_bytes_equal_qualified_old_library(tmp_path, engine, mode):
++    control = os.environ.get("VENTURI_MTP_DRAFT_CONTROL_LIBRARY")
++    if not control:
++        pytest.skip("Explicit qualified original FP16 draft control required")
++    a, b, _, _ = mtp_fixture(tmp_path)
++    old_engine = CudaBackend(control), torch.float16, "cuda:0"
++    pairs = [
++        load_models(
++            a,
++            b,
++            e,
++            mode,
++            profile="q8-residual-column-mlp" if mode == "tp" else "q8-residual",
++        )
++        for e in [old_engine, engine]
++    ]
++    sessions = [model.create_session(32) for target, model in pairs]
++    try:
++        for i, ids in enumerate([[1, 3, 2], [4], [5, 6]]):
++            h = (
++                torch.randn(
++                    len(ids),
++                    a.config["hidden_size"],
++                    generator=torch.Generator().manual_seed(191 + i),
++                )
++                * 0.31
++            ).half()
++            results = [s.draft_forward(ids, h) for s in sessions]
++            for k in ["hidden", "logits"]:
++                assert torch.equal(
++                    results[0][k].view(torch.uint8), results[1][k].view(torch.uint8)
++                )
++            same_draft(*(s.draft_snapshot() for s in sessions))
++        assert pairs[1][1].projection_info["mtp_draft_projection_profile"] == "fp16"
++        assert (
++            pairs[1][1].projection_info["mtp_draft_primary_projection_workspace_bytes"]
++            == 0
++        )
++    finally:
++        for s in sessions:
++            s.close()
++        for target, model in pairs:
++            model.close()
++            target.close()
++
++
++@pytest.fixture
++def residual_chain(monkeypatch):
++    def load(*args, **kwargs):
++        kwargs["draft_profile"] = "q8-residual"
++        return load_models(*args, **kwargs)
++
++    monkeypatch.setattr(chain, "load_models", load)
++
++
++@pytest.mark.parametrize("mode", ["single", "tp"])
++@pytest.mark.parametrize(
++    "forced", ["native", "accept", "reject-first", "reject-second"]
++)
++@pytest.mark.usefixtures("prefix_fixture")
++def test_prefix_transactions_same_profile_corrected_draft(
++    tmp_path, engine, residual_chain, mode, forced
++):
++    chain.test_depth2_output_target_and_corrected_draft_caches(
++        tmp_path,
++        engine,
++        mode,
++        "q8-residual-column-mlp" if mode == "tp" else "q8-residual",
++        forced,
++    )
++
++
++@pytest.mark.parametrize("mode", ["single", "tp"])
++@pytest.mark.usefixtures("prefix_fixture")
++def test_prefix_failure_reset_lifetime_native_only(
++    tmp_path, engine, residual_chain, mode, monkeypatch
++):
++    chain.test_depth2_failure_reset_lifetime_and_native_only(
++        tmp_path, engine, mode, monkeypatch
++    )
++
++
++@pytest.mark.parametrize("count", [2, 8])
++@pytest.mark.usefixtures("prefix_fixture")
++def test_concurrent_private_requests(tmp_path, engine, residual_chain, count):
++    chain.test_depth2_concurrent_private_requests(tmp_path, engine, "tp", count)
++
++
++@pytest.fixture
++def residual_batch(monkeypatch):
++    original = packed.models
++
++    def load(*args, **kwargs):
++        kwargs.update(draft_profile="q8-residual", profile="q8-residual-column-mlp")
++        # Some inherited checks pass target profile positionally.
++        if len(args) > 3:
++            args = args[:3] + ("q8-residual-column-mlp",) + args[4:]
++            kwargs.pop("profile")
++        return original(*args, **kwargs)
++
++    monkeypatch.setattr(packed, "models", load)
++
++
++@pytest.mark.parametrize("count", [2, 8])
++@pytest.mark.parametrize("forced", ["native", "accept", "reject", "mixed"])
++def test_mtp_cohort_target_and_draft_bytes(
++    tmp_path, engine, residual_batch, count, forced
++):
++    packed.test_target_and_corrected_draft_bytes(
++        tmp_path, engine[0], True, "q8-residual-column-mlp", count, forced
++    )
++
++
++@pytest.mark.parametrize("maximum", [1, 7])
++def test_cohort_ragged_eos_selective_reset(tmp_path, engine, residual_batch, maximum):
++    packed.test_ragged_budgets_eos_tails_and_selective_reset(
++        tmp_path, engine[0], True, maximum
++    )
++
++
++@pytest.mark.parametrize("position", [0, 3])
++def test_cohort_failure_reset_and_native_only(
++    tmp_path, engine, residual_batch, position, monkeypatch
++):
++    packed.test_failure_poison_reset_lifetime_no_python_math(
++        tmp_path, engine[0], position, monkeypatch
++    )
++
++
++def test_overlapping_cohort_scalar_target_owners(tmp_path, engine, residual_batch):
++    packed.test_overlapping_batches_scalar_and_original_target(tmp_path, engine[0])
+--- prior/tests/test_qwen_mtp.py
++++ current/tests/test_qwen_mtp.py
+@@ -194,7 +194,15 @@
+     return base_port.__wrapped__(request)
+ 
+ 
+-def load_models(target_weights, mtp_weights, engine, mode="single", *, profile="fp16"):
++def load_models(
++    target_weights,
++    mtp_weights,
++    engine,
++    mode="single",
++    *,
++    profile="fp16",
++    draft_profile="fp16",
++):
+     backend, dtype, device = engine
+     kw = dict(
+         weight_mode="resident",
+@@ -213,7 +221,9 @@
+             kw.update(tensor_parallel_device="cuda:1", tensor_parallel_transport="host")
+         target = NativeQwenModel.from_q8(target_weights, backend, **kw)
+     try:
+-        return target, NativeQwenMTPModel.from_q8(target, mtp_weights, reserve_bytes=0)
++        return target, NativeQwenMTPModel.from_q8(
++            target, mtp_weights, reserve_bytes=0, draft_projection_profile=draft_profile
++        )
+     except BaseException:
+         target.close()
+         raise
+--- prior/tests/test_qwen_mtp_batch.py
++++ current/tests/test_qwen_mtp_batch.py
+@@ -24,7 +24,9 @@
+     return CudaBackend(p)
+ 
+ 
+-def models(tmp_path, backend, tp, profile="q8-residual", tied=False):
++def models(
++    tmp_path, backend, tp, profile="q8-residual", tied=False, draft_profile="fp16"
++):
+     a, b, _, _ = mtp_fixture(tmp_path, tied=tied)
+     target = NativeQwenModel.from_q8(
+         a,
+@@ -41,7 +43,9 @@
+             else {}
+         ),
+     )
+-    return target, NativeQwenMTPModel.from_q8(target, b, reserve_bytes=0)
++    return target, NativeQwenMTPModel.from_q8(
++        target, b, reserve_bytes=0, draft_projection_profile=draft_profile
++    )
+ 
+ 
+ @pytest.mark.parametrize("tp", [False, True])
+--- prior/tools/profile_qwen_mtp.py
++++ current/tools/profile_qwen_mtp.py
+@@ -34,6 +34,11 @@
+         choices=("q8-residual", "q8-residual-column-mlp"),
+         default="q8-residual",
+     )
++    p.add_argument(
++        "--mtp-draft-projection-profile",
++        choices=("fp16", "q8-residual"),
++        default="fp16",
++    )
+     a = p.parse_args()
+     if a.target_layer_graph and (a.depth != 2 or a.recovery != "prefix"):
+         p.error("Target layer graph requires depth two and prefix recovery")
+@@ -56,7 +61,9 @@
+     sessions = []
+     try:
+         model = NativeQwenMTPModel.from_q8(
+-            target, QwenMTPWeights.from_ninfer(NInferArtifact(a.mtp_artifact))
++            target,
++            QwenMTPWeights.from_ninfer(NInferArtifact(a.mtp_artifact)),
++            draft_projection_profile=a.mtp_draft_projection_profile,
+         )
+         sessions = [model.create_session(256) for _ in range(8)]
+         if a.recovery == "prefix":
+@@ -92,7 +99,7 @@
+             projection_rows=32,
+             capacity_per_slot=256,
+             projection_profile=a.projection_profile,
+-            draft_profile="fp16",
++            draft_profile=a.mtp_draft_projection_profile,
+             instrumented_wave=measured,
+             stats=[s.stats() for s in sessions[: a.count]],
+             library_sha256=hashlib.sha256(Path(a.library).read_bytes()).hexdigest(),
+--- prior/tools/profile_qwen_mtp_batch.py
++++ current/tools/profile_qwen_mtp_batch.py
+@@ -35,6 +35,11 @@
+         choices=("q8-residual", "q8-residual-column-mlp"),
+         default="q8-residual",
+     )
++    p.add_argument(
++        "--mtp-draft-projection-profile",
++        choices=("fp16", "q8-residual"),
++        default="fp16",
++    )
+     a = p.parse_args()
+     torch.set_num_threads(4)
+     case = json.loads(Path(a.case).read_text())
+@@ -55,7 +60,9 @@
+     model = batch = None
+     try:
+         model = NativeQwenMTPModel.from_q8(
+-            target, QwenMTPWeights.from_ninfer(NInferArtifact(a.mtp_artifact))
++            target,
++            QwenMTPWeights.from_ninfer(NInferArtifact(a.mtp_artifact)),
++            draft_projection_profile=a.mtp_draft_projection_profile,
+         )
+         batch = model.create_batch([256] * 8)
+ 
+@@ -81,7 +88,7 @@
+                     projection_rows=32,
+                     capacity_per_slot=256,
+                     projection_profile=a.projection_profile,
+-                    draft_profile="fp16",
++                    draft_profile=a.mtp_draft_projection_profile,
+                     selected_slots=slots,
+                     outputs=result,
+                     instrumented_wave=dict(
+--- prior/tools/qualify_qwen_mtp.py
++++ current/tools/qualify_qwen_mtp.py
+@@ -86,6 +86,11 @@
+         action="store_true",
+         help="Only when reusing separately pinned reference evidence",
+     )
++    p.add_argument(
++        "--mtp-draft-projection-profile",
++        choices=("fp16", "q8-residual"),
++        default="fp16",
++    )
+     a = p.parse_args()
+     if a.target_layer_graph and (
+         a.draft_tokens != 2
+@@ -96,6 +101,10 @@
+         p.error("Target layer graph requires residual scalar MTP2 prefix mode")
+     if a.recovery != "replay" and a.draft_tokens != 2:
+         p.error("Prefix recovery requires explicit MTP2")
++    if a.mtp_draft_projection_profile != "fp16" and (
++        a.mode == "pp" or a.skip_block_reference
++    ):
++        p.error("New draft arithmetic requires non-PP and fresh block reference checks")
+     if a.mode == "pp" and a.projection_profile != "fp16":
+         p.error("Residual projection profile currently supports TP, not PP")
+     if bool(a.prior_target_report) != bool(a.prior_target_report_sha256):
+@@ -110,7 +119,7 @@
+         scope=__doc__,
+         mode=a.mode,
+         projection_profile=a.projection_profile,
+-        mtp_draft_projection_profile="fp16",
++        mtp_draft_projection_profile=a.mtp_draft_projection_profile,
+         library_sha256=digest(a.library),
+         mtp_artifact_sha256=digest(a.mtp_artifact),
+         target_artifact_id=weights.artifact.artifact_id,
+@@ -148,7 +157,9 @@
+             **kw,
+         )
+     )
+-    model = NativeQwenMTPModel.from_q8(target, mtp_weights)
++    model = NativeQwenMTPModel.from_q8(
++        target, mtp_weights, draft_projection_profile=a.mtp_draft_projection_profile
++    )
+     try:
+         prior_target = None
+         if a.prior_target_report:
+--- prior/tools/qualify_qwen_mtp_batch.py
++++ current/tools/qualify_qwen_mtp_batch.py
+@@ -44,6 +44,11 @@
+         "--projection-profile",
+         choices=("q8-residual", "q8-residual-column-mlp"),
+         default="q8-residual",
++    )
++    p.add_argument(
++        "--mtp-draft-projection-profile",
++        choices=("fp16", "q8-residual"),
++        default="fp16",
+     )
+     a = p.parse_args()
+     out = Path(a.output_directory)
+@@ -66,7 +71,9 @@
+         prior_target_report_sha256=a.prior_target_report_sha256,
+         projection_rows=32,
+         capacity_per_slot=256,
+-        profiles=dict(target=a.projection_profile, draft="fp16", kv="fp16"),
++        profiles=dict(
++            target=a.projection_profile, draft=a.mtp_draft_projection_profile, kv="fp16"
++        ),
+         new_cpu_teacher_campaign=False,
+         broad_bf16_corpus_quality=False,
+         full_references=[],
+@@ -166,7 +173,9 @@
+ 
+     try:
+         model = NativeQwenMTPModel.from_q8(
+-            target, QwenMTPWeights.from_ninfer(NInferArtifact(a.mtp_artifact))
++            target,
++            QwenMTPWeights.from_ninfer(NInferArtifact(a.mtp_artifact)),
++            draft_projection_profile=a.mtp_draft_projection_profile,
+         )
+         batch = model.create_batch([256] * 8)
+         for case in cases:
+--- prior/tools/serve_native_benchmark.py
++++ current/tools/serve_native_benchmark.py
+@@ -203,7 +203,18 @@
+         default="fp16",
+     )
+     p.add_argument("--batch-window-ms", type=float, default=5.0)
++    p.add_argument(
++        "--mtp-draft-projection-profile",
++        choices=("fp16", "q8-residual"),
++        default="fp16",
++    )
+     args = p.parse_args()
++    if args.mtp_draft_projection_profile != "fp16" and (
++        not args.mtp_artifact or args.mode != "tp"
++    ):
++        p.error(
++            "Residual MTP draft requires an explicit draft artifact and non-PP target"
++        )
+     if args.target_layer_graph and (
+         args.mode != "tp"
+         or not args.mtp_artifact
+@@ -283,7 +294,9 @@
+     try:
+         if args.mtp_artifact:
+             model = NativeQwenMTPModel.from_q8(
+-                target, QwenMTPWeights.from_ninfer(NInferArtifact(args.mtp_artifact))
++                target,
++                QwenMTPWeights.from_ninfer(NInferArtifact(args.mtp_artifact)),
++                draft_projection_profile=args.mtp_draft_projection_profile,
+             )
+         if args.batch_target or args.batch_mtp:
+             batch = model.create_batch([args.capacity] * args.slots)
+@@ -319,7 +332,11 @@
+             if args.batch_target or args.batch_mtp
+             else None,
+             projection_profile=args.projection_profile,
+-            mtp_draft_projection_profile="fp16" if args.mtp_artifact else None,
++            mtp_draft_projection_profile=model.projection_info[
++                "mtp_draft_projection_profile"
++            ]
++            if args.mtp_artifact
++            else None,
+         )
+ 
+         class Handler(BaseHTTPRequestHandler):

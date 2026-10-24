@@ -1,0 +1,140 @@
+{
+  "scope": "Single versus residual A8 operator screen, not native model/serving quality.\n\nExact production Q8_0 weight bytes; synthetic FP16 activations. Both packed\nprojection and quantize+projection scopes are measured independently, with\nunchanged dispatch geometries. All model math/transport outside these operators\nis excluded. The production service is never stopped or reconfigured.\n",
+  "args": {
+    "gguf": "/home/wzu/models/Qwen3.8-27B-Uncensored-GGUF/Qwen3.8-27B-Uncensored-Q8_0.gguf",
+    "library": "/home/data/wangyue/artifacts/venturi-single-a8-v1/libsingle_a8_probe.so",
+    "control_library": "/home/data/wangyue/artifacts/venturi-q8-prefetch-v3/build/f634328d5b15400b/libventuri_blocks.so",
+    "output_directory": "/home/data/wangyue/artifacts/venturi-single-a8-v1/profile-single-a8",
+    "tokens": "8",
+    "repeats": 7,
+    "profile_case": "mlp-fused",
+    "profile_arm": "single-a8"
+  },
+  "utc": "2026-10-21T14:46:43.611010+00:00",
+  "completed": true,
+  "profiled": true,
+  "cases": [
+    {
+      "name": "mlp-fused",
+      "tokens": 8,
+      "k": 5120,
+      "rows": [
+        8704,
+        8704
+      ],
+      "weight_pins": [
+        {
+          "codes_sha256": "c8e25a0915540ed5ce482904b50c13c356ffeeab796406008ff9d2637f379353",
+          "scales_sha256": "48a72c63f970bd73a428e8cdb109f357c50d922e1cdcccbd781bff15bba1016a"
+        },
+        {
+          "codes_sha256": "458a432707402da22fba056cf3ce48fd9536595a5bee94fff54316e4ed932eac",
+          "scales_sha256": "dda5d75fbd45392a39acea9baf30bc1d4fe22e69248b43ac17fc66397e3fe747"
+        }
+      ],
+      "partial_fp32": false,
+      "complete_two_pass_bytes_equal": true,
+      "one_pass_first_plane_bytes_equal": true,
+      "quality": [
+        {
+          "rows": 8704,
+          "family": "gaussian",
+          "implementation_fp64_sample_relative_l2": {
+            "local-two": 0.00021078860071204193,
+            "single-a8": 0.00020620576067782666
+          },
+          "versus_unquantized_activation": {
+            "pinned-two": {
+              "relative_l2": 0.00020728567248632423,
+              "centered_cosine": 0.9999999785063652,
+              "max_absolute_error": 0.00037550926208496094,
+              "rms_error": 3.860281645967508e-05,
+              "changed_projection_argmax_fraction": 0.0,
+              "operator_screen_passed": true
+            },
+            "local-two": {
+              "relative_l2": 0.00020728567248632423,
+              "centered_cosine": 0.9999999785063652,
+              "max_absolute_error": 0.00037550926208496094,
+              "rms_error": 3.860281645967508e-05,
+              "changed_projection_argmax_fraction": 0.0,
+              "operator_screen_passed": true
+            },
+            "single-a8": {
+              "relative_l2": 0.005352783557932978,
+              "centered_cosine": 0.9999856750909801,
+              "max_absolute_error": 0.005665987730026245,
+              "rms_error": 0.000996849028477288,
+              "changed_projection_argmax_fraction": 0.0,
+              "operator_screen_passed": true
+            }
+          },
+          "single_versus_two": {
+            "relative_l2": 0.00535694673832279,
+            "centered_cosine": 0.9999856527026376,
+            "max_absolute_error": 0.0057373046875,
+            "rms_error": 0.000997624999267737,
+            "changed_projection_argmax_fraction": 0.0,
+            "operator_screen_passed": true
+          }
+        },
+        {
+          "rows": 8704,
+          "family": "gaussian",
+          "implementation_fp64_sample_relative_l2": {
+            "local-two": 0.00017739741022220187,
+            "single-a8": 0.00017359289556712976
+          },
+          "versus_unquantized_activation": {
+            "pinned-two": {
+              "relative_l2": 0.00020692072289523402,
+              "centered_cosine": 0.9999999785920869,
+              "max_absolute_error": 0.00024497509002685547,
+              "rms_error": 3.696695166585714e-05,
+              "changed_projection_argmax_fraction": 0.0,
+              "operator_screen_passed": true
+            },
+            "local-two": {
+              "relative_l2": 0.00020692072289523402,
+              "centered_cosine": 0.9999999785920869,
+              "max_absolute_error": 0.00024497509002685547,
+              "rms_error": 3.696695166585714e-05,
+              "changed_projection_argmax_fraction": 0.0,
+              "operator_screen_passed": true
+            },
+            "single-a8": {
+              "relative_l2": 0.005336050282696418,
+              "centered_cosine": 0.9999857643860999,
+              "max_absolute_error": 0.004737690091133118,
+              "rms_error": 0.000953299940803394,
+              "changed_projection_argmax_fraction": 0.0,
+              "operator_screen_passed": true
+            }
+          },
+          "single_versus_two": {
+            "relative_l2": 0.0053403271574395915,
+            "centered_cosine": 0.9999857415270168,
+            "max_absolute_error": 0.0047607421875,
+            "rms_error": 0.000954064532830492,
+            "changed_projection_argmax_fraction": 0.0,
+            "operator_screen_passed": true
+          }
+        }
+      ],
+      "waves": [],
+      "torch_reserved_bytes": 115343360,
+      "torch_allocated_bytes": 104274944
+    }
+  ],
+  "gguf": {
+    "path": "/home/wzu/models/Qwen3.8-27B-Uncensored-GGUF/Qwen3.8-27B-Uncensored-Q8_0.gguf",
+    "architecture": "qwen35",
+    "size": 29047084448,
+    "mtime_ns": 1787148105067877936
+  },
+  "library_sha256": "5f2f7842fb032e1e309454c90555312ebb99824a54472c6f250ff6db1d5e762a",
+  "control_library_sha256": "d569f3fb9f11598b8fd4c70263bd7948e4d43e5620441c48fcd8b038bcc71284",
+  "device_uuid": "18fbf081-3c6d-d65b-11b8-288a4ce1ab28",
+  "precision": "Identical group32 Q8 weight codes/F16 scales; F16 input, A8 scales F32. Single A8 removes residual pass and changes arithmetic; F16 fused/F32 TP partial outputs.",
+  "quality_scope": "Full operator outputs versus F32 represented-Q8-weight/F16-activation reference, with sampled independent F64 reference. Synthetic inputs are NOT production model activation or corpus quality."
+}

@@ -1,0 +1,691 @@
+{
+  "scope": "Original-derived Q8 layer qualification; synthetic inputs, NOT trained inference.\n\nRead and hash the complete artifact, then upload one declared layer at a time.\nCheck each actual-input stage against independent CPU FP64 represented-weight\nmath, with the existing per-Op error criteria. No benchmark or engine TPS claim.\nFP16 keeps the small BF16 a/b/conv values through lossless FP32 parameter\nstorage/compute. Q8 planes and FP32 gamma/state are preserved. Compare uploaded\nsmall parameters with the original artifact, including underflow/overflow.\n",
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "artifact_sha256": "b2428c6e524914853d636b268c21f2ed298ba3d19c682fdef4973e8d634edab8",
+  "artifact": "/home/data/wangyue/repos/codex-build/Venturi/models/qwen3.5-27b-text-q8.ninfer",
+  "library": "/home/data/wangyue/repos/codex-build/Venturi/sm70-build/308dc54fb9e2a32a/libventuri_blocks.so",
+  "architecture": 70,
+  "torch": "2.5.1+cu121",
+  "cuda": "12.1",
+  "gpu": "Tesla V100-PCIE-32GB",
+  "dtype": "torch.float16",
+  "cases": [
+    {
+      "layer": 0,
+      "kind": "linear_attention",
+      "tokens": 1,
+      "resident_weight_bytes": 408822656,
+      "small_float_casts": [
+        {
+          "binding": "text/layers/0/gdn/a",
+          "source_dtype": "BF16",
+          "parameter_dtype": "torch.float32",
+          "activation_dtype": "torch.float16",
+          "elements": 245760,
+          "changed_elements": 0,
+          "underflow_to_zero": 0,
+          "nonfinite_after_cast": 0,
+          "max_abs_cast_error": 0.0
+        },
+        {
+          "binding": "text/layers/0/gdn/b",
+          "source_dtype": "BF16",
+          "parameter_dtype": "torch.float32",
+          "activation_dtype": "torch.float16",
+          "elements": 245760,
+          "changed_elements": 0,
+          "underflow_to_zero": 0,
+          "nonfinite_after_cast": 0,
+          "max_abs_cast_error": 0.0
+        },
+        {
+          "binding": "text/layers/0/gdn/convolution",
+          "source_dtype": "BF16",
+          "parameter_dtype": "torch.float32",
+          "activation_dtype": "torch.float16",
+          "elements": 40960,
+          "changed_elements": 0,
+          "underflow_to_zero": 0,
+          "nonfinite_after_cast": 0,
+          "max_abs_cast_error": 0.0
+        }
+      ],
+      "stages": [
+        {
+          "stage": "input_norm",
+          "passed": true,
+          "elements": 5120,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "gdn/qkv",
+          "passed": true,
+          "elements": 10240,
+          "max_rounded_abs_error": 0.0009765625,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "gdn/z",
+          "passed": true,
+          "elements": 6144,
+          "max_rounded_abs_error": 0.0009765625,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "gdn/a",
+          "passed": true,
+          "elements": 48,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "gdn/b",
+          "passed": true,
+          "elements": 48,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "convolution_silu",
+          "passed": true,
+          "elements": 10240,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "log_decay",
+          "passed": true,
+          "max_abs_error": 2.1443050357561333e-07,
+          "floor": 2e-07,
+          "relative_bound": 2e-06
+        },
+        {
+          "stage": "beta",
+          "passed": true,
+          "max_abs_error": 0.0,
+          "floor": 2e-07,
+          "relative_bound": 2e-06
+        },
+        {
+          "stage": "recurrence",
+          "passed": true,
+          "elements": 6144,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "recurrent_state",
+          "passed": true,
+          "elements": 786432,
+          "max_rounded_abs_error": 1.385598871750382e-08,
+          "floor": 2e-06,
+          "relative_bound": 0.0002
+        },
+        {
+          "stage": "gated_norm",
+          "passed": true,
+          "elements": 6144,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "gdn/output",
+          "passed": true,
+          "elements": 5120,
+          "max_rounded_abs_error": 3.814697265625e-06,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "attention_residual",
+          "passed": true,
+          "elements": 5120,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "post_attention_norm",
+          "passed": true,
+          "elements": 5120,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp/gate",
+          "passed": true,
+          "elements": 17408,
+          "max_rounded_abs_error": 0.000244140625,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp/up",
+          "passed": true,
+          "elements": 17408,
+          "max_rounded_abs_error": 0.0001220703125,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "swiglu",
+          "passed": true,
+          "elements": 17408,
+          "max_rounded_abs_error": 1.52587890625e-05,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp/down",
+          "passed": true,
+          "elements": 5120,
+          "max_rounded_abs_error": 0.0001220703125,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp_residual",
+          "passed": true,
+          "elements": 5120,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        }
+      ],
+      "manual_composition_bit_exact": true,
+      "state_history_bit_exact": true
+    },
+    {
+      "layer": 0,
+      "kind": "linear_attention",
+      "tokens": 8,
+      "resident_weight_bytes": 408822656,
+      "small_float_casts": [
+        {
+          "binding": "text/layers/0/gdn/a",
+          "source_dtype": "BF16",
+          "parameter_dtype": "torch.float32",
+          "activation_dtype": "torch.float16",
+          "elements": 245760,
+          "changed_elements": 0,
+          "underflow_to_zero": 0,
+          "nonfinite_after_cast": 0,
+          "max_abs_cast_error": 0.0
+        },
+        {
+          "binding": "text/layers/0/gdn/b",
+          "source_dtype": "BF16",
+          "parameter_dtype": "torch.float32",
+          "activation_dtype": "torch.float16",
+          "elements": 245760,
+          "changed_elements": 0,
+          "underflow_to_zero": 0,
+          "nonfinite_after_cast": 0,
+          "max_abs_cast_error": 0.0
+        },
+        {
+          "binding": "text/layers/0/gdn/convolution",
+          "source_dtype": "BF16",
+          "parameter_dtype": "torch.float32",
+          "activation_dtype": "torch.float16",
+          "elements": 40960,
+          "changed_elements": 0,
+          "underflow_to_zero": 0,
+          "nonfinite_after_cast": 0,
+          "max_abs_cast_error": 0.0
+        }
+      ],
+      "stages": [
+        {
+          "stage": "input_norm",
+          "passed": true,
+          "elements": 40960,
+          "max_rounded_abs_error": 0.0009765625,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "gdn/qkv",
+          "passed": true,
+          "elements": 81920,
+          "max_rounded_abs_error": 0.001953125,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "gdn/z",
+          "passed": true,
+          "elements": 49152,
+          "max_rounded_abs_error": 0.00048828125,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "gdn/a",
+          "passed": true,
+          "elements": 384,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "gdn/b",
+          "passed": true,
+          "elements": 384,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "convolution_silu",
+          "passed": true,
+          "elements": 81920,
+          "max_rounded_abs_error": 1.9073486328125e-06,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "log_decay",
+          "passed": true,
+          "max_abs_error": 2.1935850558207903e-07,
+          "floor": 2e-07,
+          "relative_bound": 2e-06
+        },
+        {
+          "stage": "beta",
+          "passed": true,
+          "max_abs_error": 0.0,
+          "floor": 2e-07,
+          "relative_bound": 2e-06
+        },
+        {
+          "stage": "recurrence",
+          "passed": true,
+          "elements": 49152,
+          "max_rounded_abs_error": 1.1920928955078125e-07,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "recurrent_state",
+          "passed": true,
+          "elements": 786432,
+          "max_rounded_abs_error": 2.4638430895507213e-07,
+          "floor": 2e-06,
+          "relative_bound": 0.0002
+        },
+        {
+          "stage": "gated_norm",
+          "passed": true,
+          "elements": 49152,
+          "max_rounded_abs_error": 1.52587890625e-05,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "gdn/output",
+          "passed": true,
+          "elements": 40960,
+          "max_rounded_abs_error": 0.000244140625,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "attention_residual",
+          "passed": true,
+          "elements": 40960,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "post_attention_norm",
+          "passed": true,
+          "elements": 40960,
+          "max_rounded_abs_error": 0.000244140625,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp/gate",
+          "passed": true,
+          "elements": 139264,
+          "max_rounded_abs_error": 0.0009765625,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp/up",
+          "passed": true,
+          "elements": 139264,
+          "max_rounded_abs_error": 0.0009765625,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "swiglu",
+          "passed": true,
+          "elements": 139264,
+          "max_rounded_abs_error": 0.000244140625,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp/down",
+          "passed": true,
+          "elements": 40960,
+          "max_rounded_abs_error": 0.0001220703125,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp_residual",
+          "passed": true,
+          "elements": 40960,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        }
+      ],
+      "manual_composition_bit_exact": true,
+      "state_history_bit_exact": true
+    },
+    {
+      "layer": 3,
+      "kind": "full_attention",
+      "tokens": 1,
+      "resident_weight_bytes": 395552768,
+      "small_float_casts": [],
+      "stages": [
+        {
+          "stage": "input_norm",
+          "passed": true,
+          "elements": 5120,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "attention/q",
+          "passed": true,
+          "elements": 12288,
+          "max_rounded_abs_error": 0.0009765625,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "attention/k",
+          "passed": true,
+          "elements": 1024,
+          "max_rounded_abs_error": 0.0,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "attention/v",
+          "passed": true,
+          "elements": 1024,
+          "max_rounded_abs_error": 7.62939453125e-06,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "q_norm",
+          "passed": true,
+          "elements": 6144,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "k_norm",
+          "passed": true,
+          "elements": 1024,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "causal_attention",
+          "passed": true,
+          "elements": 6144,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "output_gate",
+          "passed": true,
+          "elements": 6144,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "attention/o",
+          "passed": true,
+          "elements": 5120,
+          "max_rounded_abs_error": 0.0001220703125,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "attention_residual",
+          "passed": true,
+          "elements": 5120,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "post_attention_norm",
+          "passed": true,
+          "elements": 5120,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp/gate",
+          "passed": true,
+          "elements": 17408,
+          "max_rounded_abs_error": 0.0009765625,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp/up",
+          "passed": true,
+          "elements": 17408,
+          "max_rounded_abs_error": 0.000244140625,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "swiglu",
+          "passed": true,
+          "elements": 17408,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp/down",
+          "passed": true,
+          "elements": 5120,
+          "max_rounded_abs_error": 7.62939453125e-06,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp_residual",
+          "passed": true,
+          "elements": 5120,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        }
+      ],
+      "manual_composition_bit_exact": true,
+      "cache_bit_exact": true,
+      "fused_actual_norm_rotary_bit_exact": true
+    },
+    {
+      "layer": 3,
+      "kind": "full_attention",
+      "tokens": 8,
+      "resident_weight_bytes": 395552768,
+      "small_float_casts": [],
+      "stages": [
+        {
+          "stage": "input_norm",
+          "passed": true,
+          "elements": 40960,
+          "max_rounded_abs_error": 0.0009765625,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "attention/q",
+          "passed": true,
+          "elements": 98304,
+          "max_rounded_abs_error": 0.001953125,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "attention/k",
+          "passed": true,
+          "elements": 8192,
+          "max_rounded_abs_error": 3.0517578125e-05,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "attention/v",
+          "passed": true,
+          "elements": 8192,
+          "max_rounded_abs_error": 0.0009765625,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "q_norm",
+          "passed": true,
+          "elements": 49152,
+          "max_rounded_abs_error": 0.00048828125,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "k_norm",
+          "passed": true,
+          "elements": 8192,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "causal_attention",
+          "passed": true,
+          "elements": 49152,
+          "max_rounded_abs_error": 0.0009765625,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "output_gate",
+          "passed": true,
+          "elements": 49152,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "attention/o",
+          "passed": true,
+          "elements": 40960,
+          "max_rounded_abs_error": 0.0009765625,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "attention_residual",
+          "passed": true,
+          "elements": 40960,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "post_attention_norm",
+          "passed": true,
+          "elements": 40960,
+          "max_rounded_abs_error": 0.00048828125,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp/gate",
+          "passed": true,
+          "elements": 139264,
+          "max_rounded_abs_error": 0.0009765625,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp/up",
+          "passed": true,
+          "elements": 139264,
+          "max_rounded_abs_error": 0.0009765625,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "swiglu",
+          "passed": true,
+          "elements": 139264,
+          "max_rounded_abs_error": 6.103515625e-05,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp/down",
+          "passed": true,
+          "elements": 40960,
+          "max_rounded_abs_error": 0.00048828125,
+          "floor": 0.0002,
+          "relative_bound": 0.001953125
+        },
+        {
+          "stage": "mlp_residual",
+          "passed": true,
+          "elements": 40960,
+          "max_rounded_abs_error": 0.0,
+          "floor": 2e-05,
+          "relative_bound": 0.001953125
+        }
+      ],
+      "manual_composition_bit_exact": true,
+      "cache_bit_exact": true,
+      "fused_actual_norm_rotary_bit_exact": true
+    }
+  ],
+  "timing": "Correctness/CPU oracle work only; no latency, TPS or matched engine timing",
+  "gpu_state": "0, Tesla V100-PCIE-32GB, 31249 MiB, 1246 MiB, 0 %\n1, Tesla V100-PCIE-32GB, 29257 MiB, 3238 MiB, 0 %\n",
+  "counters": "RmProfilingAdminOnly=1 on this host; achieved occupancy/SM/DRAM/cache/stall counters not collected. No profiler campaign.",
+  "qualification_wall_seconds_including_hash_upload_cpu_oracles": 107.8377790300292,
+  "selected_gdn_small_parameters_preserved": true,
+  "passed": true,
+  "full_trained_model_forward_qualified": false
+}

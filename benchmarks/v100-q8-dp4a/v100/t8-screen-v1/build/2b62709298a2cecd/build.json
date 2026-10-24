@@ -1,0 +1,31 @@
+{
+  "architecture": "sm70",
+  "source_sha256": {
+    "blocks.cu": "d516b63e4799a39e7511f74ba6526618bef2ffbc684623e2517354050154a34e",
+    "qwen_batch.cuh": "576800cf97c686c3c9a451ee7b72de75678127678c52397319f273822c7c719f",
+    "qwen_mtp.cuh": "30ff976f4b6d6898bcbf14ac186553e20c591fe3fb11dc18330d65dc12b371f0",
+    "qwen_pipeline.cuh": "73b4296184cdbf76c90496f01e1222bbc97307cbeb3a62beb4073096aee575e2",
+    "qwen_runtime.cuh": "03f78baef2dfbcbd4706dac42d760f1f1bb351b64dcb73ece610fab29413841e"
+  },
+  "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Tue_May_27_02:21:03_PDT_2025\nCuda compilation tools, release 12.9, V12.9.86\nBuild cuda_12.9.r12.9/compiler.36037853_0\n",
+  "command": [
+    "/usr/local/cuda/bin/nvcc",
+    "-O3",
+    "-std=c++20",
+    "-lineinfo",
+    "-shared",
+    "--cudart=static",
+    "-Xcompiler=-fPIC",
+    "-gencode=arch=compute_70,code=sm_70",
+    "-gencode=arch=compute_70,code=compute_70",
+    "-DVENTURI_BLOCKS_ARCH=70",
+    "-DVENTURI_Q8_TOKEN_TILE=8",
+    "-DVENTURI_Q8_ROW_TILE=4",
+    "-DVENTURI_Q8_DECODE_MODE=0",
+    "/home/data/wangyue/repos/codex-build/Venturi/native-t8-src-v1/src/venturi/ops/csrc/blocks.cu",
+    "-lcublas",
+    "-o",
+    "/home/data/wangyue/artifacts/venturi-native-t8-screen-v1/build/2b62709298a2cecd/build-5i1lcw1m/libventuri_blocks.so"
+  ],
+  "library_sha256": "ab9cfdd1a0933812c343b61756c11a9d9de3fe18601154a52f45df61dd48dd34"
+}

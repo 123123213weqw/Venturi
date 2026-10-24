@@ -1,0 +1,36 @@
+FF..sssssss.s....................................s........               [100%]
+=================================== FAILURES ===================================
+______________________ test_wide_ncu_units_and_bandwidth _______________________
+
+tmp_path = PosixPath('/private/var/folders/jb/vq4jn1w94dsc2tt35tfkrvkr0000gn/T/pytest-of-wangyue/pytest-320/test_wide_ncu_units_and_bandwi0')
+
+    def test_wide_ncu_units_and_bandwidth(tmp_path):
+        p=tmp_path/'counter-wide.csv'
+        with p.open('w') as f:
+            f.write('==PROF== connected\n');w=csv.writer(f)
+            w.writerow(['ID','Process ID','Kernel Name','Device','gpu__time_duration.sum','dram__bytes_read.sum','dram__bytes_write.sum','sm__warps_active.avg.pct_of_peak_sustained_active'])
+            w.writerow(['','','','','ns','byte','byte','%'])
+            w.writerow(['0','42','gdn(int, int)','1','100,000','10,000,000','5,000,000','92.8'])
+        r=load('parse-counters').parse(p)
+>       assert r['available'] and r['dram_read_plus_write_GB_per_second']==150.
+E       assert (False)
+
+tests/test_five_experiment_evidence.py:17: AssertionError
+______________________ test_long_ncu_units_and_bandwidth _______________________
+
+tmp_path = PosixPath('/private/var/folders/jb/vq4jn1w94dsc2tt35tfkrvkr0000gn/T/pytest-of-wangyue/pytest-320/test_long_ncu_units_and_bandwi0')
+
+    def test_long_ncu_units_and_bandwidth(tmp_path):
+        p=tmp_path/'counter-long.csv'
+        with p.open('w') as f:
+            w=csv.writer(f);w.writerow(['Metric Name','Metric Unit','Metric Value'])
+            w.writerows([['gpu__time_duration.sum','usecond','10'],['dram__bytes_read.sum','Mbyte','1'],['dram__bytes_write.sum','byte','0']])
+>       assert load('parse-counters').parse(p)['dram_read_plus_write_GB_per_second']==pytest.approx(100.)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'dram_read_plus_write_GB_per_second'
+
+tests/test_five_experiment_evidence.py:26: KeyError
+=========================== short test summary info ============================
+FAILED tests/test_five_experiment_evidence.py::test_wide_ncu_units_and_bandwidth
+FAILED tests/test_five_experiment_evidence.py::test_long_ncu_units_and_bandwidth
+2 failed, 47 passed, 9 skipped in 0.43s

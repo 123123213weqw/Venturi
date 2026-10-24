@@ -1,0 +1,13 @@
+{
+  "scope": "Native two-V100 GDN sublayer pilot, not whole-model or serving TPS.\n\nIncludes input norm, QKV/Z/A/B, convolution, gates, independent recurrence,\ngated norm, output projection and residual. Both arms have primary-only FP16\ninput/output; distributed mutable state is joined only in untimed diagnostics.\n",
+  "completed": false,
+  "profiled": false,
+  "cells": [],
+  "model_integration": false,
+  "model_tps_claim": false,
+  "achieved_hardware_counters": null,
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "blocks_sha256": "6d43160ce4e993b4be5ed600d9be21aad070634729d8e5f7b3f74b734da85de2",
+  "host_library_sha256": "e37860dc902f6c0229fb00f3639915ca26e86ce06bc788523b9f023087a27e41",
+  "precision": "Unchanged stored Q8/F16 scales and two residual-A8/F32-scale passes; original small-parameter flags, FP16 activations/KV-independent operator, packed FP32 GDN state. Head-local output uses FP32 column partial/transport/sum before one FP16 cast: changed association."
+}

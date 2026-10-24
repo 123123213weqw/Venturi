@@ -1,0 +1,116 @@
+--- qualified/q8_shared.cuh
++++ guarded/q8_shared.cuh
+@@ -77,6 +77,19 @@
+ // Experimental K-tiled staging. Every warp participates in both barriers,
+ // including invalid-row and token tails. The old lane's K/FMA order is intact.
+ namespace vdt {
++// Four low/high word-pair planes keep each dot's activation pair short-lived.
++// The original two integer chains and final FP32 FMA order remain intact.
++template<int All>__device__ __forceinline__ void put_pairs(int2* dst,int i,int4 lo,int4 hi) {
++    dst[i]=make_int2(lo.x,hi.x);dst[All+i]=make_int2(lo.y,hi.y);
++    dst[2*All+i]=make_int2(lo.z,hi.z);dst[3*All+i]=make_int2(lo.w,hi.w);
++}
++template<int All>__device__ __forceinline__ int paired_dot(const int2* words,int group,int4 w0,int4 w1) {
++    int2 a=words[group];int d0=__dp4a(w0.x,a.x,0),d1=__dp4a(w1.x,a.y,0);
++    a=words[All+group];d0=__dp4a(w0.y,a.x,d0);d1=__dp4a(w1.y,a.y,d1);
++    a=words[2*All+group];d0=__dp4a(w0.z,a.x,d0);d1=__dp4a(w1.z,a.y,d1);
++    a=words[3*All+group];d0=__dp4a(w0.w,a.x,d0);d1=__dp4a(w1.w,a.y,d1);
++    return d0+d1;
++}
+ template<int Tokens,int Passes,int Rows>
+ __global__ __launch_bounds__(Rows*32,1) void dot(const std::int8_t* activations,const float* activation_scales,
+     const std::int8_t* weights,const __half* weight_scales,__half* out,
+--- qualified/q8_fused.cuh
++++ guarded/q8_fused.cuh
+@@ -153,6 +153,71 @@
+     }
+ }
+ 
++template<int Tokens,int Passes,int Rows>
++__global__ __launch_bounds__(Rows*32,(VENTURI_BLOCKS_ARCH==70 && Tokens==4 && Passes==2 && Rows==8)?5:1) void paired_tiled_dot(const std::int8_t* activations,const float* activation_scales,Group group,
++    int tokens,int k,int padded,int groups) {
++    int row;const auto plan=select<Rows>(group,row);
++    const int n=plan.n;const auto* weights=plan.codes;const auto* weight_scales=plan.scales;auto* out=plan.out;
++    const int lane=threadIdx.x&31,token=blockIdx.y*Tokens;
++    extern __shared__ __align__(16) char shared[];
++    constexpr int all=Tokens*Passes*32;
++    constexpr bool paired=VENTURI_BLOCKS_ARCH==70 && Tokens==4 && Passes==2 && Rows==8;
++    auto* words=reinterpret_cast<int2*>(shared);
++    auto* a0s=reinterpret_cast<int4*>(shared);auto* a1s=a0s+all;
++    auto* shared_scales=reinterpret_cast<float*>(a1s+all);
++    const auto count=static_cast<std::int64_t>(tokens)*groups;
++    float sum[Tokens]{};
++    for(int base=0;base<k;base+=1024) {
++        for(int i=threadIdx.x;i<all;i+=blockDim.x) {
++            const int p=i/(Tokens*32),t=(i/32)%Tokens,g=base/32+i%32;
++            if(token+t<tokens && g<groups) {
++                const auto group=p*count+static_cast<std::int64_t>(token+t)*groups+g;
++                const auto* src=reinterpret_cast<const int4*>(activations+group*32);
++                if constexpr(paired)vdt::put_pairs<all>(words,i,src[0],src[1]);
++                else {a0s[i]=src[0];a1s[i]=src[1];}
++                shared_scales[i]=activation_scales[group];
++            } else {
++                if constexpr(paired)vdt::put_pairs<all>(words,i,make_int4(0,0,0,0),make_int4(0,0,0,0));
++                else {a0s[i]=make_int4(0,0,0,0);a1s[i]=make_int4(0,0,0,0);}
++                shared_scales[i]=0;
++            }
++        }
++        __syncthreads();
++        const int col=base+lane*32;
++        if(row<n && col<k) {
++            const auto* wp=reinterpret_cast<const int4*>(weights+static_cast<std::int64_t>(row)*padded+col);
++            const int4 w0=wp[0],w1=wp[1];
++            const float ws=__half2float(weight_scales[static_cast<std::int64_t>(row)*(padded/32)+col/32]);
++            #pragma unroll
++            for(int t=0;t<Tokens;++t)if(token+t<tokens) {
++                #pragma unroll
++                for(int p=0;p<Passes;++p) {
++                    const int group=(p*Tokens+t)*32+lane;
++                    int dot;
++                    if constexpr(paired)dot=vdt::paired_dot<all>(words,group,w0,w1);
++                    else {
++                        const int4 a0=a0s[group],a1=a1s[group];
++                        int d0=__dp4a(w0.x,a0.x,0),d1=__dp4a(w1.x,a1.x,0);
++                        d0=__dp4a(w0.y,a0.y,d0);d1=__dp4a(w1.y,a1.y,d1);
++                        d0=__dp4a(w0.z,a0.z,d0);d1=__dp4a(w1.z,a1.z,d1);
++                        d0=__dp4a(w0.w,a0.w,d0);d1=__dp4a(w1.w,a1.w,d1);
++                        dot=d0+d1;
++                    }
++                    sum[t]=__fmaf_rn(static_cast<float>(dot),__fmul_rn(ws,shared_scales[group]),sum[t]);
++                }
++            }
++
++        }
++        __syncthreads();
++    }
++    if(row>=n)return;
++    #pragma unroll
++    for(int t=0;t<Tokens;++t) {
++        for(int delta=16;delta;delta>>=1)sum[t]+=__shfl_down_sync(0xffffffff,sum[t],delta);
++        if(lane==0 && token+t<tokens)out[static_cast<std::int64_t>(token+t)*plan.stride+row]=__float2half_rn(sum[t]);
++    }
++}
++
+ template<int Tokens,int Passes,int Rows,int Kind>void launch(const void* workspace,Group g,int tokens,int k,int padded,cudaStream_t stream) {
+     const int groups=(k+31)/32;const auto count=static_cast<std::uint64_t>(tokens)*groups;
+     auto* codes=static_cast<const std::int8_t*>(workspace);auto* scales=reinterpret_cast<const float*>(codes+count*32*Passes);
+@@ -160,7 +225,18 @@
+     const dim3 grid(static_cast<unsigned>(blocks),(tokens+Tokens-1)/Tokens);
+     if constexpr(Kind==0)global_dot<Tokens,Passes,Rows><<<grid,Rows*32,0,stream>>>(codes,scales,g,tokens,k,padded,groups);
+     else if constexpr(Kind==1)full_dot<Tokens,Passes,Rows><<<grid,Rows*32,tokens*groups*Passes*36,stream>>>(codes,scales,g,tokens,k,padded,groups);
+-    else tiled_dot<Tokens,Passes,Rows><<<grid,Rows*32,Tokens*Passes*32*36,stream>>>(codes,scales,g,tokens,k,padded,groups);
++    else {
++#if VENTURI_BLOCKS_ARCH == 70
++        // Only the measured two-projection, non-tiny group uses the constrained
++        // paired layout. Three-descriptor attention retains the qualified path.
++        if constexpr(Tokens==4 && Passes==2 && Rows==8) {
++            if(g.count==2 && std::max(g.item[0].n,g.item[1].n)>=1024) {
++                paired_tiled_dot<Tokens,Passes,Rows><<<grid,Rows*32,Tokens*Passes*32*36,stream>>>(codes,scales,g,tokens,k,padded,groups);return;
++            }
++        }
++#endif
++        tiled_dot<Tokens,Passes,Rows><<<grid,Rows*32,Tokens*Passes*32*36,stream>>>(codes,scales,g,tokens,k,padded,groups);
++    }
+ }
+ template<int Passes>void run(const void* w,Group g,int tokens,int k,int padded,cudaStream_t stream) {
+     int maxn=0;for(int i=0;i<g.count;++i)maxn=std::max(maxn,g.item[i].n);

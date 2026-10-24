@@ -1,0 +1,854 @@
+{
+  "date": "2026-10-18",
+  "scope": "Synthetic operator qualification only. No model TPS or full-model acceleration claim.",
+  "status": "Shared dense/Q4 residency and standalone RoPE/causal attention are implemented. Not an independent full-model runner, paged cache, or promoted fast attention backend.",
+  "qualification": {
+    "remote_selected_passed": 217,
+    "remote_selected_skipped": 0,
+    "local_passed": 416,
+    "local_skipped": 130,
+    "attention_and_rope_full_size_fp64_checks": 12,
+    "native_and_reference_eager_graph_bit_identical": 12,
+    "resident_vs_separate_shape_outputs_bit_identical": true,
+    "per_op_error_bounds_unchanged": true,
+    "counterexample": "failures/composite-fp16-counterexample.json"
+  },
+  "protocol": "Unprofiled ABBA, 3 warmups, CUDA graph replay, 100 calls/chunk, >=seconds-per-phase per phase. Preparation is separately wall/process-CPU timed; GPU allocator bytes are live tensors, not whole-device NVML VRAM.",
+  "counters": "Unavailable: unchanged RmProfilingAdminOnly=1 policy (prior ERR_NVGPUCTRPERM). No achieved occupancy, DRAM bandwidth, cache/stall counters measured.",
+  "residency": [
+    {
+      "format": "bf16",
+      "hidden": 5120,
+      "intermediate": 17408,
+      "token_shapes": [
+        1,
+        17,
+        128
+      ],
+      "separate": {
+        "weight_mib": 1530.05859375,
+        "unique_weight_allocations": 12,
+        "preparation_wall_ms": [
+          1823.9053459838033,
+          1906.43017902039
+        ],
+        "preparation_cpu_ms": [
+          5794.767000000002,
+          5969.411000000001
+        ],
+        "median_preparation_wall_ms": 1865.1677625020966,
+        "median_execution_sequence_wall_us": 7318.205533277554,
+        "median_execution_sequence_cuda_event_us": 7317.177734375,
+        "sequence_calls_per_second": 136.64551992326142,
+        "process_cpu_percent": 100.18405416473524,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 100.0,
+            "maximum_phase_mean": 100.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 31.0,
+            "maximum_phase_mean": 31.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 2470.0,
+            "maximum_phase_mean": 2470.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 294.075,
+            "maximum_phase_mean": 296.66
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 47.166666666666664,
+            "maximum_phase_mean": 49.0
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2775.0,
+            "maximum_phase_mean": 2775.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "resident": {
+        "weight_mib": 510.01953125,
+        "unique_weight_allocations": 4,
+        "preparation_wall_ms": [
+          613.4252500487491,
+          674.7053299332038
+        ],
+        "preparation_cpu_ms": [
+          1950.9340000000002,
+          2056.659999999997
+        ],
+        "median_preparation_wall_ms": 644.0652899909765,
+        "median_execution_sequence_wall_us": 7263.339863469204,
+        "median_execution_sequence_cuda_event_us": 7262.49257405599,
+        "sequence_calls_per_second": 137.6777100889188,
+        "process_cpu_percent": 100.16434231718114,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 100.0,
+            "maximum_phase_mean": 100.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 29.166666666666668,
+            "maximum_phase_mean": 30.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 1450.0,
+            "maximum_phase_mean": 1450.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 298.455,
+            "maximum_phase_mean": 313.19166666666666
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 48.0,
+            "maximum_phase_mean": 48.333333333333336
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2775.0,
+            "maximum_phase_mean": 2775.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "weight_storage_reduction_percent": 66.66666666666667,
+      "sequence_latency_reduction_percent": 0.7497147976900043
+    },
+    {
+      "format": "q4_g64_fp16",
+      "hidden": 5120,
+      "intermediate": 17408,
+      "token_shapes": [
+        1,
+        17,
+        128
+      ],
+      "separate": {
+        "weight_mib": 406.46484375,
+        "unique_weight_allocations": 21,
+        "preparation_wall_ms": [
+          65.49653608817607,
+          61.03632703889161
+        ],
+        "preparation_cpu_ms": [
+          65.55899999999326,
+          61.12099999999998
+        ],
+        "median_preparation_wall_ms": 63.26643156353384,
+        "median_execution_sequence_wall_us": 1916.199534104883,
+        "median_execution_sequence_cuda_event_us": 1915.7285516912286,
+        "sequence_calls_per_second": 521.866320391906,
+        "process_cpu_percent": 100.37087367968944,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 100.0,
+            "maximum_phase_mean": 100.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 92.0,
+            "maximum_phase_mean": 92.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 1262.0,
+            "maximum_phase_mean": 1262.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 386.81166666666667,
+            "maximum_phase_mean": 402.126
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 51.0,
+            "maximum_phase_mean": 53.0
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2775.0,
+            "maximum_phase_mean": 2775.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "resident": {
+        "weight_mib": 135.48828125,
+        "unique_weight_allocations": 7,
+        "preparation_wall_ms": [
+          22.745401016436517,
+          95.58879805263132
+        ],
+        "preparation_cpu_ms": [
+          22.75900000000064,
+          95.64500000000464
+        ],
+        "median_preparation_wall_ms": 59.16709953453392,
+        "median_execution_sequence_wall_us": 1551.394087728113,
+        "median_execution_sequence_cuda_event_us": 1550.8567751370945,
+        "sequence_calls_per_second": 644.5815463074354,
+        "process_cpu_percent": 100.34432305311779,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 98.5,
+            "maximum_phase_mean": 100.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 38.0,
+            "maximum_phase_mean": 39.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 978.0,
+            "maximum_phase_mean": 978.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 403.548,
+            "maximum_phase_mean": 416.32
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 54.0,
+            "maximum_phase_mean": 54.0
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2760.0,
+            "maximum_phase_mean": 2770.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "weight_storage_reduction_percent": 66.66666666666667,
+      "sequence_latency_reduction_percent": 19.037967595957184
+    }
+  ],
+  "operators": [
+    {
+      "op": "attention",
+      "configuration": {
+        "tokens": 1,
+        "kv_tokens": 129,
+        "query_heads": 24,
+        "kv_heads": 4,
+        "head_dim": 256,
+        "dtype": "torch.bfloat16",
+        "device": "cuda:0"
+      },
+      "qualification": {
+        "reference": {
+          "passed": true,
+          "max_abs_error": 0.00048828125,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(rounded_FP64) + 2e-5"
+        },
+        "native": {
+          "passed": true,
+          "max_abs_error": 0.00048828125,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(rounded_FP64) + 2e-5"
+        }
+      },
+      "reference": {
+        "wall_us_per_call": 24.501059908880105,
+        "event_us_per_call": 24.215908612310564,
+        "process_cpu_percent": 99.96747765349596,
+        "operator_calls_per_second": 40814.56082794044,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 98.4,
+            "maximum_phase_mean": 99.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 0.0,
+            "maximum_phase_mean": 0.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 878.0,
+            "maximum_phase_mean": 878.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 165.306,
+            "maximum_phase_mean": 165.532
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 46.0,
+            "maximum_phase_mean": 46.0
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2775.0,
+            "maximum_phase_mean": 2775.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "native": {
+        "wall_us_per_call": 56.79325794566307,
+        "event_us_per_call": 56.4683242425027,
+        "process_cpu_percent": 99.9524894111571,
+        "operator_calls_per_second": 17607.72380687774,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 99.0,
+            "maximum_phase_mean": 99.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 0.0,
+            "maximum_phase_mean": 0.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 878.0,
+            "maximum_phase_mean": 878.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 115.074,
+            "maximum_phase_mean": 118.02
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 44.0,
+            "maximum_phase_mean": 44.0
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2775.0,
+            "maximum_phase_mean": 2775.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "reference_wall_over_native_wall": 0.43140789585132594
+    },
+    {
+      "op": "attention",
+      "configuration": {
+        "tokens": 128,
+        "kv_tokens": 128,
+        "query_heads": 24,
+        "kv_heads": 4,
+        "head_dim": 256,
+        "dtype": "torch.bfloat16",
+        "device": "cuda:0"
+      },
+      "qualification": {
+        "reference": {
+          "passed": true,
+          "max_abs_error": 0.00390625,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(rounded_FP64) + 2e-5"
+        },
+        "native": {
+          "passed": true,
+          "max_abs_error": 0.00390625,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(rounded_FP64) + 2e-5"
+        }
+      },
+      "reference": {
+        "wall_us_per_call": 62.975301949084745,
+        "event_us_per_call": 62.69404508032889,
+        "process_cpu_percent": 99.99664372312257,
+        "operator_calls_per_second": 15879.241052444586,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 100.0,
+            "maximum_phase_mean": 100.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 2.0,
+            "maximum_phase_mean": 6.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 898.0,
+            "maximum_phase_mean": 898.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 212.96,
+            "maximum_phase_mean": 221.392
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 48.0,
+            "maximum_phase_mean": 49.0
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2775.0,
+            "maximum_phase_mean": 2775.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "native": {
+        "wall_us_per_call": 177.49320061988635,
+        "event_us_per_call": 177.14602580112694,
+        "process_cpu_percent": 99.95632533305115,
+        "operator_calls_per_second": 5634.018635686036,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 100.0,
+            "maximum_phase_mean": 100.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 0.0,
+            "maximum_phase_mean": 0.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 898.0,
+            "maximum_phase_mean": 898.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 268.302,
+            "maximum_phase_mean": 268.98
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 51.0,
+            "maximum_phase_mean": 51.0
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2775.0,
+            "maximum_phase_mean": 2775.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "reference_wall_over_native_wall": 0.3548040247690986
+    },
+    {
+      "op": "attention",
+      "configuration": {
+        "tokens": 128,
+        "kv_tokens": 640,
+        "query_heads": 24,
+        "kv_heads": 4,
+        "head_dim": 256,
+        "dtype": "torch.bfloat16",
+        "device": "cuda:0"
+      },
+      "qualification": {
+        "reference": {
+          "passed": true,
+          "max_abs_error": 0.0009765625,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(rounded_FP64) + 2e-5"
+        },
+        "native": {
+          "passed": true,
+          "max_abs_error": 0.0009765625,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(rounded_FP64) + 2e-5"
+        }
+      },
+      "reference": {
+        "wall_us_per_call": 144.87828888508272,
+        "event_us_per_call": 144.56031569474035,
+        "process_cpu_percent": 99.94745053079535,
+        "operator_calls_per_second": 6902.3454631853,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 100.0,
+            "maximum_phase_mean": 100.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 45.0,
+            "maximum_phase_mean": 45.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 950.0,
+            "maximum_phase_mean": 950.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 337.90000000000003,
+            "maximum_phase_mean": 351.616
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 53.0,
+            "maximum_phase_mean": 54.0
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2775.0,
+            "maximum_phase_mean": 2775.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "native": {
+        "wall_us_per_call": 1510.9664031686925,
+        "event_us_per_call": 1510.5210494995117,
+        "process_cpu_percent": 99.9471484826567,
+        "operator_calls_per_second": 661.828084266381,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 100.0,
+            "maximum_phase_mean": 100.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 0.0,
+            "maximum_phase_mean": 0.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 950.0,
+            "maximum_phase_mean": 950.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 273.07,
+            "maximum_phase_mean": 277.78166666666664
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 52.0,
+            "maximum_phase_mean": 52.0
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2775.0,
+            "maximum_phase_mean": 2775.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "reference_wall_over_native_wall": 0.09588452038460561
+    },
+    {
+      "op": "attention",
+      "configuration": {
+        "tokens": 128,
+        "kv_tokens": 128,
+        "query_heads": 32,
+        "kv_heads": 8,
+        "head_dim": 128,
+        "dtype": "torch.bfloat16",
+        "device": "cuda:0"
+      },
+      "qualification": {
+        "reference": {
+          "passed": true,
+          "max_abs_error": 0.00390625,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(rounded_FP64) + 2e-5"
+        },
+        "native": {
+          "passed": true,
+          "max_abs_error": 0.00390625,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(rounded_FP64) + 2e-5"
+        }
+      },
+      "reference": {
+        "wall_us_per_call": 50.95100282388087,
+        "event_us_per_call": 50.64994030023046,
+        "process_cpu_percent": 99.95028846549936,
+        "operator_calls_per_second": 19626.69907512198,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 99.0,
+            "maximum_phase_mean": 99.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 2.0,
+            "maximum_phase_mean": 3.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 902.0,
+            "maximum_phase_mean": 902.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 202.274,
+            "maximum_phase_mean": 216.168
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 49.0,
+            "maximum_phase_mean": 49.0
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2775.0,
+            "maximum_phase_mean": 2775.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "native": {
+        "wall_us_per_call": 209.19945770704845,
+        "event_us_per_call": 208.85669857263565,
+        "process_cpu_percent": 99.96352563750301,
+        "operator_calls_per_second": 4780.1271139065075,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 100.0,
+            "maximum_phase_mean": 100.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 0.0,
+            "maximum_phase_mean": 0.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 902.0,
+            "maximum_phase_mean": 902.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 256.6,
+            "maximum_phase_mean": 260.594
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 52.0,
+            "maximum_phase_mean": 52.0
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2775.0,
+            "maximum_phase_mean": 2775.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "reference_wall_over_native_wall": 0.24355227007915997
+    },
+    {
+      "op": "rope",
+      "configuration": {
+        "tokens": 1,
+        "heads": 24,
+        "head_dim": 256,
+        "layout": "split_half",
+        "dtype": "bfloat16"
+      },
+      "qualification": {
+        "reference": {
+          "passed": true,
+          "max_abs_error": 0.0,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(rounded_FP64) + 2e-5"
+        },
+        "native": {
+          "passed": true,
+          "max_abs_error": 0.0,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(rounded_FP64) + 2e-5"
+        }
+      },
+      "reference": {
+        "wall_us_per_call": 11.787381035659344,
+        "event_us_per_call": 11.520834859192414,
+        "process_cpu_percent": 99.92195717855171,
+        "operator_calls_per_second": 84836.48717003265,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 96.2,
+            "maximum_phase_mean": 98.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 0.0,
+            "maximum_phase_mean": 0.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 878.0,
+            "maximum_phase_mean": 878.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 101.858,
+            "maximum_phase_mean": 110.244
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 44.0,
+            "maximum_phase_mean": 45.0
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2775.0,
+            "maximum_phase_mean": 2775.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "native": {
+        "wall_us_per_call": 4.400201823149295,
+        "event_us_per_call": 4.184490474907054,
+        "process_cpu_percent": 100.01293876879998,
+        "operator_calls_per_second": 227262.30300143003,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 34.8,
+            "maximum_phase_mean": 37.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 0.0,
+            "maximum_phase_mean": 0.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 878.0,
+            "maximum_phase_mean": 878.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 86.185,
+            "maximum_phase_mean": 104.414
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 44.0,
+            "maximum_phase_mean": 45.0
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2520.0,
+            "maximum_phase_mean": 2724.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "reference_wall_over_native_wall": 2.678827360519324
+    },
+    {
+      "op": "rope",
+      "configuration": {
+        "tokens": 128,
+        "heads": 24,
+        "head_dim": 256,
+        "layout": "split_half",
+        "dtype": "bfloat16"
+      },
+      "qualification": {
+        "reference": {
+          "passed": true,
+          "max_abs_error": 0.0078125,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(rounded_FP64) + 2e-5"
+        },
+        "native": {
+          "passed": true,
+          "max_abs_error": 0.0078125,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(rounded_FP64) + 2e-5"
+        }
+      },
+      "reference": {
+        "wall_us_per_call": 20.229741533010397,
+        "event_us_per_call": 19.96709303418755,
+        "process_cpu_percent": 100.02413546973598,
+        "operator_calls_per_second": 49432.16888699366,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 98.2,
+            "maximum_phase_mean": 99.0
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 0.0,
+            "maximum_phase_mean": 0.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 896.0,
+            "maximum_phase_mean": 896.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 226.266,
+            "maximum_phase_mean": 239.45999999999998
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 49.0,
+            "maximum_phase_mean": 49.8
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2775.0,
+            "maximum_phase_mean": 2775.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "native": {
+        "wall_us_per_call": 4.494045623217022,
+        "event_us_per_call": 4.275461528978462,
+        "process_cpu_percent": 99.95913281860626,
+        "operator_calls_per_second": 222516.65511222804,
+        "gpu_phase_mean_ranges": {
+          "utilization.gpu": {
+            "minimum_phase_mean": 72.0,
+            "maximum_phase_mean": 72.2
+          },
+          "utilization.memory": {
+            "minimum_phase_mean": 0.0,
+            "maximum_phase_mean": 0.0
+          },
+          "memory.used": {
+            "minimum_phase_mean": 896.0,
+            "maximum_phase_mean": 896.0
+          },
+          "power.draw": {
+            "minimum_phase_mean": 240.734,
+            "maximum_phase_mean": 240.92
+          },
+          "temperature.gpu": {
+            "minimum_phase_mean": 50.0,
+            "maximum_phase_mean": 50.0
+          },
+          "clocks.sm": {
+            "minimum_phase_mean": 2775.0,
+            "maximum_phase_mean": 2775.0
+          },
+          "clocks.mem": {
+            "minimum_phase_mean": 10251.0,
+            "maximum_phase_mean": 10251.0
+          }
+        }
+      },
+      "reference_wall_over_native_wall": 4.50145441971039
+    }
+  ],
+  "limitations": [
+    "Synthetic weights/inputs only; no pretrained quality evaluation, full-model TPS gain, external-engine replacement or llama.cpp comparison.",
+    "Three resident-shape execution timings are one graph containing T=1,17,128 sequential MLP calls; not concurrent requests or model generation.",
+    "Native causal attention is slower than the explicit PyTorch reference in all four timed cases. Serial-key online softmax is a baseline for tiled implementations, not a promoted optimization.",
+    "Native RoPE compares against this explicit allocating PyTorch reference, not an optimized third-party fused RoPE kernel.",
+    "Dense GEMM remains pedantic FP32; the previously documented dense-prefill slowdown is not resolved by residency.",
+    "Q4 shared preparation had a 95.6 ms trial; no strong Q4 loading-speed claim from the two samples per condition.",
+    "Process CPU during execution is approximately one busy core and includes Python dispatch and CUDA-event synchronization waiting. This is not a CPU-idle optimization.",
+    "Only coarse whole-device NVML samples are available. Memory-controller busy is not DRAM bandwidth percentage; GPU busy is not achieved occupancy. No new kernel-time attribution or timeline diagnosis was attempted.",
+    "One ABBA session/two samples per condition is descriptive evidence, not a confidence interval or multi-session promotion."
+  ],
+  "artifacts": {
+    "raw": "results.json",
+    "telemetry": "telemetry.csv",
+    "build": "blocks-build.json",
+    "tests": "regressions.log",
+    "cpu_tests": "cpu-tests.log",
+    "executed_benchmark_source": "benchmark-source.py",
+    "failure_log": "failures/unseeded-composite-test.log"
+  },
+  "next": "Compose Q/K/V and output projections with persistent KV ownership/append, then implement a tiled attention path and qualify/measure it before adoption.",
+  "noninterference": {
+    "production_qwen_runner_sha256": "3c7da6aeb337ee374ce912934c9335252e39326cd9cba3e2163696c06d15dfb4",
+    "unchanged": true,
+    "whole_gpu_after_jobs": {
+      "memory_mib": 387,
+      "gpu_busy_percent": 0
+    },
+    "counter_policy_verified": "RmProfilingAdminOnly: 1"
+  }
+}

@@ -1,0 +1,16 @@
+--- before/src/venturi/ops/csrc/q8_prefetch.cuh
++++ after/src/venturi/ops/csrc/q8_prefetch.cuh
+@@ -68,10 +68,11 @@
+ 
+ // One warp owns two output rows. Reuse each activation/scalar load for both,
+ // preserving each row's independent pass/FMA/reduction order.
+-template<bool Partial>
++template<bool Partial,int P=2>
+ __global__ __launch_bounds__(256,1) void row_pair(const std::int8_t* activations,const float* scales,
+     vqf::Group group,int tokens,int k,int padded,int groups) {
+-    constexpr int T=8,P=2,R=16,all=T*P*32;
++    static_assert(P==1 || P==2);
++    constexpr int T=8,R=16,all=T*P*32;
+     int row;const auto plan=vqf::select<R>(group,row);
+     const int other=row+8,lane=threadIdx.x&31,token=blockIdx.y*T;
+     const auto count=static_cast<std::int64_t>(tokens)*groups;

@@ -1,0 +1,6596 @@
+{
+  "scope": "Paired activation-word planes on represented checkpoint weights, not serving TPS.",
+  "profiled": false,
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "token_counts": [
+    3,
+    4,
+    8
+  ],
+  "row_mode": "tp-first",
+  "baseline_sha256": "f07bf75a975b963911aff5fefd5614dbf0b8b5b74e499f5525b6ad5d5317369a",
+  "candidate_sha256": "f979230ad209b6662e75cb4c2129a2176648d1b24ccf19003599ae320da7b19b",
+  "precision": "Original Q8/F16-scale weight planes; unchanged two A8 residual passes/F32 scales, FP16 input/output",
+  "graph_nodes": 3,
+  "graph_replays": 3,
+  "repeats": 3,
+  "unbounded_ablation_sha256": null,
+  "candidate_arm": "candidate-guarded-pairs",
+  "extra_ablation_sha256": {
+    "ablation-pairs-five": "6f55e7a7122991b38d06423962063421a7eaf01e192da5b239b9294ec63b1360",
+    "ablation-aos-five": "736abd8bb93d553cbce3af1aacd44c73ce6a6ac79a355ff63b84b16562997d71"
+  },
+  "bounded_pairs_ablation_sha256": null,
+  "cases": [
+    {
+      "label": "text/output_head",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        124160
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            2750,
+            6523,
+            6564,
+            17927,
+            22487,
+            22956,
+            23786,
+            24614,
+            29423,
+            35385,
+            36810,
+            39838,
+            49035,
+            55066,
+            56616,
+            57665,
+            62916,
+            66266,
+            75024,
+            75488,
+            77533,
+            82708,
+            94467,
+            95942,
+            95947,
+            96608,
+            97805,
+            100387,
+            119935,
+            120530,
+            124159
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.0002154628944918413,
+          "max_absolute": 0.0009575784208739613
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438660.0067673,
+          "end_unix": 1792438660.0144982,
+          "gpu_event_ms_per_call": 0.847832891676161,
+          "wall_seconds": 0.007739293039776385,
+          "cpu_core_seconds": 0.007725000000000648
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438660.0145504,
+          "end_unix": 1792438660.0221844,
+          "gpu_event_ms_per_call": 0.8440284199184842,
+          "wall_seconds": 0.0076412909547798336,
+          "cpu_core_seconds": 0.0076420000000041455
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438660.0222259,
+          "end_unix": 1792438660.029846,
+          "gpu_event_ms_per_call": 0.8425919744703505,
+          "wall_seconds": 0.007625390950124711,
+          "cpu_core_seconds": 0.007626999999999384
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438660.029886,
+          "end_unix": 1792438660.0375147,
+          "gpu_event_ms_per_call": 0.8435164557562934,
+          "wall_seconds": 0.007634610985405743,
+          "cpu_core_seconds": 0.0076360000000015305
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438660.0375602,
+          "end_unix": 1792438660.0451849,
+          "gpu_event_ms_per_call": 0.8430293401082357,
+          "wall_seconds": 0.007629872008692473,
+          "cpu_core_seconds": 0.007630000000002468
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438660.0452216,
+          "end_unix": 1792438660.0528452,
+          "gpu_event_ms_per_call": 0.8432070944044325,
+          "wall_seconds": 0.0076283650123514235,
+          "cpu_core_seconds": 0.007701999999998321
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438660.0528805,
+          "end_unix": 1792438660.060516,
+          "gpu_event_ms_per_call": 0.844753795199924,
+          "wall_seconds": 0.007639970979653299,
+          "cpu_core_seconds": 0.007639999999998537
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438660.0605488,
+          "end_unix": 1792438660.068185,
+          "gpu_event_ms_per_call": 0.8450026512145996,
+          "wall_seconds": 0.007641131989657879,
+          "cpu_core_seconds": 0.007642000000000593
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438660.06822,
+          "end_unix": 1792438660.075877,
+          "gpu_event_ms_per_call": 0.8469297620985243,
+          "wall_seconds": 0.00766235199989751,
+          "cpu_core_seconds": 0.0076630000000008636
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438660.0759153,
+          "end_unix": 1792438660.0835783,
+          "gpu_event_ms_per_call": 0.8475591341654459,
+          "wall_seconds": 0.007670007995329797,
+          "cpu_core_seconds": 0.007670999999998429
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438660.0836208,
+          "end_unix": 1792438660.0912702,
+          "gpu_event_ms_per_call": 0.8460942374335395,
+          "wall_seconds": 0.007654253044165671,
+          "cpu_core_seconds": 0.007654999999999745
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438660.0913038,
+          "end_unix": 1792438660.0989542,
+          "gpu_event_ms_per_call": 0.8464639981587728,
+          "wall_seconds": 0.007654948043636978,
+          "cpu_core_seconds": 0.007655999999997221
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.8469297620985243,
+        "candidate-guarded-pairs": 0.844753795199924,
+        "ablation-pairs-five": 0.8432070944044325,
+        "ablation-aos-five": 0.8435164557562934
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "text/output_head",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        124160
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            2750,
+            6523,
+            6564,
+            17927,
+            22487,
+            22956,
+            23786,
+            24614,
+            29423,
+            35385,
+            36810,
+            39838,
+            49035,
+            55066,
+            56616,
+            57665,
+            62916,
+            66266,
+            75024,
+            75488,
+            77533,
+            82708,
+            94467,
+            95942,
+            95947,
+            96608,
+            97805,
+            100387,
+            119935,
+            120530,
+            124159
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00023715740327136454,
+          "max_absolute": 0.0009574348178369441
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438662.8136673,
+          "end_unix": 1792438662.8219702,
+          "gpu_event_ms_per_call": 0.9147271050347222,
+          "wall_seconds": 0.0083096360322088,
+          "cpu_core_seconds": 0.00829599999999786
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438662.8220117,
+          "end_unix": 1792438662.8303187,
+          "gpu_event_ms_per_call": 0.9193528493245443,
+          "wall_seconds": 0.00831290998030454,
+          "cpu_core_seconds": 0.008312999999997572
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438662.8303509,
+          "end_unix": 1792438662.8386078,
+          "gpu_event_ms_per_call": 0.9138346778021919,
+          "wall_seconds": 0.008261290029622614,
+          "cpu_core_seconds": 0.008261999999998437
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438662.838638,
+          "end_unix": 1792438662.8470821,
+          "gpu_event_ms_per_call": 0.9349120457967123,
+          "wall_seconds": 0.008448397973552346,
+          "cpu_core_seconds": 0.008448999999998819
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438662.8471153,
+          "end_unix": 1792438662.8555768,
+          "gpu_event_ms_per_call": 0.9363341861300998,
+          "wall_seconds": 0.008467995969112962,
+          "cpu_core_seconds": 0.008518000000002246
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438662.8556228,
+          "end_unix": 1792438662.86408,
+          "gpu_event_ms_per_call": 0.9357795715332031,
+          "wall_seconds": 0.008461677993182093,
+          "cpu_core_seconds": 0.008461999999997971
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438662.8641112,
+          "end_unix": 1792438662.872669,
+          "gpu_event_ms_per_call": 0.9464427100287544,
+          "wall_seconds": 0.008570122998207808,
+          "cpu_core_seconds": 0.008572000000000912
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438662.8727424,
+          "end_unix": 1792438662.881322,
+          "gpu_event_ms_per_call": 0.9483555687798394,
+          "wall_seconds": 0.008583436021581292,
+          "cpu_core_seconds": 0.008583999999999037
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438662.8813572,
+          "end_unix": 1792438662.8899016,
+          "gpu_event_ms_per_call": 0.9458026885986328,
+          "wall_seconds": 0.008548175042960793,
+          "cpu_core_seconds": 0.00854800000000111
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438662.8899324,
+          "end_unix": 1792438662.8984745,
+          "gpu_event_ms_per_call": 0.9457528856065538,
+          "wall_seconds": 0.008546270022634417,
+          "cpu_core_seconds": 0.008546000000002607
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438662.8985045,
+          "end_unix": 1792438662.9069972,
+          "gpu_event_ms_per_call": 0.9403058158026801,
+          "wall_seconds": 0.008497437986079603,
+          "cpu_core_seconds": 0.00849799999999945
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438662.9070282,
+          "end_unix": 1792438662.9155712,
+          "gpu_event_ms_per_call": 0.9456390804714627,
+          "wall_seconds": 0.008547683013603091,
+          "cpu_core_seconds": 0.008547999999997558
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.9458026885986328,
+        "candidate-guarded-pairs": 0.9457528856065538,
+        "ablation-pairs-five": 0.9357795715332031,
+        "ablation-aos-five": 0.9363341861300998
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "text/output_head",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        124160
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            2750,
+            6523,
+            6564,
+            17927,
+            22487,
+            22956,
+            23786,
+            24614,
+            29423,
+            35385,
+            36810,
+            39838,
+            49035,
+            55066,
+            56616,
+            57665,
+            62916,
+            66266,
+            75024,
+            75488,
+            77533,
+            82708,
+            94467,
+            95942,
+            95947,
+            96608,
+            97805,
+            100387,
+            119935,
+            120530,
+            124159
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00020317070125299122,
+          "max_absolute": 0.00047053841542710195
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438665.8120558,
+          "end_unix": 1792438665.8253047,
+          "gpu_event_ms_per_call": 1.4650168948703342,
+          "wall_seconds": 0.013256464968435466,
+          "cpu_core_seconds": 0.013251999999994268
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438665.825369,
+          "end_unix": 1792438665.838698,
+          "gpu_event_ms_per_call": 1.4769564734564886,
+          "wall_seconds": 0.0133349199895747,
+          "cpu_core_seconds": 0.013336000000002457
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438665.8387358,
+          "end_unix": 1792438665.8520832,
+          "gpu_event_ms_per_call": 1.479413350423177,
+          "wall_seconds": 0.013351468951441348,
+          "cpu_core_seconds": 0.013351999999997588
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438665.852114,
+          "end_unix": 1792438665.8654542,
+          "gpu_event_ms_per_call": 1.4787449306911893,
+          "wall_seconds": 0.013344711973331869,
+          "cpu_core_seconds": 0.013388999999996543
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438665.865489,
+          "end_unix": 1792438665.8788276,
+          "gpu_event_ms_per_call": 1.4787306255764432,
+          "wall_seconds": 0.013342970982193947,
+          "cpu_core_seconds": 0.013342999999998995
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438665.8788586,
+          "end_unix": 1792438665.8921838,
+          "gpu_event_ms_per_call": 1.47725158267551,
+          "wall_seconds": 0.01332927099429071,
+          "cpu_core_seconds": 0.013330000000003395
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438665.8922133,
+          "end_unix": 1792438665.9055536,
+          "gpu_event_ms_per_call": 1.479015138414171,
+          "wall_seconds": 0.013344503997359425,
+          "cpu_core_seconds": 0.013344999999993945
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438665.9055839,
+          "end_unix": 1792438665.9189208,
+          "gpu_event_ms_per_call": 1.4785066180759006,
+          "wall_seconds": 0.013340538018383086,
+          "cpu_core_seconds": 0.013340999999996939
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438665.9189508,
+          "end_unix": 1792438665.9322903,
+          "gpu_event_ms_per_call": 1.4787733289930556,
+          "wall_seconds": 0.013344156031962484,
+          "cpu_core_seconds": 0.01334500000000105
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438665.9323251,
+          "end_unix": 1792438665.9456596,
+          "gpu_event_ms_per_call": 1.4781724082099066,
+          "wall_seconds": 0.013338728982489556,
+          "cpu_core_seconds": 0.013339000000001988
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438665.9456894,
+          "end_unix": 1792438665.9590335,
+          "gpu_event_ms_per_call": 1.4793564478556316,
+          "wall_seconds": 0.013348512991797179,
+          "cpu_core_seconds": 0.013388000000006173
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438665.959063,
+          "end_unix": 1792438665.972394,
+          "gpu_event_ms_per_call": 1.4779093000623915,
+          "wall_seconds": 0.01333486899966374,
+          "cpu_core_seconds": 0.013335000000004982
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 1.4785066180759006,
+        "candidate-guarded-pairs": 1.4781724082099066,
+        "ablation-pairs-five": 1.4793564478556316,
+        "ablation-aos-five": 1.4787306255764432
+      },
+      "best_measured_arm": "candidate-guarded-pairs"
+    },
+    {
+      "label": "text/layers/63/mlp/up",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        8704
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00018392294320795628,
+          "max_absolute": 0.0006807753033797326
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438666.5166323,
+          "end_unix": 1792438666.5173464,
+          "gpu_event_ms_per_call": 0.0731840001212226,
+          "wall_seconds": 0.0007206330192275345,
+          "cpu_core_seconds": 0.0007149999999995771
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438666.517385,
+          "end_unix": 1792438666.5180702,
+          "gpu_event_ms_per_call": 0.07260444429185656,
+          "wall_seconds": 0.000690363987814635,
+          "cpu_core_seconds": 0.0006900000000058526
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438666.5181017,
+          "end_unix": 1792438666.5187871,
+          "gpu_event_ms_per_call": 0.07276799943712023,
+          "wall_seconds": 0.0006891180528327823,
+          "cpu_core_seconds": 0.0006899999999987472
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438666.5188196,
+          "end_unix": 1792438666.5194995,
+          "gpu_event_ms_per_call": 0.07221688826878865,
+          "wall_seconds": 0.0006839259876869619,
+          "cpu_core_seconds": 0.0006839999999996849
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438666.5195312,
+          "end_unix": 1792438666.5202105,
+          "gpu_event_ms_per_call": 0.07219200001822577,
+          "wall_seconds": 0.0006830059573985636,
+          "cpu_core_seconds": 0.0006839999999996849
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438666.520239,
+          "end_unix": 1792438666.5209112,
+          "gpu_event_ms_per_call": 0.07143111361397637,
+          "wall_seconds": 0.0006759690004400909,
+          "cpu_core_seconds": 0.0006759999999985666
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438666.5209394,
+          "end_unix": 1792438666.5216172,
+          "gpu_event_ms_per_call": 0.07217778099907769,
+          "wall_seconds": 0.000681887031532824,
+          "cpu_core_seconds": 0.000681999999997629
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438666.5216444,
+          "end_unix": 1792438666.522351,
+          "gpu_event_ms_per_call": 0.07235911157396105,
+          "wall_seconds": 0.0007113390020094812,
+          "cpu_core_seconds": 0.0007120000000000459
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438666.5223823,
+          "end_unix": 1792438666.5230603,
+          "gpu_event_ms_per_call": 0.07189689079920451,
+          "wall_seconds": 0.0006828129990026355,
+          "cpu_core_seconds": 0.0006830000000022096
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438666.5230892,
+          "end_unix": 1792438666.5237658,
+          "gpu_event_ms_per_call": 0.07196799914042155,
+          "wall_seconds": 0.0006804969743825495,
+          "cpu_core_seconds": 0.0006810000000001537
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438666.523793,
+          "end_unix": 1792438666.5244699,
+          "gpu_event_ms_per_call": 0.07161600059933132,
+          "wall_seconds": 0.0006807059980928898,
+          "cpu_core_seconds": 0.0006810000000001537
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438666.5244975,
+          "end_unix": 1792438666.5251703,
+          "gpu_event_ms_per_call": 0.07150933477613661,
+          "wall_seconds": 0.0006769539904780686,
+          "cpu_core_seconds": 0.0006769999999960419
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.07235911157396105,
+        "candidate-guarded-pairs": 0.07217778099907769,
+        "ablation-pairs-five": 0.07161600059933132,
+        "ablation-aos-five": 0.07219200001822577
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "text/layers/63/mlp/up",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        8704
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00019702838626012458,
+          "max_absolute": 0.0006807753033797326
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438666.8408432,
+          "end_unix": 1792438666.8416052,
+          "gpu_event_ms_per_call": 0.0783039993709988,
+          "wall_seconds": 0.0007686219760216773,
+          "cpu_core_seconds": 0.0007639999999966562
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438666.8416433,
+          "end_unix": 1792438666.8423753,
+          "gpu_event_ms_per_call": 0.07786666684680515,
+          "wall_seconds": 0.0007367379730567336,
+          "cpu_core_seconds": 0.0007370000000008758
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438666.8424048,
+          "end_unix": 1792438666.8431323,
+          "gpu_event_ms_per_call": 0.07746489180458917,
+          "wall_seconds": 0.0007321310113184154,
+          "cpu_core_seconds": 0.0007319999999992888
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438666.843161,
+          "end_unix": 1792438666.8438814,
+          "gpu_event_ms_per_call": 0.07667911052703857,
+          "wall_seconds": 0.0007253169897012413,
+          "cpu_core_seconds": 0.0007249999999956458
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438666.8439138,
+          "end_unix": 1792438666.844637,
+          "gpu_event_ms_per_call": 0.07712711228264703,
+          "wall_seconds": 0.0007270110072568059,
+          "cpu_core_seconds": 0.0007280000000022824
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438666.8446646,
+          "end_unix": 1792438666.84538,
+          "gpu_event_ms_per_call": 0.07634133100509644,
+          "wall_seconds": 0.0007193919736891985,
+          "cpu_core_seconds": 0.0007190000000036889
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438666.8454077,
+          "end_unix": 1792438666.846127,
+          "gpu_event_ms_per_call": 0.07671822441948785,
+          "wall_seconds": 0.0007231560302898288,
+          "cpu_core_seconds": 0.0007230000000006953
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438666.8461545,
+          "end_unix": 1792438666.8468738,
+          "gpu_event_ms_per_call": 0.07676088809967041,
+          "wall_seconds": 0.0007233269861899316,
+          "cpu_core_seconds": 0.0007230000000006953
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438666.8469033,
+          "end_unix": 1792438666.847625,
+          "gpu_event_ms_per_call": 0.07700266440709432,
+          "wall_seconds": 0.0007255480159074068,
+          "cpu_core_seconds": 0.0007260000000002265
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438666.8476524,
+          "end_unix": 1792438666.8483737,
+          "gpu_event_ms_per_call": 0.07695288790596856,
+          "wall_seconds": 0.000725186022464186,
+          "cpu_core_seconds": 0.000725999999993121
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438666.848401,
+          "end_unix": 1792438666.8491206,
+          "gpu_event_ms_per_call": 0.0767680009206136,
+          "wall_seconds": 0.0007231319905258715,
+          "cpu_core_seconds": 0.0007239999999981706
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438666.8491483,
+          "end_unix": 1792438666.8498683,
+          "gpu_event_ms_per_call": 0.07685333490371704,
+          "wall_seconds": 0.0007241620332933962,
+          "cpu_core_seconds": 0.0007250000000027512
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.07700266440709432,
+        "candidate-guarded-pairs": 0.07695288790596856,
+        "ablation-pairs-five": 0.0767680009206136,
+        "ablation-aos-five": 0.07685333490371704
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "text/layers/63/mlp/up",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        8704
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00016689064042801823,
+          "max_absolute": 0.00047895367610317763
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438667.1731033,
+          "end_unix": 1792438667.174262,
+          "gpu_event_ms_per_call": 0.12207289536794026,
+          "wall_seconds": 0.0011654890258796513,
+          "cpu_core_seconds": 0.0011610000000032983
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438667.1743028,
+          "end_unix": 1792438667.175428,
+          "gpu_event_ms_per_call": 0.12129067050086127,
+          "wall_seconds": 0.001129933982156217,
+          "cpu_core_seconds": 0.001130000000003406
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438667.1754594,
+          "end_unix": 1792438667.1765885,
+          "gpu_event_ms_per_call": 0.1220124430126614,
+          "wall_seconds": 0.0011333259753882885,
+          "cpu_core_seconds": 0.0011340000000004125
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438667.1766183,
+          "end_unix": 1792438667.177733,
+          "gpu_event_ms_per_call": 0.12050488260057238,
+          "wall_seconds": 0.0011185499606654048,
+          "cpu_core_seconds": 0.0011180000000052814
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438667.1777658,
+          "end_unix": 1792438667.178895,
+          "gpu_event_ms_per_call": 0.1221582227283054,
+          "wall_seconds": 0.00113310304004699,
+          "cpu_core_seconds": 0.0011329999999958318
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438667.1789238,
+          "end_unix": 1792438667.1800406,
+          "gpu_event_ms_per_call": 0.12085333135392931,
+          "wall_seconds": 0.0011209470103494823,
+          "cpu_core_seconds": 0.0011210000000048126
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438667.1800692,
+          "end_unix": 1792438667.181182,
+          "gpu_event_ms_per_call": 0.12045155631171332,
+          "wall_seconds": 0.0011167750344611704,
+          "cpu_core_seconds": 0.0011170000000007008
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438667.1812103,
+          "end_unix": 1792438667.1823382,
+          "gpu_event_ms_per_call": 0.12209067079755995,
+          "wall_seconds": 0.001131947967223823,
+          "cpu_core_seconds": 0.0011319999999983565
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438667.1823676,
+          "end_unix": 1792438667.183487,
+          "gpu_event_ms_per_call": 0.12110577689276801,
+          "wall_seconds": 0.0011234439443796873,
+          "cpu_core_seconds": 0.0011240000000043437
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438667.183515,
+          "end_unix": 1792438667.1846232,
+          "gpu_event_ms_per_call": 0.11984354919857448,
+          "wall_seconds": 0.0011132399667985737,
+          "cpu_core_seconds": 0.0011140000000011696
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438667.184653,
+          "end_unix": 1792438667.1857674,
+          "gpu_event_ms_per_call": 0.12057599756452772,
+          "wall_seconds": 0.0011183239985257387,
+          "cpu_core_seconds": 0.0011189999999956513
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438667.1857955,
+          "end_unix": 1792438667.1869097,
+          "gpu_event_ms_per_call": 0.12019911077287462,
+          "wall_seconds": 0.0011180240544490516,
+          "cpu_core_seconds": 0.001117999999998176
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.12207289536794026,
+        "candidate-guarded-pairs": 0.12045155631171332,
+        "ablation-pairs-five": 0.12085333135392931,
+        "ablation-aos-five": 0.12050488260057238
+      },
+      "best_measured_arm": "candidate-guarded-pairs"
+    },
+    {
+      "label": "text/layers/63/mlp/down",
+      "tokens": 3,
+      "k": 17408,
+      "ns": [
+        2560
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            123,
+            158,
+            164,
+            190,
+            196,
+            210,
+            294,
+            395,
+            525,
+            608,
+            746,
+            825,
+            895,
+            970,
+            1027,
+            1196,
+            1222,
+            1248,
+            1263,
+            1345,
+            1576,
+            1827,
+            2007,
+            2013,
+            2064,
+            2068,
+            2266,
+            2507,
+            2559
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00020694185818898438,
+          "max_absolute": 0.0008811046832866154
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438667.7042701,
+          "end_unix": 1792438667.7050283,
+          "gpu_event_ms_per_call": 0.07758933305740356,
+          "wall_seconds": 0.0007659259717911482,
+          "cpu_core_seconds": 0.000755999999995538
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438667.7050734,
+          "end_unix": 1792438667.705796,
+          "gpu_event_ms_per_call": 0.07655111286375257,
+          "wall_seconds": 0.0007275819662027061,
+          "cpu_core_seconds": 0.0007280000000022824
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438667.7058332,
+          "end_unix": 1792438667.706563,
+          "gpu_event_ms_per_call": 0.07769244247012669,
+          "wall_seconds": 0.000734010012820363,
+          "cpu_core_seconds": 0.0007349999999988199
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438667.7065911,
+          "end_unix": 1792438667.7073073,
+          "gpu_event_ms_per_call": 0.07625244723425971,
+          "wall_seconds": 0.000720029987860471,
+          "cpu_core_seconds": 0.0007209999999986394
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438667.707339,
+          "end_unix": 1792438667.7080562,
+          "gpu_event_ms_per_call": 0.07636621925565931,
+          "wall_seconds": 0.0007212029886431992,
+          "cpu_core_seconds": 0.0007219999999961146
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438667.7080853,
+          "end_unix": 1792438667.7088015,
+          "gpu_event_ms_per_call": 0.07636266946792603,
+          "wall_seconds": 0.000720225041732192,
+          "cpu_core_seconds": 0.0007209999999986394
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438667.7088327,
+          "end_unix": 1792438667.7095451,
+          "gpu_event_ms_per_call": 0.07598933246400622,
+          "wall_seconds": 0.0007162870024330914,
+          "cpu_core_seconds": 0.0007159999999970523
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438667.7095728,
+          "end_unix": 1792438667.7102883,
+          "gpu_event_ms_per_call": 0.07633066839641994,
+          "wall_seconds": 0.0007197119994089007,
+          "cpu_core_seconds": 0.0007200000000011642
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438667.710318,
+          "end_unix": 1792438667.7110286,
+          "gpu_event_ms_per_call": 0.07571911149554783,
+          "wall_seconds": 0.0007143859984353185,
+          "cpu_core_seconds": 0.0007149999999995771
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438667.7110572,
+          "end_unix": 1792438667.7117712,
+          "gpu_event_ms_per_call": 0.07615644401974148,
+          "wall_seconds": 0.0007179690292105079,
+          "cpu_core_seconds": 0.0007179999999991082
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438667.7117987,
+          "end_unix": 1792438667.7125235,
+          "gpu_event_ms_per_call": 0.07694577508502537,
+          "wall_seconds": 0.0007288319757208228,
+          "cpu_core_seconds": 0.0007289999999926522
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438667.7125514,
+          "end_unix": 1792438667.7132676,
+          "gpu_event_ms_per_call": 0.07617421944936116,
+          "wall_seconds": 0.0007212510099634528,
+          "cpu_core_seconds": 0.0007230000000078007
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.07633066839641994,
+        "candidate-guarded-pairs": 0.07615644401974148,
+        "ablation-pairs-five": 0.07694577508502537,
+        "ablation-aos-five": 0.07625244723425971
+      },
+      "best_measured_arm": "candidate-guarded-pairs"
+    },
+    {
+      "label": "text/layers/63/mlp/down",
+      "tokens": 4,
+      "k": 17408,
+      "ns": [
+        2560
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            123,
+            158,
+            164,
+            190,
+            196,
+            210,
+            294,
+            395,
+            525,
+            608,
+            746,
+            825,
+            895,
+            970,
+            1027,
+            1196,
+            1222,
+            1248,
+            1263,
+            1345,
+            1576,
+            1827,
+            2007,
+            2013,
+            2064,
+            2068,
+            2266,
+            2507,
+            2559
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00021383913761475947,
+          "max_absolute": 0.0009586890842001594
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.0334663,
+          "end_unix": 1792438668.0342517,
+          "gpu_event_ms_per_call": 0.08102044132020739,
+          "wall_seconds": 0.0007917979964986444,
+          "cpu_core_seconds": 0.0007869999999954302
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.0342908,
+          "end_unix": 1792438668.0350502,
+          "gpu_event_ms_per_call": 0.08071466949250963,
+          "wall_seconds": 0.0007641949923709035,
+          "cpu_core_seconds": 0.0007640000000037617
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.035081,
+          "end_unix": 1792438668.035835,
+          "gpu_event_ms_per_call": 0.08040533463160197,
+          "wall_seconds": 0.0007582789985463023,
+          "cpu_core_seconds": 0.0007579999999975939
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.035864,
+          "end_unix": 1792438668.0366132,
+          "gpu_event_ms_per_call": 0.07986844248241848,
+          "wall_seconds": 0.0007527439738623798,
+          "cpu_core_seconds": 0.0007529999999960069
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438668.036645,
+          "end_unix": 1792438668.0373955,
+          "gpu_event_ms_per_call": 0.08012088802125719,
+          "wall_seconds": 0.0007547420100308955,
+          "cpu_core_seconds": 0.0007550000000051682
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438668.0374238,
+          "end_unix": 1792438668.0381665,
+          "gpu_event_ms_per_call": 0.07931733131408691,
+          "wall_seconds": 0.0007468829862773418,
+          "cpu_core_seconds": 0.0007480000000015252
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438668.0381954,
+          "end_unix": 1792438668.0389478,
+          "gpu_event_ms_per_call": 0.08031644423802693,
+          "wall_seconds": 0.0007564770057797432,
+          "cpu_core_seconds": 0.0007569999999930133
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438668.0389767,
+          "end_unix": 1792438668.0397274,
+          "gpu_event_ms_per_call": 0.08010666900210911,
+          "wall_seconds": 0.0007543989922851324,
+          "cpu_core_seconds": 0.0007549999999980628
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438668.039756,
+          "end_unix": 1792438668.0405014,
+          "gpu_event_ms_per_call": 0.07953421937094794,
+          "wall_seconds": 0.0007492590229958296,
+          "cpu_core_seconds": 0.0007489999999990005
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438668.0405297,
+          "end_unix": 1792438668.0412745,
+          "gpu_event_ms_per_call": 0.07957688967386882,
+          "wall_seconds": 0.0007489279960282147,
+          "cpu_core_seconds": 0.0007500000000035811
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438668.041311,
+          "end_unix": 1792438668.0420647,
+          "gpu_event_ms_per_call": 0.08044444190131293,
+          "wall_seconds": 0.0007575670024380088,
+          "cpu_core_seconds": 0.0007580000000046994
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438668.0420926,
+          "end_unix": 1792438668.042838,
+          "gpu_event_ms_per_call": 0.07962666617499457,
+          "wall_seconds": 0.0007494770106859505,
+          "cpu_core_seconds": 0.0007499999999964757
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.08010666900210911,
+        "candidate-guarded-pairs": 0.08031644423802693,
+        "ablation-pairs-five": 0.08040533463160197,
+        "ablation-aos-five": 0.07986844248241848
+      },
+      "best_measured_arm": "ablation-aos-five"
+    },
+    {
+      "label": "text/layers/63/mlp/down",
+      "tokens": 8,
+      "k": 17408,
+      "ns": [
+        2560
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            123,
+            158,
+            164,
+            190,
+            196,
+            210,
+            294,
+            395,
+            525,
+            608,
+            746,
+            825,
+            895,
+            970,
+            1027,
+            1196,
+            1222,
+            1248,
+            1263,
+            1345,
+            1576,
+            1827,
+            2007,
+            2013,
+            2064,
+            2068,
+            2266,
+            2507,
+            2559
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00021162181197630382,
+          "max_absolute": 0.0009643459104395902
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.3756175,
+          "end_unix": 1792438668.3766868,
+          "gpu_event_ms_per_call": 0.11239111423492432,
+          "wall_seconds": 0.0010755970142781734,
+          "cpu_core_seconds": 0.0010710000000031528
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.3767264,
+          "end_unix": 1792438668.3777702,
+          "gpu_event_ms_per_call": 0.11242666509416369,
+          "wall_seconds": 0.0010487859835848212,
+          "cpu_core_seconds": 0.001049000000001854
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.3778007,
+          "end_unix": 1792438668.3788621,
+          "gpu_event_ms_per_call": 0.11392711268530951,
+          "wall_seconds": 0.0010656419908627868,
+          "cpu_core_seconds": 0.0010659999999944603
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.3788912,
+          "end_unix": 1792438668.3799257,
+          "gpu_event_ms_per_call": 0.11159466372595893,
+          "wall_seconds": 0.0010387870133854449,
+          "cpu_core_seconds": 0.0010389999999986799
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438668.3799586,
+          "end_unix": 1792438668.3809948,
+          "gpu_event_ms_per_call": 0.11179021994272868,
+          "wall_seconds": 0.001040290982928127,
+          "cpu_core_seconds": 0.0010410000000007358
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438668.3810234,
+          "end_unix": 1792438668.382071,
+          "gpu_event_ms_per_call": 0.11314488781823052,
+          "wall_seconds": 0.0010514829773455858,
+          "cpu_core_seconds": 0.0010520000000013852
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438668.3820987,
+          "end_unix": 1792438668.383127,
+          "gpu_event_ms_per_call": 0.111008001698388,
+          "wall_seconds": 0.0010323490132577717,
+          "cpu_core_seconds": 0.0010320000000021423
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438668.383155,
+          "end_unix": 1792438668.3841865,
+          "gpu_event_ms_per_call": 0.1113777822918362,
+          "wall_seconds": 0.0010354850091971457,
+          "cpu_core_seconds": 0.0010359999999991487
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438668.384216,
+          "end_unix": 1792438668.3852458,
+          "gpu_event_ms_per_call": 0.1111111111111111,
+          "wall_seconds": 0.0010337810381315649,
+          "cpu_core_seconds": 0.0010339999999970928
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438668.3852758,
+          "end_unix": 1792438668.3863075,
+          "gpu_event_ms_per_call": 0.11143822140163845,
+          "wall_seconds": 0.001035624009091407,
+          "cpu_core_seconds": 0.0010359999999991487
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438668.3863354,
+          "end_unix": 1792438668.3873808,
+          "gpu_event_ms_per_call": 0.11296355724334717,
+          "wall_seconds": 0.0010491670109331608,
+          "cpu_core_seconds": 0.0010499999999993292
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438668.387409,
+          "end_unix": 1792438668.3884404,
+          "gpu_event_ms_per_call": 0.1114026705423991,
+          "wall_seconds": 0.0010352699900977314,
+          "cpu_core_seconds": 0.0010350000000016735
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.1113777822918362,
+        "candidate-guarded-pairs": 0.11143822140163845,
+        "ablation-pairs-five": 0.11314488781823052,
+        "ablation-aos-five": 0.11159466372595893
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "text/layers/62/gdn/qkv",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        5120
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            158,
+            164,
+            196,
+            525,
+            608,
+            746,
+            825,
+            1196,
+            1248,
+            1263,
+            1576,
+            1827,
+            2007,
+            2068,
+            2507,
+            2683,
+            2750,
+            2770,
+            2854,
+            2955,
+            3455,
+            3530,
+            3587,
+            3782,
+            3905,
+            4573,
+            4624,
+            4826,
+            5119
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00022471848676216375,
+          "max_absolute": 0.0009759422492843228
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.7665973,
+          "end_unix": 1792438668.7671115,
+          "gpu_event_ms_per_call": 0.05098311106363932,
+          "wall_seconds": 0.0005209519877098501,
+          "cpu_core_seconds": 0.0005160000000046239
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.767151,
+          "end_unix": 1792438668.7676387,
+          "gpu_event_ms_per_call": 0.050549334949917264,
+          "wall_seconds": 0.0004933319869451225,
+          "cpu_core_seconds": 0.0004939999999962197
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.76767,
+          "end_unix": 1792438668.7681508,
+          "gpu_event_ms_per_call": 0.049984001451068454,
+          "wall_seconds": 0.00048482499551028013,
+          "cpu_core_seconds": 0.0004849999999976262
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.7681792,
+          "end_unix": 1792438668.7686505,
+          "gpu_event_ms_per_call": 0.049173331922954984,
+          "wall_seconds": 0.00047531299060210586,
+          "cpu_core_seconds": 0.0004750000000015575
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438668.7686818,
+          "end_unix": 1792438668.7691517,
+          "gpu_event_ms_per_call": 0.049066666099760264,
+          "wall_seconds": 0.0004739650175906718,
+          "cpu_core_seconds": 0.00047400000000408227
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438668.7691796,
+          "end_unix": 1792438668.7696495,
+          "gpu_event_ms_per_call": 0.04897777901755439,
+          "wall_seconds": 0.0004734660033136606,
+          "cpu_core_seconds": 0.00047399999999697684
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438668.769676,
+          "end_unix": 1792438668.7701495,
+          "gpu_event_ms_per_call": 0.04949333270390829,
+          "wall_seconds": 0.00047733000246807933,
+          "cpu_core_seconds": 0.00047800000000108867
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438668.7701771,
+          "end_unix": 1792438668.7706506,
+          "gpu_event_ms_per_call": 0.049472000863817006,
+          "wall_seconds": 0.00047798402374610305,
+          "cpu_core_seconds": 0.0004789999999985639
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438668.7706795,
+          "end_unix": 1792438668.7711527,
+          "gpu_event_ms_per_call": 0.04932622114817301,
+          "wall_seconds": 0.0004769079969264567,
+          "cpu_core_seconds": 0.0004770000000036134
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438668.771181,
+          "end_unix": 1792438668.7716568,
+          "gpu_event_ms_per_call": 0.04959288901752896,
+          "wall_seconds": 0.00047940597869455814,
+          "cpu_core_seconds": 0.0004800000000031446
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438668.7716837,
+          "end_unix": 1792438668.772156,
+          "gpu_event_ms_per_call": 0.049230221245023936,
+          "wall_seconds": 0.00047606200678274035,
+          "cpu_core_seconds": 0.000476999999996508
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438668.772183,
+          "end_unix": 1792438668.772655,
+          "gpu_event_ms_per_call": 0.04931911163859897,
+          "wall_seconds": 0.00047567900037392974,
+          "cpu_core_seconds": 0.00047599999999903275
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.049472000863817006,
+        "candidate-guarded-pairs": 0.04959288901752896,
+        "ablation-pairs-five": 0.049230221245023936,
+        "ablation-aos-five": 0.049173331922954984
+      },
+      "best_measured_arm": "ablation-aos-five"
+    },
+    {
+      "label": "text/layers/62/gdn/qkv",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        5120
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            158,
+            164,
+            196,
+            525,
+            608,
+            746,
+            825,
+            1196,
+            1248,
+            1263,
+            1576,
+            1827,
+            2007,
+            2068,
+            2507,
+            2683,
+            2750,
+            2770,
+            2854,
+            2955,
+            3455,
+            3530,
+            3587,
+            3782,
+            3905,
+            4573,
+            4624,
+            4826,
+            5119
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00022054081320307576,
+          "max_absolute": 0.0008932810338473374
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.9968996,
+          "end_unix": 1792438668.997449,
+          "gpu_event_ms_per_call": 0.055008000797695585,
+          "wall_seconds": 0.0005556720425374806,
+          "cpu_core_seconds": 0.0005510000000015225
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.9974875,
+          "end_unix": 1792438668.9980044,
+          "gpu_event_ms_per_call": 0.05392000079154968,
+          "wall_seconds": 0.0005219720187596977,
+          "cpu_core_seconds": 0.0005219999999965808
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.9980364,
+          "end_unix": 1792438668.9985511,
+          "gpu_event_ms_per_call": 0.053752889235814415,
+          "wall_seconds": 0.000518477987498045,
+          "cpu_core_seconds": 0.0005179999999995744
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438668.9985793,
+          "end_unix": 1792438668.9990864,
+          "gpu_event_ms_per_call": 0.05302400059170193,
+          "wall_seconds": 0.000511086022015661,
+          "cpu_core_seconds": 0.0005109999999959314
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438668.9991186,
+          "end_unix": 1792438668.9996352,
+          "gpu_event_ms_per_call": 0.05346488952636719,
+          "wall_seconds": 0.0005208100192248821,
+          "cpu_core_seconds": 0.0005209999999991055
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438668.9996645,
+          "end_unix": 1792438669.0001724,
+          "gpu_event_ms_per_call": 0.05319822165701124,
+          "wall_seconds": 0.0005116899847052991,
+          "cpu_core_seconds": 0.000512000000000512
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.0002003,
+          "end_unix": 1792438669.0007076,
+          "gpu_event_ms_per_call": 0.05308799942334493,
+          "wall_seconds": 0.0005111770005896688,
+          "cpu_core_seconds": 0.0005119999999934066
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.0007346,
+          "end_unix": 1792438669.0012405,
+          "gpu_event_ms_per_call": 0.05294933252864414,
+          "wall_seconds": 0.0005100319976918399,
+          "cpu_core_seconds": 0.0005099999999984561
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.00127,
+          "end_unix": 1792438669.0017738,
+          "gpu_event_ms_per_call": 0.052828444374932185,
+          "wall_seconds": 0.0005075389635749161,
+          "cpu_core_seconds": 0.0005080000000035056
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.0018015,
+          "end_unix": 1792438669.0023122,
+          "gpu_event_ms_per_call": 0.053109334574805364,
+          "wall_seconds": 0.0005145489703863859,
+          "cpu_core_seconds": 0.0005149999999929378
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.0023396,
+          "end_unix": 1792438669.002842,
+          "gpu_event_ms_per_call": 0.05263288815816244,
+          "wall_seconds": 0.0005062089767307043,
+          "cpu_core_seconds": 0.000506999999998925
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.0028698,
+          "end_unix": 1792438669.0033808,
+          "gpu_event_ms_per_call": 0.05346133311589559,
+          "wall_seconds": 0.0005146950134076178,
+          "cpu_core_seconds": 0.0005150000000000432
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.05294933252864414,
+        "candidate-guarded-pairs": 0.053109334574805364,
+        "ablation-pairs-five": 0.05319822165701124,
+        "ablation-aos-five": 0.05346133311589559
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "text/layers/62/gdn/qkv",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        5120
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            158,
+            164,
+            196,
+            525,
+            608,
+            746,
+            825,
+            1196,
+            1248,
+            1263,
+            1576,
+            1827,
+            2007,
+            2068,
+            2507,
+            2683,
+            2750,
+            2770,
+            2854,
+            2955,
+            3455,
+            3530,
+            3587,
+            3782,
+            3905,
+            4573,
+            4624,
+            4826,
+            5119
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00020868281155863802,
+          "max_absolute": 0.0008932810338473374
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.2358665,
+          "end_unix": 1792438669.2365935,
+          "gpu_event_ms_per_call": 0.07452444235483806,
+          "wall_seconds": 0.0007325710030272603,
+          "cpu_core_seconds": 0.0007269999999977017
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.2366307,
+          "end_unix": 1792438669.2373333,
+          "gpu_event_ms_per_call": 0.07452088594436646,
+          "wall_seconds": 0.0007074120221659541,
+          "cpu_core_seconds": 0.0007079999999959341
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.2373638,
+          "end_unix": 1792438669.2380707,
+          "gpu_event_ms_per_call": 0.07522488964928521,
+          "wall_seconds": 0.0007111539598554373,
+          "cpu_core_seconds": 0.0007110000000025707
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.238099,
+          "end_unix": 1792438669.2387931,
+          "gpu_event_ms_per_call": 0.07392711109585232,
+          "wall_seconds": 0.0006978120072744787,
+          "cpu_core_seconds": 0.0006979999999998654
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.2388277,
+          "end_unix": 1792438669.2395246,
+          "gpu_event_ms_per_call": 0.07417955663469103,
+          "wall_seconds": 0.0007004879880696535,
+          "cpu_core_seconds": 0.0007009999999993966
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.239552,
+          "end_unix": 1792438669.2402475,
+          "gpu_event_ms_per_call": 0.07414755556318495,
+          "wall_seconds": 0.0006995010189712048,
+          "cpu_core_seconds": 0.0007000000000019213
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.2402756,
+          "end_unix": 1792438669.2409737,
+          "gpu_event_ms_per_call": 0.07437866926193237,
+          "wall_seconds": 0.0007020600023679435,
+          "cpu_core_seconds": 0.0007019999999968718
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.2410023,
+          "end_unix": 1792438669.241693,
+          "gpu_event_ms_per_call": 0.07351466682222155,
+          "wall_seconds": 0.0006945710047148168,
+          "cpu_core_seconds": 0.0006950000000003342
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.2417216,
+          "end_unix": 1792438669.2424183,
+          "gpu_event_ms_per_call": 0.07419377565383911,
+          "wall_seconds": 0.0007005500374361873,
+          "cpu_core_seconds": 0.0007009999999993966
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.2424457,
+          "end_unix": 1792438669.2431412,
+          "gpu_event_ms_per_call": 0.0739555557568868,
+          "wall_seconds": 0.0006992400158196688,
+          "cpu_core_seconds": 0.0006989999999973406
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.2431684,
+          "end_unix": 1792438669.2438626,
+          "gpu_event_ms_per_call": 0.07388444741566975,
+          "wall_seconds": 0.0006980359903536737,
+          "cpu_core_seconds": 0.0006990000000044461
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.2438896,
+          "end_unix": 1792438669.2445884,
+          "gpu_event_ms_per_call": 0.07444977760314941,
+          "wall_seconds": 0.0007023609941825271,
+          "cpu_core_seconds": 0.0007019999999968718
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.07419377565383911,
+        "candidate-guarded-pairs": 0.07437866926193237,
+        "ablation-pairs-five": 0.07414755556318495,
+        "ablation-aos-five": 0.07417955663469103
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "text/layers/62/gdn/z",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        3072
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            196,
+            224,
+            383,
+            515,
+            702,
+            746,
+            833,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            1501,
+            1549,
+            1552,
+            1632,
+            1746,
+            1754,
+            1827,
+            1931,
+            2068,
+            2074,
+            2506,
+            2507,
+            2600,
+            2683,
+            2758,
+            2854,
+            2873,
+            3071
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.0001908536906955373,
+          "max_absolute": 0.0008013221208567067
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.5050812,
+          "end_unix": 1792438669.5054557,
+          "gpu_event_ms_per_call": 0.03483733203676012,
+          "wall_seconds": 0.0003811880014836788,
+          "cpu_core_seconds": 0.00037499999999823785
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.5054953,
+          "end_unix": 1792438669.5058367,
+          "gpu_event_ms_per_call": 0.0342791113588545,
+          "wall_seconds": 0.00034667400177568197,
+          "cpu_core_seconds": 0.0003469999999978768
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.5058682,
+          "end_unix": 1792438669.5062046,
+          "gpu_event_ms_per_call": 0.03399466805987888,
+          "wall_seconds": 0.0003402039874345064,
+          "cpu_core_seconds": 0.0003409999999988145
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.5062327,
+          "end_unix": 1792438669.5065594,
+          "gpu_event_ms_per_call": 0.033027556207444936,
+          "wall_seconds": 0.0003302569966763258,
+          "cpu_core_seconds": 0.00033100000000274576
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.5065897,
+          "end_unix": 1792438669.5069165,
+          "gpu_event_ms_per_call": 0.03297066688537598,
+          "wall_seconds": 0.00033127801725640893,
+          "cpu_core_seconds": 0.00033100000000274576
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.5069454,
+          "end_unix": 1792438669.5072708,
+          "gpu_event_ms_per_call": 0.03289244572321574,
+          "wall_seconds": 0.0003301320248283446,
+          "cpu_core_seconds": 0.00033099999999564034
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.5072992,
+          "end_unix": 1792438669.5076275,
+          "gpu_event_ms_per_call": 0.033358222908443876,
+          "wall_seconds": 0.0003324699937365949,
+          "cpu_core_seconds": 0.00033299999999769625
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.5076547,
+          "end_unix": 1792438669.5079777,
+          "gpu_event_ms_per_call": 0.03269333309597439,
+          "wall_seconds": 0.0003279809607192874,
+          "cpu_core_seconds": 0.0003289999999935844
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.5080078,
+          "end_unix": 1792438669.5083323,
+          "gpu_event_ms_per_call": 0.032821334070629544,
+          "wall_seconds": 0.0003286699648015201,
+          "cpu_core_seconds": 0.0003289999999935844
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.50836,
+          "end_unix": 1792438669.508689,
+          "gpu_event_ms_per_call": 0.03337600164943271,
+          "wall_seconds": 0.0003326070145703852,
+          "cpu_core_seconds": 0.0003330000000048017
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.5087152,
+          "end_unix": 1792438669.50904,
+          "gpu_event_ms_per_call": 0.03289244572321574,
+          "wall_seconds": 0.00032872200245037675,
+          "cpu_core_seconds": 0.0003290000000077953
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.5090673,
+          "end_unix": 1792438669.5093894,
+          "gpu_event_ms_per_call": 0.0325546662012736,
+          "wall_seconds": 0.0003256959607824683,
+          "cpu_core_seconds": 0.0003260000000011587
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.032821334070629544,
+        "candidate-guarded-pairs": 0.03337600164943271,
+        "ablation-pairs-five": 0.03289244572321574,
+        "ablation-aos-five": 0.03297066688537598
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "text/layers/62/gdn/z",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        3072
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            196,
+            224,
+            383,
+            515,
+            702,
+            746,
+            833,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            1501,
+            1549,
+            1552,
+            1632,
+            1746,
+            1754,
+            1827,
+            1931,
+            2068,
+            2074,
+            2506,
+            2507,
+            2600,
+            2683,
+            2758,
+            2854,
+            2873,
+            3071
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00021800814498864192,
+          "max_absolute": 0.0009476104938004326
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.7032862,
+          "end_unix": 1792438669.7036688,
+          "gpu_event_ms_per_call": 0.03635199864705404,
+          "wall_seconds": 0.0003892589593306184,
+          "cpu_core_seconds": 0.00038400000000393675
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.7037072,
+          "end_unix": 1792438669.7040586,
+          "gpu_event_ms_per_call": 0.03556266758177015,
+          "wall_seconds": 0.0003562800120562315,
+          "cpu_core_seconds": 0.0003560000000035757
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.7040896,
+          "end_unix": 1792438669.7044406,
+          "gpu_event_ms_per_call": 0.035623110002941556,
+          "wall_seconds": 0.0003548550303094089,
+          "cpu_core_seconds": 0.000354999999998995
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.7044687,
+          "end_unix": 1792438669.7048302,
+          "gpu_event_ms_per_call": 0.03487288951873779,
+          "wall_seconds": 0.0003655959735624492,
+          "cpu_core_seconds": 0.0003659999999996444
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.7048635,
+          "end_unix": 1792438669.7052062,
+          "gpu_event_ms_per_call": 0.03487288951873779,
+          "wall_seconds": 0.0003466270281933248,
+          "cpu_core_seconds": 0.0003469999999978768
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.7052343,
+          "end_unix": 1792438669.705575,
+          "gpu_event_ms_per_call": 0.034734222624037,
+          "wall_seconds": 0.000344329047948122,
+          "cpu_core_seconds": 0.00034399999999834563
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.7056017,
+          "end_unix": 1792438669.7059436,
+          "gpu_event_ms_per_call": 0.03488711184925503,
+          "wall_seconds": 0.0003457349957898259,
+          "cpu_core_seconds": 0.00034600000000040154
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.7059712,
+          "end_unix": 1792438669.7063143,
+          "gpu_event_ms_per_call": 0.03496533301141527,
+          "wall_seconds": 0.00034684198908507824,
+          "cpu_core_seconds": 0.0003469999999978768
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.7063427,
+          "end_unix": 1792438669.7066867,
+          "gpu_event_ms_per_call": 0.03504711058404711,
+          "wall_seconds": 0.0003477139980532229,
+          "cpu_core_seconds": 0.00034800000000245745
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.706714,
+          "end_unix": 1792438669.707052,
+          "gpu_event_ms_per_call": 0.03442844417360094,
+          "wall_seconds": 0.00034174497704952955,
+          "cpu_core_seconds": 0.0003419999999962897
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.7070792,
+          "end_unix": 1792438669.7074225,
+          "gpu_event_ms_per_call": 0.034865776697794594,
+          "wall_seconds": 0.0003480300074443221,
+          "cpu_core_seconds": 0.0003489999999999327
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.707458,
+          "end_unix": 1792438669.707807,
+          "gpu_event_ms_per_call": 0.035445332527160645,
+          "wall_seconds": 0.0003583810175769031,
+          "cpu_core_seconds": 0.0003580000000056316
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.03504711058404711,
+        "candidate-guarded-pairs": 0.03488711184925503,
+        "ablation-pairs-five": 0.034865776697794594,
+        "ablation-aos-five": 0.03487288951873779
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "text/layers/62/gdn/z",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        3072
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            196,
+            224,
+            383,
+            515,
+            702,
+            746,
+            833,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            1501,
+            1549,
+            1552,
+            1632,
+            1746,
+            1754,
+            1827,
+            1931,
+            2068,
+            2074,
+            2506,
+            2507,
+            2600,
+            2683,
+            2758,
+            2854,
+            2873,
+            3071
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00020154583828127902,
+          "max_absolute": 0.000735686527374213
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.9073668,
+          "end_unix": 1792438669.907959,
+          "gpu_event_ms_per_call": 0.059676441881391734,
+          "wall_seconds": 0.0005988040356896818,
+          "cpu_core_seconds": 0.0005930000000020641
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.907996,
+          "end_unix": 1792438669.9085636,
+          "gpu_event_ms_per_call": 0.059658666451772056,
+          "wall_seconds": 0.0005727690295316279,
+          "cpu_core_seconds": 0.0005729999999957158
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.9085932,
+          "end_unix": 1792438669.9091535,
+          "gpu_event_ms_per_call": 0.05895466936959161,
+          "wall_seconds": 0.0005646090139634907,
+          "cpu_core_seconds": 0.0005649999999945976
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438669.909183,
+          "end_unix": 1792438669.909742,
+          "gpu_event_ms_per_call": 0.05887644158469306,
+          "wall_seconds": 0.0005631999811157584,
+          "cpu_core_seconds": 0.0005640000000042278
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.909773,
+          "end_unix": 1792438669.910336,
+          "gpu_event_ms_per_call": 0.059200002087487116,
+          "wall_seconds": 0.0005683079943992198,
+          "cpu_core_seconds": 0.0005689999999987094
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.910375,
+          "end_unix": 1792438669.9109313,
+          "gpu_event_ms_per_call": 0.05824355284372965,
+          "wall_seconds": 0.0005609950167126954,
+          "cpu_core_seconds": 0.0005620000000021719
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.9109607,
+          "end_unix": 1792438669.9115224,
+          "gpu_event_ms_per_call": 0.05903999672995673,
+          "wall_seconds": 0.0005658059963025153,
+          "cpu_core_seconds": 0.0005659999999991783
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438669.9115524,
+          "end_unix": 1792438669.912115,
+          "gpu_event_ms_per_call": 0.05915377537409464,
+          "wall_seconds": 0.0005665590288117528,
+          "cpu_core_seconds": 0.0005670000000037589
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.9121444,
+          "end_unix": 1792438669.9127014,
+          "gpu_event_ms_per_call": 0.05869155459933811,
+          "wall_seconds": 0.0005609390209428966,
+          "cpu_core_seconds": 0.0005620000000021719
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.912729,
+          "end_unix": 1792438669.9132848,
+          "gpu_event_ms_per_call": 0.058620446258121066,
+          "wall_seconds": 0.00055981200421229,
+          "cpu_core_seconds": 0.000560000000000116
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.913312,
+          "end_unix": 1792438669.9138653,
+          "gpu_event_ms_per_call": 0.05827199750476413,
+          "wall_seconds": 0.0005569770000874996,
+          "cpu_core_seconds": 0.0005570000000005848
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438669.9138923,
+          "end_unix": 1792438669.9144523,
+          "gpu_event_ms_per_call": 0.05896888838873969,
+          "wall_seconds": 0.0005637379945255816,
+          "cpu_core_seconds": 0.0005639999999971224
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.05915377537409464,
+        "candidate-guarded-pairs": 0.05903999672995673,
+        "ablation-pairs-five": 0.05827199750476413,
+        "ablation-aos-five": 0.05896888838873969
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "text/layers/63/attention/o",
+      "tokens": 3,
+      "k": 6144,
+      "ns": [
+        2560
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            123,
+            158,
+            164,
+            190,
+            196,
+            210,
+            294,
+            395,
+            525,
+            608,
+            746,
+            825,
+            895,
+            970,
+            1027,
+            1196,
+            1222,
+            1248,
+            1263,
+            1345,
+            1576,
+            1827,
+            2007,
+            2013,
+            2064,
+            2068,
+            2266,
+            2507,
+            2559
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00019543977890797192,
+          "max_absolute": 0.0008882008200332692
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438670.1906962,
+          "end_unix": 1792438670.1910641,
+          "gpu_event_ms_per_call": 0.03475911087459988,
+          "wall_seconds": 0.00037381501169875264,
+          "cpu_core_seconds": 0.0003700000000037562
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438670.1911023,
+          "end_unix": 1792438670.1914432,
+          "gpu_event_ms_per_call": 0.03427199853791131,
+          "wall_seconds": 0.00034674903145059943,
+          "cpu_core_seconds": 0.0003470000000049822
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438670.191474,
+          "end_unix": 1792438670.1918182,
+          "gpu_event_ms_per_call": 0.03451733456717597,
+          "wall_seconds": 0.0003482010215520859,
+          "cpu_core_seconds": 0.00034799999999535203
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438670.1918473,
+          "end_unix": 1792438670.1921763,
+          "gpu_event_ms_per_call": 0.03319111135270861,
+          "wall_seconds": 0.00033354200422763824,
+          "cpu_core_seconds": 0.0003340000000022769
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438670.192208,
+          "end_unix": 1792438670.1925335,
+          "gpu_event_ms_per_call": 0.03284622232119242,
+          "wall_seconds": 0.00032918399665504694,
+          "cpu_core_seconds": 0.00032900000000068985
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438670.1925604,
+          "end_unix": 1792438670.1928911,
+          "gpu_event_ms_per_call": 0.0333902206685808,
+          "wall_seconds": 0.0003345959703437984,
+          "cpu_core_seconds": 0.00033499999999975216
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438670.1929185,
+          "end_unix": 1792438670.1932528,
+          "gpu_event_ms_per_call": 0.03391644358634949,
+          "wall_seconds": 0.0003381500137038529,
+          "cpu_core_seconds": 0.0003379999999992833
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438670.19328,
+          "end_unix": 1792438670.1936085,
+          "gpu_event_ms_per_call": 0.033215999603271484,
+          "wall_seconds": 0.0003322879783809185,
+          "cpu_core_seconds": 0.00033299999999769625
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438670.193637,
+          "end_unix": 1792438670.193966,
+          "gpu_event_ms_per_call": 0.033358222908443876,
+          "wall_seconds": 0.0003327939775772393,
+          "cpu_core_seconds": 0.00033299999999769625
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438670.1939933,
+          "end_unix": 1792438670.194324,
+          "gpu_event_ms_per_call": 0.0335822237862481,
+          "wall_seconds": 0.00033441599225625396,
+          "cpu_core_seconds": 0.0003339999999951715
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438670.1943502,
+          "end_unix": 1792438670.194681,
+          "gpu_event_ms_per_call": 0.03358577688535055,
+          "wall_seconds": 0.00033420498948544264,
+          "cpu_core_seconds": 0.0003339999999951715
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438670.1947074,
+          "end_unix": 1792438670.1950307,
+          "gpu_event_ms_per_call": 0.03275733192761739,
+          "wall_seconds": 0.0003272199537605047,
+          "cpu_core_seconds": 0.00032699999999863394
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.033358222908443876,
+        "candidate-guarded-pairs": 0.03391644358634949,
+        "ablation-pairs-five": 0.03358577688535055,
+        "ablation-aos-five": 0.03284622232119242
+      },
+      "best_measured_arm": "ablation-aos-five"
+    },
+    {
+      "label": "text/layers/63/attention/o",
+      "tokens": 4,
+      "k": 6144,
+      "ns": [
+        2560
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            123,
+            158,
+            164,
+            190,
+            196,
+            210,
+            294,
+            395,
+            525,
+            608,
+            746,
+            825,
+            895,
+            970,
+            1027,
+            1196,
+            1222,
+            1248,
+            1263,
+            1345,
+            1576,
+            1827,
+            2007,
+            2013,
+            2064,
+            2068,
+            2266,
+            2507,
+            2559
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.0001828100876694927,
+          "max_absolute": 0.0008882008200332692
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438670.394537,
+          "end_unix": 1792438670.3949215,
+          "gpu_event_ms_per_call": 0.03650488787227207,
+          "wall_seconds": 0.0003919950104318559,
+          "cpu_core_seconds": 0.00038699999998925705
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438670.3949635,
+          "end_unix": 1792438670.3953238,
+          "gpu_event_ms_per_call": 0.036327110396491155,
+          "wall_seconds": 0.0003650700091384351,
+          "cpu_core_seconds": 0.00036500000000216914
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438670.3953538,
+          "end_unix": 1792438670.3957093,
+          "gpu_event_ms_per_call": 0.03624888923433092,
+          "wall_seconds": 0.00035939301596954465,
+          "cpu_core_seconds": 0.0003600000000005821
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438670.3957376,
+          "end_unix": 1792438670.3960853,
+          "gpu_event_ms_per_call": 0.03541333476702372,
+          "wall_seconds": 0.00035163701977580786,
+          "cpu_core_seconds": 0.00035199999999946385
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438670.396117,
+          "end_unix": 1792438670.396467,
+          "gpu_event_ms_per_call": 0.03565866748491923,
+          "wall_seconds": 0.00035390100674703717,
+          "cpu_core_seconds": 0.00035400000000151977
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438670.3964942,
+          "end_unix": 1792438670.396838,
+          "gpu_event_ms_per_call": 0.03499733408292135,
+          "wall_seconds": 0.00034783297451213,
+          "cpu_core_seconds": 0.00034800000000245745
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438670.3968656,
+          "end_unix": 1792438670.3972147,
+          "gpu_event_ms_per_call": 0.03568355573548211,
+          "wall_seconds": 0.0003531950060278177,
+          "cpu_core_seconds": 0.0003529999999969391
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438670.3972416,
+          "end_unix": 1792438670.397584,
+          "gpu_event_ms_per_call": 0.03486222359869215,
+          "wall_seconds": 0.0003462220192886889,
+          "cpu_core_seconds": 0.00034600000000040154
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438670.3976126,
+          "end_unix": 1792438670.397959,
+          "gpu_event_ms_per_call": 0.03527466787232293,
+          "wall_seconds": 0.0003502999898046255,
+          "cpu_core_seconds": 0.0003509999999948832
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438670.3979871,
+          "end_unix": 1792438670.398336,
+          "gpu_event_ms_per_call": 0.035530666510264076,
+          "wall_seconds": 0.0003526369691826403,
+          "cpu_core_seconds": 0.0003529999999969391
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438670.3983629,
+          "end_unix": 1792438670.398704,
+          "gpu_event_ms_per_call": 0.03477688961558872,
+          "wall_seconds": 0.0003451980301178992,
+          "cpu_core_seconds": 0.00034499999999582087
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438670.3987315,
+          "end_unix": 1792438670.3990772,
+          "gpu_event_ms_per_call": 0.03521066572931078,
+          "wall_seconds": 0.00034937000600621104,
+          "cpu_core_seconds": 0.00035000000000451337
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.03527466787232293,
+        "candidate-guarded-pairs": 0.03568355573548211,
+        "ablation-pairs-five": 0.03499733408292135,
+        "ablation-aos-five": 0.03541333476702372
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "text/layers/63/attention/o",
+      "tokens": 8,
+      "k": 6144,
+      "ns": [
+        2560
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            123,
+            158,
+            164,
+            190,
+            196,
+            210,
+            294,
+            395,
+            525,
+            608,
+            746,
+            825,
+            895,
+            970,
+            1027,
+            1196,
+            1222,
+            1248,
+            1263,
+            1345,
+            1576,
+            1827,
+            2007,
+            2013,
+            2064,
+            2068,
+            2266,
+            2507,
+            2559
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.000198318012789471,
+          "max_absolute": 0.00087234682659032
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438670.6060781,
+          "end_unix": 1792438670.606594,
+          "gpu_event_ms_per_call": 0.05070222086376614,
+          "wall_seconds": 0.0005217610159888864,
+          "cpu_core_seconds": 0.0005160000000046239
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438670.6066318,
+          "end_unix": 1792438670.6071153,
+          "gpu_event_ms_per_call": 0.05017955435646905,
+          "wall_seconds": 0.0004886519745923579,
+          "cpu_core_seconds": 0.000489000000001738
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438670.6071458,
+          "end_unix": 1792438670.607626,
+          "gpu_event_ms_per_call": 0.050048000282711454,
+          "wall_seconds": 0.000483729992993176,
+          "cpu_core_seconds": 0.000484000000000151
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438670.607654,
+          "end_unix": 1792438670.6081223,
+          "gpu_event_ms_per_call": 0.04873955580923292,
+          "wall_seconds": 0.00047203601570799947,
+          "cpu_core_seconds": 0.0004719999999949209
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438670.6081543,
+          "end_unix": 1792438670.6086252,
+          "gpu_event_ms_per_call": 0.04902044600910611,
+          "wall_seconds": 0.0004744730540551245,
+          "cpu_core_seconds": 0.0004750000000015575
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438670.6086545,
+          "end_unix": 1792438670.6091247,
+          "gpu_event_ms_per_call": 0.04899200134807163,
+          "wall_seconds": 0.00047400500625371933,
+          "cpu_core_seconds": 0.00047399999999697684
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438670.609153,
+          "end_unix": 1792438670.6096294,
+          "gpu_event_ms_per_call": 0.049710220760769315,
+          "wall_seconds": 0.00048014201456680894,
+          "cpu_core_seconds": 0.0004800000000031446
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438670.609657,
+          "end_unix": 1792438670.6101308,
+          "gpu_event_ms_per_call": 0.04935466580920749,
+          "wall_seconds": 0.0004773130058310926,
+          "cpu_core_seconds": 0.00047800000000108867
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438670.6101606,
+          "end_unix": 1792438670.6106331,
+          "gpu_event_ms_per_call": 0.049123555421829224,
+          "wall_seconds": 0.00047637103125452995,
+          "cpu_core_seconds": 0.00047599999999903275
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438670.610661,
+          "end_unix": 1792438670.6111357,
+          "gpu_event_ms_per_call": 0.049472000863817006,
+          "wall_seconds": 0.0004786259960383177,
+          "cpu_core_seconds": 0.00047900000000566934
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438670.6111636,
+          "end_unix": 1792438670.6116369,
+          "gpu_event_ms_per_call": 0.04939377639028761,
+          "wall_seconds": 0.00047693197848275304,
+          "cpu_core_seconds": 0.0004770000000036134
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438670.6116643,
+          "end_unix": 1792438670.6121297,
+          "gpu_event_ms_per_call": 0.0485155549314287,
+          "wall_seconds": 0.0004692570073530078,
+          "cpu_core_seconds": 0.00046899999999538977
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.04935466580920749,
+        "candidate-guarded-pairs": 0.049710220760769315,
+        "ablation-pairs-five": 0.04939377639028761,
+        "ablation-aos-five": 0.04873955580923292
+      },
+      "best_measured_arm": "ablation-aos-five"
+    },
+    {
+      "label": "text/layers/63/attention/q",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        6144
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            224,
+            383,
+            515,
+            746,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            2068,
+            2506,
+            2507,
+            2873,
+            3268,
+            3774,
+            3905,
+            4573,
+            4621,
+            4624,
+            4704,
+            4818,
+            4826,
+            4899,
+            5003,
+            5146,
+            5672,
+            5755,
+            5830,
+            5926,
+            6143
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00021708229841301991,
+          "max_absolute": 0.000799381541181976
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.0054762,
+          "end_unix": 1792438671.0060313,
+          "gpu_event_ms_per_call": 0.05514666769239637,
+          "wall_seconds": 0.0005613929824903607,
+          "cpu_core_seconds": 0.0005549999999985289
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.0060685,
+          "end_unix": 1792438671.0065928,
+          "gpu_event_ms_per_call": 0.05470933185683356,
+          "wall_seconds": 0.000528983015101403,
+          "cpu_core_seconds": 0.000529999999997699
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.0066226,
+          "end_unix": 1792438671.0071437,
+          "gpu_event_ms_per_call": 0.054556445942984685,
+          "wall_seconds": 0.0005251379916444421,
+          "cpu_core_seconds": 0.0005250000000103228
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.007172,
+          "end_unix": 1792438671.0076828,
+          "gpu_event_ms_per_call": 0.05347555544641283,
+          "wall_seconds": 0.000514523999299854,
+          "cpu_core_seconds": 0.0005149999999929378
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.0077136,
+          "end_unix": 1792438671.0082242,
+          "gpu_event_ms_per_call": 0.05359289050102234,
+          "wall_seconds": 0.0005145699833519757,
+          "cpu_core_seconds": 0.0005149999999929378
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.0082521,
+          "end_unix": 1792438671.0087614,
+          "gpu_event_ms_per_call": 0.053429332044389516,
+          "wall_seconds": 0.0005131840007379651,
+          "cpu_core_seconds": 0.0005129999999979873
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.0087886,
+          "end_unix": 1792438671.0093133,
+          "gpu_event_ms_per_call": 0.05516444312201606,
+          "wall_seconds": 0.0005284579819999635,
+          "cpu_core_seconds": 0.0005290000000002237
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.009341,
+          "end_unix": 1792438671.0098553,
+          "gpu_event_ms_per_call": 0.05398755603366428,
+          "wall_seconds": 0.0005182070308364928,
+          "cpu_core_seconds": 0.0005179999999995744
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.0098839,
+          "end_unix": 1792438671.0103974,
+          "gpu_event_ms_per_call": 0.05383111039797465,
+          "wall_seconds": 0.0005170099902898073,
+          "cpu_core_seconds": 0.0005169999999878883
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.010424,
+          "end_unix": 1792438671.0109365,
+          "gpu_event_ms_per_call": 0.05386311146948072,
+          "wall_seconds": 0.0005166389746591449,
+          "cpu_core_seconds": 0.0005170000000020991
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.0109637,
+          "end_unix": 1792438671.0114758,
+          "gpu_event_ms_per_call": 0.05376355515586005,
+          "wall_seconds": 0.0005159259890206158,
+          "cpu_core_seconds": 0.0005170000000020991
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.0115032,
+          "end_unix": 1792438671.0120142,
+          "gpu_event_ms_per_call": 0.053667555252710976,
+          "wall_seconds": 0.0005147600313648582,
+          "cpu_core_seconds": 0.0005150000000071486
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.05398755603366428,
+        "candidate-guarded-pairs": 0.05470933185683356,
+        "ablation-pairs-five": 0.05376355515586005,
+        "ablation-aos-five": 0.05359289050102234
+      },
+      "best_measured_arm": "ablation-aos-five"
+    },
+    {
+      "label": "text/layers/63/attention/q",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        6144
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            224,
+            383,
+            515,
+            746,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            2068,
+            2506,
+            2507,
+            2873,
+            3268,
+            3774,
+            3905,
+            4573,
+            4621,
+            4624,
+            4704,
+            4818,
+            4826,
+            4899,
+            5003,
+            5146,
+            5672,
+            5755,
+            5830,
+            5926,
+            6143
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00022129455023750167,
+          "max_absolute": 0.000799381541181976
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.2720256,
+          "end_unix": 1792438671.2726097,
+          "gpu_event_ms_per_call": 0.0588266650835673,
+          "wall_seconds": 0.0005906170117668808,
+          "cpu_core_seconds": 0.0005850000000009459
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.2726462,
+          "end_unix": 1792438671.2731993,
+          "gpu_event_ms_per_call": 0.05791644255320231,
+          "wall_seconds": 0.0005586129846051335,
+          "cpu_core_seconds": 0.0005589999999955353
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.2732303,
+          "end_unix": 1792438671.2737784,
+          "gpu_event_ms_per_call": 0.057553774780697294,
+          "wall_seconds": 0.0005521040293388069,
+          "cpu_core_seconds": 0.0005530000000035784
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.2738063,
+          "end_unix": 1792438671.274358,
+          "gpu_event_ms_per_call": 0.05746489100986057,
+          "wall_seconds": 0.0005555649986490607,
+          "cpu_core_seconds": 0.0005560000000031096
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.274389,
+          "end_unix": 1792438671.2749367,
+          "gpu_event_ms_per_call": 0.05762133333418104,
+          "wall_seconds": 0.0005519670085050166,
+          "cpu_core_seconds": 0.0005519999999989977
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.2749658,
+          "end_unix": 1792438671.275506,
+          "gpu_event_ms_per_call": 0.05685333410898844,
+          "wall_seconds": 0.0005440909881144762,
+          "cpu_core_seconds": 0.0005440000000049849
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.2755349,
+          "end_unix": 1792438671.2760792,
+          "gpu_event_ms_per_call": 0.057230220900641546,
+          "wall_seconds": 0.0005481730331666768,
+          "cpu_core_seconds": 0.0005480000000090968
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.2761085,
+          "end_unix": 1792438671.2766564,
+          "gpu_event_ms_per_call": 0.05760000149408976,
+          "wall_seconds": 0.0005516100209206343,
+          "cpu_core_seconds": 0.0005519999999989977
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.2766848,
+          "end_unix": 1792438671.2772279,
+          "gpu_event_ms_per_call": 0.05722666449016995,
+          "wall_seconds": 0.0005469070165418088,
+          "cpu_core_seconds": 0.0005469999999974107
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.2772555,
+          "end_unix": 1792438671.2778022,
+          "gpu_event_ms_per_call": 0.05753244294060601,
+          "wall_seconds": 0.0005505559965968132,
+          "cpu_core_seconds": 0.0005510000000015225
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.2778347,
+          "end_unix": 1792438671.2783782,
+          "gpu_event_ms_per_call": 0.057187557220458984,
+          "wall_seconds": 0.0005472379853017628,
+          "cpu_core_seconds": 0.0005469999999974107
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.2784052,
+          "end_unix": 1792438671.278948,
+          "gpu_event_ms_per_call": 0.05726222197214762,
+          "wall_seconds": 0.0005469800089485943,
+          "cpu_core_seconds": 0.0005469999999974107
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.05760000149408976,
+        "candidate-guarded-pairs": 0.05753244294060601,
+        "ablation-pairs-five": 0.057187557220458984,
+        "ablation-aos-five": 0.05746489100986057
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "text/layers/63/attention/q",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        6144
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            224,
+            383,
+            515,
+            746,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            2068,
+            2506,
+            2507,
+            2873,
+            3268,
+            3774,
+            3905,
+            4573,
+            4621,
+            4624,
+            4704,
+            4818,
+            4826,
+            4899,
+            5003,
+            5146,
+            5672,
+            5755,
+            5830,
+            5926,
+            6143
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00020968451115947122,
+          "max_absolute": 0.000799381541181976
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.553651,
+          "end_unix": 1792438671.5545814,
+          "gpu_event_ms_per_call": 0.09733333190282185,
+          "wall_seconds": 0.0009376059751957655,
+          "cpu_core_seconds": 0.0009330000000034033
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.5546203,
+          "end_unix": 1792438671.5555344,
+          "gpu_event_ms_per_call": 0.09788088666068183,
+          "wall_seconds": 0.0009194170124828815,
+          "cpu_core_seconds": 0.000920000000000698
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.5555656,
+          "end_unix": 1792438671.556487,
+          "gpu_event_ms_per_call": 0.09900799724790785,
+          "wall_seconds": 0.000925650994759053,
+          "cpu_core_seconds": 0.0009269999999972356
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.5565166,
+          "end_unix": 1792438671.557399,
+          "gpu_event_ms_per_call": 0.09470933013492161,
+          "wall_seconds": 0.0008861980168148875,
+          "cpu_core_seconds": 0.0008860000000012747
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.5574303,
+          "end_unix": 1792438671.5583155,
+          "gpu_event_ms_per_call": 0.09504355324639215,
+          "wall_seconds": 0.0008892859914340079,
+          "cpu_core_seconds": 0.0008899999999982811
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.5583436,
+          "end_unix": 1792438671.559253,
+          "gpu_event_ms_per_call": 0.09775288899739583,
+          "wall_seconds": 0.0009132400155067444,
+          "cpu_core_seconds": 0.0009130000000041605
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.5592806,
+          "end_unix": 1792438671.5601568,
+          "gpu_event_ms_per_call": 0.09423644675148858,
+          "wall_seconds": 0.0008802840020507574,
+          "cpu_core_seconds": 0.0008809999999996876
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.5601845,
+          "end_unix": 1792438671.5610912,
+          "gpu_event_ms_per_call": 0.09751822551091512,
+          "wall_seconds": 0.0009102539625018835,
+          "cpu_core_seconds": 0.0009110000000021046
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.5611203,
+          "end_unix": 1792438671.5620127,
+          "gpu_event_ms_per_call": 0.09583644734488593,
+          "wall_seconds": 0.0008959359838627279,
+          "cpu_core_seconds": 0.0008959999999973434
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.5620406,
+          "end_unix": 1792438671.5629504,
+          "gpu_event_ms_per_call": 0.0978026654985216,
+          "wall_seconds": 0.0009140259935520589,
+          "cpu_core_seconds": 0.000914999999999111
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.5629787,
+          "end_unix": 1792438671.5638661,
+          "gpu_event_ms_per_call": 0.09538488917880589,
+          "wall_seconds": 0.0008912250050343573,
+          "cpu_core_seconds": 0.0008910000000028617
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.563894,
+          "end_unix": 1792438671.5647686,
+          "gpu_event_ms_per_call": 0.09404799673292372,
+          "wall_seconds": 0.0008781329961493611,
+          "cpu_core_seconds": 0.0008780000000001564
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.09733333190282185,
+        "candidate-guarded-pairs": 0.0978026654985216,
+        "ablation-pairs-five": 0.09775288899739583,
+        "ablation-aos-five": 0.09470933013492161
+      },
+      "best_measured_arm": "ablation-aos-five"
+    },
+    {
+      "label": "text/layers/63/attention/v",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        512
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00018019969806585854,
+          "max_absolute": 0.0009540020975764563
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.770882,
+          "end_unix": 1792438671.7710886,
+          "gpu_event_ms_per_call": 0.01693511174784766,
+          "wall_seconds": 0.00021277298219501972,
+          "cpu_core_seconds": 0.00020699999999607144
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.7711256,
+          "end_unix": 1792438671.7713048,
+          "gpu_event_ms_per_call": 0.016536888149049547,
+          "wall_seconds": 0.00018427899340167642,
+          "cpu_core_seconds": 0.00018399999999729744
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.7713354,
+          "end_unix": 1792438671.7715147,
+          "gpu_event_ms_per_call": 0.016714667280515034,
+          "wall_seconds": 0.00018307496793568134,
+          "cpu_core_seconds": 0.00018300000000692762
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.7715428,
+          "end_unix": 1792438671.7717106,
+          "gpu_event_ms_per_call": 0.0155093338754442,
+          "wall_seconds": 0.00017187203047797084,
+          "cpu_core_seconds": 0.00017199999999917281
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.7717419,
+          "end_unix": 1792438671.7719083,
+          "gpu_event_ms_per_call": 0.015221332510312399,
+          "wall_seconds": 0.00017051800386980176,
+          "cpu_core_seconds": 0.00017100000000169757
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.7719374,
+          "end_unix": 1792438671.7721064,
+          "gpu_event_ms_per_call": 0.015672889020707872,
+          "wall_seconds": 0.00017302000196650624,
+          "cpu_core_seconds": 0.00017300000000375348
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.772133,
+          "end_unix": 1792438671.7723012,
+          "gpu_event_ms_per_call": 0.01565511193540361,
+          "wall_seconds": 0.0001721479929983616,
+          "cpu_core_seconds": 0.00017300000000375348
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.772328,
+          "end_unix": 1792438671.7724984,
+          "gpu_event_ms_per_call": 0.015825778245925903,
+          "wall_seconds": 0.000174271990545094,
+          "cpu_core_seconds": 0.00017499999999870397
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.7725265,
+          "end_unix": 1792438671.7726948,
+          "gpu_event_ms_per_call": 0.015573332707087198,
+          "wall_seconds": 0.00017220800509676337,
+          "cpu_core_seconds": 0.00017200000000627824
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.772722,
+          "end_unix": 1792438671.7728894,
+          "gpu_event_ms_per_call": 0.015484443969196744,
+          "wall_seconds": 0.00017125101294368505,
+          "cpu_core_seconds": 0.00017199999999917281
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.7729168,
+          "end_unix": 1792438671.773088,
+          "gpu_event_ms_per_call": 0.015989333391189575,
+          "wall_seconds": 0.00017522397683933377,
+          "cpu_core_seconds": 0.00017499999999870397
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.7731147,
+          "end_unix": 1792438671.773281,
+          "gpu_event_ms_per_call": 0.015459555718633864,
+          "wall_seconds": 0.00017012900207191706,
+          "cpu_core_seconds": 0.00017000000000422233
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.015825778245925903,
+        "candidate-guarded-pairs": 0.01565511193540361,
+        "ablation-pairs-five": 0.015989333391189575,
+        "ablation-aos-five": 0.015459555718633864
+      },
+      "best_measured_arm": "ablation-aos-five"
+    },
+    {
+      "label": "text/layers/63/attention/v",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        512
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.0001809517864554162,
+          "max_absolute": 0.0009492192972588853
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.9271348,
+          "end_unix": 1792438671.9273508,
+          "gpu_event_ms_per_call": 0.017994667092959087,
+          "wall_seconds": 0.00022222200641408563,
+          "cpu_core_seconds": 0.0002179999999896154
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.9273877,
+          "end_unix": 1792438671.9275775,
+          "gpu_event_ms_per_call": 0.01773866679933336,
+          "wall_seconds": 0.00019464798970147967,
+          "cpu_core_seconds": 0.00019499999999794682
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.9276075,
+          "end_unix": 1792438671.9277916,
+          "gpu_event_ms_per_call": 0.01724799970785777,
+          "wall_seconds": 0.00018816604278981686,
+          "cpu_core_seconds": 0.0001880000000085147
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438671.9278262,
+          "end_unix": 1792438671.9280074,
+          "gpu_event_ms_per_call": 0.016913778252071805,
+          "wall_seconds": 0.00018531701061874628,
+          "cpu_core_seconds": 0.0001850000000018781
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.9280381,
+          "end_unix": 1792438671.9282155,
+          "gpu_event_ms_per_call": 0.016565332810084026,
+          "wall_seconds": 0.0001813200069591403,
+          "cpu_core_seconds": 0.00018099999999776628
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.9282424,
+          "end_unix": 1792438671.9284153,
+          "gpu_event_ms_per_call": 0.016113777955373127,
+          "wall_seconds": 0.00017673004185780883,
+          "cpu_core_seconds": 0.00017700000000075988
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.9284415,
+          "end_unix": 1792438671.9286222,
+          "gpu_event_ms_per_call": 0.017031111650996737,
+          "wall_seconds": 0.00018458801787346601,
+          "cpu_core_seconds": 0.00018499999999477268
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438671.9286487,
+          "end_unix": 1792438671.928829,
+          "gpu_event_ms_per_call": 0.016913778252071805,
+          "wall_seconds": 0.00018452102085575461,
+          "cpu_core_seconds": 0.0001850000000018781
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.9288583,
+          "end_unix": 1792438671.929037,
+          "gpu_event_ms_per_call": 0.016785777277416654,
+          "wall_seconds": 0.00018258101772516966,
+          "cpu_core_seconds": 0.0001829999999998222
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.9290638,
+          "end_unix": 1792438671.929242,
+          "gpu_event_ms_per_call": 0.016664889123704698,
+          "wall_seconds": 0.00018203898798674345,
+          "cpu_core_seconds": 0.00018199999999524152
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.9292681,
+          "end_unix": 1792438671.929445,
+          "gpu_event_ms_per_call": 0.016590222716331482,
+          "wall_seconds": 0.00018049299251288176,
+          "cpu_core_seconds": 0.00018099999999776628
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438671.9294713,
+          "end_unix": 1792438671.929649,
+          "gpu_event_ms_per_call": 0.016775111357371014,
+          "wall_seconds": 0.00018175598233938217,
+          "cpu_core_seconds": 0.00018199999999524152
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.016913778252071805,
+        "candidate-guarded-pairs": 0.017031111650996737,
+        "ablation-pairs-five": 0.016590222716331482,
+        "ablation-aos-five": 0.016775111357371014
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "text/layers/63/attention/v",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        512
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00019047913249915733,
+          "max_absolute": 0.0010747628674261378
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438672.0819356,
+          "end_unix": 1792438672.0821812,
+          "gpu_event_ms_per_call": 0.021361778179804485,
+          "wall_seconds": 0.0002524140290915966,
+          "cpu_core_seconds": 0.00024699999999455713
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438672.0822177,
+          "end_unix": 1792438672.082438,
+          "gpu_event_ms_per_call": 0.020984888076782227,
+          "wall_seconds": 0.0002250680117867887,
+          "cpu_core_seconds": 0.0002250000000003638
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438672.0824673,
+          "end_unix": 1792438672.0826874,
+          "gpu_event_ms_per_call": 0.02123733361562093,
+          "wall_seconds": 0.0002240319736301899,
+          "cpu_core_seconds": 0.0002250000000003638
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438672.082715,
+          "end_unix": 1792438672.0829318,
+          "gpu_event_ms_per_call": 0.02091733283466763,
+          "wall_seconds": 0.00022051396081224084,
+          "cpu_core_seconds": 0.00022099999999625197
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438672.0829635,
+          "end_unix": 1792438672.08318,
+          "gpu_event_ms_per_call": 0.02090311050415039,
+          "wall_seconds": 0.0002204229822382331,
+          "cpu_core_seconds": 0.00022099999999625197
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438672.0832071,
+          "end_unix": 1792438672.083417,
+          "gpu_event_ms_per_call": 0.020224000016848247,
+          "wall_seconds": 0.0002135110553354025,
+          "cpu_core_seconds": 0.00021300000000223918
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438672.0834434,
+          "end_unix": 1792438672.083653,
+          "gpu_event_ms_per_call": 0.020224000016848247,
+          "wall_seconds": 0.00021316501079127192,
+          "cpu_core_seconds": 0.00021300000000223918
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438672.0836794,
+          "end_unix": 1792438672.0838902,
+          "gpu_event_ms_per_call": 0.02030222283469306,
+          "wall_seconds": 0.0002145990147255361,
+          "cpu_core_seconds": 0.00021499999999718966
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438672.0839193,
+          "end_unix": 1792438672.084128,
+          "gpu_event_ms_per_call": 0.02010311186313629,
+          "wall_seconds": 0.00021254504099488258,
+          "cpu_core_seconds": 0.00021199999999055308
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438672.0841548,
+          "end_unix": 1792438672.0843656,
+          "gpu_event_ms_per_call": 0.02036622166633606,
+          "wall_seconds": 0.0002145000034943223,
+          "cpu_core_seconds": 0.00021499999999718966
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438672.0843923,
+          "end_unix": 1792438672.084606,
+          "gpu_event_ms_per_call": 0.020643555455737643,
+          "wall_seconds": 0.00021752697648480535,
+          "cpu_core_seconds": 0.00021699999999214015
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438672.0846329,
+          "end_unix": 1792438672.0848486,
+          "gpu_event_ms_per_call": 0.020842666427294414,
+          "wall_seconds": 0.00021985801868140697,
+          "cpu_core_seconds": 0.00022000000001298758
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.02030222283469306,
+        "candidate-guarded-pairs": 0.02036622166633606,
+        "ablation-pairs-five": 0.020643555455737643,
+        "ablation-aos-five": 0.02090311050415039
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "fused-mlp",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        8704,
+        8704
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00020710741785011922,
+          "max_absolute": 0.0004946267556067419
+        },
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.0002092781490906799,
+          "max_absolute": 0.00047781473332553226
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438672.9066808,
+          "end_unix": 1792438672.9079742,
+          "gpu_event_ms_per_call": 0.1375039948357476,
+          "wall_seconds": 0.0012995629804208875,
+          "cpu_core_seconds": 0.0012939999999943552
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438672.9080124,
+          "end_unix": 1792438672.9092324,
+          "gpu_event_ms_per_call": 0.1320142216152615,
+          "wall_seconds": 0.0012248880229890347,
+          "cpu_core_seconds": 0.0012260000000026139
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438672.9092631,
+          "end_unix": 1792438672.9104762,
+          "gpu_event_ms_per_call": 0.1314702166451348,
+          "wall_seconds": 0.0012172480346634984,
+          "cpu_core_seconds": 0.0012179999999943902
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438672.9105055,
+          "end_unix": 1792438672.9117277,
+          "gpu_event_ms_per_call": 0.13257955180274117,
+          "wall_seconds": 0.0012263190001249313,
+          "cpu_core_seconds": 0.0012270000000000891
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438672.9117596,
+          "end_unix": 1792438672.9129815,
+          "gpu_event_ms_per_call": 0.13249777423010933,
+          "wall_seconds": 0.001225875981617719,
+          "cpu_core_seconds": 0.0012260000000026139
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438672.9130104,
+          "end_unix": 1792438672.9142125,
+          "gpu_event_ms_per_call": 0.1303466690911187,
+          "wall_seconds": 0.0012063119793310761,
+          "cpu_core_seconds": 0.0012070000000008463
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438672.9142425,
+          "end_unix": 1792438672.915452,
+          "gpu_event_ms_per_call": 0.13107555442386204,
+          "wall_seconds": 0.0012132789706811309,
+          "cpu_core_seconds": 0.0012140000000044893
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438672.9154801,
+          "end_unix": 1792438672.9167333,
+          "gpu_event_ms_per_call": 0.1360035604900784,
+          "wall_seconds": 0.0012572170235216618,
+          "cpu_core_seconds": 0.0012579999999999814
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438672.9167628,
+          "end_unix": 1792438672.9180143,
+          "gpu_event_ms_per_call": 0.13583289252387154,
+          "wall_seconds": 0.0012564160278998315,
+          "cpu_core_seconds": 0.0012569999999954007
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438672.9180431,
+          "end_unix": 1792438672.9192502,
+          "gpu_event_ms_per_call": 0.13076978259616429,
+          "wall_seconds": 0.0012121789623051882,
+          "cpu_core_seconds": 0.0012129999999999086
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438672.91928,
+          "end_unix": 1792438672.9206712,
+          "gpu_event_ms_per_call": 0.1300906605190701,
+          "wall_seconds": 0.0014032359467819333,
+          "cpu_core_seconds": 0.0014070000000003802
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438672.9207928,
+          "end_unix": 1792438672.922057,
+          "gpu_event_ms_per_call": 0.13451022571987575,
+          "wall_seconds": 0.001268360996618867,
+          "cpu_core_seconds": 0.0012690000000077362
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.1360035604900784,
+        "candidate-guarded-pairs": 0.13107555442386204,
+        "ablation-pairs-five": 0.1303466690911187,
+        "ablation-aos-five": 0.13257955180274117
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "fused-mlp",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        8704,
+        8704
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.0002163148966432391,
+          "max_absolute": 0.0004946267556067419
+        },
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00023313507020762217,
+          "max_absolute": 0.0006930104069953202
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438673.4443176,
+          "end_unix": 1792438673.445696,
+          "gpu_event_ms_per_call": 0.14690844217936197,
+          "wall_seconds": 0.0013844899949617684,
+          "cpu_core_seconds": 0.001379000000000019
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438673.4457347,
+          "end_unix": 1792438673.447033,
+          "gpu_event_ms_per_call": 0.1404871145884196,
+          "wall_seconds": 0.0013041920028626919,
+          "cpu_core_seconds": 0.0013039999999975294
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438673.4470663,
+          "end_unix": 1792438673.4483554,
+          "gpu_event_ms_per_call": 0.1398151053322686,
+          "wall_seconds": 0.0012934209662489593,
+          "cpu_core_seconds": 0.0012940000000014606
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438673.448385,
+          "end_unix": 1792438673.4496791,
+          "gpu_event_ms_per_call": 0.14049066437615287,
+          "wall_seconds": 0.0012980609899386764,
+          "cpu_core_seconds": 0.001297999999998467
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438673.4497108,
+          "end_unix": 1792438673.451013,
+          "gpu_event_ms_per_call": 0.1414968834982978,
+          "wall_seconds": 0.0013062580255791545,
+          "cpu_core_seconds": 0.0013059999999995853
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438673.451042,
+          "end_unix": 1792438673.4523199,
+          "gpu_event_ms_per_call": 0.13874488406711155,
+          "wall_seconds": 0.0012818420073017478,
+          "cpu_core_seconds": 0.0012819999999962306
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438673.4523478,
+          "end_unix": 1792438673.453634,
+          "gpu_event_ms_per_call": 0.13962666193644205,
+          "wall_seconds": 0.0012906269985251129,
+          "cpu_core_seconds": 0.001290999999994824
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438673.4536624,
+          "end_unix": 1792438673.4549987,
+          "gpu_event_ms_per_call": 0.1452088885837131,
+          "wall_seconds": 0.001340190996415913,
+          "cpu_core_seconds": 0.001340999999996484
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438673.4550288,
+          "end_unix": 1792438673.4563658,
+          "gpu_event_ms_per_call": 0.14525511529710558,
+          "wall_seconds": 0.0013406990328803658,
+          "cpu_core_seconds": 0.001340999999996484
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438673.456394,
+          "end_unix": 1792438673.457676,
+          "gpu_event_ms_per_call": 0.13926400078667533,
+          "wall_seconds": 0.001285929000005126,
+          "cpu_core_seconds": 0.0012860000000003424
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438673.4577034,
+          "end_unix": 1792438673.458982,
+          "gpu_event_ms_per_call": 0.1388444503148397,
+          "wall_seconds": 0.0012823700089938939,
+          "cpu_core_seconds": 0.0012830000000008113
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438673.4590096,
+          "end_unix": 1792438673.4603071,
+          "gpu_event_ms_per_call": 0.1409813298119439,
+          "wall_seconds": 0.001301781041547656,
+          "cpu_core_seconds": 0.0013030000000000541
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.14525511529710558,
+        "candidate-guarded-pairs": 0.13962666193644205,
+        "ablation-pairs-five": 0.1388444503148397,
+        "ablation-aos-five": 0.1409813298119439
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "fused-mlp",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        8704,
+        8704
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00020327303050853818,
+          "max_absolute": 0.00042970565130140415
+        },
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.0002162629091772083,
+          "max_absolute": 0.0004751601399997085
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438673.976192,
+          "end_unix": 1792438673.978262,
+          "gpu_event_ms_per_call": 0.22372266981336805,
+          "wall_seconds": 0.0020770609844475985,
+          "cpu_core_seconds": 0.002072000000005403
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438673.978302,
+          "end_unix": 1792438673.9803524,
+          "gpu_event_ms_per_call": 0.22403200467427573,
+          "wall_seconds": 0.0020569789921864867,
+          "cpu_core_seconds": 0.002057999999998117
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438673.9803886,
+          "end_unix": 1792438673.9824386,
+          "gpu_event_ms_per_call": 0.22425243589613172,
+          "wall_seconds": 0.002054335956927389,
+          "cpu_core_seconds": 0.002055000000005691
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438673.9824698,
+          "end_unix": 1792438673.9845097,
+          "gpu_event_ms_per_call": 0.22315732638041177,
+          "wall_seconds": 0.002043896005488932,
+          "cpu_core_seconds": 0.0020449999999954116
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438673.9845424,
+          "end_unix": 1792438673.986579,
+          "gpu_event_ms_per_call": 0.22291554345024955,
+          "wall_seconds": 0.002040338993538171,
+          "cpu_core_seconds": 0.00204000000000093
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438673.986609,
+          "end_unix": 1792438673.988645,
+          "gpu_event_ms_per_call": 0.2229013442993164,
+          "wall_seconds": 0.002040396968368441,
+          "cpu_core_seconds": 0.002040999999998405
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438673.9886742,
+          "end_unix": 1792438673.9907115,
+          "gpu_event_ms_per_call": 0.2231715520222982,
+          "wall_seconds": 0.0020415240433067083,
+          "cpu_core_seconds": 0.0020419999999958804
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438673.9907398,
+          "end_unix": 1792438673.992766,
+          "gpu_event_ms_per_call": 0.22189511193169487,
+          "wall_seconds": 0.0020300530013628304,
+          "cpu_core_seconds": 0.002029999999997756
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438673.9927957,
+          "end_unix": 1792438673.9948263,
+          "gpu_event_ms_per_call": 0.22193777561187744,
+          "wall_seconds": 0.00203461799537763,
+          "cpu_core_seconds": 0.002034999999999343
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438673.994855,
+          "end_unix": 1792438673.9968908,
+          "gpu_event_ms_per_call": 0.2230186727311876,
+          "wall_seconds": 0.0020400490029715,
+          "cpu_core_seconds": 0.00204000000000093
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438673.99692,
+          "end_unix": 1792438673.9989612,
+          "gpu_event_ms_per_call": 0.22349156273735893,
+          "wall_seconds": 0.0020449120202101767,
+          "cpu_core_seconds": 0.002045000000002517
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438673.9989898,
+          "end_unix": 1792438674.0010216,
+          "gpu_event_ms_per_call": 0.22253865665859646,
+          "wall_seconds": 0.002036876045167446,
+          "cpu_core_seconds": 0.002037000000001399
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.22193777561187744,
+        "candidate-guarded-pairs": 0.2231715520222982,
+        "ablation-pairs-five": 0.22349156273735893,
+        "ablation-aos-five": 0.22291554345024955
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "fused-gdn",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        5120,
+        3072
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            158,
+            164,
+            196,
+            525,
+            608,
+            746,
+            825,
+            1196,
+            1248,
+            1263,
+            1576,
+            1827,
+            2007,
+            2068,
+            2507,
+            2683,
+            2750,
+            2770,
+            2854,
+            2955,
+            3455,
+            3530,
+            3587,
+            3782,
+            3905,
+            4573,
+            4624,
+            4826,
+            5119
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.0002145028253247882,
+          "max_absolute": 0.000955297970874458
+        },
+        {
+          "rows": [
+            0,
+            7,
+            196,
+            224,
+            383,
+            515,
+            702,
+            746,
+            833,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            1501,
+            1549,
+            1552,
+            1632,
+            1746,
+            1754,
+            1827,
+            1931,
+            2068,
+            2074,
+            2506,
+            2507,
+            2600,
+            2683,
+            2758,
+            2854,
+            2873,
+            3071
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00019576639100541625,
+          "max_absolute": 0.0008331754841659489
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438674.4777968,
+          "end_unix": 1792438674.4785342,
+          "gpu_event_ms_per_call": 0.07545244693756104,
+          "wall_seconds": 0.0007431539706885815,
+          "cpu_core_seconds": 0.0007389999999958263
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438674.4785721,
+          "end_unix": 1792438674.4792438,
+          "gpu_event_ms_per_call": 0.0711359977722168,
+          "wall_seconds": 0.0006766700535081327,
+          "cpu_core_seconds": 0.0006770000000031473
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438674.4792752,
+          "end_unix": 1792438674.4799418,
+          "gpu_event_ms_per_call": 0.07052089108361138,
+          "wall_seconds": 0.0006708889850415289,
+          "cpu_core_seconds": 0.0006709999999969796
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438674.4799714,
+          "end_unix": 1792438674.4806342,
+          "gpu_event_ms_per_call": 0.0703715549574958,
+          "wall_seconds": 0.0006667899433523417,
+          "cpu_core_seconds": 0.0006669999999999732
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438674.4806652,
+          "end_unix": 1792438674.481329,
+          "gpu_event_ms_per_call": 0.07041777504814996,
+          "wall_seconds": 0.0006691049784421921,
+          "cpu_core_seconds": 0.0006690000000020291
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438674.481358,
+          "end_unix": 1792438674.4820125,
+          "gpu_event_ms_per_call": 0.06928710805045234,
+          "wall_seconds": 0.0006591790006496012,
+          "cpu_core_seconds": 0.000658999999998855
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438674.4820411,
+          "end_unix": 1792438674.4827003,
+          "gpu_event_ms_per_call": 0.07004800107744005,
+          "wall_seconds": 0.0006627819966524839,
+          "cpu_core_seconds": 0.0006629999999958613
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438674.482727,
+          "end_unix": 1792438674.4834273,
+          "gpu_event_ms_per_call": 0.07451022333568996,
+          "wall_seconds": 0.0007039330084808171,
+          "cpu_core_seconds": 0.0007039999999989277
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438674.4834573,
+          "end_unix": 1792438674.4841526,
+          "gpu_event_ms_per_call": 0.07403377691904704,
+          "wall_seconds": 0.000699517026077956,
+          "cpu_core_seconds": 0.0007000000000019213
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438674.4841805,
+          "end_unix": 1792438674.4848363,
+          "gpu_event_ms_per_call": 0.06955022282070583,
+          "wall_seconds": 0.0006597689935006201,
+          "cpu_core_seconds": 0.0006599999999963302
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438674.484864,
+          "end_unix": 1792438674.4855213,
+          "gpu_event_ms_per_call": 0.06989866495132446,
+          "wall_seconds": 0.0006613819859921932,
+          "cpu_core_seconds": 0.0006619999999983861
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438674.4855485,
+          "end_unix": 1792438674.4862094,
+          "gpu_event_ms_per_call": 0.07026133272382948,
+          "wall_seconds": 0.0006645289831794798,
+          "cpu_core_seconds": 0.0006649999999979173
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.07451022333568996,
+        "candidate-guarded-pairs": 0.07004800107744005,
+        "ablation-pairs-five": 0.06989866495132446,
+        "ablation-aos-five": 0.0703715549574958
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "fused-gdn",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        5120,
+        3072
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            158,
+            164,
+            196,
+            525,
+            608,
+            746,
+            825,
+            1196,
+            1248,
+            1263,
+            1576,
+            1827,
+            2007,
+            2068,
+            2507,
+            2683,
+            2750,
+            2770,
+            2854,
+            2955,
+            3455,
+            3530,
+            3587,
+            3782,
+            3905,
+            4573,
+            4624,
+            4826,
+            5119
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00022305983082344363,
+          "max_absolute": 0.000955297970874458
+        },
+        {
+          "rows": [
+            0,
+            7,
+            196,
+            224,
+            383,
+            515,
+            702,
+            746,
+            833,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            1501,
+            1549,
+            1552,
+            1632,
+            1746,
+            1754,
+            1827,
+            1931,
+            2068,
+            2074,
+            2506,
+            2507,
+            2600,
+            2683,
+            2758,
+            2854,
+            2873,
+            3071
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00021392401747904693,
+          "max_absolute": 0.0008636666469827858
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438674.7670405,
+          "end_unix": 1792438674.7678256,
+          "gpu_event_ms_per_call": 0.08089244365692139,
+          "wall_seconds": 0.0007916520116850734,
+          "cpu_core_seconds": 0.0007869999999954302
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438674.767865,
+          "end_unix": 1792438674.768576,
+          "gpu_event_ms_per_call": 0.07539555761549208,
+          "wall_seconds": 0.0007160109817050397,
+          "cpu_core_seconds": 0.0007159999999970523
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438674.768606,
+          "end_unix": 1792438674.7693095,
+          "gpu_event_ms_per_call": 0.07490133576922947,
+          "wall_seconds": 0.0007074699969962239,
+          "cpu_core_seconds": 0.0007079999999959341
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438674.7693381,
+          "end_unix": 1792438674.770045,
+          "gpu_event_ms_per_call": 0.07524622148937649,
+          "wall_seconds": 0.0007107449928298593,
+          "cpu_core_seconds": 0.0007110000000025707
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438674.770077,
+          "end_unix": 1792438674.7707858,
+          "gpu_event_ms_per_call": 0.07551999886830647,
+          "wall_seconds": 0.000712636043317616,
+          "cpu_core_seconds": 0.0007140000000021018
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438674.7708175,
+          "end_unix": 1792438674.7715135,
+          "gpu_event_ms_per_call": 0.07411555449167888,
+          "wall_seconds": 0.000699743046425283,
+          "cpu_core_seconds": 0.0007009999999993966
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438674.7715406,
+          "end_unix": 1792438674.7722406,
+          "gpu_event_ms_per_call": 0.07449244128333198,
+          "wall_seconds": 0.00070377899101004,
+          "cpu_core_seconds": 0.0007649999999941315
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438674.7722688,
+          "end_unix": 1792438674.7730143,
+          "gpu_event_ms_per_call": 0.07958400249481201,
+          "wall_seconds": 0.0007494789897464216,
+          "cpu_core_seconds": 0.0007499999999964757
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438674.773043,
+          "end_unix": 1792438674.7737858,
+          "gpu_event_ms_per_call": 0.07943822277916802,
+          "wall_seconds": 0.0007467720424756408,
+          "cpu_core_seconds": 0.00074700000000405
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438674.773818,
+          "end_unix": 1792438674.774517,
+          "gpu_event_ms_per_call": 0.07446044683456421,
+          "wall_seconds": 0.0007026909734122455,
+          "cpu_core_seconds": 0.0007030000000014525
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438674.7745438,
+          "end_unix": 1792438674.7752433,
+          "gpu_event_ms_per_call": 0.07454933060540093,
+          "wall_seconds": 0.0007031389977782965,
+          "cpu_core_seconds": 0.0007039999999989277
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438674.7752705,
+          "end_unix": 1792438674.7759726,
+          "gpu_event_ms_per_call": 0.07489422294828627,
+          "wall_seconds": 0.0007061350042931736,
+          "cpu_core_seconds": 0.0007059999999938782
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.07958400249481201,
+        "candidate-guarded-pairs": 0.07449244128333198,
+        "ablation-pairs-five": 0.07454933060540093,
+        "ablation-aos-five": 0.07524622148937649
+      },
+      "best_measured_arm": "candidate-guarded-pairs"
+    },
+    {
+      "label": "fused-gdn",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        5120,
+        3072
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            158,
+            164,
+            196,
+            525,
+            608,
+            746,
+            825,
+            1196,
+            1248,
+            1263,
+            1576,
+            1827,
+            2007,
+            2068,
+            2507,
+            2683,
+            2750,
+            2770,
+            2854,
+            2955,
+            3455,
+            3530,
+            3587,
+            3782,
+            3905,
+            4573,
+            4624,
+            4826,
+            5119
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.000233698803567058,
+          "max_absolute": 0.000955297970874458
+        },
+        {
+          "rows": [
+            0,
+            7,
+            196,
+            224,
+            383,
+            515,
+            702,
+            746,
+            833,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            1501,
+            1549,
+            1552,
+            1632,
+            1746,
+            1754,
+            1827,
+            1931,
+            2068,
+            2074,
+            2506,
+            2507,
+            2600,
+            2683,
+            2758,
+            2854,
+            2873,
+            3071
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00023789456430815304,
+          "max_absolute": 0.0009522470561096341
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438675.0635707,
+          "end_unix": 1792438675.0647135,
+          "gpu_event_ms_per_call": 0.12067200077904595,
+          "wall_seconds": 0.0011501699918881059,
+          "cpu_core_seconds": 0.0011460000000056425
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438675.0647545,
+          "end_unix": 1792438675.065863,
+          "gpu_event_ms_per_call": 0.11949155065748426,
+          "wall_seconds": 0.001113339967560023,
+          "cpu_core_seconds": 0.0011139999999940642
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438675.0658944,
+          "end_unix": 1792438675.0669932,
+          "gpu_event_ms_per_call": 0.11862044864230686,
+          "wall_seconds": 0.0011029750457964838,
+          "cpu_core_seconds": 0.0011030000000005202
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438675.0670233,
+          "end_unix": 1792438675.0681205,
+          "gpu_event_ms_per_call": 0.1185635593202379,
+          "wall_seconds": 0.0011012179893441498,
+          "cpu_core_seconds": 0.0011019999999959396
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438675.0681524,
+          "end_unix": 1792438675.0692582,
+          "gpu_event_ms_per_call": 0.11944177415635851,
+          "wall_seconds": 0.0011100590345449746,
+          "cpu_core_seconds": 0.0011099999999970578
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438675.069289,
+          "end_unix": 1792438675.0703824,
+          "gpu_event_ms_per_call": 0.11811910735236274,
+          "wall_seconds": 0.0010974849574267864,
+          "cpu_core_seconds": 0.0010979999999989332
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438675.070411,
+          "end_unix": 1792438675.071527,
+          "gpu_event_ms_per_call": 0.12065777513715956,
+          "wall_seconds": 0.0011204250040464103,
+          "cpu_core_seconds": 0.0011220000000022878
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438675.0715609,
+          "end_unix": 1792438675.0726695,
+          "gpu_event_ms_per_call": 0.11979377269744873,
+          "wall_seconds": 0.0011128729674965143,
+          "cpu_core_seconds": 0.0011859999999970228
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438675.0727007,
+          "end_unix": 1792438675.073796,
+          "gpu_event_ms_per_call": 0.11848889456854926,
+          "wall_seconds": 0.0010993560426868498,
+          "cpu_core_seconds": 0.001100000000000989
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438675.0738304,
+          "end_unix": 1792438675.0749245,
+          "gpu_event_ms_per_call": 0.11832533942328559,
+          "wall_seconds": 0.0010980480001308024,
+          "cpu_core_seconds": 0.0010989999999964084
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438675.0749533,
+          "end_unix": 1792438675.076047,
+          "gpu_event_ms_per_call": 0.11823999881744385,
+          "wall_seconds": 0.0010976219782605767,
+          "cpu_core_seconds": 0.0010979999999989332
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438675.0760756,
+          "end_unix": 1792438675.077175,
+          "gpu_event_ms_per_call": 0.11891199482811822,
+          "wall_seconds": 0.001103290996979922,
+          "cpu_core_seconds": 0.001104000000005101
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.11979377269744873,
+        "candidate-guarded-pairs": 0.11949155065748426,
+        "ablation-pairs-five": 0.11823999881744385,
+        "ablation-aos-five": 0.11891199482811822
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "fused-attention",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        6144,
+        512,
+        512
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            224,
+            383,
+            515,
+            746,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            2068,
+            2506,
+            2507,
+            2873,
+            3268,
+            3774,
+            3905,
+            4573,
+            4621,
+            4624,
+            4704,
+            4818,
+            4826,
+            4899,
+            5003,
+            5146,
+            5672,
+            5755,
+            5830,
+            5926,
+            6143
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00021936284441410132,
+          "max_absolute": 0.0017189849121947987
+        },
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.000185063091158506,
+          "max_absolute": 0.000791253992458163
+        },
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00018976403714456456,
+          "max_absolute": 0.0009376148266220241
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438675.4938931,
+          "end_unix": 1792438675.4945314,
+          "gpu_event_ms_per_call": 0.06470755736033122,
+          "wall_seconds": 0.0006445369799621403,
+          "cpu_core_seconds": 0.0006389999999996121
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438675.49457,
+          "end_unix": 1792438675.49518,
+          "gpu_event_ms_per_call": 0.06402489211824205,
+          "wall_seconds": 0.0006155770388431847,
+          "cpu_core_seconds": 0.0006170000000054188
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438675.4952183,
+          "end_unix": 1792438675.49585,
+          "gpu_event_ms_per_call": 0.06660266717274983,
+          "wall_seconds": 0.0006358310347422957,
+          "cpu_core_seconds": 0.0006369999999975562
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438675.4958794,
+          "end_unix": 1792438675.4965045,
+          "gpu_event_ms_per_call": 0.06616177823808458,
+          "wall_seconds": 0.0006288349977694452,
+          "cpu_core_seconds": 0.0006290000000035434
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438675.4965355,
+          "end_unix": 1792438675.4971547,
+          "gpu_event_ms_per_call": 0.06554666492674086,
+          "wall_seconds": 0.0006230430444702506,
+          "cpu_core_seconds": 0.0006229999999902702
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438675.4971836,
+          "end_unix": 1792438675.497791,
+          "gpu_event_ms_per_call": 0.06427733103434245,
+          "wall_seconds": 0.0006113130366429687,
+          "cpu_core_seconds": 0.0006119999999967263
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438675.4978237,
+          "end_unix": 1792438675.4984243,
+          "gpu_event_ms_per_call": 0.06352711386150783,
+          "wall_seconds": 0.0006041789893060923,
+          "cpu_core_seconds": 0.0006040000000027135
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438675.4984515,
+          "end_unix": 1792438675.4990475,
+          "gpu_event_ms_per_call": 0.06310400035646227,
+          "wall_seconds": 0.0006000950234010816,
+          "cpu_core_seconds": 0.0006010000000031823
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438675.499077,
+          "end_unix": 1792438675.4996734,
+          "gpu_event_ms_per_call": 0.0630577802658081,
+          "wall_seconds": 0.0005999580025672913,
+          "cpu_core_seconds": 0.0005999999999986017
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438675.4997,
+          "end_unix": 1792438675.5002947,
+          "gpu_event_ms_per_call": 0.06290844413969252,
+          "wall_seconds": 0.0005988999619148672,
+          "cpu_core_seconds": 0.0005990000000011264
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438675.5003223,
+          "end_unix": 1792438675.5009303,
+          "gpu_event_ms_per_call": 0.06438755326800877,
+          "wall_seconds": 0.000611855008173734,
+          "cpu_core_seconds": 0.0006119999999967263
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438675.5009573,
+          "end_unix": 1792438675.501572,
+          "gpu_event_ms_per_call": 0.06516622172461616,
+          "wall_seconds": 0.0006182559882290661,
+          "cpu_core_seconds": 0.0006190000000003693
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.06310400035646227,
+        "candidate-guarded-pairs": 0.06352711386150783,
+        "ablation-pairs-five": 0.06438755326800877,
+        "ablation-aos-five": 0.06554666492674086
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "fused-attention",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        6144,
+        512,
+        512
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            224,
+            383,
+            515,
+            746,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            2068,
+            2506,
+            2507,
+            2873,
+            3268,
+            3774,
+            3905,
+            4573,
+            4621,
+            4624,
+            4704,
+            4818,
+            4826,
+            4899,
+            5003,
+            5146,
+            5672,
+            5755,
+            5830,
+            5926,
+            6143
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00022350319585888153,
+          "max_absolute": 0.0017189849121947987
+        },
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00020307746812600331,
+          "max_absolute": 0.0008249489386029651
+        },
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.0002068760997089012,
+          "max_absolute": 0.0009376148266220241
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438675.7744381,
+          "end_unix": 1792438675.7751172,
+          "gpu_event_ms_per_call": 0.06938666767544216,
+          "wall_seconds": 0.0006851849611848593,
+          "cpu_core_seconds": 0.0006799999999884676
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438675.7751555,
+          "end_unix": 1792438675.7758143,
+          "gpu_event_ms_per_call": 0.06896711058086819,
+          "wall_seconds": 0.0006639020284637809,
+          "cpu_core_seconds": 0.000664000000000442
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438675.7758455,
+          "end_unix": 1792438675.7764955,
+          "gpu_event_ms_per_call": 0.06872533427344428,
+          "wall_seconds": 0.0006539970054291189,
+          "cpu_core_seconds": 0.0006549999999947431
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438675.776524,
+          "end_unix": 1792438675.7771838,
+          "gpu_event_ms_per_call": 0.07005155748791164,
+          "wall_seconds": 0.0006638949853368104,
+          "cpu_core_seconds": 0.000664000000000442
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438675.7772157,
+          "end_unix": 1792438675.7778792,
+          "gpu_event_ms_per_call": 0.07051022185219659,
+          "wall_seconds": 0.0006674120086245239,
+          "cpu_core_seconds": 0.0006669999999999732
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438675.7779071,
+          "end_unix": 1792438675.778541,
+          "gpu_event_ms_per_call": 0.06725688775380452,
+          "wall_seconds": 0.0006376410019584,
+          "cpu_core_seconds": 0.0006390000000067175
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438675.778568,
+          "end_unix": 1792438675.7792075,
+          "gpu_event_ms_per_call": 0.06782578097449408,
+          "wall_seconds": 0.0006439019925892353,
+          "cpu_core_seconds": 0.0006440000000083046
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438675.7792418,
+          "end_unix": 1792438675.7798884,
+          "gpu_event_ms_per_call": 0.06847288873460558,
+          "wall_seconds": 0.000651160953566432,
+          "cpu_core_seconds": 0.0006510000000048421
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438675.779919,
+          "end_unix": 1792438675.7805564,
+          "gpu_event_ms_per_call": 0.06770488950941297,
+          "wall_seconds": 0.0006414300296455622,
+          "cpu_core_seconds": 0.000641000000001668
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438675.7805834,
+          "end_unix": 1792438675.7812207,
+          "gpu_event_ms_per_call": 0.06760888629489475,
+          "wall_seconds": 0.0006416830001398921,
+          "cpu_core_seconds": 0.0006419999999991433
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438675.7812533,
+          "end_unix": 1792438675.781893,
+          "gpu_event_ms_per_call": 0.06763022475772434,
+          "wall_seconds": 0.0006440000142902136,
+          "cpu_core_seconds": 0.0006450000000057798
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438675.7819226,
+          "end_unix": 1792438675.7825809,
+          "gpu_event_ms_per_call": 0.06993777884377374,
+          "wall_seconds": 0.000662115984596312,
+          "cpu_core_seconds": 0.0006630000000029668
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.06847288873460558,
+        "candidate-guarded-pairs": 0.06782578097449408,
+        "ablation-pairs-five": 0.06763022475772434,
+        "ablation-aos-five": 0.07005155748791164
+      },
+      "best_measured_arm": "ablation-pairs-five"
+    },
+    {
+      "label": "fused-attention",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        6144,
+        512,
+        512
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            224,
+            383,
+            515,
+            746,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            2068,
+            2506,
+            2507,
+            2873,
+            3268,
+            3774,
+            3905,
+            4573,
+            4621,
+            4624,
+            4704,
+            4818,
+            4826,
+            4899,
+            5003,
+            5146,
+            5672,
+            5755,
+            5830,
+            5926,
+            6143
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00022484317873531083,
+          "max_absolute": 0.0017189849121947987
+        },
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00020344401439199974,
+          "max_absolute": 0.000791253992458163
+        },
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00022776741853823768,
+          "max_absolute": 0.0009376148266220241
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438676.0570192,
+          "end_unix": 1792438676.0580168,
+          "gpu_event_ms_per_call": 0.10462577475441827,
+          "wall_seconds": 0.0010037280153483152,
+          "cpu_core_seconds": 0.000998000000002719
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438676.0580559,
+          "end_unix": 1792438676.0590348,
+          "gpu_event_ms_per_call": 0.1051022211710612,
+          "wall_seconds": 0.000983830017503351,
+          "cpu_core_seconds": 0.0009840000000025384
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438676.0590663,
+          "end_unix": 1792438676.0600429,
+          "gpu_event_ms_per_call": 0.10502400000890096,
+          "wall_seconds": 0.0009805290028452873,
+          "cpu_core_seconds": 0.0009810000000030072
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792438676.060073,
+          "end_unix": 1792438676.0610383,
+          "gpu_event_ms_per_call": 0.10378666718800862,
+          "wall_seconds": 0.0009701690287329257,
+          "cpu_core_seconds": 0.0009709999999998331
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438676.0610788,
+          "end_unix": 1792438676.062048,
+          "gpu_event_ms_per_call": 0.10416355397966173,
+          "wall_seconds": 0.0009735780186019838,
+          "cpu_core_seconds": 0.0009739999999993643
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438676.062078,
+          "end_unix": 1792438676.0630424,
+          "gpu_event_ms_per_call": 0.10390044583214654,
+          "wall_seconds": 0.0009682480012997985,
+          "cpu_core_seconds": 0.000968000000000302
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438676.0630703,
+          "end_unix": 1792438676.0640395,
+          "gpu_event_ms_per_call": 0.1044515570004781,
+          "wall_seconds": 0.0009729629964567721,
+          "cpu_core_seconds": 0.000973000000001889
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792438676.064067,
+          "end_unix": 1792438676.0650282,
+          "gpu_event_ms_per_call": 0.10365155670377943,
+          "wall_seconds": 0.0009650090360082686,
+          "cpu_core_seconds": 0.0009650000000007708
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438676.065057,
+          "end_unix": 1792438676.0660162,
+          "gpu_event_ms_per_call": 0.10336711009343465,
+          "wall_seconds": 0.0009640390053391457,
+          "cpu_core_seconds": 0.0009640000000032956
+        },
+        {
+          "arm": "candidate-guarded-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438676.0660458,
+          "end_unix": 1792438676.067011,
+          "gpu_event_ms_per_call": 0.10398222340477838,
+          "wall_seconds": 0.0009691239683888853,
+          "cpu_core_seconds": 0.0009700000000023579
+        },
+        {
+          "arm": "ablation-pairs-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438676.0670393,
+          "end_unix": 1792438676.068002,
+          "gpu_event_ms_per_call": 0.10377244154612224,
+          "wall_seconds": 0.0009667290141806006,
+          "cpu_core_seconds": 0.0009670000000028267
+        },
+        {
+          "arm": "ablation-aos-five",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792438676.06803,
+          "end_unix": 1792438676.068991,
+          "gpu_event_ms_per_call": 0.10360888640085857,
+          "wall_seconds": 0.0009648220147937536,
+          "cpu_core_seconds": 0.0009650000000007708
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.10365155670377943,
+        "candidate-guarded-pairs": 0.1044515570004781,
+        "ablation-pairs-five": 0.10390044583214654,
+        "ablation-aos-five": 0.10378666718800862
+      },
+      "best_measured_arm": "control-aos"
+    }
+  ],
+  "completed": true,
+  "full_model_quality_qualified": false,
+  "achieved_hardware_counters": null
+}

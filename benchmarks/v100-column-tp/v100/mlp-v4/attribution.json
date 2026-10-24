@@ -1,0 +1,309 @@
+{
+  "scope": "Attribute graph-node MLP operator work; no model, TPS or achieved counters.",
+  "achieved_hardware_counters": false,
+  "operators": [
+    {
+      "name": "column_tp/t1/row",
+      "host_span_nanoseconds": 3882933,
+      "kernels": 108,
+      "kernel_nanoseconds": 4463778,
+      "activity_span_nanoseconds": 3799027,
+      "activity_union_nanoseconds": 2968851,
+      "gaps_between_this_process_activities_nanoseconds": 830176,
+      "transfers": {
+        "host_to_device": {
+          "count": 60,
+          "bytes": 1019904,
+          "nanoseconds": 307360
+        },
+        "device_to_host": {
+          "count": 48,
+          "bytes": 1019904,
+          "nanoseconds": 148832
+        }
+      },
+      "kernel_by_name": [
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 24,
+          "nanoseconds": 2739201
+        },
+        {
+          "name": "void vdq::dot<(int)1, (int)2>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 24,
+          "nanoseconds": 1517664
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 48,
+          "nanoseconds": 165311
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+          "count": 12,
+          "nanoseconds": 41602
+        }
+      ],
+      "graph_nodes_actually_attributed": 108,
+      "per_device_kernel_union_nanoseconds": {
+        "0": 2263693,
+        "1": 2200085
+      }
+    },
+    {
+      "name": "column_tp/t1/column",
+      "host_span_nanoseconds": 3118956,
+      "kernels": 132,
+      "kernel_nanoseconds": 4485695,
+      "activity_span_nanoseconds": 3061072,
+      "activity_union_nanoseconds": 2616719,
+      "gaps_between_this_process_activities_nanoseconds": 444353,
+      "transfers": {
+        "host_to_device": {
+          "count": 24,
+          "bytes": 368640,
+          "nanoseconds": 110976
+        },
+        "device_to_host": {
+          "count": 24,
+          "bytes": 368640,
+          "nanoseconds": 72000
+        }
+      },
+      "kernel_by_name": [
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 24,
+          "nanoseconds": 2728289
+        },
+        {
+          "name": "void vct::partial<(int)1, (int)4, (bool)0>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 24,
+          "nanoseconds": 1490078
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 48,
+          "nanoseconds": 158560
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+          "count": 24,
+          "nanoseconds": 73376
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "count": 12,
+          "nanoseconds": 35392
+        }
+      ],
+      "graph_nodes_actually_attributed": 132,
+      "per_device_kernel_union_nanoseconds": {
+        "0": 2266347,
+        "1": 2219348
+      }
+    },
+    {
+      "name": "column_tp/t3/row",
+      "host_span_nanoseconds": 4776494,
+      "kernels": 108,
+      "kernel_nanoseconds": 5321170,
+      "activity_span_nanoseconds": 4715128,
+      "activity_union_nanoseconds": 3810497,
+      "gaps_between_this_process_activities_nanoseconds": 904631,
+      "transfers": {
+        "host_to_device": {
+          "count": 60,
+          "bytes": 3059712,
+          "nanoseconds": 575903
+        },
+        "device_to_host": {
+          "count": 48,
+          "bytes": 3059712,
+          "nanoseconds": 293440
+        }
+      },
+      "kernel_by_name": [
+        {
+          "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 24,
+          "nanoseconds": 3337271
+        },
+        {
+          "name": "void vdt::dot<(int)4, (int)2, (int)8>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 24,
+          "nanoseconds": 1764188
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 48,
+          "nanoseconds": 174591
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+          "count": 12,
+          "nanoseconds": 45120
+        }
+      ],
+      "graph_nodes_actually_attributed": 108,
+      "per_device_kernel_union_nanoseconds": {
+        "0": 2684288,
+        "1": 2636882
+      }
+    },
+    {
+      "name": "column_tp/t3/column",
+      "host_span_nanoseconds": 3827148,
+      "kernels": 132,
+      "kernel_nanoseconds": 5528576,
+      "activity_span_nanoseconds": 3769235,
+      "activity_union_nanoseconds": 3260431,
+      "gaps_between_this_process_activities_nanoseconds": 508804,
+      "transfers": {
+        "host_to_device": {
+          "count": 24,
+          "bytes": 1105920,
+          "nanoseconds": 202784
+        },
+        "device_to_host": {
+          "count": 24,
+          "bytes": 1105920,
+          "nanoseconds": 112897
+        }
+      },
+      "kernel_by_name": [
+        {
+          "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 24,
+          "nanoseconds": 3330945
+        },
+        {
+          "name": "void vct::partial<(int)4, (int)8, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 24,
+          "nanoseconds": 1903712
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 48,
+          "nanoseconds": 178270
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+          "count": 24,
+          "nanoseconds": 78753
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "count": 12,
+          "nanoseconds": 36896
+        }
+      ],
+      "graph_nodes_actually_attributed": 132,
+      "per_device_kernel_union_nanoseconds": {
+        "0": 2789389,
+        "1": 2739187
+      }
+    },
+    {
+      "name": "column_tp/t8/row",
+      "host_span_nanoseconds": 8051844,
+      "kernels": 108,
+      "kernel_nanoseconds": 8966402,
+      "activity_span_nanoseconds": 7984329,
+      "activity_union_nanoseconds": 6867937,
+      "gaps_between_this_process_activities_nanoseconds": 1116392,
+      "transfers": {
+        "host_to_device": {
+          "count": 60,
+          "bytes": 8159232,
+          "nanoseconds": 1227362
+        },
+        "device_to_host": {
+          "count": 48,
+          "bytes": 8159232,
+          "nanoseconds": 815934
+        }
+      },
+      "kernel_by_name": [
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 24,
+          "nanoseconds": 5836864
+        },
+        {
+          "name": "void vdt::dot<(int)8, (int)2, (int)16>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 24,
+          "nanoseconds": 2812738
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 48,
+          "nanoseconds": 261280
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+          "count": 12,
+          "nanoseconds": 55520
+        }
+      ],
+      "graph_nodes_actually_attributed": 108,
+      "per_device_kernel_union_nanoseconds": {
+        "0": 4509464,
+        "1": 4456938
+      }
+    },
+    {
+      "name": "column_tp/t8/column",
+      "host_span_nanoseconds": 6135567,
+      "kernels": 132,
+      "kernel_nanoseconds": 9220099,
+      "activity_span_nanoseconds": 6073023,
+      "activity_union_nanoseconds": 5537107,
+      "gaps_between_this_process_activities_nanoseconds": 535916,
+      "transfers": {
+        "host_to_device": {
+          "count": 24,
+          "bytes": 2949120,
+          "nanoseconds": 441633
+        },
+        "device_to_host": {
+          "count": 24,
+          "bytes": 2949120,
+          "nanoseconds": 269792
+        }
+      },
+      "kernel_by_name": [
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 24,
+          "nanoseconds": 5825794
+        },
+        {
+          "name": "void vct::partial<(int)8, (int)16, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 24,
+          "nanoseconds": 3064000
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 48,
+          "nanoseconds": 205793
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+          "count": 24,
+          "nanoseconds": 87616
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "count": 12,
+          "nanoseconds": 36896
+        }
+      ],
+      "graph_nodes_actually_attributed": 132,
+      "per_device_kernel_union_nanoseconds": {
+        "0": 4620760,
+        "1": 4599339
+      }
+    }
+  ]
+}

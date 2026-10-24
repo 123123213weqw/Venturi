@@ -1,0 +1,3482 @@
+{
+  "scope": "Bounded SM70 projection experiment, not full-model/serving performance.\n\nReads the production GGUF Q8_0 bytes without dequantizing/requantizing weights.\nAll arms share encoded GPU weight/activation planes and explicit FP16/F32\noutputs. The production service remains running. No default kernel dispatch is\nchanged. CUDA-graph microbenchmarks are separate from eager counter profiling.\n",
+  "utc": "2026-10-21T13:50:28.214798+00:00",
+  "args": {
+    "gguf": "/home/wzu/models/Qwen3.8-27B-Uncensored-GGUF/Qwen3.8-27B-Uncensored-Q8_0.gguf",
+    "library": "/home/data/wangyue/artifacts/venturi-q8-prefetch-v1/libprefetch_probe.so",
+    "qualified_library": "/home/data/wangyue/artifacts/venturi-native-head-gdn-fixtures-v2/build/68769d5f68c715ef/libventuri_blocks.so",
+    "output_directory": "/home/data/wangyue/artifacts/venturi-q8-prefetch-v1/screen",
+    "tokens": "8,23,32",
+    "repeats": 5,
+    "profile_case": null,
+    "profile_arm": "qualified"
+  },
+  "profiled": false,
+  "cases": [
+    {
+      "name": "mlp-fused",
+      "tokens": 8,
+      "k": 5120,
+      "rows": [
+        8704,
+        8704
+      ],
+      "partial_fp32": false,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        0.00021078860071196452,
+        0.00017739741022213034
+      ],
+      "additional_allocated_bytes": 95987712,
+      "additional_reserved_bytes": 115343360,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608313.993143398,
+          "end_monotonic": 608314.017288901,
+          "gpu_event_ms_per_call": 0.24062175750732423,
+          "wall_seconds": 0.02415577508509159,
+          "process_cpu_seconds": 0.024154296999999936
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608314.017358133,
+          "end_monotonic": 608314.041415447,
+          "gpu_event_ms_per_call": 0.24024320602416993,
+          "wall_seconds": 0.02406375703867525,
+          "process_cpu_seconds": 0.02406371299999943
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608314.041455355,
+          "end_monotonic": 608314.064178981,
+          "gpu_event_ms_per_call": 0.22695232391357423,
+          "wall_seconds": 0.02272903104312718,
+          "process_cpu_seconds": 0.022793715999999797
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608314.064214246,
+          "end_monotonic": 608314.095426473,
+          "gpu_event_ms_per_call": 0.3117587280273437,
+          "wall_seconds": 0.031227260013110936,
+          "process_cpu_seconds": 0.03202097199999976
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608314.097071484,
+          "end_monotonic": 608314.128267059,
+          "gpu_event_ms_per_call": 0.3114118385314941,
+          "wall_seconds": 0.031206045066937804,
+          "process_cpu_seconds": 0.03170229499999966
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608314.128326577,
+          "end_monotonic": 608314.150638736,
+          "gpu_event_ms_per_call": 0.22274080276489258,
+          "wall_seconds": 0.02232151397038251,
+          "process_cpu_seconds": 0.022381446999999888
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608314.15072834,
+          "end_monotonic": 608314.172790903,
+          "gpu_event_ms_per_call": 0.22027360916137695,
+          "wall_seconds": 0.022071555024012923,
+          "process_cpu_seconds": 0.022071831999999958
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608314.17285374,
+          "end_monotonic": 608314.194911446,
+          "gpu_event_ms_per_call": 0.22022176742553712,
+          "wall_seconds": 0.022064169985242188,
+          "process_cpu_seconds": 0.022064418000000252
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608314.19669396,
+          "end_monotonic": 608314.21875787,
+          "gpu_event_ms_per_call": 0.22023775100708007,
+          "wall_seconds": 0.022070146980695426,
+          "process_cpu_seconds": 0.022069668999999514
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608314.218800339,
+          "end_monotonic": 608314.240545538,
+          "gpu_event_ms_per_call": 0.21716543197631835,
+          "wall_seconds": 0.02175062196329236,
+          "process_cpu_seconds": 0.02174467800000013
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608314.240580394,
+          "end_monotonic": 608314.262471269,
+          "gpu_event_ms_per_call": 0.21863840103149415,
+          "wall_seconds": 0.021895318990573287,
+          "process_cpu_seconds": 0.021956711999999712
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608314.262501669,
+          "end_monotonic": 608314.293132558,
+          "gpu_event_ms_per_call": 0.30600992202758787,
+          "wall_seconds": 0.0306392980273813,
+          "process_cpu_seconds": 0.03063954000000013
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608314.294090041,
+          "end_monotonic": 608314.324783481,
+          "gpu_event_ms_per_call": 0.3065488052368164,
+          "wall_seconds": 0.03070058603771031,
+          "process_cpu_seconds": 0.03147422099999986
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608314.324835295,
+          "end_monotonic": 608314.346785507,
+          "gpu_event_ms_per_call": 0.21918495178222655,
+          "wall_seconds": 0.0219578230753541,
+          "process_cpu_seconds": 0.021957888000000203
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608314.346830962,
+          "end_monotonic": 608314.36845525,
+          "gpu_event_ms_per_call": 0.21593791961669923,
+          "wall_seconds": 0.021631494048051536,
+          "process_cpu_seconds": 0.02170468300000028
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608314.368499434,
+          "end_monotonic": 608314.39024278,
+          "gpu_event_ms_per_call": 0.21712127685546875,
+          "wall_seconds": 0.021753463079221547,
+          "process_cpu_seconds": 0.022243484000000535
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608314.391673306,
+          "end_monotonic": 608314.413465431,
+          "gpu_event_ms_per_call": 0.2175116729736328,
+          "wall_seconds": 0.021798033034428954,
+          "process_cpu_seconds": 0.02179766700000041
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608314.413506762,
+          "end_monotonic": 608314.435227306,
+          "gpu_event_ms_per_call": 0.21692319869995116,
+          "wall_seconds": 0.021726069040596485,
+          "process_cpu_seconds": 0.021702055000000442
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608314.43526509,
+          "end_monotonic": 608314.457164625,
+          "gpu_event_ms_per_call": 0.21872159957885742,
+          "wall_seconds": 0.021903862012550235,
+          "process_cpu_seconds": 0.021964805999999726
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608314.457194953,
+          "end_monotonic": 608314.487802303,
+          "gpu_event_ms_per_call": 0.30581695556640626,
+          "wall_seconds": 0.030612802016548812,
+          "process_cpu_seconds": 0.030612775000000703
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.22022176742553712,
+        "probe-control": 0.21716543197631835,
+        "early": 0.21918495178222655,
+        "ahead": 0.3065488052368164
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 1.0140737658908443,
+        "early": 1.004730323112422,
+        "ahead": 0.7183905585781373
+      }
+    },
+    {
+      "name": "mlp-fused",
+      "tokens": 23,
+      "k": 5120,
+      "rows": [
+        8704,
+        8704
+      ],
+      "partial_fp32": false,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        0.00021446555956701463,
+        0.00019893691121846996
+      ],
+      "additional_allocated_bytes": 98403328,
+      "additional_reserved_bytes": 119537664,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608314.960347425,
+          "end_monotonic": 608315.021119917,
+          "gpu_event_ms_per_call": 0.607108154296875,
+          "wall_seconds": 0.060785431996919215,
+          "process_cpu_seconds": 0.06078373600000031
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608315.021196263,
+          "end_monotonic": 608315.081871646,
+          "gpu_event_ms_per_call": 0.6063584136962891,
+          "wall_seconds": 0.060686687938869,
+          "process_cpu_seconds": 0.06150732799999936
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608315.081940439,
+          "end_monotonic": 608315.142922006,
+          "gpu_event_ms_per_call": 0.6094553756713867,
+          "wall_seconds": 0.06098868604749441,
+          "process_cpu_seconds": 0.06145343900000011
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608315.14296828,
+          "end_monotonic": 608315.227561287,
+          "gpu_event_ms_per_call": 0.8456329345703125,
+          "wall_seconds": 0.0846016239374876,
+          "process_cpu_seconds": 0.08464968299999942
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608315.229087333,
+          "end_monotonic": 608315.313793778,
+          "gpu_event_ms_per_call": 0.8466194915771484,
+          "wall_seconds": 0.08471808605827391,
+          "process_cpu_seconds": 0.08555892700000012
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608315.313862794,
+          "end_monotonic": 608315.37484763,
+          "gpu_event_ms_per_call": 0.6094611358642578,
+          "wall_seconds": 0.06099319504573941,
+          "process_cpu_seconds": 0.06154079100000054
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608315.374905043,
+          "end_monotonic": 608315.43556857,
+          "gpu_event_ms_per_call": 0.6062732696533203,
+          "wall_seconds": 0.0606725289253518,
+          "process_cpu_seconds": 0.06067249100000005
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608315.435631843,
+          "end_monotonic": 608315.496283749,
+          "gpu_event_ms_per_call": 0.6061686325073242,
+          "wall_seconds": 0.060659103910438716,
+          "process_cpu_seconds": 0.060719553000000204
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608315.497522035,
+          "end_monotonic": 608315.558202709,
+          "gpu_event_ms_per_call": 0.6063651275634766,
+          "wall_seconds": 0.06069287797436118,
+          "process_cpu_seconds": 0.061599641000000815
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608315.558275854,
+          "end_monotonic": 608315.618943617,
+          "gpu_event_ms_per_call": 0.606305923461914,
+          "wall_seconds": 0.060675053973682225,
+          "process_cpu_seconds": 0.0611735410000005
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608315.618992159,
+          "end_monotonic": 608315.679988914,
+          "gpu_event_ms_per_call": 0.6096368026733399,
+          "wall_seconds": 0.061002376955002546,
+          "process_cpu_seconds": 0.061092095000000235
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608315.680030057,
+          "end_monotonic": 608315.76458582,
+          "gpu_event_ms_per_call": 0.8452210998535157,
+          "wall_seconds": 0.08456735103391111,
+          "process_cpu_seconds": 0.0849749390000003
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608315.766632975,
+          "end_monotonic": 608315.851297361,
+          "gpu_event_ms_per_call": 0.8459740447998046,
+          "wall_seconds": 0.08467762102372944,
+          "process_cpu_seconds": 0.08516599000000014
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608315.851388315,
+          "end_monotonic": 608315.912431299,
+          "gpu_event_ms_per_call": 0.6097241592407227,
+          "wall_seconds": 0.06107386597432196,
+          "process_cpu_seconds": 0.061161594999999735
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608315.912632538,
+          "end_monotonic": 608315.973382919,
+          "gpu_event_ms_per_call": 0.6068348693847656,
+          "wall_seconds": 0.06076725199818611,
+          "process_cpu_seconds": 0.060824840000000435
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608315.973480132,
+          "end_monotonic": 608316.034517347,
+          "gpu_event_ms_per_call": 0.6099331283569336,
+          "wall_seconds": 0.0610480890609324,
+          "process_cpu_seconds": 0.06229767199999969
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608316.036133681,
+          "end_monotonic": 608316.09682522,
+          "gpu_event_ms_per_call": 0.6064886474609374,
+          "wall_seconds": 0.06069936905987561,
+          "process_cpu_seconds": 0.06077021800000004
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608316.096874628,
+          "end_monotonic": 608316.157495242,
+          "gpu_event_ms_per_call": 0.605885124206543,
+          "wall_seconds": 0.06062708201352507,
+          "process_cpu_seconds": 0.060696327000000494
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608316.157538433,
+          "end_monotonic": 608316.218509498,
+          "gpu_event_ms_per_call": 0.6093945693969727,
+          "wall_seconds": 0.060978668043389916,
+          "process_cpu_seconds": 0.06097821499999956
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608316.218558836,
+          "end_monotonic": 608316.303093508,
+          "gpu_event_ms_per_call": 0.8449932861328125,
+          "wall_seconds": 0.08454449591226876,
+          "process_cpu_seconds": 0.08591317600000004
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.6064886474609374,
+        "probe-control": 0.606305923461914,
+        "early": 0.6094611358642578,
+        "ahead": 0.8456329345703125
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 1.0003013726106782,
+        "early": 0.9951227597160808,
+        "ahead": 0.7172008358083991
+      }
+    },
+    {
+      "name": "mlp-fused",
+      "tokens": 32,
+      "k": 5120,
+      "rows": [
+        8704,
+        8704
+      ],
+      "partial_fp32": false,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        0.00021529937943820388,
+        0.00021556114863964125
+      ],
+      "additional_allocated_bytes": 99852288,
+      "additional_reserved_bytes": 121634816,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608316.906070521,
+          "end_monotonic": 608316.988898156,
+          "gpu_event_ms_per_call": 0.8275714874267578,
+          "wall_seconds": 0.0828468450345099,
+          "process_cpu_seconds": 0.08373075799999974
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608316.989010911,
+          "end_monotonic": 608317.071788361,
+          "gpu_event_ms_per_call": 0.8273085021972656,
+          "wall_seconds": 0.082786780083552,
+          "process_cpu_seconds": 0.08332227699999972
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608317.071851892,
+          "end_monotonic": 608317.154847914,
+          "gpu_event_ms_per_call": 0.829642562866211,
+          "wall_seconds": 0.0830027989577502,
+          "process_cpu_seconds": 0.08306223099999954
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608317.154894847,
+          "end_monotonic": 608317.269311504,
+          "gpu_event_ms_per_call": 1.1438230133056642,
+          "wall_seconds": 0.11442661809269339,
+          "process_cpu_seconds": 0.11571426900000059
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608317.270910268,
+          "end_monotonic": 608317.385164879,
+          "gpu_event_ms_per_call": 1.1420995330810546,
+          "wall_seconds": 0.11426333605777472,
+          "process_cpu_seconds": 0.11432386900000058
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608317.385225694,
+          "end_monotonic": 608317.468247206,
+          "gpu_event_ms_per_call": 0.8298585510253906,
+          "wall_seconds": 0.08303220092784613,
+          "process_cpu_seconds": 0.08394565099999962
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608317.468318622,
+          "end_monotonic": 608317.551027252,
+          "gpu_event_ms_per_call": 0.8267504119873047,
+          "wall_seconds": 0.08271605905611068,
+          "process_cpu_seconds": 0.0831204019999987
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608317.551078497,
+          "end_monotonic": 608317.63403609,
+          "gpu_event_ms_per_call": 0.8292691040039063,
+          "wall_seconds": 0.08296459401026368,
+          "process_cpu_seconds": 0.08301736800000015
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608317.635495927,
+          "end_monotonic": 608317.718309907,
+          "gpu_event_ms_per_call": 0.8277069091796875,
+          "wall_seconds": 0.08282532007433474,
+          "process_cpu_seconds": 0.08408567000000033
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608317.718383884,
+          "end_monotonic": 608317.801089678,
+          "gpu_event_ms_per_call": 0.8266502380371094,
+          "wall_seconds": 0.08271832694299519,
+          "process_cpu_seconds": 0.08277773900000085
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608317.801167018,
+          "end_monotonic": 608317.884154866,
+          "gpu_event_ms_per_call": 0.8294873809814454,
+          "wall_seconds": 0.08299399993848056,
+          "process_cpu_seconds": 0.08305473500000105
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608317.884200158,
+          "end_monotonic": 608317.998878721,
+          "gpu_event_ms_per_call": 1.146398391723633,
+          "wall_seconds": 0.11469213501550257,
+          "process_cpu_seconds": 0.1159980229999995
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608318.000156801,
+          "end_monotonic": 608318.114649581,
+          "gpu_event_ms_per_call": 1.1444771575927735,
+          "wall_seconds": 0.1145014320500195,
+          "process_cpu_seconds": 0.11456372399999992
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608318.114710915,
+          "end_monotonic": 608318.197749921,
+          "gpu_event_ms_per_call": 0.8300093078613281,
+          "wall_seconds": 0.08304853993467987,
+          "process_cpu_seconds": 0.08432925600000019
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608318.19781746,
+          "end_monotonic": 608318.280548523,
+          "gpu_event_ms_per_call": 0.826957778930664,
+          "wall_seconds": 0.08273899799678475,
+          "process_cpu_seconds": 0.08280118099999889
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608318.280603491,
+          "end_monotonic": 608318.363896116,
+          "gpu_event_ms_per_call": 0.8325965118408203,
+          "wall_seconds": 0.08329970098566264,
+          "process_cpu_seconds": 0.08335844100000145
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608318.36534729,
+          "end_monotonic": 608318.448079023,
+          "gpu_event_ms_per_call": 0.8268166351318359,
+          "wall_seconds": 0.08274204807821661,
+          "process_cpu_seconds": 0.08398790999999939
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608318.448158118,
+          "end_monotonic": 608318.53091947,
+          "gpu_event_ms_per_call": 0.827208023071289,
+          "wall_seconds": 0.08277245110366493,
+          "process_cpu_seconds": 0.08282529299999908
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608318.530990571,
+          "end_monotonic": 608318.614025871,
+          "gpu_event_ms_per_call": 0.8299520111083984,
+          "wall_seconds": 0.0830441799480468,
+          "process_cpu_seconds": 0.08371566499999972
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608318.614086803,
+          "end_monotonic": 608318.728726896,
+          "gpu_event_ms_per_call": 1.146044464111328,
+          "wall_seconds": 0.11464945692569017,
+          "process_cpu_seconds": 0.11526585699999892
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.8277069091796875,
+        "probe-control": 0.826957778930664,
+        "early": 0.8298585510253906,
+        "ahead": 1.1444771575927735
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 1.0009058869365641,
+        "early": 0.9974072185638811,
+        "ahead": 0.723218374161908
+      }
+    },
+    {
+      "name": "mlp-down",
+      "tokens": 8,
+      "k": 8704,
+      "rows": [
+        5120
+      ],
+      "partial_fp32": true,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        9.794967013625411e-08
+      ],
+      "additional_allocated_bytes": 48301056,
+      "additional_reserved_bytes": 69206016,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608319.696712856,
+          "end_monotonic": 608319.708114962,
+          "gpu_event_ms_per_call": 0.11356863975524903,
+          "wall_seconds": 0.011410823091864586,
+          "process_cpu_seconds": 0.01140962300000048
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608319.708161685,
+          "end_monotonic": 608319.719540361,
+          "gpu_event_ms_per_call": 0.1135318374633789,
+          "wall_seconds": 0.011386062949895859,
+          "process_cpu_seconds": 0.011386191999999795
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608319.719574861,
+          "end_monotonic": 608319.731043552,
+          "gpu_event_ms_per_call": 0.11443679809570312,
+          "wall_seconds": 0.011474129976704717,
+          "process_cpu_seconds": 0.011474325000000007
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608319.731077552,
+          "end_monotonic": 608319.745757913,
+          "gpu_event_ms_per_call": 0.14655327796936035,
+          "wall_seconds": 0.014684421010315418,
+          "process_cpu_seconds": 0.014684565999999677
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608319.747313352,
+          "end_monotonic": 608319.762098718,
+          "gpu_event_ms_per_call": 0.14724127769470216,
+          "wall_seconds": 0.014801494078710675,
+          "process_cpu_seconds": 0.01485884799999937
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608319.762184416,
+          "end_monotonic": 608319.773670406,
+          "gpu_event_ms_per_call": 0.11448224067687988,
+          "wall_seconds": 0.011491960030980408,
+          "process_cpu_seconds": 0.011492239000000737
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608319.773709977,
+          "end_monotonic": 608319.785067351,
+          "gpu_event_ms_per_call": 0.11329536437988282,
+          "wall_seconds": 0.011362774996086955,
+          "process_cpu_seconds": 0.011363134999999858
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608319.785103038,
+          "end_monotonic": 608319.796422672,
+          "gpu_event_ms_per_call": 0.11292032241821288,
+          "wall_seconds": 0.011325813014991581,
+          "process_cpu_seconds": 0.012109928999999298
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608319.797999249,
+          "end_monotonic": 608319.809366272,
+          "gpu_event_ms_per_call": 0.11305312156677245,
+          "wall_seconds": 0.01137573504820466,
+          "process_cpu_seconds": 0.011366430000000705
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608319.809416349,
+          "end_monotonic": 608319.820747826,
+          "gpu_event_ms_per_call": 0.11300543785095214,
+          "wall_seconds": 0.011338902986608446,
+          "process_cpu_seconds": 0.011828442999998856
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608319.820797106,
+          "end_monotonic": 608319.832240355,
+          "gpu_event_ms_per_call": 0.11417311668395996,
+          "wall_seconds": 0.011448147939518094,
+          "process_cpu_seconds": 0.011448320000001289
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608319.832273896,
+          "end_monotonic": 608319.846901112,
+          "gpu_event_ms_per_call": 0.1460211181640625,
+          "wall_seconds": 0.014631409081630409,
+          "process_cpu_seconds": 0.014631492999999551
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608319.848502124,
+          "end_monotonic": 608319.8631944,
+          "gpu_event_ms_per_call": 0.14650079727172852,
+          "wall_seconds": 0.014698825078085065,
+          "process_cpu_seconds": 0.014786864999999594
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608319.863235721,
+          "end_monotonic": 608319.874688651,
+          "gpu_event_ms_per_call": 0.11421567916870118,
+          "wall_seconds": 0.011461006011813879,
+          "process_cpu_seconds": 0.011461410000000782
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608319.874742167,
+          "end_monotonic": 608319.886052125,
+          "gpu_event_ms_per_call": 0.11279040336608886,
+          "wall_seconds": 0.01131573598831892,
+          "process_cpu_seconds": 0.011315968999999981
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608319.886094021,
+          "end_monotonic": 608319.897430864,
+          "gpu_event_ms_per_call": 0.11308223724365235,
+          "wall_seconds": 0.011343820951879025,
+          "process_cpu_seconds": 0.011344155999999828
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608319.898703163,
+          "end_monotonic": 608319.910033174,
+          "gpu_event_ms_per_call": 0.11292448043823242,
+          "wall_seconds": 0.01133553497493267,
+          "process_cpu_seconds": 0.011335203999999877
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608319.910071206,
+          "end_monotonic": 608319.921314457,
+          "gpu_event_ms_per_call": 0.11216799736022949,
+          "wall_seconds": 0.011247485992498696,
+          "process_cpu_seconds": 0.01124753400000067
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608319.921344794,
+          "end_monotonic": 608319.932797526,
+          "gpu_event_ms_per_call": 0.11426624298095703,
+          "wall_seconds": 0.011457744054496288,
+          "process_cpu_seconds": 0.011457886000000528
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608319.93282885,
+          "end_monotonic": 608319.947493594,
+          "gpu_event_ms_per_call": 0.14638175964355468,
+          "wall_seconds": 0.014670555014163256,
+          "process_cpu_seconds": 0.014670747000000262
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.11305312156677245,
+        "probe-control": 0.11300543785095214,
+        "early": 0.11426624298095703,
+        "ahead": 0.14650079727172852
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 1.0004219594802437,
+        "early": 0.989383378830555,
+        "ahead": 0.7716894629391158
+      }
+    },
+    {
+      "name": "mlp-down",
+      "tokens": 23,
+      "k": 8704,
+      "rows": [
+        5120
+      ],
+      "partial_fp32": true,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        9.840256838860942e-08
+      ],
+      "additional_allocated_bytes": 50084864,
+      "additional_reserved_bytes": 71303168,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608320.302410006,
+          "end_monotonic": 608320.334459095,
+          "gpu_event_ms_per_call": 0.3199299240112305,
+          "wall_seconds": 0.03206153295468539,
+          "process_cpu_seconds": 0.032456575999999515
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608320.334531511,
+          "end_monotonic": 608320.366295353,
+          "gpu_event_ms_per_call": 0.31729856491088865,
+          "wall_seconds": 0.031772621092386544,
+          "process_cpu_seconds": 0.03183930299999993
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608320.366350622,
+          "end_monotonic": 608320.398339153,
+          "gpu_event_ms_per_call": 0.31956159591674804,
+          "wall_seconds": 0.031994975986890495,
+          "process_cpu_seconds": 0.031995034000001255
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608320.398383457,
+          "end_monotonic": 608320.442248659,
+          "gpu_event_ms_per_call": 0.43835742950439455,
+          "wall_seconds": 0.04387100599706173,
+          "process_cpu_seconds": 0.04387080000000054
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608320.44351877,
+          "end_monotonic": 608320.487438577,
+          "gpu_event_ms_per_call": 0.4387606430053711,
+          "wall_seconds": 0.04393247899133712,
+          "process_cpu_seconds": 0.04399111399999889
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608320.487513747,
+          "end_monotonic": 608320.519608484,
+          "gpu_event_ms_per_call": 0.3205078506469727,
+          "wall_seconds": 0.032104720012284815,
+          "process_cpu_seconds": 0.03285497699999951
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608320.519669359,
+          "end_monotonic": 608320.551711515,
+          "gpu_event_ms_per_call": 0.32008670806884765,
+          "wall_seconds": 0.03204989607911557,
+          "process_cpu_seconds": 0.0325040819999991
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608320.551761269,
+          "end_monotonic": 608320.583667463,
+          "gpu_event_ms_per_call": 0.3187513542175293,
+          "wall_seconds": 0.0319119340274483,
+          "process_cpu_seconds": 0.03198061299999999
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608320.584735726,
+          "end_monotonic": 608320.616585298,
+          "gpu_event_ms_per_call": 0.31811616897583006,
+          "wall_seconds": 0.031855617999099195,
+          "process_cpu_seconds": 0.031854720000000114
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608320.616625621,
+          "end_monotonic": 608320.64849809,
+          "gpu_event_ms_per_call": 0.3184454345703125,
+          "wall_seconds": 0.03187814599368721,
+          "process_cpu_seconds": 0.03187823599999895
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608320.648536357,
+          "end_monotonic": 608320.680416876,
+          "gpu_event_ms_per_call": 0.31852447509765625,
+          "wall_seconds": 0.031885606003925204,
+          "process_cpu_seconds": 0.03193647199999994
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608320.680450555,
+          "end_monotonic": 608320.724345703,
+          "gpu_event_ms_per_call": 0.4386934280395508,
+          "wall_seconds": 0.04390008596237749,
+          "process_cpu_seconds": 0.04389977399999978
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608320.725409643,
+          "end_monotonic": 608320.769400437,
+          "gpu_event_ms_per_call": 0.4394803237915039,
+          "wall_seconds": 0.04400156799238175,
+          "process_cpu_seconds": 0.044836845000000736
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608320.76946718,
+          "end_monotonic": 608320.801527786,
+          "gpu_event_ms_per_call": 0.32024063110351564,
+          "wall_seconds": 0.03206761402543634,
+          "process_cpu_seconds": 0.032442619000001116
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608320.801575259,
+          "end_monotonic": 608320.833294232,
+          "gpu_event_ms_per_call": 0.3169027137756348,
+          "wall_seconds": 0.031723219086416066,
+          "process_cpu_seconds": 0.0317230679999998
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608320.833327857,
+          "end_monotonic": 608320.865318977,
+          "gpu_event_ms_per_call": 0.3196358489990234,
+          "wall_seconds": 0.031998352031223476,
+          "process_cpu_seconds": 0.032065911000000114
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608320.867014415,
+          "end_monotonic": 608320.899288733,
+          "gpu_event_ms_per_call": 0.32216670989990237,
+          "wall_seconds": 0.032284258981235325,
+          "process_cpu_seconds": 0.032259849000000784
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608320.899349254,
+          "end_monotonic": 608320.931444598,
+          "gpu_event_ms_per_call": 0.3206159973144531,
+          "wall_seconds": 0.032102714059874415,
+          "process_cpu_seconds": 0.032102578000001714
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608320.93148873,
+          "end_monotonic": 608320.963586685,
+          "gpu_event_ms_per_call": 0.3206508636474609,
+          "wall_seconds": 0.032106076017953455,
+          "process_cpu_seconds": 0.03216844299999977
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608320.963636368,
+          "end_monotonic": 608321.007540529,
+          "gpu_event_ms_per_call": 0.43871360778808594,
+          "wall_seconds": 0.043910548905842006,
+          "process_cpu_seconds": 0.04473489300000111
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.3196358489990234,
+        "probe-control": 0.3184454345703125,
+        "early": 0.32024063110351564,
+        "ahead": 0.43871360778808594
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 1.003738205354764,
+        "early": 0.9981114760409752,
+        "ahead": 0.7285751873769521
+      }
+    },
+    {
+      "name": "mlp-down",
+      "tokens": 32,
+      "k": 8704,
+      "rows": [
+        5120
+      ],
+      "partial_fp32": true,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        1.0275604000696336e-07
+      ],
+      "additional_allocated_bytes": 51154944,
+      "additional_reserved_bytes": 73400320,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608321.423268135,
+          "end_monotonic": 608321.466284893,
+          "gpu_event_ms_per_call": 0.42964672088623046,
+          "wall_seconds": 0.04302702797576785,
+          "process_cpu_seconds": 0.04309397600000153
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608321.466338489,
+          "end_monotonic": 608321.509280583,
+          "gpu_event_ms_per_call": 0.42907329559326174,
+          "wall_seconds": 0.04295362497214228,
+          "process_cpu_seconds": 0.04416944399999956
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608321.509350313,
+          "end_monotonic": 608321.552429788,
+          "gpu_event_ms_per_call": 0.42986240386962893,
+          "wall_seconds": 0.043111194972880185,
+          "process_cpu_seconds": 0.043111204999998876
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608321.552672382,
+          "end_monotonic": 608321.611449192,
+          "gpu_event_ms_per_call": 0.5872147369384766,
+          "wall_seconds": 0.058783119078725576,
+          "process_cpu_seconds": 0.05890771299999997
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608321.613359541,
+          "end_monotonic": 608321.672106057,
+          "gpu_event_ms_per_call": 0.5870595169067383,
+          "wall_seconds": 0.05875393690075725,
+          "process_cpu_seconds": 0.058809316999999695
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608321.672155406,
+          "end_monotonic": 608321.715295092,
+          "gpu_event_ms_per_call": 0.4310745620727539,
+          "wall_seconds": 0.04314643901307136,
+          "process_cpu_seconds": 0.044467485000000195
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608321.7153567,
+          "end_monotonic": 608321.758092123,
+          "gpu_event_ms_per_call": 0.42702335357666016,
+          "wall_seconds": 0.04274227097630501,
+          "process_cpu_seconds": 0.043221334000000056
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608321.758144068,
+          "end_monotonic": 608321.800968701,
+          "gpu_event_ms_per_call": 0.42788894653320314,
+          "wall_seconds": 0.04283597506582737,
+          "process_cpu_seconds": 0.04287833499999927
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608321.802429118,
+          "end_monotonic": 608321.845195841,
+          "gpu_event_ms_per_call": 0.4272905731201172,
+          "wall_seconds": 0.04277180798817426,
+          "process_cpu_seconds": 0.04277078299999992
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608321.845231506,
+          "end_monotonic": 608321.887872975,
+          "gpu_event_ms_per_call": 0.4261289596557617,
+          "wall_seconds": 0.042648930917494,
+          "process_cpu_seconds": 0.04271849900000113
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608321.887920481,
+          "end_monotonic": 608321.931118082,
+          "gpu_event_ms_per_call": 0.42725921630859376,
+          "wall_seconds": 0.043214116944000125,
+          "process_cpu_seconds": 0.04348298700000086
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608321.931306209,
+          "end_monotonic": 608321.990069369,
+          "gpu_event_ms_per_call": 0.5871686553955078,
+          "wall_seconds": 0.05877612007316202,
+          "process_cpu_seconds": 0.059293376000001174
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608321.991569047,
+          "end_monotonic": 608322.050260216,
+          "gpu_event_ms_per_call": 0.5865177536010742,
+          "wall_seconds": 0.05869830003939569,
+          "process_cpu_seconds": 0.058697321999998664
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608322.050308062,
+          "end_monotonic": 608322.093416133,
+          "gpu_event_ms_per_call": 0.430775032043457,
+          "wall_seconds": 0.04311344004236162,
+          "process_cpu_seconds": 0.04318225100000106
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608322.093452201,
+          "end_monotonic": 608322.136281694,
+          "gpu_event_ms_per_call": 0.42717918395996096,
+          "wall_seconds": 0.0428864840650931,
+          "process_cpu_seconds": 0.04288651299999913
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608322.136724072,
+          "end_monotonic": 608322.179553598,
+          "gpu_event_ms_per_call": 0.4276259231567383,
+          "wall_seconds": 0.042837137007154524,
+          "process_cpu_seconds": 0.04505122900000025
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608322.181309288,
+          "end_monotonic": 608322.224022354,
+          "gpu_event_ms_per_call": 0.4267331314086914,
+          "wall_seconds": 0.04272052401211113,
+          "process_cpu_seconds": 0.04326039000000037
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608322.224077217,
+          "end_monotonic": 608322.266846702,
+          "gpu_event_ms_per_call": 0.4273891067504883,
+          "wall_seconds": 0.04277578089386225,
+          "process_cpu_seconds": 0.042833714000000356
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608322.26688963,
+          "end_monotonic": 608322.310044174,
+          "gpu_event_ms_per_call": 0.43121440887451173,
+          "wall_seconds": 0.0431646240176633,
+          "process_cpu_seconds": 0.04316462899999962
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608322.310105447,
+          "end_monotonic": 608322.368786299,
+          "gpu_event_ms_per_call": 0.586416015625,
+          "wall_seconds": 0.05869168404024094,
+          "process_cpu_seconds": 0.058758361999998954
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.4276259231567383,
+        "probe-control": 0.42717918395996096,
+        "early": 0.430775032043457,
+        "ahead": 0.5870595169067383
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 1.0010457887779927,
+        "early": 0.9926896671058665,
+        "ahead": 0.728420050849243
+      }
+    },
+    {
+      "name": "gdn-fused",
+      "tokens": 8,
+      "k": 5120,
+      "rows": [
+        5120,
+        3072
+      ],
+      "partial_fp32": false,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        0.00018304356148335748,
+        0.00023426663516964213
+      ],
+      "additional_allocated_bytes": 46311424,
+      "additional_reserved_bytes": 52428800,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608322.867093306,
+          "end_monotonic": 608322.878339443,
+          "gpu_event_ms_per_call": 0.11203104019165039,
+          "wall_seconds": 0.01125378196593374,
+          "process_cpu_seconds": 0.011252601999999001
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608322.878379428,
+          "end_monotonic": 608322.889570009,
+          "gpu_event_ms_per_call": 0.11165663719177246,
+          "wall_seconds": 0.011195849045179784,
+          "process_cpu_seconds": 0.011196101999999541
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608322.889602966,
+          "end_monotonic": 608322.900983743,
+          "gpu_event_ms_per_call": 0.11352160453796387,
+          "wall_seconds": 0.011387047008611262,
+          "process_cpu_seconds": 0.011387684000000675
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608322.901028402,
+          "end_monotonic": 608322.915639331,
+          "gpu_event_ms_per_call": 0.1457686424255371,
+          "wall_seconds": 0.014625041978433728,
+          "process_cpu_seconds": 0.014625757999999323
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608322.916878508,
+          "end_monotonic": 608322.931582253,
+          "gpu_event_ms_per_call": 0.14664352416992188,
+          "wall_seconds": 0.014709779992699623,
+          "process_cpu_seconds": 0.015475500000000864
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608322.931627586,
+          "end_monotonic": 608322.942971815,
+          "gpu_event_ms_per_call": 0.11315168380737305,
+          "wall_seconds": 0.011351499939337373,
+          "process_cpu_seconds": 0.01135184800000033
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608322.943027101,
+          "end_monotonic": 608322.954190941,
+          "gpu_event_ms_per_call": 0.11133695602416992,
+          "wall_seconds": 0.011169741046614945,
+          "process_cpu_seconds": 0.011251351000000298
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608322.954230311,
+          "end_monotonic": 608322.965413158,
+          "gpu_event_ms_per_call": 0.11152959823608398,
+          "wall_seconds": 0.011189109063707292,
+          "process_cpu_seconds": 0.011685674000000645
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608322.966786983,
+          "end_monotonic": 608322.977970527,
+          "gpu_event_ms_per_call": 0.1114732837677002,
+          "wall_seconds": 0.011188448988832533,
+          "process_cpu_seconds": 0.011187981000000846
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608322.978008856,
+          "end_monotonic": 608322.989178285,
+          "gpu_event_ms_per_call": 0.11144543647766113,
+          "wall_seconds": 0.01117354806046933,
+          "process_cpu_seconds": 0.011173580999999544
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608322.989207951,
+          "end_monotonic": 608323.000554383,
+          "gpu_event_ms_per_call": 0.11321696281433105,
+          "wall_seconds": 0.01135191903449595,
+          "process_cpu_seconds": 0.01135221799999897
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608323.000589924,
+          "end_monotonic": 608323.015160011,
+          "gpu_event_ms_per_call": 0.14543487548828124,
+          "wall_seconds": 0.01457544497679919,
+          "process_cpu_seconds": 0.014575534000000445
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608323.016251062,
+          "end_monotonic": 608323.030860768,
+          "gpu_event_ms_per_call": 0.1457478427886963,
+          "wall_seconds": 0.014614669955335557,
+          "process_cpu_seconds": 0.014614355999999162
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608323.030896177,
+          "end_monotonic": 608323.042252198,
+          "gpu_event_ms_per_call": 0.11330944061279297,
+          "wall_seconds": 0.011360327946022153,
+          "process_cpu_seconds": 0.01136040100000102
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608323.042281559,
+          "end_monotonic": 608323.053441667,
+          "gpu_event_ms_per_call": 0.11134719848632812,
+          "wall_seconds": 0.011165685020387173,
+          "process_cpu_seconds": 0.011165977000000993
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608323.05347894,
+          "end_monotonic": 608323.064658046,
+          "gpu_event_ms_per_call": 0.11152128219604492,
+          "wall_seconds": 0.011184314964339137,
+          "process_cpu_seconds": 0.011268176999999824
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608323.065758842,
+          "end_monotonic": 608323.076958072,
+          "gpu_event_ms_per_call": 0.1116419219970703,
+          "wall_seconds": 0.011204200913198292,
+          "process_cpu_seconds": 0.011203904000000264
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608323.076993529,
+          "end_monotonic": 608323.088160384,
+          "gpu_event_ms_per_call": 0.11137120246887207,
+          "wall_seconds": 0.011171868070960045,
+          "process_cpu_seconds": 0.01117210600000007
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608323.088195025,
+          "end_monotonic": 608323.099542467,
+          "gpu_event_ms_per_call": 0.11321920394897461,
+          "wall_seconds": 0.01135255501139909,
+          "process_cpu_seconds": 0.01135282299999929
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608323.099576398,
+          "end_monotonic": 608323.11419908,
+          "gpu_event_ms_per_call": 0.14596320152282716,
+          "wall_seconds": 0.014627940021455288,
+          "process_cpu_seconds": 0.014628115999999025
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.11152959823608398,
+        "probe-control": 0.11137120246887207,
+        "early": 0.11321920394897461,
+        "ahead": 0.1457686424255371
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 1.0014222327109756,
+        "early": 0.9850766861631345,
+        "ahead": 0.7651137883997003
+      }
+    },
+    {
+      "name": "gdn-fused",
+      "tokens": 23,
+      "k": 5120,
+      "rows": [
+        5120,
+        3072
+      ],
+      "partial_fp32": false,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        0.0002079535474978435,
+        0.00019905337895215758
+      ],
+      "additional_allocated_bytes": 47621120,
+      "additional_reserved_bytes": 52428800,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608323.434885368,
+          "end_monotonic": 608323.464404645,
+          "gpu_event_ms_per_call": 0.2945686340332031,
+          "wall_seconds": 0.029532713000662625,
+          "process_cpu_seconds": 0.029999991000000392
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608323.464471443,
+          "end_monotonic": 608323.493885545,
+          "gpu_event_ms_per_call": 0.2938083267211914,
+          "wall_seconds": 0.029421792016364634,
+          "process_cpu_seconds": 0.029480214999999532
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608323.493929823,
+          "end_monotonic": 608323.523695094,
+          "gpu_event_ms_per_call": 0.29728607177734373,
+          "wall_seconds": 0.02977933792863041,
+          "process_cpu_seconds": 0.029779716000000178
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608323.52377562,
+          "end_monotonic": 608323.5665456,
+          "gpu_event_ms_per_call": 0.42731136322021485,
+          "wall_seconds": 0.04277611197903752,
+          "process_cpu_seconds": 0.04286886600000095
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608323.568401116,
+          "end_monotonic": 608323.611358944,
+          "gpu_event_ms_per_call": 0.42839038848876954,
+          "wall_seconds": 0.042968159075826406,
+          "process_cpu_seconds": 0.04294492700000063
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608323.611415958,
+          "end_monotonic": 608323.641168772,
+          "gpu_event_ms_per_call": 0.297192325592041,
+          "wall_seconds": 0.029760478995740414,
+          "process_cpu_seconds": 0.029704117999999724
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608323.641215606,
+          "end_monotonic": 608323.670613513,
+          "gpu_event_ms_per_call": 0.29366943359375,
+          "wall_seconds": 0.02940489398315549,
+          "process_cpu_seconds": 0.030259958000000253
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608323.67066085,
+          "end_monotonic": 608323.70003041,
+          "gpu_event_ms_per_call": 0.2934048080444336,
+          "wall_seconds": 0.02937577897682786,
+          "process_cpu_seconds": 0.029815851000000393
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608323.701611439,
+          "end_monotonic": 608323.731055846,
+          "gpu_event_ms_per_call": 0.29393056869506834,
+          "wall_seconds": 0.029455726966261864,
+          "process_cpu_seconds": 0.029455071999999305
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608323.731129615,
+          "end_monotonic": 608323.760571902,
+          "gpu_event_ms_per_call": 0.2940271949768066,
+          "wall_seconds": 0.029449776047840714,
+          "process_cpu_seconds": 0.02944980300000033
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608323.760623579,
+          "end_monotonic": 608323.790357254,
+          "gpu_event_ms_per_call": 0.29699167251586917,
+          "wall_seconds": 0.029743738938122988,
+          "process_cpu_seconds": 0.02980527199999905
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608323.790420308,
+          "end_monotonic": 608323.83321241,
+          "gpu_event_ms_per_call": 0.42750049591064454,
+          "wall_seconds": 0.0428065110463649,
+          "process_cpu_seconds": 0.0428067470000002
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608323.834499028,
+          "end_monotonic": 608323.877306333,
+          "gpu_event_ms_per_call": 0.4276582336425781,
+          "wall_seconds": 0.042812850908376276,
+          "process_cpu_seconds": 0.04287401300000049
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608323.877345996,
+          "end_monotonic": 608323.907093379,
+          "gpu_event_ms_per_call": 0.297193603515625,
+          "wall_seconds": 0.02975258801598102,
+          "process_cpu_seconds": 0.03054091599999964
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608323.907134647,
+          "end_monotonic": 608323.936535231,
+          "gpu_event_ms_per_call": 0.2937145614624023,
+          "wall_seconds": 0.029407739988528192,
+          "process_cpu_seconds": 0.02982074899999887
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608323.936586556,
+          "end_monotonic": 608323.96597694,
+          "gpu_event_ms_per_call": 0.2936012840270996,
+          "wall_seconds": 0.02939558995421976,
+          "process_cpu_seconds": 0.02946047300000032
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608323.967706673,
+          "end_monotonic": 608323.997177182,
+          "gpu_event_ms_per_call": 0.2941548728942871,
+          "wall_seconds": 0.029478901997208595,
+          "process_cpu_seconds": 0.029477793999999946
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608323.997223712,
+          "end_monotonic": 608324.026622086,
+          "gpu_event_ms_per_call": 0.2937062454223633,
+          "wall_seconds": 0.029403914930298924,
+          "process_cpu_seconds": 0.02940383099999977
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608324.02666116,
+          "end_monotonic": 608324.056392678,
+          "gpu_event_ms_per_call": 0.2970515251159668,
+          "wall_seconds": 0.029736408963799477,
+          "process_cpu_seconds": 0.02973629399999922
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608324.05642758,
+          "end_monotonic": 608324.099126032,
+          "gpu_event_ms_per_call": 0.4267174530029297,
+          "wall_seconds": 0.04270292702130973,
+          "process_cpu_seconds": 0.042768291999999875
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.29393056869506834,
+        "probe-control": 0.2937145614624023,
+        "early": 0.297192325592041,
+        "ahead": 0.42750049591064454
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 1.0007354324947,
+        "early": 0.9890247606815725,
+        "ahead": 0.687556088254235
+      }
+    },
+    {
+      "name": "gdn-fused",
+      "tokens": 32,
+      "k": 5120,
+      "rows": [
+        5120,
+        3072
+      ],
+      "partial_fp32": false,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        0.0001968527847695934,
+        0.00020568472457005305
+      ],
+      "additional_allocated_bytes": 48406528,
+      "additional_reserved_bytes": 54525952,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608324.469755926,
+          "end_monotonic": 608324.509506785,
+          "gpu_event_ms_per_call": 0.39690113067626953,
+          "wall_seconds": 0.03976168797817081,
+          "process_cpu_seconds": 0.03976003799999894
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608324.509558957,
+          "end_monotonic": 608324.549221245,
+          "gpu_event_ms_per_call": 0.3962972640991211,
+          "wall_seconds": 0.039673586026765406,
+          "process_cpu_seconds": 0.0396736139999998
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608324.549286893,
+          "end_monotonic": 608324.589274468,
+          "gpu_event_ms_per_call": 0.39952640533447265,
+          "wall_seconds": 0.03999352001119405,
+          "process_cpu_seconds": 0.0400532620000007
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608324.589311805,
+          "end_monotonic": 608324.644028014,
+          "gpu_event_ms_per_call": 0.5468537521362304,
+          "wall_seconds": 0.05472657398786396,
+          "process_cpu_seconds": 0.055479024000000265
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608324.645497069,
+          "end_monotonic": 608324.700248224,
+          "gpu_event_ms_per_call": 0.5470972824096679,
+          "wall_seconds": 0.05475861800368875,
+          "process_cpu_seconds": 0.05525927400000086
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608324.7002977,
+          "end_monotonic": 608324.740246443,
+          "gpu_event_ms_per_call": 0.39915550231933594,
+          "wall_seconds": 0.0399575779447332,
+          "process_cpu_seconds": 0.03995769199999977
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608324.740304928,
+          "end_monotonic": 608324.779967212,
+          "gpu_event_ms_per_call": 0.39628097534179685,
+          "wall_seconds": 0.03966859192587435,
+          "process_cpu_seconds": 0.039734095000000025
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608324.780010014,
+          "end_monotonic": 608324.819633096,
+          "gpu_event_ms_per_call": 0.3959286499023438,
+          "wall_seconds": 0.03962923609651625,
+          "process_cpu_seconds": 0.039629101000000944
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608324.820942035,
+          "end_monotonic": 608324.860599814,
+          "gpu_event_ms_per_call": 0.39616928100585935,
+          "wall_seconds": 0.03966644103638828,
+          "process_cpu_seconds": 0.0396656809999989
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608324.86065577,
+          "end_monotonic": 608324.900299216,
+          "gpu_event_ms_per_call": 0.39609695434570313,
+          "wall_seconds": 0.03965110098943114,
+          "process_cpu_seconds": 0.04054697499999982
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608324.900351741,
+          "end_monotonic": 608324.940273469,
+          "gpu_event_ms_per_call": 0.39885505676269534,
+          "wall_seconds": 0.03993264795280993,
+          "process_cpu_seconds": 0.04033348799999814
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608324.940340878,
+          "end_monotonic": 608324.995024182,
+          "gpu_event_ms_per_call": 0.5464608001708985,
+          "wall_seconds": 0.054689533077180386,
+          "process_cpu_seconds": 0.05475843800000035
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608324.996445696,
+          "end_monotonic": 608325.051237278,
+          "gpu_event_ms_per_call": 0.5475056076049805,
+          "wall_seconds": 0.054800854064524174,
+          "process_cpu_seconds": 0.05479990299999926
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608325.051295402,
+          "end_monotonic": 608325.091243083,
+          "gpu_event_ms_per_call": 0.3991350555419922,
+          "wall_seconds": 0.039954492007382214,
+          "process_cpu_seconds": 0.04002067100000062
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608325.091286765,
+          "end_monotonic": 608325.130937182,
+          "gpu_event_ms_per_call": 0.3961759948730469,
+          "wall_seconds": 0.03965756006073207,
+          "process_cpu_seconds": 0.040526031999998935
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608325.130985845,
+          "end_monotonic": 608325.170605111,
+          "gpu_event_ms_per_call": 0.39582401275634765,
+          "wall_seconds": 0.03962781897280365,
+          "process_cpu_seconds": 0.0401021309999976
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608325.172169361,
+          "end_monotonic": 608325.211794529,
+          "gpu_event_ms_per_call": 0.39584831237792967,
+          "wall_seconds": 0.03963284194469452,
+          "process_cpu_seconds": 0.039626112000000546
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608325.211842295,
+          "end_monotonic": 608325.251510412,
+          "gpu_event_ms_per_call": 0.39634944915771486,
+          "wall_seconds": 0.03967651701532304,
+          "process_cpu_seconds": 0.03967643500000051
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608325.251563652,
+          "end_monotonic": 608325.291486525,
+          "gpu_event_ms_per_call": 0.39889537811279296,
+          "wall_seconds": 0.03992901707533747,
+          "process_cpu_seconds": 0.039998127000000494
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608325.291528826,
+          "end_monotonic": 608325.34632715,
+          "gpu_event_ms_per_call": 0.5476323318481445,
+          "wall_seconds": 0.05480952700600028,
+          "process_cpu_seconds": 0.055602157999999235
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.3959286499023438,
+        "probe-control": 0.39628097534179685,
+        "early": 0.3991350555419922,
+        "ahead": 0.5470972824096679
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 0.9991109201264351,
+        "early": 0.9919666148209048,
+        "ahead": 0.7236896665954764
+      }
+    },
+    {
+      "name": "gdn-out",
+      "tokens": 8,
+      "k": 3072,
+      "rows": [
+        5120
+      ],
+      "partial_fp32": true,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        8.557894164338676e-08
+      ],
+      "additional_allocated_bytes": 18520064,
+      "additional_reserved_bytes": 20971520,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608325.646635576,
+          "end_monotonic": 608325.651117923,
+          "gpu_event_ms_per_call": 0.044246401786804196,
+          "wall_seconds": 0.004491491010412574,
+          "process_cpu_seconds": 0.00456438899999867
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608325.651164234,
+          "end_monotonic": 608325.655555119,
+          "gpu_event_ms_per_call": 0.04364640235900879,
+          "wall_seconds": 0.004396090982481837,
+          "process_cpu_seconds": 0.004396526000000733
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608325.65558662,
+          "end_monotonic": 608325.660108429,
+          "gpu_event_ms_per_call": 0.044957761764526365,
+          "wall_seconds": 0.004526945995166898,
+          "process_cpu_seconds": 0.004939733000000501
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608325.660144966,
+          "end_monotonic": 608325.665830505,
+          "gpu_event_ms_per_call": 0.05659232139587402,
+          "wall_seconds": 0.005691213998943567,
+          "process_cpu_seconds": 0.005691659000000016
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608325.667747823,
+          "end_monotonic": 608325.673453821,
+          "gpu_event_ms_per_call": 0.05666079998016357,
+          "wall_seconds": 0.005711910896934569,
+          "process_cpu_seconds": 0.0057690070000013804
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608325.673493545,
+          "end_monotonic": 608325.678012191,
+          "gpu_event_ms_per_call": 0.044922561645507814,
+          "wall_seconds": 0.004523659939877689,
+          "process_cpu_seconds": 0.004523899999998804
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608325.678045153,
+          "end_monotonic": 608325.682427467,
+          "gpu_event_ms_per_call": 0.04356991767883301,
+          "wall_seconds": 0.004386383923701942,
+          "process_cpu_seconds": 0.004386757999998991
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608325.682455673,
+          "end_monotonic": 608325.686831613,
+          "gpu_event_ms_per_call": 0.04351712226867676,
+          "wall_seconds": 0.004380824975669384,
+          "process_cpu_seconds": 0.004381177999999153
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608325.688481704,
+          "end_monotonic": 608325.692914885,
+          "gpu_event_ms_per_call": 0.043817601203918456,
+          "wall_seconds": 0.004440909018740058,
+          "process_cpu_seconds": 0.0044328359999994404
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608325.69295561,
+          "end_monotonic": 608325.6973364,
+          "gpu_event_ms_per_call": 0.04354144096374512,
+          "wall_seconds": 0.004385706037282944,
+          "process_cpu_seconds": 0.004385899000002524
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608325.697371034,
+          "end_monotonic": 608325.701888635,
+          "gpu_event_ms_per_call": 0.044926719665527345,
+          "wall_seconds": 0.004521902999840677,
+          "process_cpu_seconds": 0.004522188999999344
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608325.701918094,
+          "end_monotonic": 608325.707589642,
+          "gpu_event_ms_per_call": 0.05648096084594727,
+          "wall_seconds": 0.005675717024132609,
+          "process_cpu_seconds": 0.005675998000000959
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608325.709407377,
+          "end_monotonic": 608325.715118325,
+          "gpu_event_ms_per_call": 0.05669087886810303,
+          "wall_seconds": 0.00571810791734606,
+          "process_cpu_seconds": 0.00571776299999982
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608325.715164965,
+          "end_monotonic": 608325.719682462,
+          "gpu_event_ms_per_call": 0.044877119064331054,
+          "wall_seconds": 0.004522567032836378,
+          "process_cpu_seconds": 0.0045228299999990895
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608325.719716718,
+          "end_monotonic": 608325.72409122,
+          "gpu_event_ms_per_call": 0.043473920822143554,
+          "wall_seconds": 0.0043807580368593335,
+          "process_cpu_seconds": 0.004381105000000218
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608325.724128522,
+          "end_monotonic": 608325.728501518,
+          "gpu_event_ms_per_call": 0.04346271991729736,
+          "wall_seconds": 0.004378317971713841,
+          "process_cpu_seconds": 0.004378734999999523
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608325.730665069,
+          "end_monotonic": 608325.735067983,
+          "gpu_event_ms_per_call": 0.04366079807281494,
+          "wall_seconds": 0.004408840090036392,
+          "process_cpu_seconds": 0.004408901999997994
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608325.735114989,
+          "end_monotonic": 608325.739515424,
+          "gpu_event_ms_per_call": 0.043616957664489746,
+          "wall_seconds": 0.00440859398804605,
+          "process_cpu_seconds": 0.004409015000000238
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608325.739567425,
+          "end_monotonic": 608325.744082624,
+          "gpu_event_ms_per_call": 0.04482272148132324,
+          "wall_seconds": 0.004521477967500687,
+          "process_cpu_seconds": 0.004522104999999499
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608325.744122608,
+          "end_monotonic": 608325.74980935,
+          "gpu_event_ms_per_call": 0.05659264087677002,
+          "wall_seconds": 0.005691120051778853,
+          "process_cpu_seconds": 0.005691326999997415
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.04366079807281494,
+        "probe-control": 0.04356991767883301,
+        "early": 0.044922561645507814,
+        "ahead": 0.05659264087677002
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 1.002085851863477,
+        "early": 0.9719124750131197,
+        "ahead": 0.7714925014346998
+      }
+    },
+    {
+      "name": "gdn-out",
+      "tokens": 23,
+      "k": 3072,
+      "rows": [
+        5120
+      ],
+      "partial_fp32": true,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        8.108253468646295e-08
+      ],
+      "additional_allocated_bytes": 19944960,
+      "additional_reserved_bytes": 20971520,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608326.046253437,
+          "end_monotonic": 608326.058081607,
+          "gpu_event_ms_per_call": 0.1178335952758789,
+          "wall_seconds": 0.011836907011456788,
+          "process_cpu_seconds": 0.011835952999998511
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608326.058128583,
+          "end_monotonic": 608326.069942792,
+          "gpu_event_ms_per_call": 0.11784223556518554,
+          "wall_seconds": 0.011822064989246428,
+          "process_cpu_seconds": 0.011916570000000348
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608326.069985881,
+          "end_monotonic": 608326.082171788,
+          "gpu_event_ms_per_call": 0.1215385627746582,
+          "wall_seconds": 0.012190963025204837,
+          "process_cpu_seconds": 0.012191090999998266
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608326.08220635,
+          "end_monotonic": 608326.097575136,
+          "gpu_event_ms_per_call": 0.1534272003173828,
+          "wall_seconds": 0.015373817994259298,
+          "process_cpu_seconds": 0.015374013000002407
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608326.099116318,
+          "end_monotonic": 608326.114509464,
+          "gpu_event_ms_per_call": 0.1535414409637451,
+          "wall_seconds": 0.01540012692566961,
+          "process_cpu_seconds": 0.01619954999999962
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608326.114562,
+          "end_monotonic": 608326.126664983,
+          "gpu_event_ms_per_call": 0.12071616172790528,
+          "wall_seconds": 0.012110870913602412,
+          "process_cpu_seconds": 0.012111464000000183
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608326.126714572,
+          "end_monotonic": 608326.138520021,
+          "gpu_event_ms_per_call": 0.11772992134094239,
+          "wall_seconds": 0.01181369402911514,
+          "process_cpu_seconds": 0.012308383999997119
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608326.13857468,
+          "end_monotonic": 608326.150368657,
+          "gpu_event_ms_per_call": 0.1176576042175293,
+          "wall_seconds": 0.01180057309102267,
+          "process_cpu_seconds": 0.011800785000001923
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608326.151406421,
+          "end_monotonic": 608326.163234736,
+          "gpu_event_ms_per_call": 0.11790656089782715,
+          "wall_seconds": 0.011833552969619632,
+          "process_cpu_seconds": 0.011832893000001121
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608326.163271027,
+          "end_monotonic": 608326.175021691,
+          "gpu_event_ms_per_call": 0.11721023559570312,
+          "wall_seconds": 0.011758005013689399,
+          "process_cpu_seconds": 0.011842063999999652
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608326.175063953,
+          "end_monotonic": 608326.187244442,
+          "gpu_event_ms_per_call": 0.12153311729431153,
+          "wall_seconds": 0.012185266008600593,
+          "process_cpu_seconds": 0.012185504999997931
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608326.187277915,
+          "end_monotonic": 608326.202634338,
+          "gpu_event_ms_per_call": 0.1533030414581299,
+          "wall_seconds": 0.015362118021585047,
+          "process_cpu_seconds": 0.015362470999999545
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608326.203820535,
+          "end_monotonic": 608326.21920956,
+          "gpu_event_ms_per_call": 0.15352543830871582,
+          "wall_seconds": 0.015394689049571753,
+          "process_cpu_seconds": 0.015394310000001354
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608326.219249051,
+          "end_monotonic": 608326.231391676,
+          "gpu_event_ms_per_call": 0.12115551948547364,
+          "wall_seconds": 0.012148200999945402,
+          "process_cpu_seconds": 0.01214843099999996
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608326.231429687,
+          "end_monotonic": 608326.243243346,
+          "gpu_event_ms_per_call": 0.11787327766418457,
+          "wall_seconds": 0.011817735037766397,
+          "process_cpu_seconds": 0.011817843000002881
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608326.243272094,
+          "end_monotonic": 608326.255072498,
+          "gpu_event_ms_per_call": 0.11776415824890137,
+          "wall_seconds": 0.011805636924691498,
+          "process_cpu_seconds": 0.011805900999998897
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608326.256227211,
+          "end_monotonic": 608326.268031756,
+          "gpu_event_ms_per_call": 0.11768256187438965,
+          "wall_seconds": 0.011810380034148693,
+          "process_cpu_seconds": 0.0118100400000003
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608326.268072384,
+          "end_monotonic": 608326.279835541,
+          "gpu_event_ms_per_call": 0.11735008239746093,
+          "wall_seconds": 0.01176830509211868,
+          "process_cpu_seconds": 0.011833345999999523
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608326.279871145,
+          "end_monotonic": 608326.291970479,
+          "gpu_event_ms_per_call": 0.12073823928833008,
+          "wall_seconds": 0.01210419600829482,
+          "process_cpu_seconds": 0.012104384000000579
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608326.292009602,
+          "end_monotonic": 608326.307371309,
+          "gpu_event_ms_per_call": 0.1533520030975342,
+          "wall_seconds": 0.015367217012681067,
+          "process_cpu_seconds": 0.015367445999999063
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.11776415824890137,
+        "probe-control": 0.11772992134094239,
+        "early": 0.12115551948547364,
+        "ahead": 0.1534272003173828
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 1.000290808891818,
+        "early": 0.9720081986278892,
+        "ahead": 0.7675572389073899
+      }
+    },
+    {
+      "name": "gdn-out",
+      "tokens": 32,
+      "k": 3072,
+      "rows": [
+        5120
+      ],
+      "partial_fp32": true,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        8.411498753129238e-08
+      ],
+      "additional_allocated_bytes": 20799488,
+      "additional_reserved_bytes": 23068672,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608326.565963589,
+          "end_monotonic": 608326.581903191,
+          "gpu_event_ms_per_call": 0.1588435173034668,
+          "wall_seconds": 0.015948434942401946,
+          "process_cpu_seconds": 0.01601486200000224
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608326.581949261,
+          "end_monotonic": 608326.59785939,
+          "gpu_event_ms_per_call": 0.15881888389587404,
+          "wall_seconds": 0.01591632899362594,
+          "process_cpu_seconds": 0.015916396999998028
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608326.597897219,
+          "end_monotonic": 608326.614259053,
+          "gpu_event_ms_per_call": 0.1633296012878418,
+          "wall_seconds": 0.016367889009416103,
+          "process_cpu_seconds": 0.017156055000000947
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608326.614304376,
+          "end_monotonic": 608326.634941732,
+          "gpu_event_ms_per_call": 0.20609119415283203,
+          "wall_seconds": 0.020643430063501,
+          "process_cpu_seconds": 0.0207040549999995
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608326.636286793,
+          "end_monotonic": 608326.656943439,
+          "gpu_event_ms_per_call": 0.2061395263671875,
+          "wall_seconds": 0.020666500902734697,
+          "process_cpu_seconds": 0.021046036999997852
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608326.657008945,
+          "end_monotonic": 608326.673355763,
+          "gpu_event_ms_per_call": 0.16313280105590822,
+          "wall_seconds": 0.016352297039702535,
+          "process_cpu_seconds": 0.016423785999997165
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608326.673393121,
+          "end_monotonic": 608326.689264728,
+          "gpu_event_ms_per_call": 0.15845343589782715,
+          "wall_seconds": 0.015877233003266156,
+          "process_cpu_seconds": 0.01587741500000206
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608326.689300982,
+          "end_monotonic": 608326.705170853,
+          "gpu_event_ms_per_call": 0.15843071937561035,
+          "wall_seconds": 0.015874801902100444,
+          "process_cpu_seconds": 0.01587514099999865
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608326.706410424,
+          "end_monotonic": 608326.722281542,
+          "gpu_event_ms_per_call": 0.15835519790649413,
+          "wall_seconds": 0.01587690506130457,
+          "process_cpu_seconds": 0.01587650000000096
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608326.722320877,
+          "end_monotonic": 608326.738185551,
+          "gpu_event_ms_per_call": 0.15837504386901854,
+          "wall_seconds": 0.0158699780004099,
+          "process_cpu_seconds": 0.015870190999997646
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608326.738221508,
+          "end_monotonic": 608326.754516358,
+          "gpu_event_ms_per_call": 0.16269920349121095,
+          "wall_seconds": 0.0162988769588992,
+          "process_cpu_seconds": 0.01629892000000055
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608326.754545111,
+          "end_monotonic": 608326.77517348,
+          "gpu_event_ms_per_call": 0.20602367401123048,
+          "wall_seconds": 0.020633331034332514,
+          "process_cpu_seconds": 0.020709831000001344
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608326.776396749,
+          "end_monotonic": 608326.797047278,
+          "gpu_event_ms_per_call": 0.20613983154296875,
+          "wall_seconds": 0.020657042041420937,
+          "process_cpu_seconds": 0.02065659400000186
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608326.797091186,
+          "end_monotonic": 608326.813418119,
+          "gpu_event_ms_per_call": 0.16297151565551757,
+          "wall_seconds": 0.016332520986907184,
+          "process_cpu_seconds": 0.01633266099999986
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608326.813456982,
+          "end_monotonic": 608326.829334324,
+          "gpu_event_ms_per_call": 0.1584985637664795,
+          "wall_seconds": 0.015882694977335632,
+          "process_cpu_seconds": 0.015882901000001226
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608326.829374111,
+          "end_monotonic": 608326.845238825,
+          "gpu_event_ms_per_call": 0.15837183952331543,
+          "wall_seconds": 0.01587033795658499,
+          "process_cpu_seconds": 0.01662968300000145
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608326.846393407,
+          "end_monotonic": 608326.862281218,
+          "gpu_event_ms_per_call": 0.1585007953643799,
+          "wall_seconds": 0.015894862008281052,
+          "process_cpu_seconds": 0.015894481000000127
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608326.862325327,
+          "end_monotonic": 608326.878197103,
+          "gpu_event_ms_per_call": 0.15841376304626464,
+          "wall_seconds": 0.01587877096608281,
+          "process_cpu_seconds": 0.016409085999999462
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608326.878243319,
+          "end_monotonic": 608326.894573441,
+          "gpu_event_ms_per_call": 0.16303615570068358,
+          "wall_seconds": 0.016335431020706892,
+          "process_cpu_seconds": 0.016335584000000125
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608326.894609325,
+          "end_monotonic": 608326.915247179,
+          "gpu_event_ms_per_call": 0.2061155128479004,
+          "wall_seconds": 0.0206433649873361,
+          "process_cpu_seconds": 0.02064345099999798
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.15843071937561035,
+        "probe-control": 0.15845343589782715,
+        "early": 0.16303615570068358,
+        "ahead": 0.2061155128479004
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 0.9998566359758115,
+        "early": 0.9717520552095922,
+        "ahead": 0.7686501476117508
+      }
+    },
+    {
+      "name": "attention-fused",
+      "tokens": 8,
+      "k": 5120,
+      "rows": [
+        6144,
+        512,
+        512
+      ],
+      "partial_fp32": false,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        0.000196747693187859,
+        0.0001850743677263519,
+        0.00021114432425843707
+      ],
+      "additional_allocated_bytes": 39626752,
+      "additional_reserved_bytes": 54525952,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608327.402565195,
+          "end_monotonic": 608327.412369239,
+          "gpu_event_ms_per_call": 0.09758048057556153,
+          "wall_seconds": 0.009814240969717503,
+          "process_cpu_seconds": 0.009813369999999821
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608327.41242146,
+          "end_monotonic": 608327.422200891,
+          "gpu_event_ms_per_call": 0.09743840217590333,
+          "wall_seconds": 0.009789936011657119,
+          "process_cpu_seconds": 0.009790419000001549
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608327.422259988,
+          "end_monotonic": 608327.432213237,
+          "gpu_event_ms_per_call": 0.09920767784118652,
+          "wall_seconds": 0.009958295966498554,
+          "process_cpu_seconds": 0.00995861299999845
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608327.432248748,
+          "end_monotonic": 608327.445442619,
+          "gpu_event_ms_per_call": 0.1316710376739502,
+          "wall_seconds": 0.013199236942455173,
+          "process_cpu_seconds": 0.013199545999999174
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608327.446688417,
+          "end_monotonic": 608327.459942274,
+          "gpu_event_ms_per_call": 0.13204768180847168,
+          "wall_seconds": 0.013260378036648035,
+          "process_cpu_seconds": 0.013259373000000352
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608327.45998337,
+          "end_monotonic": 608327.469922617,
+          "gpu_event_ms_per_call": 0.09912256240844726,
+          "wall_seconds": 0.00994374300353229,
+          "process_cpu_seconds": 0.009943901999999838
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608327.469952942,
+          "end_monotonic": 608327.479703113,
+          "gpu_event_ms_per_call": 0.09725279808044433,
+          "wall_seconds": 0.009754781960509717,
+          "process_cpu_seconds": 0.009810718000000662
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608327.479733887,
+          "end_monotonic": 608327.489471897,
+          "gpu_event_ms_per_call": 0.09713600158691406,
+          "wall_seconds": 0.009742132038809359,
+          "process_cpu_seconds": 0.00974253300000072
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608327.490705157,
+          "end_monotonic": 608327.50049032,
+          "gpu_event_ms_per_call": 0.09746912002563476,
+          "wall_seconds": 0.009790562908165157,
+          "process_cpu_seconds": 0.009790082999998617
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608327.500526229,
+          "end_monotonic": 608327.510256026,
+          "gpu_event_ms_per_call": 0.09703776359558106,
+          "wall_seconds": 0.00973404198884964,
+          "process_cpu_seconds": 0.009734112000000295
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608327.510285803,
+          "end_monotonic": 608327.520201446,
+          "gpu_event_ms_per_call": 0.09891200065612793,
+          "wall_seconds": 0.009919598000124097,
+          "process_cpu_seconds": 0.009919629000002317
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608327.520228819,
+          "end_monotonic": 608327.533414395,
+          "gpu_event_ms_per_call": 0.13160960197448732,
+          "wall_seconds": 0.013190350029617548,
+          "process_cpu_seconds": 0.013190552999997607
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608327.534619231,
+          "end_monotonic": 608327.547831588,
+          "gpu_event_ms_per_call": 0.13174464225769042,
+          "wall_seconds": 0.013219148037023842,
+          "process_cpu_seconds": 0.013218983000001572
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608327.547872606,
+          "end_monotonic": 608327.557792276,
+          "gpu_event_ms_per_call": 0.09892576217651367,
+          "wall_seconds": 0.0099241160787642,
+          "process_cpu_seconds": 0.009924315999999322
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608327.557823074,
+          "end_monotonic": 608327.567575284,
+          "gpu_event_ms_per_call": 0.09725983619689942,
+          "wall_seconds": 0.009757830994203687,
+          "process_cpu_seconds": 0.010593512999999888
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608327.567615913,
+          "end_monotonic": 608327.577375864,
+          "gpu_event_ms_per_call": 0.09733407974243163,
+          "wall_seconds": 0.00976449903100729,
+          "process_cpu_seconds": 0.00980768400000187
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608327.578622197,
+          "end_monotonic": 608327.588400907,
+          "gpu_event_ms_per_call": 0.09741632461547851,
+          "wall_seconds": 0.009783878922462463,
+          "process_cpu_seconds": 0.009856962000000635
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608327.588438474,
+          "end_monotonic": 608327.598185267,
+          "gpu_event_ms_per_call": 0.0971884822845459,
+          "wall_seconds": 0.009752186015248299,
+          "process_cpu_seconds": 0.010170334000001446
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608327.598223085,
+          "end_monotonic": 608327.608147333,
+          "gpu_event_ms_per_call": 0.09895232200622558,
+          "wall_seconds": 0.009930806001648307,
+          "process_cpu_seconds": 0.009931009000002433
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608327.608186285,
+          "end_monotonic": 608327.621399545,
+          "gpu_event_ms_per_call": 0.1318502426147461,
+          "wall_seconds": 0.013218802982009947,
+          "process_cpu_seconds": 0.013219170000002833
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.09741632461547851,
+        "probe-control": 0.09725279808044433,
+        "early": 0.09895232200622558,
+        "ahead": 0.13174464225769042
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 1.001681458408003,
+        "early": 0.9844773992200968,
+        "ahead": 0.7394329131421811
+      }
+    },
+    {
+      "name": "attention-fused",
+      "tokens": 23,
+      "k": 5120,
+      "rows": [
+        6144,
+        512,
+        512
+      ],
+      "partial_fp32": false,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        0.00021311006939175392,
+        0.00019676083352405764,
+        0.00021710859824218258
+      ],
+      "additional_allocated_bytes": 40813568,
+      "additional_reserved_bytes": 56623104,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608327.960710155,
+          "end_monotonic": 608327.986596042,
+          "gpu_event_ms_per_call": 0.25829568862915037,
+          "wall_seconds": 0.025900854030624032,
+          "process_cpu_seconds": 0.02598301900000166
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608327.986676172,
+          "end_monotonic": 608328.012445365,
+          "gpu_event_ms_per_call": 0.2572764778137207,
+          "wall_seconds": 0.025780237978324294,
+          "process_cpu_seconds": 0.02578040199999876
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608328.012509824,
+          "end_monotonic": 608328.038631859,
+          "gpu_event_ms_per_call": 0.2608790397644043,
+          "wall_seconds": 0.026127542019821703,
+          "process_cpu_seconds": 0.026127605000002774
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608328.038670958,
+          "end_monotonic": 608328.074981751,
+          "gpu_event_ms_per_call": 0.3627526473999023,
+          "wall_seconds": 0.03632485296111554,
+          "process_cpu_seconds": 0.03731003899999763
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608328.076103306,
+          "end_monotonic": 608328.112548645,
+          "gpu_event_ms_per_call": 0.364051513671875,
+          "wall_seconds": 0.036452795029617846,
+          "process_cpu_seconds": 0.03707659699999866
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608328.112600562,
+          "end_monotonic": 608328.138676332,
+          "gpu_event_ms_per_call": 0.26047008514404296,
+          "wall_seconds": 0.02608106192201376,
+          "process_cpu_seconds": 0.02608101399999896
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608328.138713023,
+          "end_monotonic": 608328.164499365,
+          "gpu_event_ms_per_call": 0.25760416030883787,
+          "wall_seconds": 0.025791451917029917,
+          "process_cpu_seconds": 0.025791345999998327
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608328.16453237,
+          "end_monotonic": 608328.190302361,
+          "gpu_event_ms_per_call": 0.25742496490478517,
+          "wall_seconds": 0.0257774549536407,
+          "process_cpu_seconds": 0.025821018000002027
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608328.192321965,
+          "end_monotonic": 608328.218145258,
+          "gpu_event_ms_per_call": 0.2577142333984375,
+          "wall_seconds": 0.025830126949585974,
+          "process_cpu_seconds": 0.02582906199999968
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608328.218186779,
+          "end_monotonic": 608328.243995472,
+          "gpu_event_ms_per_call": 0.2578169631958008,
+          "wall_seconds": 0.025818200083449483,
+          "process_cpu_seconds": 0.02581819999999979
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608328.244035722,
+          "end_monotonic": 608328.270104382,
+          "gpu_event_ms_per_call": 0.2604115104675293,
+          "wall_seconds": 0.026074346038512886,
+          "process_cpu_seconds": 0.0260631740000008
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608328.270142564,
+          "end_monotonic": 608328.30641887,
+          "gpu_event_ms_per_call": 0.36248031616210935,
+          "wall_seconds": 0.03628306102473289,
+          "process_cpu_seconds": 0.03719986300000144
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608328.307781054,
+          "end_monotonic": 608328.344101013,
+          "gpu_event_ms_per_call": 0.3627772903442383,
+          "wall_seconds": 0.03632751398254186,
+          "process_cpu_seconds": 0.03672855800000008
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608328.344149789,
+          "end_monotonic": 608328.370233707,
+          "gpu_event_ms_per_call": 0.2605379295349121,
+          "wall_seconds": 0.026089109014719725,
+          "process_cpu_seconds": 0.026088960000002714
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608328.370269476,
+          "end_monotonic": 608328.396076287,
+          "gpu_event_ms_per_call": 0.2577952003479004,
+          "wall_seconds": 0.025812139036133885,
+          "process_cpu_seconds": 0.025850197000000463
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608328.396112137,
+          "end_monotonic": 608328.421874307,
+          "gpu_event_ms_per_call": 0.2573638343811035,
+          "wall_seconds": 0.025766468956135213,
+          "process_cpu_seconds": 0.02576644600000222
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608328.423621753,
+          "end_monotonic": 608328.449489042,
+          "gpu_event_ms_per_call": 0.2581484794616699,
+          "wall_seconds": 0.025875741033814847,
+          "process_cpu_seconds": 0.02587448999999964
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608328.449536306,
+          "end_monotonic": 608328.475247436,
+          "gpu_event_ms_per_call": 0.25682655334472654,
+          "wall_seconds": 0.02571592608001083,
+          "process_cpu_seconds": 0.02577109300000302
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608328.475280897,
+          "end_monotonic": 608328.501360708,
+          "gpu_event_ms_per_call": 0.2605283164978027,
+          "wall_seconds": 0.02608573902398348,
+          "process_cpu_seconds": 0.02608586999999929
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608328.501399228,
+          "end_monotonic": 608328.537755245,
+          "gpu_event_ms_per_call": 0.3632524871826172,
+          "wall_seconds": 0.036365331965498626,
+          "process_cpu_seconds": 0.03716661400000021
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.2577142333984375,
+        "probe-control": 0.25760416030883787,
+        "early": 0.2605283164978027,
+        "ahead": 0.3627772903442383
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 1.0004272954655222,
+        "early": 0.9891985518611028,
+        "ahead": 0.7103924094970037
+      }
+    },
+    {
+      "name": "attention-fused",
+      "tokens": 32,
+      "k": 5120,
+      "rows": [
+        6144,
+        512,
+        512
+      ],
+      "partial_fp32": false,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        0.00019908518730852302,
+        0.00020669590289893412,
+        0.0002110132214225937
+      ],
+      "additional_allocated_bytes": 41525248,
+      "additional_reserved_bytes": 56623104,
+      "waves": [
+        {
+          "arm": "qualified",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608328.891543383,
+          "end_monotonic": 608328.926735087,
+          "gpu_event_ms_per_call": 0.3513731384277344,
+          "wall_seconds": 0.035204855957999825,
+          "process_cpu_seconds": 0.0350423769999999
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608328.926802464,
+          "end_monotonic": 608328.961939892,
+          "gpu_event_ms_per_call": 0.35100833892822264,
+          "wall_seconds": 0.035145654110237956,
+          "process_cpu_seconds": 0.0351121840000026
+        },
+        {
+          "arm": "early",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608328.961987204,
+          "end_monotonic": 608328.997361558,
+          "gpu_event_ms_per_call": 0.3533961486816406,
+          "wall_seconds": 0.03537946497090161,
+          "process_cpu_seconds": 0.03543051000000119
+        },
+        {
+          "arm": "ahead",
+          "repeat": 0,
+          "calls": 100,
+          "start_monotonic": 608328.997397569,
+          "end_monotonic": 608329.045908798,
+          "gpu_event_ms_per_call": 0.48481407165527346,
+          "wall_seconds": 0.04851897596381605,
+          "process_cpu_seconds": 0.04930298400000055
+        },
+        {
+          "arm": "ahead",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608329.047183274,
+          "end_monotonic": 608329.095689237,
+          "gpu_event_ms_per_call": 0.48462848663330077,
+          "wall_seconds": 0.04851228906773031,
+          "process_cpu_seconds": 0.04901709299999979
+        },
+        {
+          "arm": "early",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608329.095734953,
+          "end_monotonic": 608329.131099302,
+          "gpu_event_ms_per_call": 0.35335487365722656,
+          "wall_seconds": 0.035370329045690596,
+          "process_cpu_seconds": 0.035370179000000945
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608329.131138393,
+          "end_monotonic": 608329.16622714,
+          "gpu_event_ms_per_call": 0.3505913543701172,
+          "wall_seconds": 0.035094574093818665,
+          "process_cpu_seconds": 0.03509492400000269
+        },
+        {
+          "arm": "qualified",
+          "repeat": 1,
+          "calls": 100,
+          "start_monotonic": 608329.166270435,
+          "end_monotonic": 608329.201360874,
+          "gpu_event_ms_per_call": 0.3505721664428711,
+          "wall_seconds": 0.03510038508102298,
+          "process_cpu_seconds": 0.03514377400000157
+        },
+        {
+          "arm": "qualified",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608329.202495662,
+          "end_monotonic": 608329.237605853,
+          "gpu_event_ms_per_call": 0.35073184967041016,
+          "wall_seconds": 0.03511639591306448,
+          "process_cpu_seconds": 0.03510799100000028
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608329.237649085,
+          "end_monotonic": 608329.272766388,
+          "gpu_event_ms_per_call": 0.3508028793334961,
+          "wall_seconds": 0.035130452015437186,
+          "process_cpu_seconds": 0.03590043199999826
+        },
+        {
+          "arm": "early",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608329.272841149,
+          "end_monotonic": 608329.308192441,
+          "gpu_event_ms_per_call": 0.3531292724609375,
+          "wall_seconds": 0.03536068496759981,
+          "process_cpu_seconds": 0.035972912999998385
+        },
+        {
+          "arm": "ahead",
+          "repeat": 2,
+          "calls": 100,
+          "start_monotonic": 608329.308250344,
+          "end_monotonic": 608329.356701538,
+          "gpu_event_ms_per_call": 0.4841904067993164,
+          "wall_seconds": 0.04845738096628338,
+          "process_cpu_seconds": 0.048457085999999094
+        },
+        {
+          "arm": "ahead",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608329.358110009,
+          "end_monotonic": 608329.406558958,
+          "gpu_event_ms_per_call": 0.4841241455078125,
+          "wall_seconds": 0.04845537000801414,
+          "process_cpu_seconds": 0.048508169000001544
+        },
+        {
+          "arm": "early",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608329.406600587,
+          "end_monotonic": 608329.441929004,
+          "gpu_event_ms_per_call": 0.35299617767333985,
+          "wall_seconds": 0.03533403109759092,
+          "process_cpu_seconds": 0.03533393700000076
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608329.441966706,
+          "end_monotonic": 608329.477078792,
+          "gpu_event_ms_per_call": 0.35082847595214844,
+          "wall_seconds": 0.03511819906998426,
+          "process_cpu_seconds": 0.035121095000000935
+        },
+        {
+          "arm": "qualified",
+          "repeat": 3,
+          "calls": 100,
+          "start_monotonic": 608329.477117153,
+          "end_monotonic": 608329.512183246,
+          "gpu_event_ms_per_call": 0.3503788757324219,
+          "wall_seconds": 0.03507309698034078,
+          "process_cpu_seconds": 0.03586894900000104
+        },
+        {
+          "arm": "qualified",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608329.513385274,
+          "end_monotonic": 608329.548497517,
+          "gpu_event_ms_per_call": 0.3507068634033203,
+          "wall_seconds": 0.03512096602935344,
+          "process_cpu_seconds": 0.03553858900000151
+        },
+        {
+          "arm": "probe-control",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608329.548551584,
+          "end_monotonic": 608329.583669197,
+          "gpu_event_ms_per_call": 0.35083358764648437,
+          "wall_seconds": 0.0351263809716329,
+          "process_cpu_seconds": 0.03515964199999999
+        },
+        {
+          "arm": "early",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608329.583718921,
+          "end_monotonic": 608329.619079842,
+          "gpu_event_ms_per_call": 0.35330207824707033,
+          "wall_seconds": 0.0353671699995175,
+          "process_cpu_seconds": 0.03536746800000046
+        },
+        {
+          "arm": "ahead",
+          "repeat": 4,
+          "calls": 100,
+          "start_monotonic": 608329.619118401,
+          "end_monotonic": 608329.667591223,
+          "gpu_event_ms_per_call": 0.4844451141357422,
+          "wall_seconds": 0.048480840981937945,
+          "process_cpu_seconds": 0.0484529930000015
+        }
+      ],
+      "median_ms": {
+        "qualified": 0.3507068634033203,
+        "probe-control": 0.35082847595214844,
+        "early": 0.35330207824707033,
+        "ahead": 0.4844451141357422
+      },
+      "speedup_vs_qualified": {
+        "qualified": 1.0,
+        "probe-control": 0.9996533561065758,
+        "early": 0.9926544025536834,
+        "ahead": 0.7239351851633119
+      }
+    }
+  ],
+  "completed": true,
+  "gguf_architecture": "qwen35",
+  "library_sha256": "ad52c5f28ac06b97de36c617c68a2c65d646aaa4b3557b659fc2d658098c887f",
+  "qualified_library_sha256": "33a4becb5f9c8440492e9cc6352ea87fccab2692a01adc48e6cc756fa93bc7b8",
+  "device_uuid": "18fbf081-3c6d-d65b-11b8-288a4ce1ab28",
+  "precision": "Unmodified production Q8_0 codes/F16 scales; synthetic F16 activations, two residual A8 passes/F32 scales; output F16 or F32 partials as declared. Not native full-model Qwen3.8 qualification."
+}

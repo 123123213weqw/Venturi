@@ -1,0 +1,70 @@
+--- before/src/venturi/ops/csrc/qwen_runtime.cuh
++++ after/src/venturi/ops/csrc/qwen_runtime.cuh
+@@ -431,7 +431,19 @@
+         }
+         source();
+     }
+-    void mlp(const VRLayer& l,const void* x,void* gate,void* up,void* out,int t,bool materialize=false) {
++    bool normalize_mlp(const void* x,const float* norm,void* out,int t) {
++        // The primary packing is consumed immediately by mlp under the same
++        // model lock/stream. Materialize original F16 values for the peer;
++        // never retain an input-pointer cache or change transport precision.
++        if(column_mlp_enabled && activation_passes==2 && c.dtype==0 && vrq::eligible(t,c.hidden)) {
++            op(venturi_rms_q8_quantize(x,norm,first_quant.ptr,first_quant.bytes,t,c.hidden,c.epsilon,8,out,stream.ptr));
++            return true;
++        }
++        op(venturi_rms_run(x,norm,out,t,c.hidden,c.dtype,c.epsilon,stream.ptr));
++        return false;
++    }
++    void mlp(const VRLayer& l,const void* x,void* gate,void* up,void* out,int t,bool materialize=false,bool packed_input=false) {
++        require(!packed_input || (column_mlp_enabled && activation_passes==2 && c.dtype==0),"packed MLP input requires column two-pass profile");
+         if(!column_mlp_enabled) {
+             shared_linears(x,t,{{&l.matrix[4],gate},{&l.matrix[5],up}});
+             op(venturi_swiglu_run(gate,up,gate,mul(t,c.intermediate),c.dtype,stream.ptr));
+@@ -463,7 +475,7 @@
+             check(cudaMemcpyAsync(column_host.ptr,column_peer.ptr,partial_bytes,cudaMemcpyDeviceToHost,second_stream.ptr));
+             check(cudaEventRecord(second_ready.ptr,second_stream.ptr));
+         }
+-        op(venturi_q8_dp4a_quantize(x,first_quant.ptr,first_quant.bytes,t,c.hidden,2,stream.ptr));
++        if(!packed_input)op(venturi_q8_dp4a_quantize(x,first_quant.ptr,first_quant.bytes,t,c.hidden,2,stream.ptr));
+         op(vprojection::fused(first_quant.ptr,first_quant.bytes,first,2,t,c.hidden,padded(l.matrix[4]),2,stream.ptr));
+         op(vproducer::run(gate,up,gate,first_quant.ptr,first_quant.bytes,t,half,stream.ptr,materialize));
+         op(vprojection::partial(first_quant.ptr,first_quant.bytes,static_cast<const std::int8_t*>(down.ptr),reinterpret_cast<const __half*>(down.at(plane(local,local.n))),static_cast<float*>(column_local.ptr),t,c.hidden,half,padded(local),stream.ptr));
+@@ -803,8 +815,8 @@
+             m.linear(l.matrix[3],p("attended"),p("projected"),t);
+         }
+         op(venturi_add_run(x,p("projected"),p("residual"),count,c.dtype,s));
+-        op(venturi_rms_run(p("residual"),static_cast<const float*>(l.post),p("mlp_norm"),t,c.hidden,c.dtype,c.epsilon,s));
+-        m.mlp(l,p("mlp_norm"),p("mlp_gate"),p("mlp_up"),p("projected"),t);
++        const bool packed_mlp=m.normalize_mlp(p("residual"),static_cast<const float*>(l.post),p("mlp_norm"),t);
++        m.mlp(l,p("mlp_norm"),p("mlp_gate"),p("mlp_up"),p("projected"),t,false,packed_mlp);
+         op(venturi_add_run(p("residual"),p("projected"),out,count,c.dtype,s));
+     }
+     void* run_layers(int pos,int t,void* x,void* trace,int n,int start) {
+@@ -925,6 +937,26 @@
+         return 0;
+     }catch(const std::exception& e){error_text=e.what();return -1;}
+ }
++extern "C" int venturi_qwen_rms_mlp_debug(void* h,int layer,const void* input,int t,void* output,void* normalized,void* activation,float* partials) {
++    try {vr::require(h && input && output && normalized && activation && partials,"null column MLP diagnostic operand");
++        auto& r=*static_cast<vr::Session*>(h);auto& m=*r.model;vr::Device device(m.c.device);
++        std::lock_guard<std::mutex> a(r.mutex),b(m.mutex);
++        vr::require(m.column_mlp_enabled && !r.failed && layer>=0 && layer<m.c.layers && t>0 && t<=m.c.max_tokens,"invalid column MLP diagnostic state/shape");
++        m.source();const auto half=m.c.intermediate/2,hidden=m.c.hidden;const auto bytes=vr::mul(vr::mul(t,hidden),2);
++        try {
++            check(cudaMemcpyAsync(r.p("residual"),input,bytes,cudaMemcpyHostToDevice,m.stream.ptr));
++            const bool packed=m.normalize_mlp(r.p("residual"),static_cast<const float*>(m.layers[layer].post),r.p("mlp_norm"),t);
++            m.mlp(m.layers[layer],r.p("mlp_norm"),r.p("mlp_gate"),r.p("mlp_up"),r.p("projected"),t,true,packed);
++            check(cudaMemcpyAsync(normalized,r.p("mlp_norm"),bytes,cudaMemcpyDeviceToHost,m.stream.ptr));
++            check(cudaMemcpyAsync(output,r.p("projected"),bytes,cudaMemcpyDeviceToHost,m.stream.ptr));
++            check(cudaMemcpy2DAsync(activation,m.c.intermediate*2ULL,r.p("mlp_gate"),half*2ULL,half*2ULL,t,cudaMemcpyDeviceToHost,m.stream.ptr));
++            check(cudaMemcpyAsync(partials,m.column_local.ptr,bytes*2,cudaMemcpyDeviceToHost,m.stream.ptr));
++            check(cudaMemcpyAsync(partials+vr::mul(t,hidden),m.column_remote.ptr,bytes*2,cudaMemcpyDeviceToHost,m.stream.ptr));m.sync();
++            {vr::Device peer(m.c.second_device);check(cudaMemcpy2DAsync(static_cast<char*>(activation)+half*2ULL,m.c.intermediate*2ULL,m.column_activation.ptr,half*2ULL,half*2ULL,t,cudaMemcpyDeviceToHost,m.second_stream.ptr));}m.sync();m.source();
++        }catch(...){r.failed=true;try{m.sync();}catch(...){}throw;}
++        return 0;
++    }catch(const std::exception& e){error_text=e.what();return -1;}
++}
+ extern "C" int venturi_qwen_generate(void* h,const std::int64_t* prompt,int n,int maximum,const std::int64_t* eos,int eos_count,std::int64_t* tokens,int* count) {
+     const double begun=vr::native_clock();
+     try { vr::require(h,"null native Qwen session");auto& s=*static_cast<vr::Session*>(h);auto& m=*s.model;vr::Device d(m.c.device);

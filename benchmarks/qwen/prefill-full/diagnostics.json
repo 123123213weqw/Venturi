@@ -1,0 +1,134 @@
+{
+  "public_trace_resources": {
+    "prefill_baseline": [
+      {
+        "threads": 128,
+        "registers_per_thread": 147,
+        "shared_bytes_per_block": 45568,
+        "grid_blocks": 320,
+        "calls": 960,
+        "resource_only_blocks_per_sm_upper_bound": 2,
+        "resource_only_thread_occupancy_upper_bound": 0.16666666666666666,
+        "instrumented_mean_kernel_us": 631.798803125
+      }
+    ],
+    "prefill_r128_w32": [
+      {
+        "threads": 256,
+        "registers_per_thread": 84,
+        "shared_bytes_per_block": 41984,
+        "grid_blocks": 320,
+        "calls": 960,
+        "resource_only_blocks_per_sm_upper_bound": 2,
+        "resource_only_thread_occupancy_upper_bound": 0.3333333333333333,
+        "instrumented_mean_kernel_us": 726.8081593750001
+      }
+    ],
+    "prefill_r128_w64": [
+      {
+        "threads": 128,
+        "registers_per_thread": 147,
+        "shared_bytes_per_block": 41984,
+        "grid_blocks": 320,
+        "calls": 960,
+        "resource_only_blocks_per_sm_upper_bound": 2,
+        "resource_only_thread_occupancy_upper_bound": 0.16666666666666666,
+        "instrumented_mean_kernel_us": 737.1825197916667
+      }
+    ]
+  },
+  "commands": [
+    [
+      "nsys",
+      "profile",
+      "--trace=cuda",
+      "--cuda-graph-trace=node",
+      "--sample=none",
+      "--cpuctxsw=none",
+      "--force-overwrite=false",
+      "-o",
+      "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_baseline",
+      "/home/test/wangyue/venturi-work/qwen/prefill-full/prefill_baseline/bench",
+      "512"
+    ],
+    [
+      "nsys",
+      "export",
+      "--type",
+      "sqlite",
+      "--output",
+      "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_baseline.sqlite",
+      "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_baseline.nsys-rep"
+    ],
+    [
+      "nsys",
+      "profile",
+      "--trace=cuda",
+      "--cuda-graph-trace=node",
+      "--sample=none",
+      "--cpuctxsw=none",
+      "--force-overwrite=false",
+      "-o",
+      "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_r128_w32",
+      "/home/test/wangyue/venturi-work/qwen/prefill-full/prefill_r128_w32/bench",
+      "512"
+    ],
+    [
+      "nsys",
+      "export",
+      "--type",
+      "sqlite",
+      "--output",
+      "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_r128_w32.sqlite",
+      "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_r128_w32.nsys-rep"
+    ],
+    [
+      "nsys",
+      "profile",
+      "--trace=cuda",
+      "--cuda-graph-trace=node",
+      "--sample=none",
+      "--cpuctxsw=none",
+      "--force-overwrite=false",
+      "-o",
+      "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_r128_w64",
+      "/home/test/wangyue/venturi-work/qwen/prefill-full/prefill_r128_w64/bench",
+      "512"
+    ],
+    [
+      "nsys",
+      "export",
+      "--type",
+      "sqlite",
+      "--output",
+      "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_r128_w64.sqlite",
+      "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_r128_w64.nsys-rep"
+    ]
+  ],
+  "archive_matches_production_build": {
+    "/home/test/wangyue/engine/build/src/runtime/libninfer_engine.a": true,
+    "/home/test/wangyue/engine/build/src/product/libninfer_product_logging.a": true,
+    "/home/test/wangyue/engine/build/src/product/libninfer_product_prompt_input.a": true,
+    "/home/test/wangyue/engine/build/src/models/libninfer_model_runtime.a": true,
+    "/home/test/wangyue/engine/build/src/models/libninfer_model_loading.a": true,
+    "/home/test/wangyue/engine/build/third_party/llama-jinja/libninfer_jinja.a": true,
+    "/home/test/wangyue/engine/build/src/artifact/libninfer_artifact.a": true,
+    "/home/test/wangyue/engine/build/src/runtime/libninfer_runtime_support.a": true,
+    "/home/test/wangyue/engine/build/src/ops/libninfer_ops.a": true,
+    "/home/test/wangyue/engine/build/src/ops/libninfer_nvfp4_non_rdc.a": true,
+    "/home/test/wangyue/engine/build/src/core/libninfer_core.a": true,
+    "/home/test/wangyue/engine/build/src/text/libninfer_text.a": true,
+    "/home/test/wangyue/engine/build/src/media/libninfer_media_decode.a": true,
+    "/home/test/wangyue/engine/build/third_party/spdlog/libninfer_third_party_spdlog.a": true,
+    "/home/test/wangyue/engine/build/src/product/libninfer_media_acquire.a": true
+  },
+  "production_runner_sha256": "3c7da6aeb337ee374ce912934c9335252e39326cd9cba3e2163696c06d15dfb4",
+  "current_counter_policy": [
+    "RmProfilingAdminOnly: 1"
+  ],
+  "limitations": [
+    "Resource bounds are not achieved occupancy.",
+    "Hardware counter access remains restricted; no new counter probe or privilege change.",
+    "Instrumented public-Op timing is not model latency or unprofiled throughput."
+  ]
+}

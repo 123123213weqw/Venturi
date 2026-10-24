@@ -1,0 +1,26 @@
+{
+  "completed": false,
+  "profiled": true,
+  "observation_recovery": "Original worker inspected children of the main profiler thread only. Reuse the confirmed live owned profiler/server; do not restart for observation failure.",
+  "nsys_pid": 939349,
+  "started_unix": 1792400729.733354,
+  "server_pid": 939369,
+  "command": [
+    "/home/data/wangyue/repos/codex-build/.venvs/b2-v100/bin/python",
+    "tools/benchmark_completion_api.py",
+    "--url",
+    "http://127.0.0.1:18946",
+    "--server-pid",
+    "939369",
+    "--case",
+    "/home/data/wangyue/artifacts/venturi-llama-arithmetic-v1/salvage-case.json",
+    "--concurrency",
+    "1,8",
+    "--repeats",
+    "1",
+    "--output-directory",
+    "/home/data/wangyue/artifacts/venturi-llama-arithmetic-v1/salvaged-instrumented-http",
+    "--expect-pinned-ids"
+  ],
+  "failure": "Traceback (most recent call last):\n  File \"<stdin>\", line 24, in <module>\n  File \"/usr/lib/python3.10/subprocess.py\", line 505, in run\n    stdout, stderr = process.communicate(input, timeout=timeout)\n  File \"/usr/lib/python3.10/subprocess.py\", line 1154, in communicate\n    stdout, stderr = self._communicate(input, endtime, timeout)\n  File \"/usr/lib/python3.10/subprocess.py\", line 2047, in _communicate\n    self.wait(timeout=self._remaining_time(endtime))\n  File \"/usr/lib/python3.10/subprocess.py\", line 1209, in wait\n    return self._wait(timeout=timeout)\n  File \"/usr/lib/python3.10/subprocess.py\", line 1951, in _wait\n    raise TimeoutExpired(self.args, timeout)\nsubprocess.TimeoutExpired: Command '['/home/data/wangyue/repos/codex-build/.venvs/b2-v100/bin/python', 'tools/benchmark_completion_api.py', '--url', 'http://127.0.0.1:18946', '--server-pid', '939369', '--case', '/home/data/wangyue/artifacts/venturi-llama-arithmetic-v1/salvage-case.json', '--concurrency', '1,8', '--repeats', '1', '--output-directory', '/home/data/wangyue/artifacts/venturi-llama-arithmetic-v1/salvaged-instrumented-http', '--expect-pinned-ids']' timed out after 119.99998835998122 seconds\n"
+}

@@ -1,0 +1,21 @@
+[
+  "/usr/local/bin/nsys",
+  "profile",
+  "--trace=cuda,nvtx,osrt",
+  "--cuda-event-trace=false",
+  "--cuda-graph-trace=node",
+  "-o",
+  "/home/data/wangyue/artifacts/venturi-gdn-head-pilot-profile-v9/gdn",
+  "/home/data/wangyue/repos/codex-build/.venvs/b2-v100/bin/python",
+  "tools/benchmark_gdn_head_tp.py",
+  "/home/data/wangyue/repos/codex-build/Venturi/models/qwen3.5-27b-text-q8.ninfer",
+  "--source",
+  "/home/data/wangyue/repos/codex-build/Venturi/models/qwen3.5-27b-bf16",
+  "--blocks",
+  "/home/data/wangyue/artifacts/venturi-mtp-draft-residual-fixtures-v1/build/089e914d53d145f0/libventuri_blocks.so",
+  "--host-library",
+  "/home/data/wangyue/artifacts/venturi-gdn-head-pilot-fixtures-v7/libventuri_gdn_head_host.so",
+  "--output-directory",
+  "/home/data/wangyue/artifacts/venturi-gdn-head-pilot-profile-v9/measurement",
+  "--profile"
+]

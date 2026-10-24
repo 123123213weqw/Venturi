@@ -1,0 +1,4543 @@
+{
+  "scope": "Paired activation-word planes on represented checkpoint weights, not serving TPS.",
+  "profiled": false,
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "token_counts": [
+    3,
+    4,
+    8
+  ],
+  "row_mode": "tp-first",
+  "baseline_sha256": "f07bf75a975b963911aff5fefd5614dbf0b8b5b74e499f5525b6ad5d5317369a",
+  "candidate_sha256": "8feef74cf9f18da99b8c5dab78085fe5065b58998a1e4a1b32206d4601ec47d7",
+  "precision": "Original Q8/F16-scale weight planes; unchanged two A8 residual passes/F32 scales, FP16 input/output",
+  "graph_nodes": 3,
+  "graph_replays": 3,
+  "repeats": 3,
+  "cases": [
+    {
+      "label": "text/output_head",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        124160
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            2750,
+            6523,
+            6564,
+            17927,
+            22487,
+            22956,
+            23786,
+            24614,
+            29423,
+            35385,
+            36810,
+            39838,
+            49035,
+            55066,
+            56616,
+            57665,
+            62916,
+            66266,
+            75024,
+            75488,
+            77533,
+            82708,
+            94467,
+            95942,
+            95947,
+            96608,
+            97805,
+            100387,
+            119935,
+            120530,
+            124159
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.0002154628944918413,
+          "max_absolute": 0.0009575784208739613
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436941.061408,
+          "end_unix": 1792436941.0690916,
+          "gpu_event_ms_per_call": 0.8457528750101725,
+          "wall_seconds": 0.007691418984904885,
+          "cpu_core_seconds": 0.007685999999999638
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436941.069143,
+          "end_unix": 1792436941.076764,
+          "gpu_event_ms_per_call": 0.8427946832444932,
+          "wall_seconds": 0.007625839032698423,
+          "cpu_core_seconds": 0.007676000000000016
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436941.0768054,
+          "end_unix": 1792436941.0844207,
+          "gpu_event_ms_per_call": 0.8421866628858778,
+          "wall_seconds": 0.0076193620334379375,
+          "cpu_core_seconds": 0.007619999999999294
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436941.0844514,
+          "end_unix": 1792436941.092069,
+          "gpu_event_ms_per_call": 0.843015087975396,
+          "wall_seconds": 0.007621559023391455,
+          "cpu_core_seconds": 0.00762200000000135
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436941.0921013,
+          "end_unix": 1792436941.0997224,
+          "gpu_event_ms_per_call": 0.8434773551093208,
+          "wall_seconds": 0.007625308004207909,
+          "cpu_core_seconds": 0.007626000000000133
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436941.099753,
+          "end_unix": 1792436941.1073718,
+          "gpu_event_ms_per_call": 0.8432639969719781,
+          "wall_seconds": 0.007622718985658139,
+          "cpu_core_seconds": 0.007623999999999853
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.8434773551093208,
+        "candidate-pairs": 0.8427946832444932
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "text/output_head",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        124160
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            2750,
+            6523,
+            6564,
+            17927,
+            22487,
+            22956,
+            23786,
+            24614,
+            29423,
+            35385,
+            36810,
+            39838,
+            49035,
+            55066,
+            56616,
+            57665,
+            62916,
+            66266,
+            75024,
+            75488,
+            77533,
+            82708,
+            94467,
+            95942,
+            95947,
+            96608,
+            97805,
+            100387,
+            119935,
+            120530,
+            124159
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00023715740327136454,
+          "max_absolute": 0.0009574348178369441
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436942.4772944,
+          "end_unix": 1792436942.4855192,
+          "gpu_event_ms_per_call": 0.9079181883070204,
+          "wall_seconds": 0.008231863030232489,
+          "cpu_core_seconds": 0.008227000000001539
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436942.485563,
+          "end_unix": 1792436942.493718,
+          "gpu_event_ms_per_call": 0.9023431142171224,
+          "wall_seconds": 0.008159376040566713,
+          "cpu_core_seconds": 0.008161000000001195
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436942.4937546,
+          "end_unix": 1792436942.5018988,
+          "gpu_event_ms_per_call": 0.9014399846394857,
+          "wall_seconds": 0.008148633991368115,
+          "cpu_core_seconds": 0.008150000000000546
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436942.5019302,
+          "end_unix": 1792436942.5102224,
+          "gpu_event_ms_per_call": 0.9180160098605685,
+          "wall_seconds": 0.008296101004816592,
+          "cpu_core_seconds": 0.008297000000002441
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436942.5102541,
+          "end_unix": 1792436942.5186331,
+          "gpu_event_ms_per_call": 0.927626715766059,
+          "wall_seconds": 0.008384374959859997,
+          "cpu_core_seconds": 0.008385000000000531
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436942.5186644,
+          "end_unix": 1792436942.5270147,
+          "gpu_event_ms_per_call": 0.9224995507134331,
+          "wall_seconds": 0.008354668039828539,
+          "cpu_core_seconds": 0.008355000000001667
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.9180160098605685,
+        "candidate-pairs": 0.9023431142171224
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "text/output_head",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        124160
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            2750,
+            6523,
+            6564,
+            17927,
+            22487,
+            22956,
+            23786,
+            24614,
+            29423,
+            35385,
+            36810,
+            39838,
+            49035,
+            55066,
+            56616,
+            57665,
+            62916,
+            66266,
+            75024,
+            75488,
+            77533,
+            82708,
+            94467,
+            95942,
+            95947,
+            96608,
+            97805,
+            100387,
+            119935,
+            120530,
+            124159
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00020317070125299122,
+          "max_absolute": 0.00047053841542710195
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436943.8661668,
+          "end_unix": 1792436943.8792863,
+          "gpu_event_ms_per_call": 1.4506951438056097,
+          "wall_seconds": 0.013132981024682522,
+          "cpu_core_seconds": 0.013181000000002996
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436943.8793676,
+          "end_unix": 1792436943.892493,
+          "gpu_event_ms_per_call": 1.4531164169311523,
+          "wall_seconds": 0.013131938991136849,
+          "cpu_core_seconds": 0.013132999999996287
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436943.8925452,
+          "end_unix": 1792436943.9057808,
+          "gpu_event_ms_per_call": 1.4665742450290256,
+          "wall_seconds": 0.013240241969469935,
+          "cpu_core_seconds": 0.013241000000000724
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436943.905819,
+          "end_unix": 1792436943.9190822,
+          "gpu_event_ms_per_call": 1.4702328575981989,
+          "wall_seconds": 0.01326742599485442,
+          "cpu_core_seconds": 0.013268999999997533
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436943.9191153,
+          "end_unix": 1792436943.932458,
+          "gpu_event_ms_per_call": 1.4791786405775282,
+          "wall_seconds": 0.013346698018722236,
+          "cpu_core_seconds": 0.013346999999999554
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436943.9324877,
+          "end_unix": 1792436943.945819,
+          "gpu_event_ms_per_call": 1.478019608391656,
+          "wall_seconds": 0.013335198978893459,
+          "cpu_core_seconds": 0.013335999999998904
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 1.4702328575981989,
+        "candidate-pairs": 1.4665742450290256
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "text/layers/63/mlp/up",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        8704
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00018392294320795628,
+          "max_absolute": 0.0006807753033797326
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436944.3307865,
+          "end_unix": 1792436944.3315065,
+          "gpu_event_ms_per_call": 0.07325155867470635,
+          "wall_seconds": 0.0007268200279213488,
+          "cpu_core_seconds": 0.0007219999999996674
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436944.331547,
+          "end_unix": 1792436944.3322318,
+          "gpu_event_ms_per_call": 0.07251199748780993,
+          "wall_seconds": 0.0006885299808345735,
+          "cpu_core_seconds": 0.0006889999999977192
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436944.3322656,
+          "end_unix": 1792436944.3329482,
+          "gpu_event_ms_per_call": 0.07237333059310913,
+          "wall_seconds": 0.0006866399780847132,
+          "cpu_core_seconds": 0.000688000000000244
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436944.3329794,
+          "end_unix": 1792436944.3336573,
+          "gpu_event_ms_per_call": 0.07202133205201891,
+          "wall_seconds": 0.0006816679961048067,
+          "cpu_core_seconds": 0.0006820000000011817
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436944.3336878,
+          "end_unix": 1792436944.334382,
+          "gpu_event_ms_per_call": 0.0721528861257765,
+          "wall_seconds": 0.0006987400120124221,
+          "cpu_core_seconds": 0.0006999999999983686
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436944.3344145,
+          "end_unix": 1792436944.3350985,
+          "gpu_event_ms_per_call": 0.07265066438251072,
+          "wall_seconds": 0.0006881640292704105,
+          "cpu_core_seconds": 0.0006890000000012719
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.0721528861257765,
+        "candidate-pairs": 0.07251199748780993
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "text/layers/63/mlp/up",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        8704
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00019702838626012458,
+          "max_absolute": 0.0006807753033797326
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436944.5056834,
+          "end_unix": 1792436944.5064414,
+          "gpu_event_ms_per_call": 0.07811911238564385,
+          "wall_seconds": 0.0007671660277992487,
+          "cpu_core_seconds": 0.0007609999999971251
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436944.506485,
+          "end_unix": 1792436944.5072112,
+          "gpu_event_ms_per_call": 0.07706311013963488,
+          "wall_seconds": 0.0007307479972951114,
+          "cpu_core_seconds": 0.0007310000000018135
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436944.5072463,
+          "end_unix": 1792436944.5079708,
+          "gpu_event_ms_per_call": 0.0769031114048428,
+          "wall_seconds": 0.0007289419881999493,
+          "cpu_core_seconds": 0.0007300000000043383
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436944.5080018,
+          "end_unix": 1792436944.5087261,
+          "gpu_event_ms_per_call": 0.07720177703433567,
+          "wall_seconds": 0.0007279979763552547,
+          "cpu_core_seconds": 0.0007269999999977017
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436944.5087564,
+          "end_unix": 1792436944.5094824,
+          "gpu_event_ms_per_call": 0.07742577791213989,
+          "wall_seconds": 0.0007301569567061961,
+          "cpu_core_seconds": 0.0007300000000007856
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436944.5095122,
+          "end_unix": 1792436944.510234,
+          "gpu_event_ms_per_call": 0.07687466674380833,
+          "wall_seconds": 0.0007258710102178156,
+          "cpu_core_seconds": 0.0007270000000012544
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.07742577791213989,
+        "candidate-pairs": 0.0769031114048428
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "text/layers/63/mlp/up",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        8704
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00016689064042801823,
+          "max_absolute": 0.00047895367610317763
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436944.6807015,
+          "end_unix": 1792436944.6818547,
+          "gpu_event_ms_per_call": 0.1222862270143297,
+          "wall_seconds": 0.0011607410269789398,
+          "cpu_core_seconds": 0.0011559999999981585
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436944.6818957,
+          "end_unix": 1792436944.6830251,
+          "gpu_event_ms_per_call": 0.12191643979814318,
+          "wall_seconds": 0.001134227029979229,
+          "cpu_core_seconds": 0.0011340000000004125
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436944.6830604,
+          "end_unix": 1792436944.684204,
+          "gpu_event_ms_per_call": 0.12371199660831028,
+          "wall_seconds": 0.0011476390063762665,
+          "cpu_core_seconds": 0.001149000000001621
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436944.6842344,
+          "end_unix": 1792436944.6853416,
+          "gpu_event_ms_per_call": 0.1197013325161404,
+          "wall_seconds": 0.0011110759805887938,
+          "cpu_core_seconds": 0.0011120000000026664
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436944.6853867,
+          "end_unix": 1792436944.6865046,
+          "gpu_event_ms_per_call": 0.12080710464053684,
+          "wall_seconds": 0.001121995970606804,
+          "cpu_core_seconds": 0.0011219999999987351
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436944.6865404,
+          "end_unix": 1792436944.6876562,
+          "gpu_event_ms_per_call": 0.12062933709886339,
+          "wall_seconds": 0.0011200429871678352,
+          "cpu_core_seconds": 0.0011210000000012599
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.12080710464053684,
+        "candidate-pairs": 0.12191643979814318
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "text/layers/63/mlp/down",
+      "tokens": 3,
+      "k": 17408,
+      "ns": [
+        2560
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            123,
+            158,
+            164,
+            190,
+            196,
+            210,
+            294,
+            395,
+            525,
+            608,
+            746,
+            825,
+            895,
+            970,
+            1027,
+            1196,
+            1222,
+            1248,
+            1263,
+            1345,
+            1576,
+            1827,
+            2007,
+            2013,
+            2064,
+            2068,
+            2266,
+            2507,
+            2559
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00020694185818898438,
+          "max_absolute": 0.0008811046832866154
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436945.0264587,
+          "end_unix": 1792436945.0272036,
+          "gpu_event_ms_per_call": 0.07660800218582153,
+          "wall_seconds": 0.000751709972973913,
+          "cpu_core_seconds": 0.0007470000000004973
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436945.0272434,
+          "end_unix": 1792436945.027966,
+          "gpu_event_ms_per_call": 0.07672178082995945,
+          "wall_seconds": 0.0007267830078490078,
+          "cpu_core_seconds": 0.0007270000000012544
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436945.0280004,
+          "end_unix": 1792436945.0287166,
+          "gpu_event_ms_per_call": 0.0762595534324646,
+          "wall_seconds": 0.0007204660214483738,
+          "cpu_core_seconds": 0.0007199999999976114
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436945.0287466,
+          "end_unix": 1792436945.0294564,
+          "gpu_event_ms_per_call": 0.07563377751244439,
+          "wall_seconds": 0.0007145879790186882,
+          "cpu_core_seconds": 0.0007149999999995771
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436945.0294888,
+          "end_unix": 1792436945.0302007,
+          "gpu_event_ms_per_call": 0.07578666342629327,
+          "wall_seconds": 0.0007157099898904562,
+          "cpu_core_seconds": 0.000716000000000605
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436945.0302298,
+          "end_unix": 1792436945.0309486,
+          "gpu_event_ms_per_call": 0.0766542222764757,
+          "wall_seconds": 0.0007229910115711391,
+          "cpu_core_seconds": 0.0007229999999971426
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.07578666342629327,
+        "candidate-pairs": 0.0766542222764757
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "text/layers/63/mlp/down",
+      "tokens": 4,
+      "k": 17408,
+      "ns": [
+        2560
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            123,
+            158,
+            164,
+            190,
+            196,
+            210,
+            294,
+            395,
+            525,
+            608,
+            746,
+            825,
+            895,
+            970,
+            1027,
+            1196,
+            1222,
+            1248,
+            1263,
+            1345,
+            1576,
+            1827,
+            2007,
+            2013,
+            2064,
+            2068,
+            2266,
+            2507,
+            2559
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00021383913761475947,
+          "max_absolute": 0.0009586890842001594
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436945.2161646,
+          "end_unix": 1792436945.2169442,
+          "gpu_event_ms_per_call": 0.08066133658091228,
+          "wall_seconds": 0.0007864870131015778,
+          "cpu_core_seconds": 0.0007820000000009486
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436945.2169826,
+          "end_unix": 1792436945.21774,
+          "gpu_event_ms_per_call": 0.08057244618733723,
+          "wall_seconds": 0.0007617389783263206,
+          "cpu_core_seconds": 0.000762999999999181
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436945.2177744,
+          "end_unix": 1792436945.2185316,
+          "gpu_event_ms_per_call": 0.0807608895831638,
+          "wall_seconds": 0.0007614879868924618,
+          "cpu_core_seconds": 0.0007619999999946003
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436945.218561,
+          "end_unix": 1792436945.2193055,
+          "gpu_event_ms_per_call": 0.07950222492218018,
+          "wall_seconds": 0.0007484880043193698,
+          "cpu_core_seconds": 0.0007489999999990005
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436945.2193353,
+          "end_unix": 1792436945.2200825,
+          "gpu_event_ms_per_call": 0.07981510957082112,
+          "wall_seconds": 0.0007511149742640555,
+          "cpu_core_seconds": 0.0007510000000010564
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436945.2201254,
+          "end_unix": 1792436945.2208762,
+          "gpu_event_ms_per_call": 0.08010311259163751,
+          "wall_seconds": 0.0007548640132881701,
+          "cpu_core_seconds": 0.0007549999999980628
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.07981510957082112,
+        "candidate-pairs": 0.08057244618733723
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "text/layers/63/mlp/down",
+      "tokens": 8,
+      "k": 17408,
+      "ns": [
+        2560
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            123,
+            158,
+            164,
+            190,
+            196,
+            210,
+            294,
+            395,
+            525,
+            608,
+            746,
+            825,
+            895,
+            970,
+            1027,
+            1196,
+            1222,
+            1248,
+            1263,
+            1345,
+            1576,
+            1827,
+            2007,
+            2013,
+            2064,
+            2068,
+            2266,
+            2507,
+            2559
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00021162181197630382,
+          "max_absolute": 0.0009643459104395902
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436945.396673,
+          "end_unix": 1792436945.397746,
+          "gpu_event_ms_per_call": 0.11316622628106011,
+          "wall_seconds": 0.0010795440175570548,
+          "cpu_core_seconds": 0.0010739999999991312
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436945.3977857,
+          "end_unix": 1792436945.3988357,
+          "gpu_event_ms_per_call": 0.11311999956766765,
+          "wall_seconds": 0.0010544940014369786,
+          "cpu_core_seconds": 0.0010550000000009163
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436945.39887,
+          "end_unix": 1792436945.399909,
+          "gpu_event_ms_per_call": 0.11205332809024388,
+          "wall_seconds": 0.0010431130067445338,
+          "cpu_core_seconds": 0.001044000000000267
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436945.3999395,
+          "end_unix": 1792436945.4009767,
+          "gpu_event_ms_per_call": 0.11193244987063938,
+          "wall_seconds": 0.0010410970426164567,
+          "cpu_core_seconds": 0.0010410000000007358
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436945.4010072,
+          "end_unix": 1792436945.4020436,
+          "gpu_event_ms_per_call": 0.1118897729449802,
+          "wall_seconds": 0.001040928007569164,
+          "cpu_core_seconds": 0.0010420000000017637
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436945.4020739,
+          "end_unix": 1792436945.4031105,
+          "gpu_event_ms_per_call": 0.11180799537234837,
+          "wall_seconds": 0.0010404539643786848,
+          "cpu_core_seconds": 0.001040999999997183
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.11193244987063938,
+        "candidate-pairs": 0.11205332809024388
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "text/layers/62/gdn/qkv",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        5120
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            158,
+            164,
+            196,
+            525,
+            608,
+            746,
+            825,
+            1196,
+            1248,
+            1263,
+            1576,
+            1827,
+            2007,
+            2068,
+            2507,
+            2683,
+            2750,
+            2770,
+            2854,
+            2955,
+            3455,
+            3530,
+            3587,
+            3782,
+            3905,
+            4573,
+            4624,
+            4826,
+            5119
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00022471848676216375,
+          "max_absolute": 0.0009759422492843228
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436945.642781,
+          "end_unix": 1792436945.643296,
+          "gpu_event_ms_per_call": 0.050549334949917264,
+          "wall_seconds": 0.0005218950100243092,
+          "cpu_core_seconds": 0.0005169999999985464
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436945.6433337,
+          "end_unix": 1792436945.6438146,
+          "gpu_event_ms_per_call": 0.0492835541566213,
+          "wall_seconds": 0.00048541894648224115,
+          "cpu_core_seconds": 0.0004859999999986542
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436945.6438491,
+          "end_unix": 1792436945.6443248,
+          "gpu_event_ms_per_call": 0.04943289028273688,
+          "wall_seconds": 0.0004796690191142261,
+          "cpu_core_seconds": 0.0004790000000021166
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436945.6443536,
+          "end_unix": 1792436945.6448278,
+          "gpu_event_ms_per_call": 0.04941511154174805,
+          "wall_seconds": 0.0004781960160471499,
+          "cpu_core_seconds": 0.0004789999999985639
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436945.6448588,
+          "end_unix": 1792436945.645335,
+          "gpu_event_ms_per_call": 0.04962844318813748,
+          "wall_seconds": 0.00047990097664296627,
+          "cpu_core_seconds": 0.0004800000000031446
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436945.645363,
+          "end_unix": 1792436945.6458364,
+          "gpu_event_ms_per_call": 0.049265778727001615,
+          "wall_seconds": 0.00047720904694870114,
+          "cpu_core_seconds": 0.00047799999999753595
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.04962844318813748,
+        "candidate-pairs": 0.0492835541566213
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "text/layers/62/gdn/qkv",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        5120
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            158,
+            164,
+            196,
+            525,
+            608,
+            746,
+            825,
+            1196,
+            1248,
+            1263,
+            1576,
+            1827,
+            2007,
+            2068,
+            2507,
+            2683,
+            2750,
+            2770,
+            2854,
+            2955,
+            3455,
+            3530,
+            3587,
+            3782,
+            3905,
+            4573,
+            4624,
+            4826,
+            5119
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00022054081320307576,
+          "max_absolute": 0.0008932810338473374
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436945.766042,
+          "end_unix": 1792436945.7665813,
+          "gpu_event_ms_per_call": 0.05399822195370992,
+          "wall_seconds": 0.0005456159706227481,
+          "cpu_core_seconds": 0.0005400000000008731
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436945.7666175,
+          "end_unix": 1792436945.7671282,
+          "gpu_event_ms_per_call": 0.053272889720069036,
+          "wall_seconds": 0.0005147799965925515,
+          "cpu_core_seconds": 0.0005159999999975184
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436945.7671616,
+          "end_unix": 1792436945.7676733,
+          "gpu_event_ms_per_call": 0.05350044369697571,
+          "wall_seconds": 0.0005156430415809155,
+          "cpu_core_seconds": 0.0005169999999985464
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436945.7677019,
+          "end_unix": 1792436945.7682114,
+          "gpu_event_ms_per_call": 0.053301334381103516,
+          "wall_seconds": 0.0005135550163686275,
+          "cpu_core_seconds": 0.0005139999999990152
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436945.7682416,
+          "end_unix": 1792436945.7687538,
+          "gpu_event_ms_per_call": 0.05362488826115926,
+          "wall_seconds": 0.0005156710394658148,
+          "cpu_core_seconds": 0.0005150000000000432
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436945.7687821,
+          "end_unix": 1792436945.7692943,
+          "gpu_event_ms_per_call": 0.053695999913745456,
+          "wall_seconds": 0.0005163699970580637,
+          "cpu_core_seconds": 0.0005160000000010712
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.05362488826115926,
+        "candidate-pairs": 0.05350044369697571
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "text/layers/62/gdn/qkv",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        5120
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            158,
+            164,
+            196,
+            525,
+            608,
+            746,
+            825,
+            1196,
+            1248,
+            1263,
+            1576,
+            1827,
+            2007,
+            2068,
+            2507,
+            2683,
+            2750,
+            2770,
+            2854,
+            2955,
+            3455,
+            3530,
+            3587,
+            3782,
+            3905,
+            4573,
+            4624,
+            4826,
+            5119
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00020868281155863802,
+          "max_absolute": 0.0008932810338473374
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436945.8939402,
+          "end_unix": 1792436945.8946712,
+          "gpu_event_ms_per_call": 0.07513599925571018,
+          "wall_seconds": 0.0007375010172836483,
+          "cpu_core_seconds": 0.0007319999999992888
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436945.8947084,
+          "end_unix": 1792436945.8954155,
+          "gpu_event_ms_per_call": 0.07500800159242418,
+          "wall_seconds": 0.0007110639708116651,
+          "cpu_core_seconds": 0.0007120000000000459
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436945.8954499,
+          "end_unix": 1792436945.8961556,
+          "gpu_event_ms_per_call": 0.0751111110051473,
+          "wall_seconds": 0.0007098919595591724,
+          "cpu_core_seconds": 0.0007110000000025707
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436945.8961859,
+          "end_unix": 1792436945.8968773,
+          "gpu_event_ms_per_call": 0.0735751125547621,
+          "wall_seconds": 0.0006952629773877561,
+          "cpu_core_seconds": 0.0006959999999978095
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436945.8969078,
+          "end_unix": 1792436945.897604,
+          "gpu_event_ms_per_call": 0.07412622372309367,
+          "wall_seconds": 0.0006999539909884334,
+          "cpu_core_seconds": 0.0007009999999993966
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436945.897632,
+          "end_unix": 1792436945.8983364,
+          "gpu_event_ms_per_call": 0.07507199711269802,
+          "wall_seconds": 0.0007087410194799304,
+          "cpu_core_seconds": 0.0007090000000005148
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.07412622372309367,
+        "candidate-pairs": 0.07507199711269802
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "text/layers/62/gdn/z",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        3072
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            196,
+            224,
+            383,
+            515,
+            702,
+            746,
+            833,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            1501,
+            1549,
+            1552,
+            1632,
+            1746,
+            1754,
+            1827,
+            1931,
+            2068,
+            2074,
+            2506,
+            2507,
+            2600,
+            2683,
+            2758,
+            2854,
+            2873,
+            3071
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.0001908536906955373,
+          "max_absolute": 0.0008013221208567067
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436946.0971262,
+          "end_unix": 1792436946.097482,
+          "gpu_event_ms_per_call": 0.033752888441085815,
+          "wall_seconds": 0.00036231701960787177,
+          "cpu_core_seconds": 0.00035799999999852616
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436946.0975196,
+          "end_unix": 1792436946.0978472,
+          "gpu_event_ms_per_call": 0.03280355532964071,
+          "wall_seconds": 0.0003323199925944209,
+          "cpu_core_seconds": 0.00033299999999769625
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436946.0978851,
+          "end_unix": 1792436946.0982165,
+          "gpu_event_ms_per_call": 0.03344355689154731,
+          "wall_seconds": 0.0003351500490680337,
+          "cpu_core_seconds": 0.00033499999999975216
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436946.0982451,
+          "end_unix": 1792436946.0985703,
+          "gpu_event_ms_per_call": 0.03289599882231818,
+          "wall_seconds": 0.00032899301731958985,
+          "cpu_core_seconds": 0.0003299999999981651
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436946.0986,
+          "end_unix": 1792436946.0989263,
+          "gpu_event_ms_per_call": 0.03310222095913357,
+          "wall_seconds": 0.00033045897725969553,
+          "cpu_core_seconds": 0.00033099999999919305
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436946.0989556,
+          "end_unix": 1792436946.0992813,
+          "gpu_event_ms_per_call": 0.03303466571701898,
+          "wall_seconds": 0.0003297020448371768,
+          "cpu_core_seconds": 0.0003299999999981651
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.03310222095913357,
+        "candidate-pairs": 0.03303466571701898
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "text/layers/62/gdn/z",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        3072
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            196,
+            224,
+            383,
+            515,
+            702,
+            746,
+            833,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            1501,
+            1549,
+            1552,
+            1632,
+            1746,
+            1754,
+            1827,
+            1931,
+            2068,
+            2074,
+            2506,
+            2507,
+            2600,
+            2683,
+            2758,
+            2854,
+            2873,
+            3071
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00021800814498864192,
+          "max_absolute": 0.0009476104938004326
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436946.2078147,
+          "end_unix": 1792436946.2081938,
+          "gpu_event_ms_per_call": 0.03604977660708957,
+          "wall_seconds": 0.00038581795524805784,
+          "cpu_core_seconds": 0.00038000000000337764
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436946.208231,
+          "end_unix": 1792436946.2085733,
+          "gpu_event_ms_per_call": 0.03471644388304816,
+          "wall_seconds": 0.0003465660265646875,
+          "cpu_core_seconds": 0.0003469999999978768
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436946.2086058,
+          "end_unix": 1792436946.208949,
+          "gpu_event_ms_per_call": 0.034830222527186074,
+          "wall_seconds": 0.00034717301605269313,
+          "cpu_core_seconds": 0.00034799999999890474
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436946.2089782,
+          "end_unix": 1792436946.2093222,
+          "gpu_event_ms_per_call": 0.03506844573550754,
+          "wall_seconds": 0.0003479539882391691,
+          "cpu_core_seconds": 0.0003489999999999327
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436946.2093515,
+          "end_unix": 1792436946.2096963,
+          "gpu_event_ms_per_call": 0.035221334960725575,
+          "wall_seconds": 0.0003483829787001014,
+          "cpu_core_seconds": 0.0003489999999999327
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436946.209724,
+          "end_unix": 1792436946.2100651,
+          "gpu_event_ms_per_call": 0.03474844495455424,
+          "wall_seconds": 0.00034496496664360166,
+          "cpu_core_seconds": 0.0003449999999993736
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.035221334960725575,
+        "candidate-pairs": 0.03474844495455424
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "text/layers/62/gdn/z",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        3072
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            196,
+            224,
+            383,
+            515,
+            702,
+            746,
+            833,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            1501,
+            1549,
+            1552,
+            1632,
+            1746,
+            1754,
+            1827,
+            1931,
+            2068,
+            2074,
+            2506,
+            2507,
+            2600,
+            2683,
+            2758,
+            2854,
+            2873,
+            3071
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00020154583828127902,
+          "max_absolute": 0.000735686527374213
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436946.319323,
+          "end_unix": 1792436946.3199205,
+          "gpu_event_ms_per_call": 0.06043733490837945,
+          "wall_seconds": 0.000604498025495559,
+          "cpu_core_seconds": 0.0005990000000011264
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436946.3199587,
+          "end_unix": 1792436946.3205175,
+          "gpu_event_ms_per_call": 0.058527999454074435,
+          "wall_seconds": 0.000563178036827594,
+          "cpu_core_seconds": 0.0005640000000006751
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436946.3205504,
+          "end_unix": 1792436946.3211033,
+          "gpu_event_ms_per_call": 0.05816177527109782,
+          "wall_seconds": 0.0005574449896812439,
+          "cpu_core_seconds": 0.00055799999999806
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436946.3211331,
+          "end_unix": 1792436946.3216972,
+          "gpu_event_ms_per_call": 0.059459553824530706,
+          "wall_seconds": 0.0005680010071955621,
+          "cpu_core_seconds": 0.0005679999999976815
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436946.321727,
+          "end_unix": 1792436946.322289,
+          "gpu_event_ms_per_call": 0.059246222178141274,
+          "wall_seconds": 0.0005658449954353273,
+          "cpu_core_seconds": 0.0005659999999991783
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436946.3223178,
+          "end_unix": 1792436946.3228755,
+          "gpu_event_ms_per_call": 0.0587057802412245,
+          "wall_seconds": 0.0005617630085907876,
+          "cpu_core_seconds": 0.0005619999999986192
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.059459553824530706,
+        "candidate-pairs": 0.058527999454074435
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "text/layers/63/attention/o",
+      "tokens": 3,
+      "k": 6144,
+      "ns": [
+        2560
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            123,
+            158,
+            164,
+            190,
+            196,
+            210,
+            294,
+            395,
+            525,
+            608,
+            746,
+            825,
+            895,
+            970,
+            1027,
+            1196,
+            1222,
+            1248,
+            1263,
+            1345,
+            1576,
+            1827,
+            2007,
+            2013,
+            2064,
+            2068,
+            2266,
+            2507,
+            2559
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00019543977890797192,
+          "max_absolute": 0.0008882008200332692
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436946.5040402,
+          "end_unix": 1792436946.504405,
+          "gpu_event_ms_per_call": 0.03464533223046197,
+          "wall_seconds": 0.0003715280327014625,
+          "cpu_core_seconds": 0.0003660000000031971
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436946.5044444,
+          "end_unix": 1792436946.504779,
+          "gpu_event_ms_per_call": 0.03361422154638502,
+          "wall_seconds": 0.0003388129989616573,
+          "cpu_core_seconds": 0.0003399999999977865
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436946.504818,
+          "end_unix": 1792436946.5051515,
+          "gpu_event_ms_per_call": 0.03372088736957974,
+          "wall_seconds": 0.00033742503728717566,
+          "cpu_core_seconds": 0.0003379999999992833
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436946.5051801,
+          "end_unix": 1792436946.505509,
+          "gpu_event_ms_per_call": 0.033329778247409396,
+          "wall_seconds": 0.00033268495462834835,
+          "cpu_core_seconds": 0.00033300000000124896
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436946.5055375,
+          "end_unix": 1792436946.5058696,
+          "gpu_event_ms_per_call": 0.03363200028737386,
+          "wall_seconds": 0.00033595500281080604,
+          "cpu_core_seconds": 0.0003360000000007801
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436946.5058987,
+          "end_unix": 1792436946.5062318,
+          "gpu_event_ms_per_call": 0.03385244475470649,
+          "wall_seconds": 0.00033675902523100376,
+          "cpu_core_seconds": 0.00033699999999825536
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.03363200028737386,
+        "candidate-pairs": 0.03372088736957974
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "text/layers/63/attention/o",
+      "tokens": 4,
+      "k": 6144,
+      "ns": [
+        2560
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            123,
+            158,
+            164,
+            190,
+            196,
+            210,
+            294,
+            395,
+            525,
+            608,
+            746,
+            825,
+            895,
+            970,
+            1027,
+            1196,
+            1222,
+            1248,
+            1263,
+            1345,
+            1576,
+            1827,
+            2007,
+            2013,
+            2064,
+            2068,
+            2266,
+            2507,
+            2559
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.0001828100876694927,
+          "max_absolute": 0.0008882008200332692
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436946.6137803,
+          "end_unix": 1792436946.6141682,
+          "gpu_event_ms_per_call": 0.03669688767857022,
+          "wall_seconds": 0.00039468304021283984,
+          "cpu_core_seconds": 0.0003889999999984184
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436946.6142063,
+          "end_unix": 1792436946.6145604,
+          "gpu_event_ms_per_call": 0.035975111855400935,
+          "wall_seconds": 0.0003583200159482658,
+          "cpu_core_seconds": 0.0003589999999995541
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436946.6145926,
+          "end_unix": 1792436946.6149487,
+          "gpu_event_ms_per_call": 0.03628444340493944,
+          "wall_seconds": 0.0003601410426199436,
+          "cpu_core_seconds": 0.0003600000000005821
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436946.6149786,
+          "end_unix": 1792436946.615326,
+          "gpu_event_ms_per_call": 0.035381333695517644,
+          "wall_seconds": 0.00035126099828630686,
+          "cpu_core_seconds": 0.00035200000000301657
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436946.6153553,
+          "end_unix": 1792436946.6156995,
+          "gpu_event_ms_per_call": 0.035043554173575506,
+          "wall_seconds": 0.0003479759907349944,
+          "cpu_core_seconds": 0.00034800000000245745
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436946.6157293,
+          "end_unix": 1792436946.6160817,
+          "gpu_event_ms_per_call": 0.035925332042906016,
+          "wall_seconds": 0.0003562039928510785,
+          "cpu_core_seconds": 0.0003570000000010509
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.035381333695517644,
+        "candidate-pairs": 0.035975111855400935
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "text/layers/63/attention/o",
+      "tokens": 8,
+      "k": 6144,
+      "ns": [
+        2560
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            123,
+            158,
+            164,
+            190,
+            196,
+            210,
+            294,
+            395,
+            525,
+            608,
+            746,
+            825,
+            895,
+            970,
+            1027,
+            1196,
+            1222,
+            1248,
+            1263,
+            1345,
+            1576,
+            1827,
+            2007,
+            2013,
+            2064,
+            2068,
+            2266,
+            2507,
+            2559
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.000198318012789471,
+          "max_absolute": 0.00087234682659032
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436946.728556,
+          "end_unix": 1792436946.7290647,
+          "gpu_event_ms_per_call": 0.05047466688685947,
+          "wall_seconds": 0.0005151480436325073,
+          "cpu_core_seconds": 0.0005099999999984561
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436946.7291033,
+          "end_unix": 1792436946.7295856,
+          "gpu_event_ms_per_call": 0.05013688736491733,
+          "wall_seconds": 0.00048651499673724174,
+          "cpu_core_seconds": 0.00048699999999968213
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436946.7296188,
+          "end_unix": 1792436946.7300951,
+          "gpu_event_ms_per_call": 0.04957866668701172,
+          "wall_seconds": 0.0004803710035048425,
+          "cpu_core_seconds": 0.0004810000000006198
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436946.7301242,
+          "end_unix": 1792436946.730603,
+          "gpu_event_ms_per_call": 0.05003022154172262,
+          "wall_seconds": 0.00048256799345836043,
+          "cpu_core_seconds": 0.0004829999999955703
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436946.7306323,
+          "end_unix": 1792436946.7311072,
+          "gpu_event_ms_per_call": 0.049582223097483315,
+          "wall_seconds": 0.00047920900397002697,
+          "cpu_core_seconds": 0.0004800000000031446
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436946.7311363,
+          "end_unix": 1792436946.7316127,
+          "gpu_event_ms_per_call": 0.04974577824274699,
+          "wall_seconds": 0.00048045499715954065,
+          "cpu_core_seconds": 0.0004810000000006198
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.05003022154172262,
+        "candidate-pairs": 0.04974577824274699
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "text/layers/63/attention/q",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        6144
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            224,
+            383,
+            515,
+            746,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            2068,
+            2506,
+            2507,
+            2873,
+            3268,
+            3774,
+            3905,
+            4573,
+            4621,
+            4624,
+            4704,
+            4818,
+            4826,
+            4899,
+            5003,
+            5146,
+            5672,
+            5755,
+            5830,
+            5926,
+            6143
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00021708229841301991,
+          "max_absolute": 0.000799381541181976
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436946.997046,
+          "end_unix": 1792436946.9975934,
+          "gpu_event_ms_per_call": 0.05473777651786804,
+          "wall_seconds": 0.0005532219656743109,
+          "cpu_core_seconds": 0.0005480000000019913
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436946.99763,
+          "end_unix": 1792436946.9981453,
+          "gpu_event_ms_per_call": 0.053788443406422935,
+          "wall_seconds": 0.0005195349804125726,
+          "cpu_core_seconds": 0.0005200000000016303
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436946.998179,
+          "end_unix": 1792436946.9986987,
+          "gpu_event_ms_per_call": 0.054478221469455294,
+          "wall_seconds": 0.0005236660363152623,
+          "cpu_core_seconds": 0.0005240000000021894
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436946.9987273,
+          "end_unix": 1792436946.9992387,
+          "gpu_event_ms_per_call": 0.053610665930642024,
+          "wall_seconds": 0.0005149689968675375,
+          "cpu_core_seconds": 0.0005160000000010712
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436946.999268,
+          "end_unix": 1792436946.9997811,
+          "gpu_event_ms_per_call": 0.05392355720202128,
+          "wall_seconds": 0.0005169089999981225,
+          "cpu_core_seconds": 0.0005169999999985464
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436946.999813,
+          "end_unix": 1792436947.0003285,
+          "gpu_event_ms_per_call": 0.054076443115870156,
+          "wall_seconds": 0.0005192960379645228,
+          "cpu_core_seconds": 0.0005200000000016303
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.05392355720202128,
+        "candidate-pairs": 0.054076443115870156
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "text/layers/63/attention/q",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        6144
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            224,
+            383,
+            515,
+            746,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            2068,
+            2506,
+            2507,
+            2873,
+            3268,
+            3774,
+            3905,
+            4573,
+            4621,
+            4624,
+            4704,
+            4818,
+            4826,
+            4899,
+            5003,
+            5146,
+            5672,
+            5755,
+            5830,
+            5926,
+            6143
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00022129455023750167,
+          "max_absolute": 0.000799381541181976
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436947.1283772,
+          "end_unix": 1792436947.1289566,
+          "gpu_event_ms_per_call": 0.0584391090604994,
+          "wall_seconds": 0.0005863619735464454,
+          "cpu_core_seconds": 0.0005820000000014147
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436947.1289947,
+          "end_unix": 1792436947.129545,
+          "gpu_event_ms_per_call": 0.057660447226630315,
+          "wall_seconds": 0.0005542289582081139,
+          "cpu_core_seconds": 0.0005539999999975009
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436947.1295779,
+          "end_unix": 1792436947.130127,
+          "gpu_event_ms_per_call": 0.057617776923709445,
+          "wall_seconds": 0.0005527999601326883,
+          "cpu_core_seconds": 0.000552999999996473
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436947.1301563,
+          "end_unix": 1792436947.1307013,
+          "gpu_event_ms_per_call": 0.05731199847327338,
+          "wall_seconds": 0.0005489169852808118,
+          "cpu_core_seconds": 0.0005500000000004945
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436947.1307304,
+          "end_unix": 1792436947.1312802,
+          "gpu_event_ms_per_call": 0.05787022246254815,
+          "wall_seconds": 0.000553642981685698,
+          "cpu_core_seconds": 0.0005539999999975009
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436947.131309,
+          "end_unix": 1792436947.1318567,
+          "gpu_event_ms_per_call": 0.0576711098353068,
+          "wall_seconds": 0.000551735982298851,
+          "cpu_core_seconds": 0.0005520000000025505
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.05787022246254815,
+        "candidate-pairs": 0.057660447226630315
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "text/layers/63/attention/q",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        6144
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            224,
+            383,
+            515,
+            746,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            2068,
+            2506,
+            2507,
+            2873,
+            3268,
+            3774,
+            3905,
+            4573,
+            4621,
+            4624,
+            4704,
+            4818,
+            4826,
+            4899,
+            5003,
+            5146,
+            5672,
+            5755,
+            5830,
+            5926,
+            6143
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00020968451115947122,
+          "max_absolute": 0.000799381541181976
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436947.2646458,
+          "end_unix": 1792436947.2655833,
+          "gpu_event_ms_per_call": 0.09820799695120917,
+          "wall_seconds": 0.0009445070172660053,
+          "cpu_core_seconds": 0.0009389999999989129
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436947.2656212,
+          "end_unix": 1792436947.2665417,
+          "gpu_event_ms_per_call": 0.0988337794939677,
+          "wall_seconds": 0.0009247650159522891,
+          "cpu_core_seconds": 0.0009249999999987324
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436947.2665753,
+          "end_unix": 1792436947.2675018,
+          "gpu_event_ms_per_call": 0.09965511163075765,
+          "wall_seconds": 0.0009306700085289776,
+          "cpu_core_seconds": 0.0009309999999977947
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436947.2675307,
+          "end_unix": 1792436947.2684112,
+          "gpu_event_ms_per_call": 0.09464889102511936,
+          "wall_seconds": 0.000884181004948914,
+          "cpu_core_seconds": 0.0008850000000002467
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436947.2684405,
+          "end_unix": 1792436947.2693222,
+          "gpu_event_ms_per_call": 0.09480177693896824,
+          "wall_seconds": 0.0008854010375216603,
+          "cpu_core_seconds": 0.0008860000000012747
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436947.2693512,
+          "end_unix": 1792436947.270236,
+          "gpu_event_ms_per_call": 0.09512533081902398,
+          "wall_seconds": 0.0008882920374162495,
+          "cpu_core_seconds": 0.0008890000000008058
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.09480177693896824,
+        "candidate-pairs": 0.0988337794939677
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "text/layers/63/attention/v",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        512
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00018019969806585854,
+          "max_absolute": 0.0009540020975764563
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436947.3926604,
+          "end_unix": 1792436947.392863,
+          "gpu_event_ms_per_call": 0.01643733349111345,
+          "wall_seconds": 0.00020999496337026358,
+          "cpu_core_seconds": 0.00019200000000196837
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436947.392907,
+          "end_unix": 1792436947.393083,
+          "gpu_event_ms_per_call": 0.01604977746804555,
+          "wall_seconds": 0.0001802360056899488,
+          "cpu_core_seconds": 0.00018000000000029104
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436947.3931162,
+          "end_unix": 1792436947.3932846,
+          "gpu_event_ms_per_call": 0.01553066737122006,
+          "wall_seconds": 0.00017219805158674717,
+          "cpu_core_seconds": 0.00017300000000020077
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436947.393313,
+          "end_unix": 1792436947.393485,
+          "gpu_event_ms_per_call": 0.015857777661747403,
+          "wall_seconds": 0.00017594295786693692,
+          "cpu_core_seconds": 0.00017599999999973193
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436947.3935144,
+          "end_unix": 1792436947.393685,
+          "gpu_event_ms_per_call": 0.015818667080667283,
+          "wall_seconds": 0.00017459900118410587,
+          "cpu_core_seconds": 0.00017599999999973193
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436947.393713,
+          "end_unix": 1792436947.3938813,
+          "gpu_event_ms_per_call": 0.015512888630231222,
+          "wall_seconds": 0.00017223000759258866,
+          "cpu_core_seconds": 0.00017300000000020077
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.015857777661747403,
+        "candidate-pairs": 0.01553066737122006
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "text/layers/63/attention/v",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        512
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.0001809517864554162,
+          "max_absolute": 0.0009492192972588853
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436947.4735637,
+          "end_unix": 1792436947.4737766,
+          "gpu_event_ms_per_call": 0.017959111266665988,
+          "wall_seconds": 0.00022073404397815466,
+          "cpu_core_seconds": 0.00021500000000074238
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436947.4738202,
+          "end_unix": 1792436947.474004,
+          "gpu_event_ms_per_call": 0.016778666112158034,
+          "wall_seconds": 0.0001877309987321496,
+          "cpu_core_seconds": 0.00018799999999785655
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436947.474036,
+          "end_unix": 1792436947.4742153,
+          "gpu_event_ms_per_call": 0.016583111551072862,
+          "wall_seconds": 0.00018373597413301468,
+          "cpu_core_seconds": 0.00018399999999729744
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436947.474244,
+          "end_unix": 1792436947.4744234,
+          "gpu_event_ms_per_call": 0.016768000192112394,
+          "wall_seconds": 0.00018276897026225924,
+          "cpu_core_seconds": 0.0001829999999998222
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436947.4744515,
+          "end_unix": 1792436947.4746299,
+          "gpu_event_ms_per_call": 0.016703999704784818,
+          "wall_seconds": 0.0001827869564294815,
+          "cpu_core_seconds": 0.0001829999999998222
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436947.4746575,
+          "end_unix": 1792436947.4748354,
+          "gpu_event_ms_per_call": 0.016504888733228047,
+          "wall_seconds": 0.000182866002433002,
+          "cpu_core_seconds": 0.0001829999999998222
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.016768000192112394,
+        "candidate-pairs": 0.016583111551072862
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "text/layers/63/attention/v",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        512
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00019047913249915733,
+          "max_absolute": 0.0010747628674261378
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436947.5568693,
+          "end_unix": 1792436947.5571134,
+          "gpu_event_ms_per_call": 0.021223111285103693,
+          "wall_seconds": 0.0002503540017642081,
+          "cpu_core_seconds": 0.0002460000000006346
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436947.5571496,
+          "end_unix": 1792436947.557363,
+          "gpu_event_ms_per_call": 0.020398222737842135,
+          "wall_seconds": 0.0002174580004066229,
+          "cpu_core_seconds": 0.0002170000000027983
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436947.557396,
+          "end_unix": 1792436947.5576072,
+          "gpu_event_ms_per_call": 0.02032711108525594,
+          "wall_seconds": 0.00021501502487808466,
+          "cpu_core_seconds": 0.00021499999999718966
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436947.5576346,
+          "end_unix": 1792436947.5578444,
+          "gpu_event_ms_per_call": 0.02014933360947503,
+          "wall_seconds": 0.0002137410338036716,
+          "cpu_core_seconds": 0.00021399999999971442
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436947.5578744,
+          "end_unix": 1792436947.5580847,
+          "gpu_event_ms_per_call": 0.020248888267411128,
+          "wall_seconds": 0.0002139389980584383,
+          "cpu_core_seconds": 0.00021399999999971442
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436947.5581129,
+          "end_unix": 1792436947.5583236,
+          "gpu_event_ms_per_call": 0.02033422225051456,
+          "wall_seconds": 0.0002148060011677444,
+          "cpu_core_seconds": 0.00021500000000074238
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.020248888267411128,
+        "candidate-pairs": 0.02033422225051456
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "fused-mlp",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        8704,
+        8704
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00020710741785011922,
+          "max_absolute": 0.0004946267556067419
+        },
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.0002092781490906799,
+          "max_absolute": 0.00047781473332553226
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436948.1435103,
+          "end_unix": 1792436948.1447985,
+          "gpu_event_ms_per_call": 0.1372942262225681,
+          "wall_seconds": 0.0012946040369570255,
+          "cpu_core_seconds": 0.0012900000000044543
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436948.1448407,
+          "end_unix": 1792436948.1460977,
+          "gpu_event_ms_per_call": 0.13601066006554496,
+          "wall_seconds": 0.0012613559956662357,
+          "cpu_core_seconds": 0.0012600000000020373
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436948.1461325,
+          "end_unix": 1792436948.1473906,
+          "gpu_event_ms_per_call": 0.13641956117418078,
+          "wall_seconds": 0.0012622890062630177,
+          "cpu_core_seconds": 0.0012630000000015684
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436948.147421,
+          "end_unix": 1792436948.1486723,
+          "gpu_event_ms_per_call": 0.1357226636674669,
+          "wall_seconds": 0.0012553929700516164,
+          "cpu_core_seconds": 0.0012560000000050309
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436948.1487036,
+          "end_unix": 1792436948.1499531,
+          "gpu_event_ms_per_call": 0.1354879935582479,
+          "wall_seconds": 0.001253638998605311,
+          "cpu_core_seconds": 0.001254000000002975
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436948.1499832,
+          "end_unix": 1792436948.1512396,
+          "gpu_event_ms_per_call": 0.13629866970909965,
+          "wall_seconds": 0.001260375021956861,
+          "cpu_core_seconds": 0.0012609999999995125
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.1357226636674669,
+        "candidate-pairs": 0.13629866970909965
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "fused-mlp",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        8704,
+        8704
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.0002163148966432391,
+          "max_absolute": 0.0004946267556067419
+        },
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00023313507020762217,
+          "max_absolute": 0.0006930104069953202
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436948.4172962,
+          "end_unix": 1792436948.4186833,
+          "gpu_event_ms_per_call": 0.14720355139838326,
+          "wall_seconds": 0.001395003986544907,
+          "cpu_core_seconds": 0.001379000000000019
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436948.4187312,
+          "end_unix": 1792436948.4200873,
+          "gpu_event_ms_per_call": 0.14685511589050293,
+          "wall_seconds": 0.0013606760185211897,
+          "cpu_core_seconds": 0.0013610000000028322
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436948.4201248,
+          "end_unix": 1792436948.42147,
+          "gpu_event_ms_per_call": 0.1459946632385254,
+          "wall_seconds": 0.0013491790159605443,
+          "cpu_core_seconds": 0.0013500000000021828
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436948.4215004,
+          "end_unix": 1792436948.4228384,
+          "gpu_event_ms_per_call": 0.14536533090803358,
+          "wall_seconds": 0.0013423709897324443,
+          "cpu_core_seconds": 0.0013429999999985398
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436948.4228694,
+          "end_unix": 1792436948.42421,
+          "gpu_event_ms_per_call": 0.14568889141082764,
+          "wall_seconds": 0.0013449749676510692,
+          "cpu_core_seconds": 0.0013450000000005957
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436948.4242396,
+          "end_unix": 1792436948.4255862,
+          "gpu_event_ms_per_call": 0.14640355110168457,
+          "wall_seconds": 0.0013506580144166946,
+          "cpu_core_seconds": 0.001350999999999658
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.14568889141082764,
+        "candidate-pairs": 0.14640355110168457
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "fused-mlp",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        8704,
+        8704
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00020327303050853818,
+          "max_absolute": 0.00042970565130140415
+        },
+        {
+          "rows": [
+            0,
+            26,
+            525,
+            710,
+            722,
+            825,
+            1027,
+            1064,
+            1543,
+            2266,
+            3018,
+            3393,
+            3774,
+            4043,
+            4268,
+            5085,
+            5216,
+            5243,
+            5316,
+            5354,
+            5796,
+            6164,
+            6302,
+            6368,
+            6435,
+            6527,
+            6672,
+            6895,
+            7127,
+            7462,
+            8075,
+            8703
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.0002162629091772083,
+          "max_absolute": 0.0004751601399997085
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436948.6931036,
+          "end_unix": 1792436948.6951816,
+          "gpu_event_ms_per_call": 0.22487110561794704,
+          "wall_seconds": 0.002084406965877861,
+          "cpu_core_seconds": 0.0020790000000019404
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436948.6952205,
+          "end_unix": 1792436948.6972747,
+          "gpu_event_ms_per_call": 0.22473245196872288,
+          "wall_seconds": 0.002058990008663386,
+          "cpu_core_seconds": 0.0020590000000026976
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436948.6973107,
+          "end_unix": 1792436948.6993659,
+          "gpu_event_ms_per_call": 0.22481422954135472,
+          "wall_seconds": 0.0020591059583239257,
+          "cpu_core_seconds": 0.002060000000000173
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436948.6993961,
+          "end_unix": 1792436948.7014403,
+          "gpu_event_ms_per_call": 0.22381512324015299,
+          "wall_seconds": 0.002048355992883444,
+          "cpu_core_seconds": 0.002048000000002048
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436948.7014718,
+          "end_unix": 1792436948.7035136,
+          "gpu_event_ms_per_call": 0.223544889026218,
+          "wall_seconds": 0.0020459519582800567,
+          "cpu_core_seconds": 0.002047000000004573
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436948.703544,
+          "end_unix": 1792436948.705598,
+          "gpu_event_ms_per_call": 0.22495643297831217,
+          "wall_seconds": 0.0020582880242727697,
+          "cpu_core_seconds": 0.0020590000000026976
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.22381512324015299,
+        "candidate-pairs": 0.22481422954135472
+      },
+      "best_measured_arm": "control-aos"
+    },
+    {
+      "label": "fused-gdn",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        5120,
+        3072
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            158,
+            164,
+            196,
+            525,
+            608,
+            746,
+            825,
+            1196,
+            1248,
+            1263,
+            1576,
+            1827,
+            2007,
+            2068,
+            2507,
+            2683,
+            2750,
+            2770,
+            2854,
+            2955,
+            3455,
+            3530,
+            3587,
+            3782,
+            3905,
+            4573,
+            4624,
+            4826,
+            5119
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.0002145028253247882,
+          "max_absolute": 0.000955297970874458
+        },
+        {
+          "rows": [
+            0,
+            7,
+            196,
+            224,
+            383,
+            515,
+            702,
+            746,
+            833,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            1501,
+            1549,
+            1552,
+            1632,
+            1746,
+            1754,
+            1827,
+            1931,
+            2068,
+            2074,
+            2506,
+            2507,
+            2600,
+            2683,
+            2758,
+            2854,
+            2873,
+            3071
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00019576639100541625,
+          "max_absolute": 0.0008331754841659489
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436949.0558894,
+          "end_unix": 1792436949.05667,
+          "gpu_event_ms_per_call": 0.07866311073303223,
+          "wall_seconds": 0.0007901269709691405,
+          "cpu_core_seconds": 0.0007860000000050604
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436949.056721,
+          "end_unix": 1792436949.05744,
+          "gpu_event_ms_per_call": 0.07513244284523858,
+          "wall_seconds": 0.0007262709550559521,
+          "cpu_core_seconds": 0.0007269999999977017
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436949.057488,
+          "end_unix": 1792436949.0581985,
+          "gpu_event_ms_per_call": 0.07411555449167888,
+          "wall_seconds": 0.0007181909750215709,
+          "cpu_core_seconds": 0.0007189999999965835
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436949.058255,
+          "end_unix": 1792436949.059004,
+          "gpu_event_ms_per_call": 0.07618844509124756,
+          "wall_seconds": 0.0007567930151708424,
+          "cpu_core_seconds": 0.0007579999999975939
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436949.0590527,
+          "end_unix": 1792436949.059769,
+          "gpu_event_ms_per_call": 0.07566577858395046,
+          "wall_seconds": 0.0007199330138973892,
+          "cpu_core_seconds": 0.0007200000000011642
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436949.0598001,
+          "end_unix": 1792436949.0604994,
+          "gpu_event_ms_per_call": 0.07383822070227729,
+          "wall_seconds": 0.0007036629831418395,
+          "cpu_core_seconds": 0.0007039999999989277
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.07618844509124756,
+        "candidate-pairs": 0.07411555449167888
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "fused-gdn",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        5120,
+        3072
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            158,
+            164,
+            196,
+            525,
+            608,
+            746,
+            825,
+            1196,
+            1248,
+            1263,
+            1576,
+            1827,
+            2007,
+            2068,
+            2507,
+            2683,
+            2750,
+            2770,
+            2854,
+            2955,
+            3455,
+            3530,
+            3587,
+            3782,
+            3905,
+            4573,
+            4624,
+            4826,
+            5119
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00022305983082344363,
+          "max_absolute": 0.000955297970874458
+        },
+        {
+          "rows": [
+            0,
+            7,
+            196,
+            224,
+            383,
+            515,
+            702,
+            746,
+            833,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            1501,
+            1549,
+            1552,
+            1632,
+            1746,
+            1754,
+            1827,
+            1931,
+            2068,
+            2074,
+            2506,
+            2507,
+            2600,
+            2683,
+            2758,
+            2854,
+            2873,
+            3071
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00021392401747904693,
+          "max_absolute": 0.0008636666469827858
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436949.215968,
+          "end_unix": 1792436949.2167513,
+          "gpu_event_ms_per_call": 0.08109155628416273,
+          "wall_seconds": 0.0007900490309111774,
+          "cpu_core_seconds": 0.0007850000000004798
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436949.2167888,
+          "end_unix": 1792436949.217522,
+          "gpu_event_ms_per_call": 0.07760000228881836,
+          "wall_seconds": 0.0007378539885394275,
+          "cpu_core_seconds": 0.0007380000000054565
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436949.217557,
+          "end_unix": 1792436949.2182884,
+          "gpu_event_ms_per_call": 0.07779555850558811,
+          "wall_seconds": 0.0007359379669651389,
+          "cpu_core_seconds": 0.0007360000000034006
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436949.2183194,
+          "end_unix": 1792436949.2190666,
+          "gpu_event_ms_per_call": 0.07958044608434041,
+          "wall_seconds": 0.0007514909957535565,
+          "cpu_core_seconds": 0.0007519999999985316
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436949.2190976,
+          "end_unix": 1792436949.219847,
+          "gpu_event_ms_per_call": 0.07993244462543064,
+          "wall_seconds": 0.0007534939795732498,
+          "cpu_core_seconds": 0.0007540000000005875
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436949.2198763,
+          "end_unix": 1792436949.2206075,
+          "gpu_event_ms_per_call": 0.07802310917112562,
+          "wall_seconds": 0.0007350349915213883,
+          "cpu_core_seconds": 0.0007349999999988199
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.07993244462543064,
+        "candidate-pairs": 0.07779555850558811
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "fused-gdn",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        5120,
+        3072
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            26,
+            158,
+            164,
+            196,
+            525,
+            608,
+            746,
+            825,
+            1196,
+            1248,
+            1263,
+            1576,
+            1827,
+            2007,
+            2068,
+            2507,
+            2683,
+            2750,
+            2770,
+            2854,
+            2955,
+            3455,
+            3530,
+            3587,
+            3782,
+            3905,
+            4573,
+            4624,
+            4826,
+            5119
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.000233698803567058,
+          "max_absolute": 0.000955297970874458
+        },
+        {
+          "rows": [
+            0,
+            7,
+            196,
+            224,
+            383,
+            515,
+            702,
+            746,
+            833,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            1501,
+            1549,
+            1552,
+            1632,
+            1746,
+            1754,
+            1827,
+            1931,
+            2068,
+            2074,
+            2506,
+            2507,
+            2600,
+            2683,
+            2758,
+            2854,
+            2873,
+            3071
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00023789456430815304,
+          "max_absolute": 0.0009522470561096341
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436949.395437,
+          "end_unix": 1792436949.3965747,
+          "gpu_event_ms_per_call": 0.1204835573832194,
+          "wall_seconds": 0.0011450930032879114,
+          "cpu_core_seconds": 0.0011420000000015307
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436949.3966157,
+          "end_unix": 1792436949.3977144,
+          "gpu_event_ms_per_call": 0.11848533153533936,
+          "wall_seconds": 0.0011029180022887886,
+          "cpu_core_seconds": 0.0011030000000005202
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436949.3977494,
+          "end_unix": 1792436949.3988473,
+          "gpu_event_ms_per_call": 0.11847466892666286,
+          "wall_seconds": 0.0011026900028809905,
+          "cpu_core_seconds": 0.0011030000000005202
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436949.3988793,
+          "end_unix": 1792436949.3999798,
+          "gpu_event_ms_per_call": 0.11888710657755534,
+          "wall_seconds": 0.0011049600434489548,
+          "cpu_core_seconds": 0.0011049999999954707
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436949.400011,
+          "end_unix": 1792436949.4011145,
+          "gpu_event_ms_per_call": 0.11915377775828044,
+          "wall_seconds": 0.0011073320056311786,
+          "cpu_core_seconds": 0.0011080000000021073
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436949.4011443,
+          "end_unix": 1792436949.4022398,
+          "gpu_event_ms_per_call": 0.11846400631798638,
+          "wall_seconds": 0.0010993809555657208,
+          "cpu_core_seconds": 0.0011000000000080945
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.11915377775828044,
+        "candidate-pairs": 0.11847466892666286
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "fused-attention",
+      "tokens": 3,
+      "k": 5120,
+      "ns": [
+        6144,
+        512,
+        512
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            224,
+            383,
+            515,
+            746,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            2068,
+            2506,
+            2507,
+            2873,
+            3268,
+            3774,
+            3905,
+            4573,
+            4621,
+            4624,
+            4704,
+            4818,
+            4826,
+            4899,
+            5003,
+            5146,
+            5672,
+            5755,
+            5830,
+            5926,
+            6143
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00021936284441410132,
+          "max_absolute": 0.0017189849121947987
+        },
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.000185063091158506,
+          "max_absolute": 0.000791253992458163
+        },
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            1,
+            2
+          ],
+          "relative_l2": 0.00018976403714456456,
+          "max_absolute": 0.0009376148266220241
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436949.737759,
+          "end_unix": 1792436949.7384005,
+          "gpu_event_ms_per_call": 0.06505955590142144,
+          "wall_seconds": 0.0006478530121967196,
+          "cpu_core_seconds": 0.0006419999999991433
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436949.7384384,
+          "end_unix": 1792436949.73904,
+          "gpu_event_ms_per_call": 0.06333866384294298,
+          "wall_seconds": 0.0006059190491214395,
+          "cpu_core_seconds": 0.000605999999997664
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436949.7390738,
+          "end_unix": 1792436949.7396739,
+          "gpu_event_ms_per_call": 0.06322844160927667,
+          "wall_seconds": 0.0006037379498593509,
+          "cpu_core_seconds": 0.0006040000000027135
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436949.7397025,
+          "end_unix": 1792436949.7403016,
+          "gpu_event_ms_per_call": 0.06336355871624416,
+          "wall_seconds": 0.0006030229851603508,
+          "cpu_core_seconds": 0.0006029999999981328
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436949.740332,
+          "end_unix": 1792436949.7409327,
+          "gpu_event_ms_per_call": 0.06350221898820665,
+          "wall_seconds": 0.0006047760252840817,
+          "cpu_core_seconds": 0.0006050000000001887
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436949.7409613,
+          "end_unix": 1792436949.7415602,
+          "gpu_event_ms_per_call": 0.06327111191219753,
+          "wall_seconds": 0.0006029969663359225,
+          "cpu_core_seconds": 0.0006040000000027135
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.06350221898820665,
+        "candidate-pairs": 0.06327111191219753
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "fused-attention",
+      "tokens": 4,
+      "k": 5120,
+      "ns": [
+        6144,
+        512,
+        512
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            224,
+            383,
+            515,
+            746,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            2068,
+            2506,
+            2507,
+            2873,
+            3268,
+            3774,
+            3905,
+            4573,
+            4621,
+            4624,
+            4704,
+            4818,
+            4826,
+            4899,
+            5003,
+            5146,
+            5672,
+            5755,
+            5830,
+            5926,
+            6143
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00022350319585888153,
+          "max_absolute": 0.0017189849121947987
+        },
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.00020307746812600331,
+          "max_absolute": 0.0008249489386029651
+        },
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            2,
+            3
+          ],
+          "relative_l2": 0.0002068760997089012,
+          "max_absolute": 0.0009376148266220241
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436949.8933165,
+          "end_unix": 1792436949.8939917,
+          "gpu_event_ms_per_call": 0.0690915584564209,
+          "wall_seconds": 0.0006816289969719946,
+          "cpu_core_seconds": 0.0006759999999985666
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436949.8940296,
+          "end_unix": 1792436949.8946714,
+          "gpu_event_ms_per_call": 0.0677973363134596,
+          "wall_seconds": 0.000646089029032737,
+          "cpu_core_seconds": 0.0006470000000007303
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436949.8947046,
+          "end_unix": 1792436949.895345,
+          "gpu_event_ms_per_call": 0.06782222456402248,
+          "wall_seconds": 0.0006441840087063611,
+          "cpu_core_seconds": 0.0006440000000011992
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436949.895374,
+          "end_unix": 1792436949.896015,
+          "gpu_event_ms_per_call": 0.0679324467976888,
+          "wall_seconds": 0.0006451099761761725,
+          "cpu_core_seconds": 0.0006459999999961497
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436949.896046,
+          "end_unix": 1792436949.896684,
+          "gpu_event_ms_per_call": 0.0676728884379069,
+          "wall_seconds": 0.0006421299767680466,
+          "cpu_core_seconds": 0.0006420000000062487
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436949.8967118,
+          "end_unix": 1792436949.897352,
+          "gpu_event_ms_per_call": 0.06782578097449408,
+          "wall_seconds": 0.0006445790058933198,
+          "cpu_core_seconds": 0.0006229999999973757
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.0679324467976888,
+        "candidate-pairs": 0.06782222456402248
+      },
+      "best_measured_arm": "candidate-pairs"
+    },
+    {
+      "label": "fused-attention",
+      "tokens": 8,
+      "k": 5120,
+      "ns": [
+        6144,
+        512,
+        512
+      ],
+      "all_output_bytes_equal": true,
+      "sampled_fp64": [
+        {
+          "rows": [
+            0,
+            7,
+            224,
+            383,
+            515,
+            746,
+            983,
+            1182,
+            1188,
+            1196,
+            1263,
+            2068,
+            2506,
+            2507,
+            2873,
+            3268,
+            3774,
+            3905,
+            4573,
+            4621,
+            4624,
+            4704,
+            4818,
+            4826,
+            4899,
+            5003,
+            5146,
+            5672,
+            5755,
+            5830,
+            5926,
+            6143
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00022484317873531083,
+          "max_absolute": 0.0017189849121947987
+        },
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00020344401439199974,
+          "max_absolute": 0.000791253992458163
+        },
+        {
+          "rows": [
+            0,
+            3,
+            7,
+            13,
+            16,
+            20,
+            26,
+            40,
+            96,
+            123,
+            158,
+            164,
+            172,
+            190,
+            196,
+            198,
+            210,
+            218,
+            224,
+            234,
+            239,
+            291,
+            294,
+            313,
+            321,
+            383,
+            395,
+            458,
+            459,
+            471,
+            477,
+            511
+          ],
+          "token_indices": [
+            0,
+            4,
+            7
+          ],
+          "relative_l2": 0.00022776741853823768,
+          "max_absolute": 0.0009376148266220241
+        }
+      ],
+      "waves": [
+        {
+          "arm": "control-aos",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436950.0517757,
+          "end_unix": 1792436950.0527797,
+          "gpu_event_ms_per_call": 0.10531200302971734,
+          "wall_seconds": 0.0010110459988936782,
+          "cpu_core_seconds": 0.0010070000000013124
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 0,
+          "calls": 9,
+          "start_unix": 1792436950.0528228,
+          "end_unix": 1792436950.0537963,
+          "gpu_event_ms_per_call": 0.1045759982532925,
+          "wall_seconds": 0.0009780250256881118,
+          "cpu_core_seconds": 0.0009790000000009513
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436950.0538344,
+          "end_unix": 1792436950.0548263,
+          "gpu_event_ms_per_call": 0.10487111409505208,
+          "wall_seconds": 0.0009962840122170746,
+          "cpu_core_seconds": 0.0009970000000052437
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 1,
+          "calls": 9,
+          "start_unix": 1792436950.0548604,
+          "end_unix": 1792436950.05583,
+          "gpu_event_ms_per_call": 0.10437688562605116,
+          "wall_seconds": 0.0009738010121509433,
+          "cpu_core_seconds": 0.0009739999999993643
+        },
+        {
+          "arm": "control-aos",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436950.0558608,
+          "end_unix": 1792436950.0568275,
+          "gpu_event_ms_per_call": 0.10426666339238484,
+          "wall_seconds": 0.0009709860314615071,
+          "cpu_core_seconds": 0.0009709999999998331
+        },
+        {
+          "arm": "candidate-pairs",
+          "repeat": 2,
+          "calls": 9,
+          "start_unix": 1792436950.056857,
+          "end_unix": 1792436950.0578272,
+          "gpu_event_ms_per_call": 0.1045902238951789,
+          "wall_seconds": 0.0009742380352690816,
+          "cpu_core_seconds": 0.0009750000000039449
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-aos": 0.10437688562605116,
+        "candidate-pairs": 0.1045902238951789
+      },
+      "best_measured_arm": "control-aos"
+    }
+  ],
+  "completed": true,
+  "full_model_quality_qualified": false,
+  "achieved_hardware_counters": null
+}

@@ -1,0 +1,32 @@
+......F................................................................. [ 60%]
+...............................................                          [100%]
+=================================== FAILURES ===================================
+______________ test_column_tp_header_is_a_blocks_build_dependency ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x758402692020>
+tmp_path = PosixPath('/tmp/pytest-of-wzu/pytest-142/test_column_tp_header_is_a_blo0')
+
+    def test_column_tp_header_is_a_blocks_build_dependency(monkeypatch, tmp_path):
+        import json
+        from venturi.ops.build import build_blocks_backend
+    
+        def compiler(command, **kwargs):
+            if command[-1] == "--version":
+                return subprocess.CompletedProcess(command, 0, "fake compiler", "")
+            Path(command[-1]).write_bytes(b"fake library, not compiled")
+            return subprocess.CompletedProcess(command, 0, "", "")
+    
+        monkeypatch.setattr(sys, "platform", "linux")
+        monkeypatch.setattr(subprocess, "run", compiler)
+        library = build_blocks_backend(tmp_path, nvcc="fake", architecture="sm70")
+        manifest = json.loads(library.with_name("build.json").read_text())
+        assert "q8_column_tp.cuh" in manifest["source_sha256"]
+        assert "qwen_head_gdn.cuh" in manifest["source_sha256"]
+>       assert len(manifest["source_sha256"]) == 11
+E       AssertionError: assert 13 == 11
+E        +  where 13 = len({'blocks.cu': '9dcb202575ee2d677ffe1c45c149cc4333b782101d8b1c5c6df6a4cd876b56ab', 'q8_column_tp.cuh': 'fb4748026caa0e2...f9e19617a176d08ac7b0c8a5c3ed', 'q8_fused.cuh': 'f9256a832b7fcf436b0e430bebb3627eb2539d86a7982c830a43f4e4ce1fc0c5', ...})
+
+../data/wangyue/repos/codex-build/Venturi/q8-prefetch-src-v3/tests/test_ada_build.py:209: AssertionError
+=========================== short test summary info ============================
+FAILED ../data/wangyue/repos/codex-build/Venturi/q8-prefetch-src-v3/tests/test_ada_build.py::test_column_tp_header_is_a_blocks_build_dependency
+1 failed, 118 passed in 33.98s

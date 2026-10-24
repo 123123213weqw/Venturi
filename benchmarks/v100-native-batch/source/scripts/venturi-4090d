@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Optional launcher for the existing School_4090D deployment; no local install.
+set -euo pipefail
+
+if [[ $# -eq 0 || $1 == --help || $1 == -h ]]; then
+  echo "Usage: $0 {generate|benchmark|inspect|load|verify} [options]"
+  echo "Example: $0 generate --prompt 'Once upon a time' --max-new-tokens 32"
+  echo "Override VENTURI_SSH_HOST, VENTURI_REMOTE_DIR, VENTURI_REMOTE_PYTHON,"
+  echo "VENTURI_REMOTE_SIPHON, or VENTURI_REMOTE_MODEL for another deployment."
+  exit 0
+fi
+command=$1
+shift
+case "$command" in
+  generate|benchmark|inspect|load|verify) ;;
+  *) echo "Unknown command: $command" >&2; exit 2 ;;
+esac
+host=${VENTURI_SSH_HOST:-School_4090D}
+directory=${VENTURI_REMOTE_DIR:-/home/test/wangyue/venturi-work/text-generation}
+python=${VENTURI_REMOTE_PYTHON:-/home/test/wangyue/rwkv-distill-2.9b/.venv/bin/python}
+siphon=${VENTURI_REMOTE_SIPHON:-/home/test/wangyue/venturi-work/staged-siphon}
+model=${VENTURI_REMOTE_MODEL:-/home/test/wangyue/venturi-work/models/pythia-70m-a39f36b}
+# SSH sends one remote command string. Quote every argument, including prompts,
+# rather than relying on ssh to preserve local argument boundaries.
+printf -v directory_q '%q' "$directory"
+printf -v invocation '%q ' env "PYTHONPATH=$directory/src:$siphon" \
+  "$python" -m venturi "$command" "$model" "$@"
+exec ssh -C -o BatchMode=yes -o ForwardAgent=no -o ConnectTimeout=20 \
+  -o ConnectionAttempts=1 -o ServerAliveInterval=10 -o ServerAliveCountMax=3 \
+  "$host" "cd $directory_q && $invocation"

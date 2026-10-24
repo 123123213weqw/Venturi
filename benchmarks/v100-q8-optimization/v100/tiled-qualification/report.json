@@ -1,0 +1,3612 @@
+{
+  "scope": "Full trained Q8 native-runtime qualification against pinned previous evidence.\n\nThis uses an independent C++ forward/control/cache implementation, but shares\ncheckpoint metadata and small-constant loading helpers. Prior CPU reference is\nthe same represented Q8/FP16 profile, NOT original-BF16/upstream/corpus quality.\nDiagnostic forward/snapshots are explicit; actual generation is one native call.\n",
+  "artifact_sha256": "b2428c6e524914853d636b268c21f2ed298ba3d19c682fdef4973e8d634edab8",
+  "previous_report_sha256": "cb443b28c13f074372da52918fb9a89064523552216af9b0c555ed9ae12b1732",
+  "case": {
+    "question": "What is the capital of France? Answer with the city name only.",
+    "formatted_prompt": "<|im_start|>user\nWhat is the capital of France? Answer with the city name only.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+    "prompt_token_ids": [
+      248045,
+      846,
+      198,
+      3710,
+      369,
+      279,
+      6511,
+      314,
+      9338,
+      30,
+      21134,
+      440,
+      279,
+      3177,
+      803,
+      1132,
+      13,
+      248046,
+      198,
+      248045,
+      74455,
+      198,
+      248068,
+      271,
+      248069,
+      271
+    ],
+    "tokenizer_sha256": "5f9e4d4901a92b997e463c1f46055088b6cca5ca61a6522d1b9f64c4bb81cb42",
+    "chat_template_sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715",
+    "formatting": "Pinned text-only chat template, add_generation_prompt=true, enable_thinking=false, no tools/system/images",
+    "eos_token_ids": [
+      248046,
+      248044
+    ],
+    "max_new_tokens": 2,
+    "sampling": "Explicit greedy, not the checkpoint default stochastic policy"
+  },
+  "dtype": "torch.float16",
+  "weight_mode": "resident",
+  "torch": "2.5.1+cu121",
+  "gpu": "Tesla V100-PCIE-32GB",
+  "numerical_and_control_runtime": "Owned C++/CUDA; no Python layer loop or generation loop",
+  "loading": "Python metadata and small-constant preparation; native copies own constants and mmap Q8 planes",
+  "whole_model_graphs_qualified": false,
+  "continuous_batching_paged_kv_qualified": false,
+  "full_original_bf16_corpus_quality_qualified": false,
+  "independent_upstream_architecture_qualified": false,
+  "matched_engine_performance_qualified": false,
+  "steps": [
+    {
+      "step": 0,
+      "position": 26,
+      "expected_token": 57590,
+      "logits_vs_cpu": {
+        "max_abs_error": 0.0458984375,
+        "relative_l2": 0.002625314602859047,
+        "elements": 248320,
+        "centered_cosine": 0.9999943573837641,
+        "reference_kl_to_native": 5.330309865928131e-07,
+        "native_top1": 57590,
+        "reference_top1": 57590,
+        "passed": true
+      },
+      "logits_bytes_equal_previous_native": true,
+      "layers_and_state": [
+        {
+          "kind": "hidden",
+          "layer": 0,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 1,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 2,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 3,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 4,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 5,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 6,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 7,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 8,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 9,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 10,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 11,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 12,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 13,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 14,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 15,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 16,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 17,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 18,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 19,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 20,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 21,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 22,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 23,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 24,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 25,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 26,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 27,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 28,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 29,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 30,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 31,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 32,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 33,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 34,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 35,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 36,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 37,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 38,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 39,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 40,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 41,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 42,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 43,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 44,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 45,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 46,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 47,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 48,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 49,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 50,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 51,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 52,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 53,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 54,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 55,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 56,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 57,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 58,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 59,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 60,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 61,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 62,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "hidden",
+          "layer": 63,
+          "position": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 133120
+        },
+        {
+          "kind": "gdn",
+          "layer": 0,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 0,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 1,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 1,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 2,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 2,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 4,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 4,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 5,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 5,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 6,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 6,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 8,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 8,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 9,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 9,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 10,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 10,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 12,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 12,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 13,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 13,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 14,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 14,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 16,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 16,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 17,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 17,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 18,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 18,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 20,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 20,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 21,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 21,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 22,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 22,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 24,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 24,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 25,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 25,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 26,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 26,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 28,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 28,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 29,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 29,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 30,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 30,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 32,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 32,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 33,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 33,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 34,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 34,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 36,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 36,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 37,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 37,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 38,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 38,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 40,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 40,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 41,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 41,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 42,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 42,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 44,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 44,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 45,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 45,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 46,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 46,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 48,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 48,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 49,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 49,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 50,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 50,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 52,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 52,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 53,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 53,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 54,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 54,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 56,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 56,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 57,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 57,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 58,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 58,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 60,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 60,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 61,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 61,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 62,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 62,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "kv",
+          "layer": 3,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 3,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 7,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 7,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 11,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 11,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 15,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 15,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 19,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 19,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 23,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 23,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 27,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 27,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 31,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 31,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 35,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 35,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 39,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 39,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 43,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 43,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 47,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 47,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 51,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 51,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 55,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 55,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 59,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 59,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 63,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        },
+        {
+          "kind": "kv",
+          "layer": 63,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 26624
+        }
+      ],
+      "all_hidden_state_bytes_equal": true,
+      "native_memory": {
+        "position": 26,
+        "failed": 0,
+        "model_device_bytes": 28658268288,
+        "request_device_bytes": 175743792,
+        "pinned_host_bytes": 8388608,
+        "mapped_payload_bytes": 28601624576,
+        "model_weight_upload_bytes": 28549120000,
+        "streaming_embedding_upload_bytes": 0
+      }
+    },
+    {
+      "step": 1,
+      "position": 27,
+      "expected_token": 248046,
+      "logits_vs_cpu": {
+        "max_abs_error": 0.02825927734375,
+        "relative_l2": 0.0023074227102432452,
+        "elements": 248320,
+        "centered_cosine": 0.9999959268208004,
+        "reference_kl_to_native": 2.768911331583695e-07,
+        "native_top1": 248046,
+        "reference_top1": 248046,
+        "passed": true
+      },
+      "logits_bytes_equal_previous_native": true,
+      "layers_and_state": [
+        {
+          "kind": "hidden",
+          "layer": 0,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 1,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 2,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 3,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 4,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 5,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 6,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 7,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 8,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 9,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 10,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 11,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 12,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 13,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 14,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 15,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 16,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 17,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 18,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 19,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 20,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 21,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 22,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 23,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 24,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 25,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 26,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 27,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 28,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 29,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 30,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 31,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 32,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 33,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 34,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 35,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 36,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 37,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 38,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 39,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 40,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 41,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 42,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 43,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 44,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 45,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 46,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 47,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 48,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 49,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 50,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 51,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 52,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 53,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 54,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 55,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 56,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 57,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 58,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 59,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 60,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 61,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 62,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "hidden",
+          "layer": 63,
+          "position": 26,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 5120
+        },
+        {
+          "kind": "gdn",
+          "layer": 0,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 0,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 1,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 1,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 2,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 2,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 4,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 4,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 5,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 5,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 6,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 6,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 8,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 8,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 9,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 9,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 10,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 10,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 12,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 12,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 13,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 13,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 14,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 14,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 16,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 16,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 17,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 17,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 18,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 18,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 20,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 20,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 21,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 21,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 22,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 22,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 24,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 24,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 25,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 25,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 26,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 26,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 28,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 28,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 29,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 29,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 30,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 30,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 32,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 32,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 33,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 33,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 34,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 34,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 36,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 36,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 37,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 37,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 38,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 38,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 40,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 40,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 41,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 41,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 42,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 42,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 44,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 44,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 45,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 45,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 46,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 46,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 48,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 48,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 49,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 49,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 50,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 50,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 52,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 52,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 53,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 53,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 54,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 54,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 56,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 56,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 57,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 57,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 58,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 58,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 60,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 60,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 61,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 61,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "gdn",
+          "layer": 62,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 30720
+        },
+        {
+          "kind": "gdn",
+          "layer": 62,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 786432
+        },
+        {
+          "kind": "kv",
+          "layer": 3,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 3,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 7,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 7,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 11,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 11,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 15,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 15,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 19,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 19,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 23,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 23,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 27,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 27,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 31,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 31,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 35,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 35,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 39,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 39,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 43,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 43,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 47,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 47,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 51,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 51,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 55,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 55,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 59,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 59,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 63,
+          "tensor": 0,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        },
+        {
+          "kind": "kv",
+          "layer": 63,
+          "tensor": 1,
+          "bytes_equal": true,
+          "max_abs_error": 0.0,
+          "relative_l2": 0.0,
+          "elements": 27648
+        }
+      ],
+      "all_hidden_state_bytes_equal": true,
+      "native_memory": {
+        "position": 27,
+        "failed": 0,
+        "model_device_bytes": 28658268288,
+        "request_device_bytes": 175743792,
+        "pinned_host_bytes": 8388608,
+        "mapped_payload_bytes": 28601624576,
+        "model_weight_upload_bytes": 28549120000,
+        "streaming_embedding_upload_bytes": 0
+      }
+    }
+  ],
+  "previous_snapshot_sha256": {
+    "native-step-0.pt": "5f02be25b4642721c8a66e8f4be57e3a370fe7b43e1185f4e260a9ee5d189926",
+    "reference-step-0.pt": "b151a8c0a7677a83dcd72f42898d9a0889f9335c50593d2444454160f354cddd",
+    "native-step-1.pt": "73b69c734d60b16da2d6a3a3cf43c9a36b8634e21ac3130a83051b0a16139e80",
+    "reference-step-1.pt": "a4f3216ef49cdb4d61d8fe5d6ee2b404ca28de6733159acf9d951b441522518f"
+  },
+  "initial_native_memory": {
+    "position": 0,
+    "failed": 0,
+    "model_device_bytes": 28658268288,
+    "request_device_bytes": 175743792,
+    "pinned_host_bytes": 8388608,
+    "mapped_payload_bytes": 28601624576,
+    "model_weight_upload_bytes": 28549120000,
+    "streaming_embedding_upload_bytes": 0
+  },
+  "native_generated_ids": [
+    57590,
+    248046
+  ],
+  "native_generation_position": 27,
+  "native_generation_memory": {
+    "position": 27,
+    "failed": 0,
+    "model_device_bytes": 28658268288,
+    "request_device_bytes": 175743792,
+    "pinned_host_bytes": 8388608,
+    "mapped_payload_bytes": 28601624576,
+    "model_weight_upload_bytes": 28549120000,
+    "streaming_embedding_upload_bytes": 0
+  },
+  "native_cpp_generation_without_torch_math_completed": true,
+  "generation_matches_previous": true,
+  "all_fixed_cpu_logit_gates_passed": true,
+  "all_native_logit_hidden_state_bytes_match_previous": true,
+  "native_full_runtime_case_passed": true,
+  "qualification_wall_seconds_including_hash_loading_diagnostics": 127.83879876503488,
+  "qualification_process_cpu_seconds": 131.061517,
+  "peak_process_rss_bytes_linux_including_mapped_page_residency": 29810737152
+}

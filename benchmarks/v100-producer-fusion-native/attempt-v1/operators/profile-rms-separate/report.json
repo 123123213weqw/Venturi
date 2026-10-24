@@ -1,0 +1,50 @@
+{
+  "scope": "Research RMSNorm/two-pass A8 fusion; real Qwen3.8 gate/up slices, synthetic inputs and norm weights.\n\nProducer and producer+gate/up only. Not native integration, full-model or API TPS.\nAll timed arms share exact workspace/output addresses and pinned projection kernels.\n",
+  "completed": true,
+  "profiled": true,
+  "args": {
+    "gguf": "/home/wzu/models/Qwen3.8-27B-Uncensored-GGUF/Qwen3.8-27B-Uncensored-Q8_0.gguf",
+    "library": "/home/data/wangyue/artifacts/venturi-producer-fusion-native-v1/operators/librms_quant_probe.so",
+    "control_library": "/home/data/wangyue/artifacts/venturi-producer-fusion-native-v1/build/2abf99fc86d5c0c8/libventuri_blocks.so",
+    "output_directory": "/home/data/wangyue/artifacts/venturi-producer-fusion-native-v1/operators/profile-rms-separate",
+    "tokens": "8",
+    "layers": "0",
+    "repeats": 7,
+    "profile_arm": "separate"
+  },
+  "cases": [
+    {
+      "layer": 0,
+      "tokens": 8,
+      "k": 5120,
+      "n": 8704,
+      "synthetic_effective_norm_weights": true,
+      "weight_pins": [
+        {
+          "codes": "c8e25a0915540ed5ce482904b50c13c356ffeeab796406008ff9d2637f379353",
+          "scales": "48a72c63f970bd73a428e8cdb109f357c50d922e1cdcccbd781bff15bba1016a"
+        },
+        {
+          "codes": "458a432707402da22fba056cf3ce48fd9536595a5bee94fff54316e4ed932eac",
+          "scales": "dda5d75fbd45392a39acea9baf30bc1d4fe22e69248b43ac17fc66397e3fe747"
+        }
+      ],
+      "full_workspace_bytes_equal": true,
+      "full_projection_bytes_equal": true,
+      "full_f16_intermediate_bytes_equal": true,
+      "timed_arms_share_addresses": true,
+      "waves": [],
+      "torch_reserved_bytes": 115343360
+    }
+  ],
+  "device_uuid": "18fbf081-3c6d-d65b-11b8-288a4ce1ab28",
+  "library_sha256": "42100698edbafec3a89a17e335d3d796d45eb2c62013d8a3bafe26f453d56fdd",
+  "control_library_sha256": "365adff5e04c15364e8ea8574ccb57fc803b9becbbe9672dfbadad7d39116d9c",
+  "precision": "F16 inputs and preserved norm rounding; same original 256-thread FP32 norm reduction, group32 two-pass residual A8/F32 scales, Q8/F16-scale gate/up weights, F16 outputs.",
+  "gguf": {
+    "path": "/home/wzu/models/Qwen3.8-27B-Uncensored-GGUF/Qwen3.8-27B-Uncensored-Q8_0.gguf",
+    "size": 29047084448,
+    "mtime_ns": 1787148105067877936,
+    "architecture": "qwen35"
+  }
+}

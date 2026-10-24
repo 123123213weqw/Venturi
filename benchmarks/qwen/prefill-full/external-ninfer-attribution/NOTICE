@@ -1,0 +1,107 @@
+Cinference
+https://github.com/satellitedown/cinference
+
+Cinference is derived from NInfer by Neroued and its contributors:
+https://github.com/Neroued/ninfer
+NInfer is distributed under the Apache License, Version 2.0. The original
+LICENSE is retained unchanged in this distribution.
+
+Upstream base commit:
+9e163eee4b8acec21ab0ac765107b6a3f287b217
+Modified source snapshot:
+44e9603cac541afb5bb5e637da4c0e45653e62e3
+
+Modifications by satellitedown for Cinference extend MTP draft windows to ten,
+use capture-derived CUDA Graph topology classes for MTP profiles, and update
+associated round buffers, validation, tests, and documentation. Later
+performance changes speed up DFlash2 verification with small-token projection
+schedules, a double-buffered K-split FP8 LinearAdd, staged GDN records with
+lane-shared reductions, a warp-specialized K8V4 attention kernel with
+loader-assisted PV products, evict-first L2 fills for once-read verify weights,
+proposal-head and GDN convolution staging, a bank-conflict-free Q4 proposal
+head, retuned small-token A8 tiles, a wider argmax, a GDN record convolution
+fused into its input projection, a fused RMSNorm-SwiGLU FFN that hands both
+NVFP4 projections pre-quantized inputs, a fused query/key RMSNorm-RoPE, a K8V4
+verify query prepared once per block instead of in every attention split, a
+warp-level proposal top-k merge over L2-resident partials, a staged selector
+walk, L2 discards of consumed attention split numerators, a mask-free
+softmax path for unmasked K8V4 key tiles, GDN norm-gating CTAs that share x
+and weight rows across heads and token tiles, GDN replay records that warm
+the next layer's state in L2, a fused RMSNorm E4M3 producer for the FP8
+attention input and FFN projections, wide K8V4 verify blocks whose
+otherwise idle compute warps accumulate part of the other rows' PV products,
+and a K8V4 prompt kernel that pipelines alternating score warp groups and PV
+warps across key tiles. Opt-in DFlash2 verify trees check a best-first tree
+of lattice proposals merged with a prompt-lookup continuation in the same
+verify columns, using ancestor-masked K8V4 attention, tree GDN records and
+convolution taps, tree acceptance, and post-accept compaction of the accepted
+path. The official Qwen3.8 NVFP4 recipe stores DFlash2 drafter projections as
+Q4 (the fused QKV projection keeps Q8), served by a Q4 finish-convolution
+projection route, a Q4 feature-projection shape, row-tiled small-T Q4 SwiGLU
+staging and an optional two-stage Q4 K-split pipeline; verify-width Q4
+finish projections split K across CTAs, whose FP32 partials the finish
+convolution adds in split order. The DFlash2 replay fold stages its committed
+records and runs on a low-priority side stream overlapped with the next
+round's drafter, and each GDN verify block runs its control dots and
+recurrence on a concurrent compute stream beside its query/key/value and
+output-gate projection rows, fed by an input norm that writes the FP8
+activation directly. A long verbatim match between the context suffix and
+its earlier occurrence raises the prompt-lookup chain's confidence, and a
+single request whose chain is near-certain verifies it alone, without
+drafting (lookup rounds). CUDA 13.1 builds stay correct: toolkits before 13.4
+issue weight fills without the L2 cache-policy hint that CUDA 13.1's ptxas
+miscompiles, and the wide K8V4 attention kernel avoids a CUDA 13.1 front-end
+crash.
+Publication changes add fork branding, provenance and measurement scope,
+correct stale range text, make local-path instructions portable, and omit
+machine-local agent automation and unrelated sponsorship configuration.
+Modified retained files carry modification notices. upstream-provenance.json
+identifies the original changed-file set and subsequent publication edits.
+
+The native NInfer binary names, API symbols, and .ninfer format are retained.
+Use of the NInfer name identifies the original project and its interfaces;
+this fork does not imply endorsement by Neroued or other upstream authors.
+
+Vendored dependencies retain their original copyright and license notices:
+- cpp-httplib: third_party/cpp-httplib/LICENSE
+  Copyright (c) 2017 yhirose; MIT License.
+- llama-jinja: third_party/llama-jinja/LICENSE
+  Copyright (c) 2023-2026 The ggml authors; MIT License.
+- nlohmann/json: third_party/nlohmann/LICENSE.MIT
+  Copyright (c) 2013-2025 Niels Lohmann; MIT License.
+- spdlog: third_party/spdlog/LICENSE
+  Copyright (c) 2016 - present, Gabi Melman and spdlog contributors; MIT License.
+  Its bundled fmt code also retains its own copyright and MIT license notices.
+- utf8proc: third_party/utf8proc/LICENSE.md
+  Includes the original Public Software Group and subsequent contributor
+  notices, along with the Unicode data notices reproduced in that file.
+
+The retained upstream model cards credit their source checkpoints, including
+Qwen/Qwen3.6-27B, Qwen/Qwen3.8-27B, and Qwen/Qwen3.6-35B-A3B. The Qwen3.6-27B
+NVFP4 artifact uses fixed packed weights from
+rdtand/Qwen3.6-27B-PrismaSCOUT-Blackwell-NVFP4-BF16-vllm; the Qwen3.8-27B NVFP4
+artifact uses fixed mixed FP8/NVFP4 weights from unsloth/Qwen3.8-27B-NVFP4.
+The original model cards and their additional source/license notices remain
+in model-cards/. No model weights are included in this source distribution.
+Downloaded model artifacts carry their own applicable licenses and notices.
+
+RTX 4090 port
+https://github.com/jram4/ninfer-4090 (branch ada-k10-perf)
+
+The RTX 4090 port retargets Cinference to NVIDIA Ada (sm_89). Its changes
+add Ada small-T tensor-core kernels for Q4/Q5 projections, an FP16
+bit-placement NVFP4 KV-value decode, single-pass K8V4 attention for verify
+widths 9-16, a llama.cpp-family /metrics endpoint, benchmark tooling, and
+deployment examples. RTX 4090 measurements are in results/rtx4090-20260923/.
+The GitHub fork parent is https://github.com/Don-Chad/ninfer-3090.
+
+The recommended fafstmobel artifact is published separately:
+https://huggingface.co/satellitedown/fafstmobel
+It combines UkisAI Swift-Qwen3.8-27b with the observed Huihui-minus-Qwen
+abliteration delta, NVFP4/FP8 text quantization, and the pretrained z-lab
+Qwen3.8-27B-DFlash2 draft. Text, vision, MTP and DFlash2 are bundled in NInfer v3.
+The Swift contribution retains the Swift Open License v1.0, including its
+commercial-use threshold; Qwen, Huihui and DFlash2 retain Apache-2.0 terms.
+This source repository's Apache-2.0 license does not relicense those weights.
+Consult the artifact's LICENSE.swift, other license files, NOTICE and
+PROVENANCE.md before use or redistribution.

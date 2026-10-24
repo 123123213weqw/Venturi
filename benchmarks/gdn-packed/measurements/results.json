@@ -1,0 +1,347 @@
+{
+  "scope": "Matched native packed-GDN versus explicit-unpack recurrence qualification.\n\nSynthetic BF16 inputs at checkpoint-defined GDN geometry. Fixed-state graph\nreplays, not complete model execution or tokens/s. The baseline copies strided\nQ/K/V views into reusable contiguous buffers for T>1, then uses the same native\nrecurrence. At T=1 the views are already contiguous and no copies are needed.\n",
+  "geometry": {
+    "qk_heads": 16,
+    "value_heads": 48,
+    "key_dim": 128,
+    "value_dim": 128
+  },
+  "artifact_id": "d3ae5782742a48c8b058196297a7ddff",
+  "library": "/home/test/wangyue/venturi-work/qwen/own-blocks-build/afd14a02433a8f9c/libventuri_blocks.so",
+  "torch": "2.9.1+cu130",
+  "cuda": "13.0",
+  "gpu": "NVIDIA GeForce RTX 4090 D",
+  "cases": [
+    {
+      "tokens": 1,
+      "normalization": "FP32 q/k L2 with epsilon=1e-6",
+      "dtype": "BF16 activations / FP32 state/gates",
+      "source": "Synthetic inputs, checkpoint geometry only; no trained logits/quality claim",
+      "qualification": {
+        "unpack-native": {
+          "passed": true,
+          "max_rounded_abs_error": 0.0,
+          "max_unrounded_abs_error": 5.855699877459902e-05,
+          "elements": 6144,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": [],
+          "max_state_abs_error": 7.272932345259164e-08
+        },
+        "packed-native": {
+          "passed": true,
+          "max_rounded_abs_error": 0.0,
+          "max_unrounded_abs_error": 5.855699877459902e-05,
+          "elements": 6144,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": [],
+          "max_state_abs_error": 7.272932345259164e-08
+        }
+      },
+      "packed_vs_unpacked_bit_exact": true,
+      "baseline_copies_per_replay": 0,
+      "unpack_workspace_bytes": 0,
+      "packed_unpack_workspace_bytes": 0,
+      "phases": [
+        {
+          "mode": "single",
+          "start_unix": 1792340526.3574214,
+          "end_unix": 1792340528.3575342,
+          "calls": 89290,
+          "wall_seconds": 2.0000846199691296,
+          "process_cpu_seconds": 1.9991219999999998,
+          "process_cpu_percent": 99.95187103787916,
+          "wall_us_per_call": 22.399872549771864,
+          "event_us_per_call": 19.697353708435646,
+          "calls_per_second": 44643.11115065629,
+          "condition": "unpack-native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792340528.3579123,
+          "end_unix": 1792340530.3580313,
+          "calls": 90910,
+          "wall_seconds": 2.0001046790275723,
+          "process_cpu_seconds": 1.9996159999999996,
+          "process_cpu_percent": 99.97556732741558,
+          "wall_us_per_call": 22.000931459988696,
+          "event_us_per_call": 19.57553199790201,
+          "calls_per_second": 45452.62103191488,
+          "condition": "packed-native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792340530.3583324,
+          "end_unix": 1792340532.3584118,
+          "calls": 89570,
+          "wall_seconds": 2.000073723960668,
+          "process_cpu_seconds": 1.9980459999999995,
+          "process_cpu_percent": 99.89861753912487,
+          "wall_us_per_call": 22.329727854869574,
+          "event_us_per_call": 19.668247056876467,
+          "calls_per_second": 44783.34919706261,
+          "condition": "packed-native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792340532.358626,
+          "end_unix": 1792340534.3586986,
+          "calls": 89010,
+          "wall_seconds": 2.0000462429597974,
+          "process_cpu_seconds": 1.9993770000000008,
+          "process_cpu_percent": 99.96653862568667,
+          "wall_us_per_call": 22.469904987751907,
+          "event_us_per_call": 19.615540655057572,
+          "calls_per_second": 44503.97100232906,
+          "condition": "unpack-native"
+        }
+      ],
+      "timing": "Fixed-state graph replay wrapper; separate state_out; CUDA event intervals can include host submission gaps; CPU time includes event wait",
+      "telemetry": {
+        "unpack-native": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 85.0,
+            "minimum": 85.0,
+            "maximum": 85.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 840.0,
+            "minimum": 840.0,
+            "maximum": 840.0
+          },
+          "power.draw": {
+            "mean": 289.36899999999997,
+            "minimum": 150.02,
+            "maximum": 306.88
+          },
+          "temperature.gpu": {
+            "mean": 52.4,
+            "minimum": 51.0,
+            "maximum": 53.0
+          },
+          "clocks.sm": {
+            "mean": 2775.0,
+            "minimum": 2775.0,
+            "maximum": 2775.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        },
+        "packed-native": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 86.5,
+            "minimum": 85.0,
+            "maximum": 88.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 840.0,
+            "minimum": 840.0,
+            "maximum": 840.0
+          },
+          "power.draw": {
+            "mean": 311.803,
+            "minimum": 306.46,
+            "maximum": 316.9
+          },
+          "temperature.gpu": {
+            "mean": 53.0,
+            "minimum": 53.0,
+            "maximum": 53.0
+          },
+          "clocks.sm": {
+            "mean": 2775.0,
+            "minimum": 2775.0,
+            "maximum": 2775.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        }
+      }
+    },
+    {
+      "tokens": 128,
+      "normalization": "FP32 q/k L2 with epsilon=1e-6",
+      "dtype": "BF16 activations / FP32 state/gates",
+      "source": "Synthetic inputs, checkpoint geometry only; no trained logits/quality claim",
+      "qualification": {
+        "unpack-native": {
+          "passed": true,
+          "max_rounded_abs_error": 6.103515625e-05,
+          "max_unrounded_abs_error": 0.00021069307715188001,
+          "elements": 786432,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": [],
+          "max_state_abs_error": 1.286424211599524e-07
+        },
+        "packed-native": {
+          "passed": true,
+          "max_rounded_abs_error": 6.103515625e-05,
+          "max_unrounded_abs_error": 0.00021069307715188001,
+          "elements": 786432,
+          "failed_elements": 0,
+          "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+          "first_failure_indices": [],
+          "max_state_abs_error": 1.286424211599524e-07
+        }
+      },
+      "packed_vs_unpacked_bit_exact": true,
+      "baseline_copies_per_replay": 3,
+      "unpack_workspace_bytes": 2621440,
+      "packed_unpack_workspace_bytes": 0,
+      "phases": [
+        {
+          "mode": "single",
+          "start_unix": 1792340536.180206,
+          "end_unix": 1792340538.1834817,
+          "calls": 1080,
+          "wall_seconds": 2.0032676650444046,
+          "process_cpu_seconds": 2.003449,
+          "process_cpu_percent": 100.00905195839576,
+          "wall_us_per_call": 1854.877467633708,
+          "event_us_per_call": 1851.00652023598,
+          "calls_per_second": 539.1191695674181,
+          "condition": "unpack-native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792340538.1837358,
+          "end_unix": 1792340540.1902657,
+          "calls": 1090,
+          "wall_seconds": 2.006485537975095,
+          "process_cpu_seconds": 2.005399999999998,
+          "process_cpu_percent": 99.9458985397825,
+          "wall_us_per_call": 1840.8124201606379,
+          "event_us_per_call": 1836.898770463576,
+          "calls_per_second": 543.2384033527628,
+          "condition": "packed-native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792340540.1935253,
+          "end_unix": 1792340542.2008004,
+          "calls": 1090,
+          "wall_seconds": 2.0072608930058777,
+          "process_cpu_seconds": 2.007192,
+          "process_cpu_percent": 99.99656781008798,
+          "wall_us_per_call": 1841.523755051264,
+          "event_us_per_call": 1836.9192228404754,
+          "calls_per_second": 543.0285638493771,
+          "condition": "packed-native"
+        },
+        {
+          "mode": "single",
+          "start_unix": 1792340542.2011623,
+          "end_unix": 1792340544.2049985,
+          "calls": 1090,
+          "wall_seconds": 2.003815387026407,
+          "process_cpu_seconds": 2.0031940000000006,
+          "process_cpu_percent": 99.96898980662444,
+          "wall_us_per_call": 1838.362740391199,
+          "event_us_per_call": 1834.7611873521716,
+          "calls_per_second": 543.9622866742842,
+          "condition": "unpack-native"
+        }
+      ],
+      "timing": "Fixed-state graph replay wrapper; separate state_out; CUDA event intervals can include host submission gaps; CPU time includes event wait",
+      "telemetry": {
+        "unpack-native": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 100.0,
+            "minimum": 100.0,
+            "maximum": 100.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 862.0,
+            "minimum": 862.0,
+            "maximum": 862.0
+          },
+          "power.draw": {
+            "mean": 279.406,
+            "minimum": 192.84,
+            "maximum": 301.76
+          },
+          "temperature.gpu": {
+            "mean": 53.5,
+            "minimum": 53.0,
+            "maximum": 54.0
+          },
+          "clocks.sm": {
+            "mean": 2775.0,
+            "minimum": 2775.0,
+            "maximum": 2775.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        },
+        "packed-native": {
+          "samples": 10,
+          "utilization.gpu": {
+            "mean": 99.5,
+            "minimum": 99.0,
+            "maximum": 100.0
+          },
+          "utilization.memory": {
+            "mean": 0.0,
+            "minimum": 0.0,
+            "maximum": 0.0
+          },
+          "memory.used": {
+            "mean": 862.0,
+            "minimum": 862.0,
+            "maximum": 862.0
+          },
+          "power.draw": {
+            "mean": 300.183,
+            "minimum": 299.5,
+            "maximum": 300.42
+          },
+          "temperature.gpu": {
+            "mean": 53.5,
+            "minimum": 53.0,
+            "maximum": 54.0
+          },
+          "clocks.sm": {
+            "mean": 2775.0,
+            "minimum": 2775.0,
+            "maximum": 2775.0
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0
+          }
+        }
+      }
+    }
+  ],
+  "counters": "Not measured: achieved occupancy, SM/DRAM throughput, cache/stall. RmProfilingAdminOnly=1; no profiler in timed phases."
+}

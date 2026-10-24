@@ -1,0 +1,51 @@
+.....ssssssssssssssssssssssssssssssssss............ssssssssssss......... [  2%]
+......sssssssssssssss.s............s.s...sss..........ssssssssssssssssss [  5%]
+sssssssssssssssss.....................................sssssss.........ss [  8%]
+ssssssssssss....................................................s.s.s... [ 11%]
+.s......ss......ss...ss.ss......................................ssssss.s [ 14%]
+.sssssss......ssssss.ss................................................. [ 17%]
+........................................................................ [ 20%]
+............s.ss.s.........sss.ssssss.....ssss.......................... [ 23%]
+..................s.........................sssss....................... [ 26%]
+............................................sss.....s.....s.....s.....s. [ 29%]
+........................................................................ [ 32%]
+........................................................................ [ 35%]
+........................................................................ [ 38%]
+........................................................................ [ 41%]
+........................................................................ [ 44%]
+........................................................................ [ 47%]
+........................................................................ [ 50%]
+........................................................................ [ 53%]
+........................................................................ [ 56%]
+........................................................................ [ 59%]
+.......................sssssssssssssssssssssssssssssssssssssssssssssssss [ 61%]
+sssssssssssssssss..............sss.s.................................... [ 64%]
+........................................................................ [ 67%]
+..............................................ss..ss..ss............ssss [ 70%]
+ssssssssssssss..ssss....s............................................... [ 73%]
+...............ssssssss..ss..ss.s.....................ssss..s.ss........ [ 76%]
+.......s...s..s..ssss..s....sss.........sssssssss...sss....ssss.....s... [ 79%]
+..s.....s.....s......................................................... [ 82%]
+................................................ss..ss.s.s.s.s.s........ [ 85%]
+...........ssssss....ssss..ss.s............................sssssss...... [ 88%]
+.....................................s......s...s...s...s...s.s.sss.ss.. [ 91%]
+..ss.s.s.s.sFF...ssss...............ss..............................ssss [ 94%]
+sss...........s.....s..sss.s.sss.s.............ssssssssssss..ssssss...ss [ 97%]
+sssssss.ssss.ssss..........................ssss.........ss......         [100%]
+=================================== FAILURES ===================================
+_____________ test_remote_launcher_quotes_prompt_and_paths[False] ______________
+tests/test_remote_launcher.py:37: in test_remote_launcher_quotes_prompt_and_paths
+    result = subprocess.run(
+/usr/lib/python3.10/subprocess.py:526: in run
+    raise CalledProcessError(retcode, process.args,
+E   subprocess.CalledProcessError: Command '['bash', '/home/data/wangyue/repos/codex-build/Venturi/batched-mtp-src-v4/scripts/venturi-4090d', 'generate', '--prompt', 'don\'t expand $(touch UNWANTED); "quotes"\nsecond line']' returned non-zero exit status 127.
+______________ test_remote_launcher_quotes_prompt_and_paths[True] ______________
+tests/test_remote_launcher.py:37: in test_remote_launcher_quotes_prompt_and_paths
+    result = subprocess.run(
+/usr/lib/python3.10/subprocess.py:526: in run
+    raise CalledProcessError(retcode, process.args,
+E   subprocess.CalledProcessError: Command '['bash', '/home/data/wangyue/repos/codex-build/Venturi/batched-mtp-src-v4/scripts/venturi-qwen-4090d', 'generate', '--prompt', 'don\'t expand $(touch UNWANTED); "quotes"\nsecond line']' returned non-zero exit status 127.
+=========================== short test summary info ============================
+FAILED tests/test_remote_launcher.py::test_remote_launcher_quotes_prompt_and_paths[False]
+FAILED tests/test_remote_launcher.py::test_remote_launcher_quotes_prompt_and_paths[True]
+2 failed, 1990 passed, 448 skipped in 122.39s (0:02:02)

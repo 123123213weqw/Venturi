@@ -1,0 +1,31 @@
+{
+  "route": [
+    "ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ForwardAgent=no",
+    "-o",
+    "StrictHostKeyChecking=yes",
+    "-o",
+    "ControlMaster=auto",
+    "-o",
+    "ControlPath=/tmp/venturi-v100-head-recover-%C",
+    "-o",
+    "ControlPersist=600",
+    "-o",
+    "ProxyCommand=none",
+    "-o",
+    "ConnectTimeout=45",
+    "-o",
+    "ServerAliveInterval=15",
+    "-o",
+    "ServerAliveCountMax=4",
+    "WZU_Server",
+    "python3 -"
+  ],
+  "seconds": 61.417581083,
+  "rc": 0,
+  "stdout": "{\"name\": \"venturi-native-head-controls-v7\", \"completed\": false, \"experiments\": [[\"fresh-llama-tensor-mtp1-c1\", true], [\"fresh-llama-tensor-mtp2-c1\", true], [\"fresh-llama-layer-off\", true], [\"screen-llama-layer-mtp2-c1\", true], [\"screen-llama-layer-mtp3-c1\", true], [\"screen-llama-layer-mtp4-c1\", true], [\"repeat-llama-layer-mtp2-c1\", true], [\"screen-llama-tensor-mtp1-gpu-sampling-c2c4\", false], [\"screen-llama-layer-mtp1-cpu-sampling\", false], [\"screen-llama-tensor-mtp1-cpu-sampling-c2c4\", true], [\"screen-llama-tensor-mtp2-cpu-sampling-c2c4\", false]], \"optional_failures\": [{\"label\": \"screen-llama-tensor-mtp1-gpu-sampling-c2c4\", \"server_exit_code\": -11, \"not_counted_as_zero_tps\": true, \"cpu_sampling_fallback\": false, \"skip_unchanged_same_failure_family\": true}, {\"label\": \"screen-llama-layer-mtp1-cpu-sampling\", \"server_exit_code\": -11, \"not_counted_as_zero_tps\": true, \"cpu_sampling_fallback\": true, \"skip_unchanged_same_failure_family\": true}], \"exit-code.txt\": \"1\\n\", \"failure.txt\": \"Traceback (most recent call last):\\n  File \\\"/home/data/wangyue/artifacts/venturi-native-head-controls-v7/worker.py\\\", line 147, in <module>\\n    if not tensor_valid:tensor_parallel_search('cpu-sampling')\\n  File \\\"/home/data/wangyue/artifacts/venturi-native-head-controls-v7/worker.py\\\", line 127, in tensor_parallel_search\\n    value=optional(f'screen-llama-tensor-mtp{depth}-{tag}-c2c4','tensor',depth,'2,4')\\n  File \\\"/home/data/wangyue/artifacts/venturi-native-head-controls-v7/worker.py\\\", line 107, in optional\\n    try:return experiment(label,'llama',mode,depth,counts,repeats)\\n  File \\\"/home/data/wangyue/artifacts/venturi-native-head-controls-v7/worker.py\\\", line 65, in experiment\\n    run(cmd if engine=='venturi' else cmd[:-1],directory/'benchmark.log',timeout=600);measured=json.loads((directory/'timed/report.json').read_text());assert measured['completed'] and measured['all_outputs_equal_first_wave'],'Fixed greedy outputs unstable'\\n  File \\\"/home/data/wangyue/artifacts/venturi-native-head-controls-v7/worker.py\\\", line 24, in run\\n    if rc:raise RuntimeError(f'Owned command exited {rc}: {path}')\\nRuntimeError: Owned command exited 1: /home/data/wangyue/artifacts/venturi-native-head-controls-v7/screen-llama-tensor-mtp2-cpu-sampling-c2c4/benchmark.log\\n\"}\n{\"name\": \"venturi-native-head-aligned-v8\", \"completed\": null, \"experiments\": [], \"optional_failures\": null, \"exit-code.txt\": \"1\\n\", \"failure.txt\": \"Traceback (most recent call last):\\n  File \\\"/home/data/wangyue/artifacts/venturi-native-head-aligned-v8/worker.py\\\", line 31, in <module>\\n    assert (prior/'exit-code.txt').read_text().strip()=='0','Final-control prerequisite failed; preserve and inspect'\\nAssertionError: Final-control prerequisite failed; preserve and inspect\\n\"}\n{\"name\": \"venturi-native-head-controls-profile-v9\", \"completed\": null, \"experiments\": [], \"optional_failures\": null, \"exit-code.txt\": \"1\\n\", \"failure.txt\": \"Traceback (most recent call last):\\n  File \\\"/home/data/wangyue/artifacts/venturi-native-head-controls-profile-v9/worker.py\\\", line 28, in <module>\\n    assert (prior/'exit-code.txt').read_text().strip()=='0','Prerequisites must be terminal/pass before this profile dispatch'\\nAssertionError: Prerequisites must be terminal/pass before this profile dispatch\\n\"}\n",
+  "stderr": ""
+}

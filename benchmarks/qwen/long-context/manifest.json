@@ -1,0 +1,588 @@
+{
+  "task": "Real Qwen-27B K8V4 long-context memory and planted-fact retrieval checks",
+  "date": "2026-10-16",
+  "base_commit": "fc972990c036dd32e8d4ef86ac40b729af629477",
+  "status": "All eight executed configurations completed; all 16 documents passed the controlled retrieval screen.",
+  "rows": [
+    {
+      "case": "c2048-bf16",
+      "capacity": 2048,
+      "kv_dtype": "bf16",
+      "actual_prompt_tokens": [
+        1763,
+        1800
+      ],
+      "documents": 2,
+      "exact_tag_checks_correct": 6,
+      "absent_key_checks_correct": 2,
+      "kv_payload_gib": 0.125,
+      "cuda_used_at_ready_gib": 15.69140625,
+      "sampled_whole_device_peak_gib": 15.693359375,
+      "prefill_seconds": [
+        0.918472535,
+        0.970185035
+      ],
+      "mean_prefill_seconds": 0.944328785,
+      "observed_decode_tokens_per_second": 56.51564097723603,
+      "finish_reasons": [
+        3,
+        3
+      ],
+      "generated_tokens": [
+        76,
+        77
+      ],
+      "input_sha256": [
+        "8aa64a35b7ab067d4ee013ad7e34cf6d51ed6d271b79c191ab59b3fd6598ece2",
+        "6acbe4862ec02f9bf2d3d7ef3a513efcd241059452a9754001f40b7fa2020ee2"
+      ]
+    },
+    {
+      "case": "c2048-k8v4",
+      "capacity": 2048,
+      "kv_dtype": "k8v4",
+      "actual_prompt_tokens": [
+        1763,
+        1800
+      ],
+      "documents": 2,
+      "exact_tag_checks_correct": 6,
+      "absent_key_checks_correct": 2,
+      "kv_payload_gib": 0.049072265625,
+      "cuda_used_at_ready_gib": 15.615234375,
+      "sampled_whole_device_peak_gib": 15.6171875,
+      "prefill_seconds": [
+        0.9098485550000002,
+        0.9687890720000001
+      ],
+      "mean_prefill_seconds": 0.9393188135000001,
+      "observed_decode_tokens_per_second": 57.1327335900171,
+      "finish_reasons": [
+        3,
+        3
+      ],
+      "generated_tokens": [
+        76,
+        77
+      ],
+      "input_sha256": [
+        "8aa64a35b7ab067d4ee013ad7e34cf6d51ed6d271b79c191ab59b3fd6598ece2",
+        "6acbe4862ec02f9bf2d3d7ef3a513efcd241059452a9754001f40b7fa2020ee2"
+      ]
+    },
+    {
+      "case": "c16384-bf16",
+      "capacity": 16384,
+      "kv_dtype": "bf16",
+      "actual_prompt_tokens": [
+        16113,
+        16098
+      ],
+      "documents": 2,
+      "exact_tag_checks_correct": 6,
+      "absent_key_checks_correct": 2,
+      "kv_payload_gib": 1.0,
+      "cuda_used_at_ready_gib": 16.56640625,
+      "sampled_whole_device_peak_gib": 16.568359375,
+      "prefill_seconds": [
+        8.339024066999997,
+        8.359330888999999
+      ],
+      "mean_prefill_seconds": 8.349177477999998,
+      "observed_decode_tokens_per_second": 52.42634113305772,
+      "finish_reasons": [
+        3,
+        3
+      ],
+      "generated_tokens": [
+        76,
+        77
+      ],
+      "input_sha256": [
+        "d9387abe73164276b751ce8fbaca1e05811323bafafbdfcf213d1810f64c0ae2",
+        "0b71f1d39c9543f242e692271904397fd7fb72855ecb3f0b418e92b3fc03c39b"
+      ]
+    },
+    {
+      "case": "c16384-k8v4",
+      "capacity": 16384,
+      "kv_dtype": "k8v4",
+      "actual_prompt_tokens": [
+        16113,
+        16098
+      ],
+      "documents": 2,
+      "exact_tag_checks_correct": 6,
+      "absent_key_checks_correct": 2,
+      "kv_payload_gib": 0.392578125,
+      "cuda_used_at_ready_gib": 15.958984375,
+      "sampled_whole_device_peak_gib": 15.9609375,
+      "prefill_seconds": [
+        8.334567704999998,
+        8.327973802
+      ],
+      "mean_prefill_seconds": 8.3312707535,
+      "observed_decode_tokens_per_second": 55.315977559017135,
+      "finish_reasons": [
+        3,
+        3
+      ],
+      "generated_tokens": [
+        76,
+        77
+      ],
+      "input_sha256": [
+        "d9387abe73164276b751ce8fbaca1e05811323bafafbdfcf213d1810f64c0ae2",
+        "0b71f1d39c9543f242e692271904397fd7fb72855ecb3f0b418e92b3fc03c39b"
+      ]
+    },
+    {
+      "case": "c65536-bf16",
+      "capacity": 65536,
+      "kv_dtype": "bf16",
+      "actual_prompt_tokens": [
+        65280,
+        65258
+      ],
+      "documents": 2,
+      "exact_tag_checks_correct": 6,
+      "absent_key_checks_correct": 2,
+      "kv_payload_gib": 4.0,
+      "cuda_used_at_ready_gib": 19.56640625,
+      "sampled_whole_device_peak_gib": 19.568359375,
+      "prefill_seconds": [
+        39.79057902200001,
+        39.867428671000006
+      ],
+      "mean_prefill_seconds": 39.82900384650001,
+      "observed_decode_tokens_per_second": 44.778914161377216,
+      "finish_reasons": [
+        3,
+        3
+      ],
+      "generated_tokens": [
+        76,
+        77
+      ],
+      "input_sha256": [
+        "4efdc3189ac63bd9902890789dd8227268c7af6719ce1271ea02dd187832a19d",
+        "f953c5152b39db40435bab18fb71d659b0db648eacae8191f70941c9fadb27b9"
+      ]
+    },
+    {
+      "case": "c65536-k8v4",
+      "capacity": 65536,
+      "kv_dtype": "k8v4",
+      "actual_prompt_tokens": [
+        65280,
+        65258
+      ],
+      "documents": 2,
+      "exact_tag_checks_correct": 6,
+      "absent_key_checks_correct": 2,
+      "kv_payload_gib": 1.5703125,
+      "cuda_used_at_ready_gib": 17.13671875,
+      "sampled_whole_device_peak_gib": 17.138671875,
+      "prefill_seconds": [
+        39.015599518999984,
+        39.082062217
+      ],
+      "mean_prefill_seconds": 39.048830867999996,
+      "observed_decode_tokens_per_second": 51.52330006619546,
+      "finish_reasons": [
+        3,
+        3
+      ],
+      "generated_tokens": [
+        76,
+        77
+      ],
+      "input_sha256": [
+        "4efdc3189ac63bd9902890789dd8227268c7af6719ce1271ea02dd187832a19d",
+        "f953c5152b39db40435bab18fb71d659b0db648eacae8191f70941c9fadb27b9"
+      ]
+    },
+    {
+      "case": "c131072-k8v4",
+      "capacity": 131072,
+      "kv_dtype": "k8v4",
+      "actual_prompt_tokens": [
+        130801,
+        130797
+      ],
+      "documents": 2,
+      "exact_tag_checks_correct": 6,
+      "absent_key_checks_correct": 2,
+      "kv_payload_gib": 3.140625,
+      "cuda_used_at_ready_gib": 18.70703125,
+      "sampled_whole_device_peak_gib": 18.708984375,
+      "prefill_seconds": [
+        92.10455570499998,
+        92.21281069599995
+      ],
+      "mean_prefill_seconds": 92.15868320049996,
+      "observed_decode_tokens_per_second": 46.955630995812925,
+      "finish_reasons": [
+        3,
+        3
+      ],
+      "generated_tokens": [
+        76,
+        77
+      ],
+      "input_sha256": [
+        "2c53738af7acd6c4f2a4d8d0e2993296b466581138665ee1808ac1192df68e27",
+        "ed899d58aefd1e58f55a547323f91faac79c8deb65b147ee2c2c30170ad89a15"
+      ]
+    },
+    {
+      "case": "c262144-k8v4",
+      "capacity": 262144,
+      "kv_dtype": "k8v4",
+      "actual_prompt_tokens": [
+        261892,
+        261885
+      ],
+      "documents": 2,
+      "exact_tag_checks_correct": 6,
+      "absent_key_checks_correct": 2,
+      "kv_payload_gib": 6.28125,
+      "cuda_used_at_ready_gib": 21.84765625,
+      "sampled_whole_device_peak_gib": 21.849609375,
+      "prefill_seconds": [
+        240.88110403699986,
+        240.70546205999975
+      ],
+      "mean_prefill_seconds": 240.7932830484998,
+      "observed_decode_tokens_per_second": 40.116080283097894,
+      "finish_reasons": [
+        3,
+        3
+      ],
+      "generated_tokens": [
+        76,
+        77
+      ],
+      "input_sha256": [
+        "ad15e4fda206e2de8a511f89d91058913c0f7cd93046b6087fffe2eb5a05c20f",
+        "8e962dfc5036015a89efedc38078ebb08e6d0246332539b5b0a11f14651400d1"
+      ]
+    }
+  ],
+  "paired_kv_id_comparisons": [
+    {
+      "capacity": 2048,
+      "seed": 17,
+      "equal": true,
+      "matching_prefix": 76,
+      "bf16_grade": {
+        "valid_json": true,
+        "exact_schema": true,
+        "fields_correct": 4,
+        "fields_total": 4,
+        "field_matches": {
+          "FALCON_RIDGE": true,
+          "LANTERN_VALE": true,
+          "CEDAR_GATE": true,
+          "VIOLET_LAKE": true
+        },
+        "all_correct": true,
+        "parsed": {
+          "FALCON_RIDGE": "SPKM-5745-FYYT",
+          "LANTERN_VALE": "XJDA-5078-NZPJ",
+          "CEDAR_GATE": "SLWX-7579-ETBE",
+          "VIOLET_LAKE": null
+        }
+      },
+      "k8v4_grade": {
+        "valid_json": true,
+        "exact_schema": true,
+        "fields_correct": 4,
+        "fields_total": 4,
+        "field_matches": {
+          "FALCON_RIDGE": true,
+          "LANTERN_VALE": true,
+          "CEDAR_GATE": true,
+          "VIOLET_LAKE": true
+        },
+        "all_correct": true,
+        "parsed": {
+          "FALCON_RIDGE": "SPKM-5745-FYYT",
+          "LANTERN_VALE": "XJDA-5078-NZPJ",
+          "CEDAR_GATE": "SLWX-7579-ETBE",
+          "VIOLET_LAKE": null
+        }
+      }
+    },
+    {
+      "capacity": 2048,
+      "seed": 43,
+      "equal": true,
+      "matching_prefix": 77,
+      "bf16_grade": {
+        "valid_json": true,
+        "exact_schema": true,
+        "fields_correct": 4,
+        "fields_total": 4,
+        "field_matches": {
+          "FALCON_RIDGE": true,
+          "LANTERN_VALE": true,
+          "CEDAR_GATE": true,
+          "VIOLET_LAKE": true
+        },
+        "all_correct": true,
+        "parsed": {
+          "FALCON_RIDGE": "BKYE-8578-MXYD",
+          "LANTERN_VALE": "QVRV-1313-SPUM",
+          "CEDAR_GATE": "VTPN-3886-BDDN",
+          "VIOLET_LAKE": null
+        }
+      },
+      "k8v4_grade": {
+        "valid_json": true,
+        "exact_schema": true,
+        "fields_correct": 4,
+        "fields_total": 4,
+        "field_matches": {
+          "FALCON_RIDGE": true,
+          "LANTERN_VALE": true,
+          "CEDAR_GATE": true,
+          "VIOLET_LAKE": true
+        },
+        "all_correct": true,
+        "parsed": {
+          "FALCON_RIDGE": "BKYE-8578-MXYD",
+          "LANTERN_VALE": "QVRV-1313-SPUM",
+          "CEDAR_GATE": "VTPN-3886-BDDN",
+          "VIOLET_LAKE": null
+        }
+      }
+    },
+    {
+      "capacity": 16384,
+      "seed": 17,
+      "equal": true,
+      "matching_prefix": 76,
+      "bf16_grade": {
+        "valid_json": true,
+        "exact_schema": true,
+        "fields_correct": 4,
+        "fields_total": 4,
+        "field_matches": {
+          "FALCON_RIDGE": true,
+          "LANTERN_VALE": true,
+          "CEDAR_GATE": true,
+          "VIOLET_LAKE": true
+        },
+        "all_correct": true,
+        "parsed": {
+          "FALCON_RIDGE": "SPKM-5745-FYYT",
+          "LANTERN_VALE": "XJDA-5078-NZPJ",
+          "CEDAR_GATE": "SLWX-7579-ETBE",
+          "VIOLET_LAKE": null
+        }
+      },
+      "k8v4_grade": {
+        "valid_json": true,
+        "exact_schema": true,
+        "fields_correct": 4,
+        "fields_total": 4,
+        "field_matches": {
+          "FALCON_RIDGE": true,
+          "LANTERN_VALE": true,
+          "CEDAR_GATE": true,
+          "VIOLET_LAKE": true
+        },
+        "all_correct": true,
+        "parsed": {
+          "FALCON_RIDGE": "SPKM-5745-FYYT",
+          "LANTERN_VALE": "XJDA-5078-NZPJ",
+          "CEDAR_GATE": "SLWX-7579-ETBE",
+          "VIOLET_LAKE": null
+        }
+      }
+    },
+    {
+      "capacity": 16384,
+      "seed": 43,
+      "equal": true,
+      "matching_prefix": 77,
+      "bf16_grade": {
+        "valid_json": true,
+        "exact_schema": true,
+        "fields_correct": 4,
+        "fields_total": 4,
+        "field_matches": {
+          "FALCON_RIDGE": true,
+          "LANTERN_VALE": true,
+          "CEDAR_GATE": true,
+          "VIOLET_LAKE": true
+        },
+        "all_correct": true,
+        "parsed": {
+          "FALCON_RIDGE": "BKYE-8578-MXYD",
+          "LANTERN_VALE": "QVRV-1313-SPUM",
+          "CEDAR_GATE": "VTPN-3886-BDDN",
+          "VIOLET_LAKE": null
+        }
+      },
+      "k8v4_grade": {
+        "valid_json": true,
+        "exact_schema": true,
+        "fields_correct": 4,
+        "fields_total": 4,
+        "field_matches": {
+          "FALCON_RIDGE": true,
+          "LANTERN_VALE": true,
+          "CEDAR_GATE": true,
+          "VIOLET_LAKE": true
+        },
+        "all_correct": true,
+        "parsed": {
+          "FALCON_RIDGE": "BKYE-8578-MXYD",
+          "LANTERN_VALE": "QVRV-1313-SPUM",
+          "CEDAR_GATE": "VTPN-3886-BDDN",
+          "VIOLET_LAKE": null
+        }
+      }
+    },
+    {
+      "capacity": 65536,
+      "seed": 17,
+      "equal": true,
+      "matching_prefix": 76,
+      "bf16_grade": {
+        "valid_json": true,
+        "exact_schema": true,
+        "fields_correct": 4,
+        "fields_total": 4,
+        "field_matches": {
+          "FALCON_RIDGE": true,
+          "LANTERN_VALE": true,
+          "CEDAR_GATE": true,
+          "VIOLET_LAKE": true
+        },
+        "all_correct": true,
+        "parsed": {
+          "FALCON_RIDGE": "SPKM-5745-FYYT",
+          "LANTERN_VALE": "XJDA-5078-NZPJ",
+          "CEDAR_GATE": "SLWX-7579-ETBE",
+          "VIOLET_LAKE": null
+        }
+      },
+      "k8v4_grade": {
+        "valid_json": true,
+        "exact_schema": true,
+        "fields_correct": 4,
+        "fields_total": 4,
+        "field_matches": {
+          "FALCON_RIDGE": true,
+          "LANTERN_VALE": true,
+          "CEDAR_GATE": true,
+          "VIOLET_LAKE": true
+        },
+        "all_correct": true,
+        "parsed": {
+          "FALCON_RIDGE": "SPKM-5745-FYYT",
+          "LANTERN_VALE": "XJDA-5078-NZPJ",
+          "CEDAR_GATE": "SLWX-7579-ETBE",
+          "VIOLET_LAKE": null
+        }
+      }
+    },
+    {
+      "capacity": 65536,
+      "seed": 43,
+      "equal": true,
+      "matching_prefix": 77,
+      "bf16_grade": {
+        "valid_json": true,
+        "exact_schema": true,
+        "fields_correct": 4,
+        "fields_total": 4,
+        "field_matches": {
+          "FALCON_RIDGE": true,
+          "LANTERN_VALE": true,
+          "CEDAR_GATE": true,
+          "VIOLET_LAKE": true
+        },
+        "all_correct": true,
+        "parsed": {
+          "FALCON_RIDGE": "BKYE-8578-MXYD",
+          "LANTERN_VALE": "QVRV-1313-SPUM",
+          "CEDAR_GATE": "VTPN-3886-BDDN",
+          "VIOLET_LAKE": null
+        }
+      },
+      "k8v4_grade": {
+        "valid_json": true,
+        "exact_schema": true,
+        "fields_correct": 4,
+        "fields_total": 4,
+        "field_matches": {
+          "FALCON_RIDGE": true,
+          "LANTERN_VALE": true,
+          "CEDAR_GATE": true,
+          "VIOLET_LAKE": true
+        },
+        "all_correct": true,
+        "parsed": {
+          "FALCON_RIDGE": "BKYE-8578-MXYD",
+          "LANTERN_VALE": "QVRV-1313-SPUM",
+          "CEDAR_GATE": "VTPN-3886-BDDN",
+          "VIOLET_LAKE": null
+        }
+      }
+    }
+  ],
+  "total_documents": 16,
+  "total_exact_tag_checks": 48,
+  "total_absent_key_checks": 16,
+  "executed_modes": {
+    "kv": [
+      "bf16",
+      "k8v4"
+    ],
+    "speculative": "none",
+    "concurrency": 1,
+    "prefix_reuse": false,
+    "prefill_chunk": 512,
+    "eos": "respected",
+    "output_budget": 128
+  },
+  "verification": {
+    "cpu_tests": "277 passed, 51 skipped",
+    "remote_tool_tests": "9 passed",
+    "native_cpu_tokenizers_identical": true
+  },
+  "runner_sha256": "112400ecb730d8ab7badd105d84c147d16140b43c15bdb72d6577b6b54091e91",
+  "artifact_id": "d3ae5782742a48c8b058196297a7ddff",
+  "checkpoint_sha256_from_prior_verified_staging": "37cb1507aca20b442a35f4d7833b950e0507767cf766e7140e81fad4faf43d7f",
+  "runtime": {
+    "python": "3.12.3",
+    "tokenizers": "0.22.2",
+    "gpu": "RTX 4090 D",
+    "driver": "580.178.04",
+    "cuda": "13.0"
+  },
+  "source_sha256": {
+    "tools/validate_qwen_long_context.py": "6d8550bbd42172f7bc82cb76e77f942f25f8c136deaf2c725e51e015c9d19b9f",
+    "tests/test_qwen_long_context_tool.py": "7342e9a4db9e69cd0c9d18c06dc12e0dcfc100482306543088a8d16bda8b766f"
+  },
+  "scope": "Existing external native NInfer/Cinference Qwen implementation via unchanged Venturi production API; no model-weight, kernel, KV-codec or default-setting changes.",
+  "limitations": [
+    "Two synthetic registries per length, three planted tags around 5/50/95 percent and one absent key. This is not LongBench, RULER, real-document reasoning, math, coding or broad quality validation.",
+    "BF16 KV comparisons stop at 65536 context capacity. No BF16 reference at 128K/256K, so quality loss caused specifically by quantization is not established there.",
+    "Identical short/64K greedy IDs do not establish universal numerical equivalence; the earlier prose counterexample remains valid.",
+    "K8V4 is the complete native backend attention/KV route, which can also change attention arithmetic, not a codec-only ablation.",
+    "One short warmup per engine, not a steady-state speed benchmark. Long requests may include lazy graph capture. Load/startup excluded from prefill/decode timings.",
+    "NVML peak is sampled every 500 ms for the whole device, including desktop/context; it is not an exact per-process peak.",
+    "One request, no speculation or prefix reuse. This does not validate eight simultaneous 256K requests.",
+    "Full prompt text stays on the GPU host; deterministic generator, expected answers, hashes and exact token offsets are retained locally. No weights or model binaries downloaded.",
+    "One remote test command ran before its new test file was synchronized; the retained pre-sync log is a deployment failure, not a model result. Final remote tests passed."
+  ],
+  "evidence_directory": "/Users/wangyue/Documents/Codex/2026-10-15/wo/work/Venturi/benchmarks/qwen/long-context",
+  "remote_evidence_directory": "/home/test/wangyue/venturi-work/qwen/long-context",
+  "published": false,
+  "final_state": "Owned test processes exited; existing desktop GPU process unchanged; explicit byte-verified RAM checkpoint retained."
+}

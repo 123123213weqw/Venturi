@@ -1,0 +1,72 @@
+usage: venturi qwen-native [-h] [--blocks-library BLOCKS_LIBRARY]
+                           [--weight-mode {streaming,resident}]
+                           [--dtype {fp16,bf16}] [--device DEVICE]
+                           [--projection-profile {fp16,q8-residual,q8-residual-column-mlp,q8-residual-column-mlp-head-gdn}]
+                           [--tensor-parallel-transport {peer,host}]
+                           [--tensor-parallel-device TENSOR_PARALLEL_DEVICE]
+                           [--pipeline-device PIPELINE_DEVICE]
+                           [--pipeline-split-layer PIPELINE_SPLIT_LAYER]
+                           [--pipeline-transport {host}]
+                           [--mtp-artifact MTP_ARTIFACT]
+                           [--mtp-draft-tokens {1,2}]
+                           [--mtp-draft-projection-profile {fp16,q8-residual}]
+                           [--mtp-recovery {replay,prefix}]
+                           [--expected-sha256 EXPECTED_SHA256]
+                           [--prompt PROMPT | --token-ids TOKEN_IDS]
+                           [--tokenizer TOKENIZER]
+                           [--eos-token-ids EOS_TOKEN_IDS]
+                           [--max-new-tokens MAX_NEW_TOKENS]
+                           [--max-tokens MAX_TOKENS] [--capacity CAPACITY]
+                           {inspect,generate} path
+
+Explicit owned Q8 native runtime; raw prompts and greedy-only generation.
+
+positional arguments:
+  {inspect,generate}
+  path
+
+options:
+  -h, --help            show this help message and exit
+  --blocks-library BLOCKS_LIBRARY
+                        Explicit ABI-matching native library; never builds
+                        automatically
+  --weight-mode {streaming,resident}
+                        Required for generation; never an implicit fallback
+  --dtype {fp16,bf16}   Activation/KV dtype; SM70 needs explicit fp16
+  --device DEVICE
+  --projection-profile {fp16,q8-residual,q8-residual-column-mlp,q8-residual-column-mlp-head-gdn}
+                        Original typed activation math (default), or explicit
+                        experimental residual-A8 FP16 target arithmetic
+  --tensor-parallel-transport {peer,host}
+                        Explicit transport; peer mode verifies actual bytes
+                        and never silently falls back
+  --tensor-parallel-device TENSOR_PARALLEL_DEVICE
+                        Optional explicit second CUDA device; resident TP only
+  --pipeline-device PIPELINE_DEVICE
+                        Explicit second CUDA device for native layer pipeline
+  --pipeline-split-layer PIPELINE_SPLIT_LAYER
+  --pipeline-transport {host}
+  --mtp-artifact MTP_ARTIFACT
+                        Explicit original-source Q8 MTP payload; experimental
+                        native greedy verification
+  --mtp-draft-tokens {1,2}
+                        Explicit MTP proposal depth; depth one remains the
+                        default
+  --mtp-draft-projection-profile {fp16,q8-residual}
+  --mtp-recovery {replay,prefix}
+  --expected-sha256 EXPECTED_SHA256
+                        Optional full-file pin for a single-file artifact
+  --prompt PROMPT       Raw continuation prompt: no automatic chat template
+  --token-ids TOKEN_IDS
+                        Comma-separated already formatted prompt IDs; no
+                        tokenizer dependency
+  --tokenizer TOKENIZER
+                        Local tokenizer.json for raw text input/decoding; no
+                        network or model code
+  --eos-token-ids EOS_TOKEN_IDS
+                        Comma-separated EOS IDs; default from text config,
+                        empty string explicitly disables stopping
+  --max-new-tokens MAX_NEW_TOKENS
+  --max-tokens MAX_TOKENS
+                        Native prefill chunk/arena size, not context capacity
+  --capacity CAPACITY   Default prompt length + max-new-tokens; no truncation

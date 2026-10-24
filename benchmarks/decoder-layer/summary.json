@@ -1,0 +1,368 @@
+{
+  "date": "2026-10-18",
+  "status": "Implemented one explicit standard decoder layer with resident weights, dense per-request KV and reusable per-lane workspace. Not a complete model adapter or promoted fast backend.",
+  "scope": "Remote-only two-layer decoder qualification and workspace/backend comparisons.\n\nSynthetic standard GQA decoder layers, not the hybrid Qwen checkpoint, pretrained\nquality evaluation, generation TPS, or a replacement for the external runner.\nCompare identical native Ops with per-layer vs shared sequential workspaces, then\nexplicit PyTorch vs native using shared workspaces. All phases are unprofiled.\n",
+  "protocol": "Two sequential synthetic layers, BF16 activations/KV. H5120/I17408/Hq24/Hkv4/D256. Three capture warmups, >=seconds-per-phase unprofiled phases, 100 wrapper calls/chunk; fixed-position replay truncates only the suffix before each call. CPU includes validation/dispatch/cache bookkeeping/event waiting. Workspace ABBA (separate/shared/shared/separate); backend ABBA (reference/native/native/reference). No sustained autoregressive rollout, checkpoint, batching or model TPS.",
+  "hardware": {
+    "name": "NVIDIA GeForce RTX 4090 D",
+    "capability": [
+      8,
+      9
+    ]
+  },
+  "libraries": {
+    "/home/test/wangyue/venturi-work/qwen/own-blocks-build/7f52eb34f3e9e00f/libventuri_blocks.so": "7e811c9b33c4a8ab8df5d3a36179e177445f458094364815a805b0a02f235431",
+    "/home/test/wangyue/venturi-work/qwen/own-q4-build/9842ab3e14924d72/libventuri_ada.so": "4dc56882b2822854a5bee011a2bb553c92b6a65f6f439802c598e1734a7c8f05"
+  },
+  "counters": "Unavailable: unchanged RmProfilingAdminOnly=1 policy; prior ERR_NVGPUCTRPERM. No achieved occupancy, bandwidth, cache/stall counters or new kernel attribution.",
+  "qualification": {
+    "remote_selected_passed": 246,
+    "remote_selected_skipped": 0,
+    "local_passed": 431,
+    "local_skipped": 144,
+    "full_size_per_op_fp64_checks": 240,
+    "full_size_two_layer_eager_graph_and_workspace_bit_identical_comparisons": 32,
+    "weight_pointers_shared_across_T1_T128": true,
+    "per_op_bounds_unchanged": true
+  },
+  "cases": [
+    {
+      "name": "bf16-t128-p0",
+      "tokens": 128,
+      "prefix": 0,
+      "layers": 2,
+      "native_weight_mib": 1300.078125,
+      "kv_mib": 1.0078125,
+      "workspace_mib": {
+        "separate": 30.0,
+        "shared": 15.0
+      },
+      "workspace_bytes_reduction_percent": 50.0,
+      "workspace_medians": {
+        "separate": {
+          "wall_us_per_call": 11129.9585874076,
+          "event_us_per_call": 11128.844909667969,
+          "process_cpu_percent": 99.9577452109896,
+          "two_layer_sequence_calls_per_second": 89.84759396422164
+        },
+        "shared": {
+          "wall_us_per_call": 11099.051007477101,
+          "event_us_per_call": 11098.331298828125,
+          "process_cpu_percent": 99.93287705092577,
+          "two_layer_sequence_calls_per_second": 90.09779298485336
+        }
+      },
+      "backend_medians": {
+        "reference": {
+          "wall_us_per_call": 2351.5824161262976,
+          "event_us_per_call": 2351.0216098361543,
+          "process_cpu_percent": 99.94291155782741,
+          "two_layer_sequence_calls_per_second": 425.24556789605305
+        },
+        "native": {
+          "wall_us_per_call": 11099.043385183904,
+          "event_us_per_call": 11098.199157714844,
+          "process_cpu_percent": 99.94023409389493,
+          "two_layer_sequence_calls_per_second": 90.09785485971688
+        }
+      },
+      "cross_backend_diagnostic": {
+        "max_abs_error": 0.046875,
+        "normalized_rms_error": 0.007158964561880272,
+        "matching_elements": 183817,
+        "elements": 655360,
+        "scope": "Diagnostic, not a per-Op correctness gate or lossless/quality claim."
+      },
+      "gpu_native_shared_workspace_phase_mean_ranges": {
+        "utilization.gpu": {
+          "minimum_phase_mean": 100.0,
+          "maximum_phase_mean": 100.0
+        },
+        "utilization.memory": {
+          "minimum_phase_mean": 19.0,
+          "maximum_phase_mean": 19.0
+        },
+        "memory.used": {
+          "minimum_phase_mean": 3710.0,
+          "maximum_phase_mean": 3710.0
+        },
+        "power.draw": {
+          "minimum_phase_mean": 349.3933333333333,
+          "maximum_phase_mean": 349.82
+        },
+        "temperature.gpu": {
+          "minimum_phase_mean": 53.0,
+          "maximum_phase_mean": 53.0
+        },
+        "clocks.sm": {
+          "minimum_phase_mean": 2775.0,
+          "maximum_phase_mean": 2775.0
+        },
+        "clocks.mem": {
+          "minimum_phase_mean": 10251.0,
+          "maximum_phase_mean": 10251.0
+        }
+      },
+      "workspace_latency_change_percent": -0.2776971692012187
+    },
+    {
+      "name": "bf16-t1-p128",
+      "tokens": 1,
+      "prefix": 128,
+      "layers": 2,
+      "native_weight_mib": 1300.078125,
+      "kv_mib": 1.0078125,
+      "workspace_mib": {
+        "separate": 8.171875,
+        "shared": 4.0859375
+      },
+      "workspace_bytes_reduction_percent": 50.0,
+      "workspace_medians": {
+        "separate": {
+          "wall_us_per_call": 1603.4519815226445,
+          "event_us_per_call": 1602.9795309213491,
+          "process_cpu_percent": 99.92932978863601,
+          "two_layer_sequence_calls_per_second": 623.6544726773769
+        },
+        "shared": {
+          "wall_us_per_call": 1602.4957277113572,
+          "event_us_per_call": 1602.009517963116,
+          "process_cpu_percent": 99.93642363035522,
+          "two_layer_sequence_calls_per_second": 624.026624662628
+        }
+      },
+      "backend_medians": {
+        "reference": {
+          "wall_us_per_call": 1599.2984042252199,
+          "event_us_per_call": 1598.780552790715,
+          "process_cpu_percent": 99.92932202844415,
+          "two_layer_sequence_calls_per_second": 625.2741810772018
+        },
+        "native": {
+          "wall_us_per_call": 1602.6751661243347,
+          "event_us_per_call": 1602.113776573768,
+          "process_cpu_percent": 99.96511795032458,
+          "two_layer_sequence_calls_per_second": 623.9567575120338
+        }
+      },
+      "cross_backend_diagnostic": {
+        "max_abs_error": 0.03125,
+        "normalized_rms_error": 0.007044819760072617,
+        "matching_elements": 1429,
+        "elements": 5120,
+        "scope": "Diagnostic, not a per-Op correctness gate or lossless/quality claim."
+      },
+      "gpu_native_shared_workspace_phase_mean_ranges": {
+        "utilization.gpu": {
+          "minimum_phase_mean": 100.0,
+          "maximum_phase_mean": 100.0
+        },
+        "utilization.memory": {
+          "minimum_phase_mean": 100.0,
+          "maximum_phase_mean": 100.0
+        },
+        "memory.used": {
+          "minimum_phase_mean": 3790.0,
+          "maximum_phase_mean": 3790.0
+        },
+        "power.draw": {
+          "minimum_phase_mean": 312.152,
+          "maximum_phase_mean": 313.195
+        },
+        "temperature.gpu": {
+          "minimum_phase_mean": 51.0,
+          "maximum_phase_mean": 51.0
+        },
+        "clocks.sm": {
+          "minimum_phase_mean": 2775.0,
+          "maximum_phase_mean": 2775.0
+        },
+        "clocks.mem": {
+          "minimum_phase_mean": 10251.0,
+          "maximum_phase_mean": 10251.0
+        }
+      },
+      "workspace_latency_change_percent": -0.059637196642414736
+    },
+    {
+      "name": "q4-t128-p0",
+      "tokens": 128,
+      "prefix": 0,
+      "layers": 2,
+      "native_weight_mib": 345.390625,
+      "kv_mib": 1.0078125,
+      "workspace_mib": {
+        "separate": 22.0,
+        "shared": 11.0
+      },
+      "workspace_bytes_reduction_percent": 50.0,
+      "workspace_medians": {
+        "separate": {
+          "wall_us_per_call": 2934.075972880237,
+          "event_us_per_call": 2933.54490007673,
+          "process_cpu_percent": 99.95027917792413,
+          "two_layer_sequence_calls_per_second": 340.8228039229501
+        },
+        "shared": {
+          "wall_us_per_call": 2929.5318577870994,
+          "event_us_per_call": 2929.0173775809153,
+          "process_cpu_percent": 99.93551461696501,
+          "two_layer_sequence_calls_per_second": 341.3514679288645
+        }
+      },
+      "backend_medians": {
+        "reference": {
+          "wall_us_per_call": 5437.742527428782,
+          "event_us_per_call": 5437.156524658203,
+          "process_cpu_percent": 99.91895384984144,
+          "two_layer_sequence_calls_per_second": 183.89984353908838
+        },
+        "native": {
+          "wall_us_per_call": 2928.6962792476907,
+          "event_us_per_call": 2928.1707545689173,
+          "process_cpu_percent": 99.93306784632216,
+          "two_layer_sequence_calls_per_second": 341.4488580075211
+        }
+      },
+      "cross_backend_diagnostic": {
+        "max_abs_error": 4.0,
+        "normalized_rms_error": 0.0009719868041416055,
+        "matching_elements": 641125,
+        "elements": 655360,
+        "scope": "Diagnostic, not a per-Op correctness gate or lossless/quality claim."
+      },
+      "gpu_native_shared_workspace_phase_mean_ranges": {
+        "utilization.gpu": {
+          "minimum_phase_mean": 100.0,
+          "maximum_phase_mean": 100.0
+        },
+        "utilization.memory": {
+          "minimum_phase_mean": 87.0,
+          "maximum_phase_mean": 87.6
+        },
+        "memory.used": {
+          "minimum_phase_mean": 4242.0,
+          "maximum_phase_mean": 4242.0
+        },
+        "power.draw": {
+          "minimum_phase_mean": 421.93399999999997,
+          "maximum_phase_mean": 427.506
+        },
+        "temperature.gpu": {
+          "minimum_phase_mean": 53.6,
+          "maximum_phase_mean": 54.6
+        },
+        "clocks.sm": {
+          "minimum_phase_mean": 2628.0,
+          "maximum_phase_mean": 2634.0
+        },
+        "clocks.mem": {
+          "minimum_phase_mean": 10251.0,
+          "maximum_phase_mean": 10251.0
+        }
+      },
+      "workspace_latency_change_percent": -0.154873804739164
+    },
+    {
+      "name": "q4-t1-p128",
+      "tokens": 1,
+      "prefix": 128,
+      "layers": 2,
+      "native_weight_mib": 345.390625,
+      "kv_mib": 1.0078125,
+      "workspace_mib": {
+        "separate": 0.171875,
+        "shared": 0.0859375
+      },
+      "workspace_bytes_reduction_percent": 50.0,
+      "workspace_medians": {
+        "separate": {
+          "wall_us_per_call": 1670.3672591635648,
+          "event_us_per_call": 1669.8764610290527,
+          "process_cpu_percent": 99.94167184490797,
+          "two_layer_sequence_calls_per_second": 598.6707381350071
+        },
+        "shared": {
+          "wall_us_per_call": 1666.987901213967,
+          "event_us_per_call": 1666.489372253418,
+          "process_cpu_percent": 99.92976447814932,
+          "two_layer_sequence_calls_per_second": 599.8843778480697
+        }
+      },
+      "backend_medians": {
+        "reference": {
+          "wall_us_per_call": 3061.5567585586437,
+          "event_us_per_call": 3060.9835161481583,
+          "process_cpu_percent": 99.93918895213896,
+          "two_layer_sequence_calls_per_second": 326.6312137459088
+        },
+        "native": {
+          "wall_us_per_call": 1667.0055253780447,
+          "event_us_per_call": 1666.5216636657715,
+          "process_cpu_percent": 99.95222819135614,
+          "two_layer_sequence_calls_per_second": 599.8780356611111
+        }
+      },
+      "cross_backend_diagnostic": {
+        "max_abs_error": 4.0,
+        "normalized_rms_error": 0.0006979205276509777,
+        "matching_elements": 5068,
+        "elements": 5120,
+        "scope": "Diagnostic, not a per-Op correctness gate or lossless/quality claim."
+      },
+      "gpu_native_shared_workspace_phase_mean_ranges": {
+        "utilization.gpu": {
+          "minimum_phase_mean": 96.8,
+          "maximum_phase_mean": 100.0
+        },
+        "utilization.memory": {
+          "minimum_phase_mean": 27.2,
+          "maximum_phase_mean": 28.0
+        },
+        "memory.used": {
+          "minimum_phase_mean": 4242.0,
+          "maximum_phase_mean": 4242.0
+        },
+        "power.draw": {
+          "minimum_phase_mean": 280.74,
+          "maximum_phase_mean": 281.068
+        },
+        "temperature.gpu": {
+          "minimum_phase_mean": 50.0,
+          "maximum_phase_mean": 50.0
+        },
+        "clocks.sm": {
+          "minimum_phase_mean": 2775.0,
+          "maximum_phase_mean": 2775.0
+        },
+        "clocks.mem": {
+          "minimum_phase_mean": 10251.0,
+          "maximum_phase_mean": 10251.0
+        }
+      },
+      "workspace_latency_change_percent": -0.20231227181081168
+    }
+  ],
+  "limitations": [
+    "Synthetic standard GQA/SwiGLU geometry only, not the hybrid Qwen checkpoint. No embeddings/head, checkpoint mapping, GDN, Q/K norms, attention gates, bias, paging or KV quantization.",
+    "Two sequential layers, concurrency 1. Fixed-position replay with explicit suffix truncation is not a sustained autoregressive rollout, model TPS or HTTP-serving benchmark.",
+    "Dense prefill remains much slower than the explicit PyTorch reference; no fast-backend promotion or general inference-speedup claim.",
+    "Q4 compares packed native execution with exact decoded values materialized in FP32 for the PyTorch reference, not another quantized engine. These synthetic Q4 codes are uniform [-8,7], not quantized pretrained weights; their nonzero mean can produce large common-mode activations over two layers. Maximum absolute cross-backend difference 4.0 is retained, not hidden; normalized diagnostics and unchanged per-Op bounds are reported separately. No model-quality or lossless BF16 claim.",
+    "Native-vs-reference full-chain results are not bit-identical. All individual Ops pass their independent FP64 bounds on actual represented inputs; each native shared-arena composition/cache exactly matches independently executed native Ops.",
+    "Sharing workspace saves activation/scratch bytes, not layer weights or persistent KV. Timing differences between shared/separate workspaces are small; one ABBA session with two samples per condition is not a confidence interval.",
+    "Execution process CPU is about one busy core, including Python validation/dispatch/cache bookkeeping and CUDA-event waiting; no idle-CPU optimization.",
+    "NVML is whole-device/coarse, sampled every 200 ms after excluding the first second. Both backend residents coexist during the comparison; NVML VRAM is not a minimal single-backend model peak. GPU busy is not achieved occupancy; memory-controller busy is not bandwidth percentage. Hardware counters remain restricted; no new attribution/timeline diagnosis.",
+    "Upload owns copies, including if source is already on GPU. It does not automatically adopt/free checkpoint allocations. Weight source lifetimes and releasing redundant source references remain explicit caller responsibilities.",
+    "Graph capture supports a fixed token shape and position. It uses a dependency-bridged non-default preparation stream; cache visibility changes only in managed replay, not during capture. Capture requires no other CUDA work/allocations in this process."
+  ],
+  "noninterference": {
+    "production_qwen_runner_sha256": "3c7da6aeb337ee374ce912934c9335252e39326cd9cba3e2163696c06d15dfb4",
+    "unchanged": true,
+    "whole_gpu_after_jobs": {
+      "memory_mib": 387,
+      "gpu_busy_percent": 0
+    },
+    "counter_policy": "RmProfilingAdminOnly: 1"
+  },
+  "next": "Add checkpoint-specific bindings, embeddings/final head and a full supported-model forward/session; optimize existing attention/GEMM only against matched evidence. The hybrid Qwen checkpoint also requires GDN and its exact normalization/gating conventions."
+}

@@ -1,0 +1,2517 @@
+{
+  "scope": "Matched Q8 projection-only tile ablation using real checkpoint matrices.\n\nAll libraries share the same immutable GPU Q8 planes and activation values.\nEvery candidate must match original output bytes before timing. Graph replay\namortizes Python launch overhead for this microbenchmark only; it does not imply\nwhole-model graph support. CUDA-event intervals include graph/timeline gaps and\nare not hardware-counter bandwidth or full-engine serving measurements.\n",
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "gpu": "Tesla V100-PCIE-32GB",
+  "dtype": "fp16",
+  "libraries": [
+    {
+      "name": "baseline",
+      "library": "/home/data/wangyue/repos/codex-build/Venturi/v100-pp-build/a0025ea463ceda9a/libventuri_blocks.so",
+      "sha256": "29c2a8cc614387a9029b1cfd16dc78ebd3d9524f4083e1293eea6ea21737e6d4"
+    },
+    {
+      "name": "minblocks-6",
+      "library": "/home/wzu/codex-build/Venturi/v100-occupancy-variants-v1/minblocks-6/libventuri_blocks.so",
+      "sha256": "7797425b0af5770deda9404087e30ff21d22436accdf9cb867f2d0dc8fc61c4c"
+    },
+    {
+      "name": "minblocks-8",
+      "library": "/home/wzu/codex-build/Venturi/v100-occupancy-variants-v1/minblocks-8/libventuri_blocks.so",
+      "sha256": "345d3138ad249b294906bd26dcde312fc2c867eba7bebda9c3d40981bdd07ac1"
+    }
+  ],
+  "graph_nodes": 5,
+  "graph_replays_per_wave": 5,
+  "warmup_replays": 3,
+  "decode_only": false,
+  "hardware_counters_available": false,
+  "cases": [
+    {
+      "shape": [
+        248320,
+        5120
+      ],
+      "role": "text/output_head",
+      "occurrences": 2,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.76885498046875,
+          "wall_seconds": 0.06932397896889597,
+          "process_cpu_seconds": 0.06936999999999927
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 5.310587158203125,
+          "wall_seconds": 0.1328194870147854,
+          "process_cpu_seconds": 0.13285199999999975
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 24.43243408203125,
+          "wall_seconds": 0.6109017850249074,
+          "process_cpu_seconds": 0.6111369999999994
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 24.4265380859375,
+          "wall_seconds": 0.6108024560380727,
+          "process_cpu_seconds": 0.6111339999999981
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 5.291458740234375,
+          "wall_seconds": 0.1323615029687062,
+          "process_cpu_seconds": 0.13245200000000068
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.767175598144531,
+          "wall_seconds": 0.06921978096943349,
+          "process_cpu_seconds": 0.06921800000000111
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.780364685058594,
+          "wall_seconds": 0.06954690301790833,
+          "process_cpu_seconds": 0.0695920000000001
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 5.308251953125,
+          "wall_seconds": 0.132745579991024,
+          "process_cpu_seconds": 0.1327809999999996
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 24.4228515625,
+          "wall_seconds": 0.6107172560296021,
+          "process_cpu_seconds": 0.6108030000000007
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 24.42915771484375,
+          "wall_seconds": 0.6108550499775447,
+          "process_cpu_seconds": 0.6111639999999987
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 5.2895745849609375,
+          "wall_seconds": 0.13231977500254288,
+          "process_cpu_seconds": 0.13235300000000194
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7683224487304687,
+          "wall_seconds": 0.069259851006791,
+          "process_cpu_seconds": 0.06931700000000163
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 2.768588714599609,
+        "minblocks-6": 5.299855346679687,
+        "minblocks-8": 24.427847900390624
+      }
+    },
+    {
+      "shape": [
+        17408,
+        5120
+      ],
+      "role": "text/layers/63/mlp/up",
+      "occurrences": 128,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2048409652709961,
+          "wall_seconds": 0.005176686041522771,
+          "process_cpu_seconds": 0.005171000000000703
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39628799438476564,
+          "wall_seconds": 0.009940674004610628,
+          "process_cpu_seconds": 0.00994100000000131
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.6934912109375,
+          "wall_seconds": 0.04237375798402354,
+          "process_cpu_seconds": 0.042372999999997774
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.6944332885742188,
+          "wall_seconds": 0.042401276994496584,
+          "process_cpu_seconds": 0.042436999999999614
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39620609283447267,
+          "wall_seconds": 0.009941925993189216,
+          "process_cpu_seconds": 0.009942999999999813
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20393983840942384,
+          "wall_seconds": 0.005129801982548088,
+          "process_cpu_seconds": 0.005129000000000161
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20385791778564452,
+          "wall_seconds": 0.00513262499589473,
+          "process_cpu_seconds": 0.00513300000000072
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39579647064208984,
+          "wall_seconds": 0.009926575003191829,
+          "process_cpu_seconds": 0.00992700000000113
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.6932864379882813,
+          "wall_seconds": 0.04237328201998025,
+          "process_cpu_seconds": 0.042373000000001326
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.6925080871582032,
+          "wall_seconds": 0.042349602037575096,
+          "process_cpu_seconds": 0.04238499999999945
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39428096771240234,
+          "wall_seconds": 0.009889353008475155,
+          "process_cpu_seconds": 0.009890000000002175
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20279296875,
+          "wall_seconds": 0.005101361952256411,
+          "process_cpu_seconds": 0.005101999999997275
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.20389887809753418,
+        "minblocks-6": 0.39600128173828125,
+        "minblocks-8": 1.6933888244628905
+      }
+    },
+    {
+      "shape": [
+        17408,
+        5120
+      ],
+      "role": "text/layers/63/mlp/up",
+      "occurrences": 128,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.4314726257324219,
+          "wall_seconds": 0.010839219961781055,
+          "process_cpu_seconds": 0.01083500000000015
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.375807991027832,
+          "wall_seconds": 0.009430433041416109,
+          "process_cpu_seconds": 0.009503999999999735
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3830579376220703,
+          "wall_seconds": 0.00961248204112053,
+          "process_cpu_seconds": 0.009560999999997932
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3867852783203125,
+          "wall_seconds": 0.009703061019536108,
+          "process_cpu_seconds": 0.009703000000001794
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3860889434814453,
+          "wall_seconds": 0.009685685974545777,
+          "process_cpu_seconds": 0.009685999999998529
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.4504780960083008,
+          "wall_seconds": 0.01129396801115945,
+          "process_cpu_seconds": 0.011295000000000499
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.4504780960083008,
+          "wall_seconds": 0.011295745032839477,
+          "process_cpu_seconds": 0.011296000000001527
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39362560272216796,
+          "wall_seconds": 0.009872073016595095,
+          "process_cpu_seconds": 0.009872000000001435
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39825408935546874,
+          "wall_seconds": 0.009987953002564609,
+          "process_cpu_seconds": 0.009989000000000914
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3982950210571289,
+          "wall_seconds": 0.009991349012125283,
+          "process_cpu_seconds": 0.009992000000000445
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39370750427246093,
+          "wall_seconds": 0.009873825998511165,
+          "process_cpu_seconds": 0.009914999999999452
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.45051902770996094,
+          "wall_seconds": 0.011294036987237632,
+          "process_cpu_seconds": 0.011293999999999471
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.4504780960083008,
+        "minblocks-6": 0.3898572731018066,
+        "minblocks-8": 0.3925196838378906
+      }
+    },
+    {
+      "shape": [
+        17408,
+        5120
+      ],
+      "role": "text/layers/63/mlp/up",
+      "occurrences": 128,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.1023513793945314,
+          "wall_seconds": 0.07762077602092177,
+          "process_cpu_seconds": 0.07765299999999797
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.711593017578125,
+          "wall_seconds": 0.0678321709856391,
+          "process_cpu_seconds": 0.06789600000000107
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7591064453125,
+          "wall_seconds": 0.06910580903058872,
+          "process_cpu_seconds": 0.06911300000000153
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7517745971679686,
+          "wall_seconds": 0.06887046003248543,
+          "process_cpu_seconds": 0.0689370000000018
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.729697265625,
+          "wall_seconds": 0.06829749199096113,
+          "process_cpu_seconds": 0.06833599999999862
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.1239373779296873,
+          "wall_seconds": 0.078155521012377,
+          "process_cpu_seconds": 0.07818999999999932
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.123609619140625,
+          "wall_seconds": 0.07814927998697385,
+          "process_cpu_seconds": 0.07814999999999728
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.710610046386719,
+          "wall_seconds": 0.06782633904367685,
+          "process_cpu_seconds": 0.06771499999999975
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7618917846679687,
+          "wall_seconds": 0.06911552202655002,
+          "process_cpu_seconds": 0.06915599999999955
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.757304382324219,
+          "wall_seconds": 0.06899165199138224,
+          "process_cpu_seconds": 0.0689920000000015
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.73797119140625,
+          "wall_seconds": 0.06849754002178088,
+          "process_cpu_seconds": 0.06857499999999916
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.123445739746094,
+          "wall_seconds": 0.07813772500958294,
+          "process_cpu_seconds": 0.07820700000000258
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 3.1235276794433595,
+        "minblocks-6": 2.7206451416015627,
+        "minblocks-8": 2.7582054138183594
+      }
+    },
+    {
+      "shape": [
+        5120,
+        17408
+      ],
+      "role": "text/layers/63/mlp/down",
+      "occurrences": 64,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2128281593322754,
+          "wall_seconds": 0.005393192986957729,
+          "process_cpu_seconds": 0.005389999999998452
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39600128173828125,
+          "wall_seconds": 0.009936920017935336,
+          "process_cpu_seconds": 0.00993700000000075
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.7729945373535156,
+          "wall_seconds": 0.04436395096126944,
+          "process_cpu_seconds": 0.0443649999999991
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.7720524597167968,
+          "wall_seconds": 0.04434759099967778,
+          "process_cpu_seconds": 0.04442700000000244
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39587841033935545,
+          "wall_seconds": 0.009935320005752146,
+          "process_cpu_seconds": 0.009935999999999723
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2106163215637207,
+          "wall_seconds": 0.005299067008309066,
+          "process_cpu_seconds": 0.0052990000000043835
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.21024768829345702,
+          "wall_seconds": 0.005290622008033097,
+          "process_cpu_seconds": 0.005290999999999713
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39571456909179686,
+          "wall_seconds": 0.009936361981090158,
+          "process_cpu_seconds": 0.009938999999999254
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.7725849914550782,
+          "wall_seconds": 0.04435770900454372,
+          "process_cpu_seconds": 0.044426999999998884
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.767587890625,
+          "wall_seconds": 0.04423419595696032,
+          "process_cpu_seconds": 0.044090999999998104
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3914137649536133,
+          "wall_seconds": 0.009820038976613432,
+          "process_cpu_seconds": 0.009820000000001272
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20803583145141602,
+          "wall_seconds": 0.0052317859954200685,
+          "process_cpu_seconds": 0.0052329999999969345
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.21043200492858888,
+        "minblocks-6": 0.3957964897155761,
+        "minblocks-8": 1.7723187255859374
+      }
+    },
+    {
+      "shape": [
+        5120,
+        17408
+      ],
+      "role": "text/layers/63/mlp/down",
+      "occurrences": 64,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.5511577606201172,
+          "wall_seconds": 0.013840008003171533,
+          "process_cpu_seconds": 0.013835999999997739
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.37150718688964846,
+          "wall_seconds": 0.009323739039245993,
+          "process_cpu_seconds": 0.009323999999999444
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3760947036743164,
+          "wall_seconds": 0.009434234991203994,
+          "process_cpu_seconds": 0.00943499999999986
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3759718322753906,
+          "wall_seconds": 0.009432077989913523,
+          "process_cpu_seconds": 0.009436000000000888
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.38432769775390624,
+          "wall_seconds": 0.009639300988055766,
+          "process_cpu_seconds": 0.009638999999999953
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.5709823989868164,
+          "wall_seconds": 0.01431333797518164,
+          "process_cpu_seconds": 0.014354999999998341
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.571064338684082,
+          "wall_seconds": 0.014309613034129143,
+          "process_cpu_seconds": 0.014309999999998269
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3887513732910156,
+          "wall_seconds": 0.009750266035553068,
+          "process_cpu_seconds": 0.00975000000000037
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39415809631347654,
+          "wall_seconds": 0.009884180966764688,
+          "process_cpu_seconds": 0.009885000000000588
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39391231536865234,
+          "wall_seconds": 0.009880671044811606,
+          "process_cpu_seconds": 0.009857000000000227
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.38756351470947265,
+          "wall_seconds": 0.009723320021294057,
+          "process_cpu_seconds": 0.009723000000001036
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.5693849563598633,
+          "wall_seconds": 0.014271514024585485,
+          "process_cpu_seconds": 0.014272999999999314
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.5701836776733398,
+        "minblocks-6": 0.38594560623168944,
+        "minblocks-8": 0.3850035095214844
+      }
+    },
+    {
+      "shape": [
+        5120,
+        17408
+      ],
+      "role": "text/layers/63/mlp/down",
+      "occurrences": 64,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.65309814453125,
+          "wall_seconds": 0.09140081296209246,
+          "process_cpu_seconds": 0.09143499999999705
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.6887387084960936,
+          "wall_seconds": 0.06726162001723424,
+          "process_cpu_seconds": 0.06730199999999797
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7801190185546876,
+          "wall_seconds": 0.0695554559933953,
+          "process_cpu_seconds": 0.06955500000000114
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7662744140625,
+          "wall_seconds": 0.06920494302175939,
+          "process_cpu_seconds": 0.06924300000000017
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7330548095703127,
+          "wall_seconds": 0.06837681803153828,
+          "process_cpu_seconds": 0.06833500000000114
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.6866049194335937,
+          "wall_seconds": 0.09221550100483,
+          "process_cpu_seconds": 0.09223600000000332
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.620821838378906,
+          "wall_seconds": 0.09056412102654576,
+          "process_cpu_seconds": 0.0906199999999977
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.622874755859375,
+          "wall_seconds": 0.06560955703025684,
+          "process_cpu_seconds": 0.06560799999999745
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7904818725585936,
+          "wall_seconds": 0.06980052898870781,
+          "process_cpu_seconds": 0.0698129999999999
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.74366455078125,
+          "wall_seconds": 0.06863140396308154,
+          "process_cpu_seconds": 0.06866400000000183
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7290829467773436,
+          "wall_seconds": 0.06826643896056339,
+          "process_cpu_seconds": 0.06826500000000024
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.592518310546875,
+          "wall_seconds": 0.08985320100327954,
+          "process_cpu_seconds": 0.08990200000000215
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 3.636959991455078,
+        "minblocks-6": 2.7089108276367186,
+        "minblocks-8": 2.7731967163085938
+      }
+    },
+    {
+      "shape": [
+        10240,
+        5120
+      ],
+      "role": "text/layers/62/gdn/qkv",
+      "occurrences": 48,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1272217559814453,
+          "wall_seconds": 0.0032343799830414355,
+          "process_cpu_seconds": 0.0032290000000010366
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.24453119277954102,
+          "wall_seconds": 0.006144131009932607,
+          "process_cpu_seconds": 0.006143999999999039
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0118758392333984,
+          "wall_seconds": 0.025332282995805144,
+          "process_cpu_seconds": 0.0253319999999988
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0142105865478515,
+          "wall_seconds": 0.02539740694919601,
+          "process_cpu_seconds": 0.025459000000001453
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2450636863708496,
+          "wall_seconds": 0.0061767949955537915,
+          "process_cpu_seconds": 0.006180000000000518
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12734463691711426,
+          "wall_seconds": 0.00322428101208061,
+          "process_cpu_seconds": 0.0032250000000004775
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1264025592803955,
+          "wall_seconds": 0.0031909039826132357,
+          "process_cpu_seconds": 0.0031919999999985293
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.24428543090820312,
+          "wall_seconds": 0.0061374150100164115,
+          "process_cpu_seconds": 0.0061380000000035295
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.013719024658203,
+          "wall_seconds": 0.02537672995822504,
+          "process_cpu_seconds": 0.025376000000001397
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.009090576171875,
+          "wall_seconds": 0.02525901998160407,
+          "process_cpu_seconds": 0.025258999999998366
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23965696334838868,
+          "wall_seconds": 0.006029423035215586,
+          "process_cpu_seconds": 0.006029000000001616
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12349439620971679,
+          "wall_seconds": 0.0031158209894783795,
+          "process_cpu_seconds": 0.003116000000002117
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.1268121576309204,
+        "minblocks-6": 0.24440831184387207,
+        "minblocks-8": 1.0127974319458009
+      }
+    },
+    {
+      "shape": [
+        10240,
+        5120
+      ],
+      "role": "text/layers/62/gdn/qkv",
+      "occurrences": 48,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2593177604675293,
+          "wall_seconds": 0.006535093009006232,
+          "process_cpu_seconds": 0.006531000000002507
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.22515712738037108,
+          "wall_seconds": 0.005661674018483609,
+          "process_cpu_seconds": 0.005662000000000944
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.22634496688842773,
+          "wall_seconds": 0.005688049946911633,
+          "process_cpu_seconds": 0.005688000000002802
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.22626304626464844,
+          "wall_seconds": 0.0056867090170271695,
+          "process_cpu_seconds": 0.005686999999998221
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.22450176239013672,
+          "wall_seconds": 0.005641789000947028,
+          "process_cpu_seconds": 0.0056419999999981485
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2606694412231445,
+          "wall_seconds": 0.00654848397243768,
+          "process_cpu_seconds": 0.006522000000000361
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.26464256286621096,
+          "wall_seconds": 0.006649859016761184,
+          "process_cpu_seconds": 0.006650999999997964
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23007232666015626,
+          "wall_seconds": 0.005781330983154476,
+          "process_cpu_seconds": 0.005781999999999954
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23236608505249023,
+          "wall_seconds": 0.005840943020302802,
+          "process_cpu_seconds": 0.005842000000001235
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23359487533569337,
+          "wall_seconds": 0.00587118900148198,
+          "process_cpu_seconds": 0.005872000000000099
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2309734344482422,
+          "wall_seconds": 0.005808504996821284,
+          "process_cpu_seconds": 0.005808999999999287
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.26554367065429685,
+          "wall_seconds": 0.006678208999801427,
+          "process_cpu_seconds": 0.006731999999999516
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.26265600204467776,
+        "minblocks-6": 0.22761472702026367,
+        "minblocks-8": 0.229355525970459
+      }
+    },
+    {
+      "shape": [
+        10240,
+        5120
+      ],
+      "role": "text/layers/62/gdn/qkv",
+      "occurrences": 48,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.8362777709960938,
+          "wall_seconds": 0.04596674197819084,
+          "process_cpu_seconds": 0.04595600000000033
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.60616455078125,
+          "wall_seconds": 0.040206436009611934,
+          "process_cpu_seconds": 0.04027699999999612
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.6269721984863281,
+          "wall_seconds": 0.040717408002819866,
+          "process_cpu_seconds": 0.04071700000000078
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.6257843017578124,
+          "wall_seconds": 0.040691472007893026,
+          "process_cpu_seconds": 0.04069300000000098
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.6143565368652344,
+          "wall_seconds": 0.04041283798869699,
+          "process_cpu_seconds": 0.04045599999999894
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.8467634582519532,
+          "wall_seconds": 0.04621531302109361,
+          "process_cpu_seconds": 0.046214999999996564
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.8464358520507813,
+          "wall_seconds": 0.04621020803460851,
+          "process_cpu_seconds": 0.04627199999999476
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.6144793701171876,
+          "wall_seconds": 0.04040586203336716,
+          "process_cpu_seconds": 0.04040600000000083
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.630945281982422,
+          "wall_seconds": 0.040827382006682456,
+          "process_cpu_seconds": 0.04088199999999986
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.6286515808105468,
+          "wall_seconds": 0.0407752679893747,
+          "process_cpu_seconds": 0.040775000000000006
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.5996109008789063,
+          "wall_seconds": 0.04003217397257686,
+          "process_cpu_seconds": 0.04003200000000007
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.8288639831542968,
+          "wall_seconds": 0.045766344002913684,
+          "process_cpu_seconds": 0.04584300000000141
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 1.8413568115234376,
+        "minblocks-6": 1.6102605438232422,
+        "minblocks-8": 1.6278118896484375
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "role": "text/layers/62/gdn/z",
+      "occurrences": 48,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08032256126403808,
+          "wall_seconds": 0.0020590450149029493,
+          "process_cpu_seconds": 0.0020549999999985857
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1602764892578125,
+          "wall_seconds": 0.004038047976791859,
+          "process_cpu_seconds": 0.004039000000002346
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.5818368148803711,
+          "wall_seconds": 0.014577450987417251,
+          "process_cpu_seconds": 0.014578000000000202
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.5818777465820313,
+          "wall_seconds": 0.014577600988559425,
+          "process_cpu_seconds": 0.014576999999999174
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1602764892578125,
+          "wall_seconds": 0.004037545004393905,
+          "process_cpu_seconds": 0.00403700000000029
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07925759792327881,
+          "wall_seconds": 0.0020103889983147383,
+          "process_cpu_seconds": 0.002010999999999541
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0790937614440918,
+          "wall_seconds": 0.0020066130091436207,
+          "process_cpu_seconds": 0.002006999999998982
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15986687660217286,
+          "wall_seconds": 0.00402760598808527,
+          "process_cpu_seconds": 0.004029000000002725
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.5808537673950195,
+          "wall_seconds": 0.01455333101330325,
+          "process_cpu_seconds": 0.0145540000000004
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.5818777465820313,
+          "wall_seconds": 0.014579681970644742,
+          "process_cpu_seconds": 0.014630000000000365
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16044031143188475,
+          "wall_seconds": 0.004041277046781033,
+          "process_cpu_seconds": 0.0040410000000008495
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0791756820678711,
+          "wall_seconds": 0.0020084240240976214,
+          "process_cpu_seconds": 0.0020090000000010377
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.07921663999557496,
+        "minblocks-6": 0.1602764892578125,
+        "minblocks-8": 0.5818572807312012
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "role": "text/layers/62/gdn/z",
+      "occurrences": 48,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16556032180786132,
+          "wall_seconds": 0.004187632992397994,
+          "process_cpu_seconds": 0.004183999999998633
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14311424255371094,
+          "wall_seconds": 0.003609367005992681,
+          "process_cpu_seconds": 0.0036099999999983368
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14417920112609864,
+          "wall_seconds": 0.0036341820377856493,
+          "process_cpu_seconds": 0.0036339999999981387
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14401535987854003,
+          "wall_seconds": 0.003630016988608986,
+          "process_cpu_seconds": 0.0036300000000011323
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14278656005859375,
+          "wall_seconds": 0.003598431998398155,
+          "process_cpu_seconds": 0.00359900000000124
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16510976791381837,
+          "wall_seconds": 0.004156081995461136,
+          "process_cpu_seconds": 0.004155999999998272
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16519168853759766,
+          "wall_seconds": 0.004158699011895806,
+          "process_cpu_seconds": 0.004158999999997803
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14278656005859375,
+          "wall_seconds": 0.0035986409639008343,
+          "process_cpu_seconds": 0.00359900000000124
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14413824081420898,
+          "wall_seconds": 0.003632856998592615,
+          "process_cpu_seconds": 0.0036339999999981387
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1439743995666504,
+          "wall_seconds": 0.0036282900255173445,
+          "process_cpu_seconds": 0.0036279999999990764
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1428275203704834,
+          "wall_seconds": 0.003602476033847779,
+          "process_cpu_seconds": 0.003650000000000375
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16535551071166993,
+          "wall_seconds": 0.004164440033491701,
+          "process_cpu_seconds": 0.004165000000000418
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.16527359962463378,
+        "minblocks-6": 0.14280704021453858,
+        "minblocks-8": 0.1440768003463745
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "role": "text/layers/62/gdn/z",
+      "occurrences": 48,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.099530258178711,
+          "wall_seconds": 0.02754414500668645,
+          "process_cpu_seconds": 0.027582999999999913
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9582592010498047,
+          "wall_seconds": 0.024130897945724428,
+          "process_cpu_seconds": 0.024146000000001777
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9734143829345703,
+          "wall_seconds": 0.02441973000532016,
+          "process_cpu_seconds": 0.02441999999999922
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9741107177734375,
+          "wall_seconds": 0.024387590994592756,
+          "process_cpu_seconds": 0.024361999999999995
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9678848266601563,
+          "wall_seconds": 0.024230587005149573,
+          "process_cpu_seconds": 0.02427899999999994
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.1125145721435548,
+          "wall_seconds": 0.027859145018737763,
+          "process_cpu_seconds": 0.02786000000000044
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.110630416870117,
+          "wall_seconds": 0.027820616960525513,
+          "process_cpu_seconds": 0.02782099999999943
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9626828765869141,
+          "wall_seconds": 0.024106330994982272,
+          "process_cpu_seconds": 0.02410599999999974
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9740287780761718,
+          "wall_seconds": 0.024396009976044297,
+          "process_cpu_seconds": 0.024383000000000266
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9758310699462891,
+          "wall_seconds": 0.02443628298351541,
+          "process_cpu_seconds": 0.024435999999997904
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9720626831054687,
+          "wall_seconds": 0.02434343798086047,
+          "process_cpu_seconds": 0.02431500000000142
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.1170611572265625,
+          "wall_seconds": 0.027964690001681447,
+          "process_cpu_seconds": 0.027964000000000766
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 1.111572494506836,
+        "minblocks-6": 0.9652838516235351,
+        "minblocks-8": 0.9740697479248046
+      }
+    },
+    {
+      "shape": [
+        5120,
+        6144
+      ],
+      "role": "text/layers/63/attention/o",
+      "occurrences": 64,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0809779167175293,
+          "wall_seconds": 0.002078082994557917,
+          "process_cpu_seconds": 0.0020740000000003533
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1547059154510498,
+          "wall_seconds": 0.0038989020395092666,
+          "process_cpu_seconds": 0.003899999999998016
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.6160793685913086,
+          "wall_seconds": 0.01543573202798143,
+          "process_cpu_seconds": 0.015482999999999691
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.6171443176269531,
+          "wall_seconds": 0.015463318966794759,
+          "process_cpu_seconds": 0.015463000000000449
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15458304405212403,
+          "wall_seconds": 0.003894502006005496,
+          "process_cpu_seconds": 0.003894999999999982
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08048768043518066,
+          "wall_seconds": 0.002041221014223993,
+          "process_cpu_seconds": 0.002041000000001958
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08024064064025879,
+          "wall_seconds": 0.0020344089716672897,
+          "process_cpu_seconds": 0.0020340000000018676
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15417344093322755,
+          "wall_seconds": 0.003882934048306197,
+          "process_cpu_seconds": 0.003883000000001857
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.6175948715209961,
+          "wall_seconds": 0.015470030019059777,
+          "process_cpu_seconds": 0.015470000000000539
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.6182502365112305,
+          "wall_seconds": 0.015502008027397096,
+          "process_cpu_seconds": 0.015503999999999962
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15519743919372558,
+          "wall_seconds": 0.0039177180151455104,
+          "process_cpu_seconds": 0.0039180000000023085
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08024064064025879,
+          "wall_seconds": 0.002035037032328546,
+          "process_cpu_seconds": 0.002036000000000371
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.08036416053771972,
+        "minblocks-6": 0.1546444797515869,
+        "minblocks-8": 0.6173695945739746
+      }
+    },
+    {
+      "shape": [
+        5120,
+        6144
+      ],
+      "role": "text/layers/63/attention/o",
+      "occurrences": 64,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15757311820983888,
+          "wall_seconds": 0.003990755998529494,
+          "process_cpu_seconds": 0.003986000000001155
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13615103721618652,
+          "wall_seconds": 0.0034360060235485435,
+          "process_cpu_seconds": 0.0034370000000016887
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1371340847015381,
+          "wall_seconds": 0.003457484010141343,
+          "process_cpu_seconds": 0.0034570000000009315
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13725695610046387,
+          "wall_seconds": 0.0034610279835760593,
+          "process_cpu_seconds": 0.003460999999997938
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13578240394592286,
+          "wall_seconds": 0.0034248779993504286,
+          "process_cpu_seconds": 0.0034250000000000114
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1572454357147217,
+          "wall_seconds": 0.003960943024139851,
+          "process_cpu_seconds": 0.003961000000000325
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15728639602661132,
+          "wall_seconds": 0.003961372014600784,
+          "process_cpu_seconds": 0.003962000000001353
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1357414436340332,
+          "wall_seconds": 0.0034232820034958422,
+          "process_cpu_seconds": 0.0034229999999979555
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13701120376586914,
+          "wall_seconds": 0.0034566069953143597,
+          "process_cpu_seconds": 0.003456999999997379
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13701120376586914,
+          "wall_seconds": 0.003455059020780027,
+          "process_cpu_seconds": 0.0034559999999999036
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1357414436340332,
+          "wall_seconds": 0.0034425670164637268,
+          "process_cpu_seconds": 0.003446000000000282
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15831040382385253,
+          "wall_seconds": 0.004008696007076651,
+          "process_cpu_seconds": 0.004011000000001985
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.1574297571182251,
+        "minblocks-6": 0.13576192378997803,
+        "minblocks-8": 0.13707264423370363
+      }
+    },
+    {
+      "shape": [
+        5120,
+        6144
+      ],
+      "role": "text/layers/63/attention/o",
+      "occurrences": 64,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0600857543945312,
+          "wall_seconds": 0.026577738986816257,
+          "process_cpu_seconds": 0.026575000000001125
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9296691131591797,
+          "wall_seconds": 0.02329121099319309,
+          "process_cpu_seconds": 0.023292999999998898
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9537535858154297,
+          "wall_seconds": 0.023880294989794493,
+          "process_cpu_seconds": 0.023982999999997645
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9616588592529297,
+          "wall_seconds": 0.024072137020993978,
+          "process_cpu_seconds": 0.024072000000000315
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.945274887084961,
+          "wall_seconds": 0.02366514300229028,
+          "process_cpu_seconds": 0.02366400000000013
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0833510589599609,
+          "wall_seconds": 0.027148185996338725,
+          "process_cpu_seconds": 0.027149999999998897
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0841702270507811,
+          "wall_seconds": 0.0271496589994058,
+          "process_cpu_seconds": 0.027163999999999078
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9439231872558593,
+          "wall_seconds": 0.023635849996935576,
+          "process_cpu_seconds": 0.02363599999999977
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9549823760986328,
+          "wall_seconds": 0.023910311050713062,
+          "process_cpu_seconds": 0.02390999999999366
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9618637084960937,
+          "wall_seconds": 0.024096617999020964,
+          "process_cpu_seconds": 0.024098000000002173
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9494937896728516,
+          "wall_seconds": 0.023779800976626575,
+          "process_cpu_seconds": 0.023879999999998347
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0893721771240235,
+          "wall_seconds": 0.02727263601263985,
+          "process_cpu_seconds": 0.02727300000000099
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 1.083760643005371,
+        "minblocks-6": 0.9445990371704102,
+        "minblocks-8": 0.9583206176757812
+      }
+    },
+    {
+      "shape": [
+        12288,
+        5120
+      ],
+      "role": "text/layers/63/attention/q",
+      "occurrences": 16,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14749695777893065,
+          "wall_seconds": 0.0037387980264611542,
+          "process_cpu_seconds": 0.0037340000000014584
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.28196863174438475,
+          "wall_seconds": 0.0070792879560031,
+          "process_cpu_seconds": 0.007079000000000946
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.1943936157226562,
+          "wall_seconds": 0.02989357803016901,
+          "process_cpu_seconds": 0.029894000000002308
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.192632293701172,
+          "wall_seconds": 0.02986798802157864,
+          "process_cpu_seconds": 0.029916000000000054
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.28262399673461913,
+          "wall_seconds": 0.007107359997462481,
+          "process_cpu_seconds": 0.00710899999999981
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14671872138977052,
+          "wall_seconds": 0.003702042973600328,
+          "process_cpu_seconds": 0.003703000000001566
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14667776107788086,
+          "wall_seconds": 0.0036988339852541685,
+          "process_cpu_seconds": 0.0036990000000045598
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2813132858276367,
+          "wall_seconds": 0.007063818979077041,
+          "process_cpu_seconds": 0.007063999999999737
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.1964825439453124,
+          "wall_seconds": 0.029944934009108692,
+          "process_cpu_seconds": 0.029944000000000415
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.1936972808837891,
+          "wall_seconds": 0.029885858006309718,
+          "process_cpu_seconds": 0.02993500000000182
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.28221439361572265,
+          "wall_seconds": 0.007092343003023416,
+          "process_cpu_seconds": 0.0070929999999975735
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1468006420135498,
+          "wall_seconds": 0.0036996930139139295,
+          "process_cpu_seconds": 0.0036789999999982115
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.14675968170166015,
+        "minblocks-6": 0.2820915126800537,
+        "minblocks-8": 1.1940454483032226
+      }
+    },
+    {
+      "shape": [
+        12288,
+        5120
+      ],
+      "role": "text/layers/63/attention/q",
+      "occurrences": 16,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.30855167388916016,
+          "wall_seconds": 0.0077624639961868525,
+          "process_cpu_seconds": 0.007758000000002596
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.26812416076660156,
+          "wall_seconds": 0.006733399000950158,
+          "process_cpu_seconds": 0.006734000000001572
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.26976255416870115,
+          "wall_seconds": 0.006774088018573821,
+          "process_cpu_seconds": 0.006774000000000058
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2696396827697754,
+          "wall_seconds": 0.006770536012481898,
+          "process_cpu_seconds": 0.006769999999995946
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.27115520477294924,
+          "wall_seconds": 0.006809343991335481,
+          "process_cpu_seconds": 0.00686799999999721
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.31322111129760744,
+          "wall_seconds": 0.007882274047005922,
+          "process_cpu_seconds": 0.007885000000001696
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.31436800003051757,
+          "wall_seconds": 0.007900891010649502,
+          "process_cpu_seconds": 0.007901000000003933
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2743091201782227,
+          "wall_seconds": 0.0069069910096004605,
+          "process_cpu_seconds": 0.006909999999997751
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2778726387023926,
+          "wall_seconds": 0.0069893019972369075,
+          "process_cpu_seconds": 0.006990000000001828
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2770944023132324,
+          "wall_seconds": 0.006963775958865881,
+          "process_cpu_seconds": 0.006965000000000998
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2776678466796875,
+          "wall_seconds": 0.006987613975070417,
+          "process_cpu_seconds": 0.006990000000001828
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3186688041687012,
+          "wall_seconds": 0.008010619960259646,
+          "process_cpu_seconds": 0.008011000000003321
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.3137945556640625,
+        "minblocks-6": 0.27273216247558596,
+        "minblocks-8": 0.2734284782409668
+      }
+    },
+    {
+      "shape": [
+        12288,
+        5120
+      ],
+      "role": "text/layers/63/attention/q",
+      "occurrences": 16,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.198077392578125,
+          "wall_seconds": 0.05503437400329858,
+          "process_cpu_seconds": 0.05506500000000614
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.905786895751953,
+          "wall_seconds": 0.04770130600081757,
+          "process_cpu_seconds": 0.04767900000000225
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.9510887145996094,
+          "wall_seconds": 0.04886667098617181,
+          "process_cpu_seconds": 0.048936999999998676
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.9528498840332031,
+          "wall_seconds": 0.04891042900271714,
+          "process_cpu_seconds": 0.04891500000000093
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.92679931640625,
+          "wall_seconds": 0.04823840601602569,
+          "process_cpu_seconds": 0.04828300000000141
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.1942271423339843,
+          "wall_seconds": 0.054902422009035945,
+          "process_cpu_seconds": 0.05487799999999865
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.190540771484375,
+          "wall_seconds": 0.054816777002997696,
+          "process_cpu_seconds": 0.05484699999999876
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.888870391845703,
+          "wall_seconds": 0.04726541799027473,
+          "process_cpu_seconds": 0.047292999999996255
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.9460096740722657,
+          "wall_seconds": 0.04869441699702293,
+          "process_cpu_seconds": 0.048694000000001125
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.9507200622558594,
+          "wall_seconds": 0.048807365994434804,
+          "process_cpu_seconds": 0.048807000000000045
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.9250790405273437,
+          "wall_seconds": 0.048167945991735905,
+          "process_cpu_seconds": 0.0481979999999993
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.1932441711425783,
+          "wall_seconds": 0.05487216397887096,
+          "process_cpu_seconds": 0.05489899999999892
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 2.1937356567382813,
+        "minblocks-6": 1.9154329681396485,
+        "minblocks-8": 1.9509043884277344
+      }
+    },
+    {
+      "shape": [
+        1024,
+        5120
+      ],
+      "role": "text/layers/63/attention/v",
+      "occurrences": 32,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.01605631947517395,
+          "wall_seconds": 0.0004515990149229765,
+          "process_cpu_seconds": 0.00044700000000119644
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.033013761043548584,
+          "wall_seconds": 0.0008544430020265281,
+          "process_cpu_seconds": 0.0008540000000003545
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.050831360816955565,
+          "wall_seconds": 0.0012989009846933186,
+          "process_cpu_seconds": 0.0012990000000030477
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.05095424175262451,
+          "wall_seconds": 0.0013028259854763746,
+          "process_cpu_seconds": 0.0013030000000000541
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.033341441154479984,
+          "wall_seconds": 0.0008626650087535381,
+          "process_cpu_seconds": 0.0008629999999989479
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.015400960445404052,
+          "wall_seconds": 0.00041150301694869995,
+          "process_cpu_seconds": 0.0004120000000007451
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.015237120389938354,
+          "wall_seconds": 0.00040805101161822677,
+          "process_cpu_seconds": 0.000408000000000186
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.03256319999694824,
+          "wall_seconds": 0.000841766013763845,
+          "process_cpu_seconds": 0.0008419999999986771
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.05099520206451416,
+          "wall_seconds": 0.0013027500244788826,
+          "process_cpu_seconds": 0.0013030000000000541
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.05103616237640381,
+          "wall_seconds": 0.0013039920013397932,
+          "process_cpu_seconds": 0.0013049999999985573
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.03342335939407349,
+          "wall_seconds": 0.0008641229942440987,
+          "process_cpu_seconds": 0.0008639999999999759
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.015319039821624756,
+          "wall_seconds": 0.00041054701432585716,
+          "process_cpu_seconds": 0.00041100000000326986
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.015360000133514403,
+        "minblocks-6": 0.033177601099014284,
+        "minblocks-8": 0.05097472190856933
+      }
+    },
+    {
+      "shape": [
+        1024,
+        5120
+      ],
+      "role": "text/layers/63/attention/v",
+      "occurrences": 32,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.029655039310455322,
+          "wall_seconds": 0.0007903220248408616,
+          "process_cpu_seconds": 0.0007850000000004798
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0268287992477417,
+          "wall_seconds": 0.0007001399644650519,
+          "process_cpu_seconds": 0.0006999999999983686
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.02732032060623169,
+          "wall_seconds": 0.0007114990148693323,
+          "process_cpu_seconds": 0.0007120000000000459
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.02727936029434204,
+          "wall_seconds": 0.0007095179753378034,
+          "process_cpu_seconds": 0.0007100000000015427
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.026705920696258545,
+          "wall_seconds": 0.0006952930125407875,
+          "process_cpu_seconds": 0.0006959999999978095
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.029368319511413575,
+          "wall_seconds": 0.0007623310084454715,
+          "process_cpu_seconds": 0.0007620000000017058
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.02924544095993042,
+          "wall_seconds": 0.0007600149838253856,
+          "process_cpu_seconds": 0.0007599999999996498
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.026624000072479247,
+          "wall_seconds": 0.0006924800109118223,
+          "process_cpu_seconds": 0.0006929999999982783
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.027115519046783446,
+          "wall_seconds": 0.0007058790070004761,
+          "process_cpu_seconds": 0.0007060000000009836
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.027156479358673095,
+          "wall_seconds": 0.0007063380326144397,
+          "process_cpu_seconds": 0.0007070000000020116
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.026705920696258545,
+          "wall_seconds": 0.0006954880082048476,
+          "process_cpu_seconds": 0.0006960000000013622
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.029409279823303224,
+          "wall_seconds": 0.0007631990010850132,
+          "process_cpu_seconds": 0.000764000000000209
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.029388799667358398,
+        "minblocks-6": 0.026705920696258545,
+        "minblocks-8": 0.027217919826507567
+      }
+    },
+    {
+      "shape": [
+        1024,
+        5120
+      ],
+      "role": "text/layers/63/attention/v",
+      "occurrences": 32,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16662527084350587,
+          "wall_seconds": 0.004214676970150322,
+          "process_cpu_seconds": 0.004209999999996938
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1536409568786621,
+          "wall_seconds": 0.0038702409947291017,
+          "process_cpu_seconds": 0.00387100000000018
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1587609577178955,
+          "wall_seconds": 0.00399839598685503,
+          "process_cpu_seconds": 0.003998999999996755
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15871999740600587,
+          "wall_seconds": 0.003998329979367554,
+          "process_cpu_seconds": 0.003999000000000308
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15347711563110353,
+          "wall_seconds": 0.0038642279687337577,
+          "process_cpu_seconds": 0.0038640000000000896
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.166297607421875,
+          "wall_seconds": 0.004185679950751364,
+          "process_cpu_seconds": 0.0041859999999971365
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1662566375732422,
+          "wall_seconds": 0.004184524994343519,
+          "process_cpu_seconds": 0.004184999999999661
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15355903625488282,
+          "wall_seconds": 0.0038687459891662,
+          "process_cpu_seconds": 0.0038690000000016767
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1587609577178955,
+          "wall_seconds": 0.003996327985078096,
+          "process_cpu_seconds": 0.003997000000001805
+        },
+        {
+          "name": "minblocks-8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1587609577178955,
+          "wall_seconds": 0.0040097899618558586,
+          "process_cpu_seconds": 0.0040119999999994604
+        },
+        {
+          "name": "minblocks-6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15446016311645508,
+          "wall_seconds": 0.003909637045580894,
+          "process_cpu_seconds": 0.0039119999999996935
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16674816131591796,
+          "wall_seconds": 0.004203012038487941,
+          "process_cpu_seconds": 0.004203999999997876
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.16646143913269043,
+        "minblocks-6": 0.15359999656677248,
+        "minblocks-8": 0.1587609577178955
+      }
+    }
+  ],
+  "completed": true
+}

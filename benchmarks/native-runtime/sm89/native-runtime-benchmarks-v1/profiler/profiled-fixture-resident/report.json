@@ -1,0 +1,233 @@
+{
+  "scope": "Matched native-runtime vs Python-composed owned-operator generation.\n\nNOT an external-engine comparison. Same Q8 checkpoint/profile/prompt/greedy/EOS\npolicy, state reset before each request, load/preparation/warmup excluded from\nrequest wall/CPU time. Output/request-wall rate includes prefill, not decode TPS.\nNative TTFT/per-token timing is not instrumented yet; record it missing, not zero.\nRaw CUDA allocations are not included in PyTorch allocator peaks.\n",
+  "model_scope": "Profiler-only fixture; NOT unprofiled timing or 27B performance",
+  "case": {
+    "prompt_token_ids": [
+      1,
+      4,
+      3,
+      2,
+      1,
+      8,
+      7,
+      6
+    ],
+    "max_new_tokens": 8,
+    "eos_token_ids": []
+  },
+  "artifact_id": "2e11e147fccc4d8a8ebf2a9e7810be4d",
+  "library_sha256": "60cedc5136fef944a1f1bf26b103bc301616709529138759c8ce5babd33807e0",
+  "dtype": "torch.bfloat16",
+  "weight_mode": "resident",
+  "max_tokens": 8,
+  "capacity": 16,
+  "torch": "2.9.1+cu130",
+  "gpu": "NVIDIA GeForce RTX 4090 D",
+  "physical_gpu_index": 0,
+  "order": [
+    "python",
+    "native"
+  ],
+  "repeats": 2,
+  "phases": [
+    {
+      "engine": "python",
+      "phase": 0,
+      "model_and_session_load_wall_seconds": 0.20464971801266074,
+      "model_and_session_load_cpu_seconds": 0.22231099999999993,
+      "warmup_requests": 1,
+      "warmup_wall_seconds": 0.48140417702961713,
+      "free_before_load_bytes": 8740405248,
+      "device_total_bytes": 25250627584,
+      "waves": [
+        {
+          "repeat": 0,
+          "start_unix": 1792358088.6931944,
+          "end_unix": 1792358088.82428,
+          "wall_seconds": 0.1307680489262566,
+          "process_cpu_seconds": 0.13092399999999937,
+          "serial_requests": 1,
+          "per_request_wall_seconds": [
+            0.1307680489262566
+          ],
+          "per_request_cpu_seconds": [
+            0.13092399999999937
+          ],
+          "wall_seconds_including_resets": 0.13099486310966313,
+          "process_cpu_seconds_including_resets": 0.13114300000000023,
+          "output_tokens": 8,
+          "generated_ids": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "output_tokens_per_request_wall_second": 61.17702348309412,
+          "output_tokens_per_serial_wall_second_including_resets": 61.07109706510211,
+          "consumed_positions": 15,
+          "free_after_request_bytes": 8583118848,
+          "peak_torch_allocated_bytes": 8809984,
+          "peak_torch_reserved_bytes": 23068672,
+          "torch_peak_excludes_native_cuda_buffers": true,
+          "python_state_kv_bytes": 38512
+        },
+        {
+          "repeat": 1,
+          "start_unix": 1792358088.8254385,
+          "end_unix": 1792358088.9737773,
+          "wall_seconds": 0.148058520979248,
+          "process_cpu_seconds": 0.14813199999999993,
+          "serial_requests": 1,
+          "per_request_wall_seconds": [
+            0.148058520979248
+          ],
+          "per_request_cpu_seconds": [
+            0.14813199999999993
+          ],
+          "wall_seconds_including_resets": 0.14829962700605392,
+          "process_cpu_seconds_including_resets": 0.1483559999999997,
+          "output_tokens": 8,
+          "generated_ids": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "output_tokens_per_request_wall_second": 54.03268887929312,
+          "output_tokens_per_serial_wall_second_including_resets": 53.94484235400957,
+          "consumed_positions": 15,
+          "free_after_request_bytes": 8583118848,
+          "peak_torch_allocated_bytes": 8809984,
+          "peak_torch_reserved_bytes": 23068672,
+          "torch_peak_excludes_native_cuda_buffers": true,
+          "python_state_kv_bytes": 38512
+        }
+      ]
+    },
+    {
+      "engine": "native",
+      "phase": 1,
+      "model_and_session_load_wall_seconds": 0.050144784967415035,
+      "model_and_session_load_cpu_seconds": 0.050212000000000145,
+      "warmup_requests": 1,
+      "warmup_wall_seconds": 0.005906700040213764,
+      "free_before_load_bytes": 8675393536,
+      "device_total_bytes": 25250627584,
+      "waves": [
+        {
+          "repeat": 0,
+          "start_unix": 1792358089.1133785,
+          "end_unix": 1792358089.119622,
+          "wall_seconds": 0.005738348932936788,
+          "process_cpu_seconds": 0.005778000000000283,
+          "serial_requests": 1,
+          "per_request_wall_seconds": [
+            0.005738348932936788
+          ],
+          "per_request_cpu_seconds": [
+            0.005778000000000283
+          ],
+          "wall_seconds_including_resets": 0.006205593002960086,
+          "process_cpu_seconds_including_resets": 0.006242000000000303,
+          "output_tokens": 8,
+          "generated_ids": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "output_tokens_per_request_wall_second": 1394.1292335992086,
+          "output_tokens_per_serial_wall_second_including_resets": 1289.1596332830684,
+          "consumed_positions": 15,
+          "free_after_request_bytes": 8660713472,
+          "peak_torch_allocated_bytes": 0,
+          "peak_torch_reserved_bytes": 0,
+          "torch_peak_excludes_native_cuda_buffers": true,
+          "native_owned_memory": {
+            "position": 15,
+            "failed": 0,
+            "model_device_bytes": 4514072,
+            "request_device_bytes": 67488,
+            "pinned_host_bytes": 8388608,
+            "mapped_payload_bytes": 323200,
+            "model_weight_upload_bytes": 311440,
+            "streaming_embedding_upload_bytes": 0
+          }
+        },
+        {
+          "repeat": 1,
+          "start_unix": 1792358089.1202946,
+          "end_unix": 1792358089.142966,
+          "wall_seconds": 0.02212719200178981,
+          "process_cpu_seconds": 0.022127999999999926,
+          "serial_requests": 1,
+          "per_request_wall_seconds": [
+            0.02212719200178981
+          ],
+          "per_request_cpu_seconds": [
+            0.022127999999999926
+          ],
+          "wall_seconds_including_resets": 0.022611173102632165,
+          "process_cpu_seconds_including_resets": 0.02261100000000038,
+          "output_tokens": 8,
+          "generated_ids": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "output_tokens_per_request_wall_second": 361.5461012564496,
+          "output_tokens_per_serial_wall_second_including_resets": 353.8073837959659,
+          "consumed_positions": 15,
+          "free_after_request_bytes": 8660713472,
+          "peak_torch_allocated_bytes": 0,
+          "peak_torch_reserved_bytes": 0,
+          "torch_peak_excludes_native_cuda_buffers": true,
+          "native_owned_memory": {
+            "position": 15,
+            "failed": 0,
+            "model_device_bytes": 4514072,
+            "request_device_bytes": 67488,
+            "pinned_host_bytes": 8388608,
+            "mapped_payload_bytes": 323200,
+            "model_weight_upload_bytes": 311440,
+            "streaming_embedding_upload_bytes": 0
+          }
+        }
+      ]
+    }
+  ],
+  "native_ttft_and_decode_latency_measured": false,
+  "profiled": true,
+  "external_engine_performance_qualified": false,
+  "concurrency": "One request; no batching/paged KV comparison",
+  "hardware_counters": "No achieved occupancy/SM/DRAM/cache/stall counters; existing driver policy unchanged",
+  "telemetry_exit_code": 0,
+  "all_matched_generated_ids": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "matched_internal_runtime_requests_completed": true
+}

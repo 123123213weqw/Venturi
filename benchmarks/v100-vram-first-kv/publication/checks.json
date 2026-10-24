@@ -1,0 +1,27 @@
+{
+  "checked_at_utc": "2026-10-24T07:19:04.347785+00:00",
+  "scope": "Local CPU/CLI regression before publishing accumulated native inference work; no GPU execution or production changes in this publication step",
+  "command": "PYTHONPATH=\"$PWD/src\" PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 /opt/homebrew/bin/python3.11 -m pytest -q tests",
+  "result": {
+    "passed": 883,
+    "skipped": 2583,
+    "failed": 0,
+    "seconds": 16.56
+  },
+  "initial_attempt": {
+    "passed": 881,
+    "skipped": 2583,
+    "failed": 2,
+    "cause": "Source checkout was not installed/importable in CLI subprocesses without PYTHONPATH; full rerun with the source path passed. No test was disabled or source changed."
+  },
+  "target_gpu_checks_rerun": false,
+  "previous_gpu_evidence": "Existing separately recorded two-V100 qualification, including 22-pass final KV-tier regression; see README and evidence/lifetime-v4/",
+  "public_repository_scan": {
+    "raw_and_archive_members_scanned": 33900,
+    "confirmed_credential_findings": 0,
+    "reviewed_false_positives": "Human-readable maintenance authorization notes and OpenSSH security-key algorithm names; additional credential-flag/HF-token/URL/sensitive-JSON-key scans had no hits"
+  },
+  "frozen_previous_evidence_files_rechecked": 2474,
+  "production_touched": false,
+  "default_kv_cache": "static"
+}

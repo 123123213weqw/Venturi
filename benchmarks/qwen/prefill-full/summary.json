@@ -1,0 +1,891 @@
+{
+  "date": "2026-10-17",
+  "device": "School_4090D / RTX 4090 D / SM89",
+  "decision": "Reject both 128x64 schedules; production and earlier selective candidate unchanged.",
+  "scope": "Q4 fused LinearAdd, N=5120, K=6144/17408. Private wide-T schedule only; no precision or decode changes.",
+  "candidates": [
+    {
+      "name": "prefill_baseline",
+      "object": "/home/test/wangyue/venturi-work/qwen/prefill-full/prefill_baseline/candidate.o",
+      "source_sha256": "c16af0f2f1fa7511cb46f05cdee301a9c56a126e4d393acea08753ffab4e835d",
+      "object_sha256": "34a37ac4b6abe065b543ca9f82c166f7a9a2b045e17fc44a2ec4cb860806641d",
+      "independent_oracle_exit_code": 0,
+      "prefill_schedule": [
+        64,
+        128,
+        64,
+        64,
+        32,
+        2,
+        1
+      ],
+      "block_threads": null
+    },
+    {
+      "name": "prefill_r128_w32",
+      "object": "/home/test/wangyue/venturi-work/qwen/prefill-full/prefill_r128_w32/candidate.o",
+      "source_sha256": "cbd828a0d39acd967e258057dd16d090768a2f898ef6f99e66d5f91581400d1a",
+      "object_sha256": "a8b82e66a0761cb169ddf8221d13d5f2c3c94d15d45591da0356b6c85904b88a",
+      "independent_oracle_exit_code": 0,
+      "prefill_schedule": [
+        128,
+        64,
+        64,
+        32,
+        32,
+        2,
+        1
+      ],
+      "block_threads": null
+    },
+    {
+      "name": "prefill_r128_w64",
+      "object": "/home/test/wangyue/venturi-work/qwen/prefill-full/prefill_r128_w64/candidate.o",
+      "source_sha256": "e491aedd17431701dffb770f1b53df624b06ef60aa7b7241adb67a06a69885ad",
+      "object_sha256": "77c0506396a6e65163c7f92f95c29096240d88c8d810120d32b4978892673653",
+      "independent_oracle_exit_code": 0,
+      "prefill_schedule": [
+        128,
+        64,
+        64,
+        64,
+        32,
+        2,
+        1
+      ],
+      "block_threads": null
+    }
+  ],
+  "micro_method": "Public ops::linear_add, ring of eight distinct weights per K exceeding L2; 8 calls/graph, 20 warmup graphs, 40 timed graphs. Medians across interleaved baseline/forward/reverse/baseline runs. Synthetic timings, not model TPS.",
+  "micro": {
+    "prefill_baseline": {
+      "K6144/T128": {
+        "run_medians_us": [
+          113.651998,
+          113.792002,
+          113.792002
+        ],
+        "median_us": 113.792002
+      },
+      "K6144/T193": {
+        "run_medians_us": [
+          185.087994,
+          203.135997,
+          185.471997
+        ],
+        "median_us": 185.471997
+      },
+      "K6144/T256": {
+        "run_medians_us": [
+          196.096003,
+          215.264007,
+          196.459994
+        ],
+        "median_us": 196.459994
+      },
+      "K6144/T509": {
+        "run_medians_us": [
+          353.792012,
+          354.532003,
+          354.559988
+        ],
+        "median_us": 354.532003
+      },
+      "K6144/T512": {
+        "run_medians_us": [
+          325.504005,
+          326.14401,
+          326.272011
+        ],
+        "median_us": 326.14401
+      },
+      "K6144/T513": {
+        "run_medians_us": [
+          384.115994,
+          384.512007,
+          384.243995
+        ],
+        "median_us": 384.243995
+      },
+      "K6144/T1024": {
+        "run_medians_us": [
+          567.272007,
+          568.063974,
+          568.319976
+        ],
+        "median_us": 568.063974
+      },
+      "K17408/T128": {
+        "run_medians_us": [
+          314.880013,
+          313.984007,
+          314.112008
+        ],
+        "median_us": 314.112008
+      },
+      "K17408/T193": {
+        "run_medians_us": [
+          507.903993,
+          507.008016,
+          508.539975
+        ],
+        "median_us": 507.903993
+      },
+      "K17408/T256": {
+        "run_medians_us": [
+          534.91199,
+          536.055982,
+          535.679996
+        ],
+        "median_us": 535.679996
+      },
+      "K17408/T509": {
+        "run_medians_us": [
+          980.351985,
+          982.656002,
+          982.612014
+        ],
+        "median_us": 982.612014
+      },
+      "K17408/T512": {
+        "run_medians_us": [
+          900.864005,
+          902.78399,
+          902.78399
+        ],
+        "median_us": 902.78399
+      },
+      "K17408/T513": {
+        "run_medians_us": [
+          1048.535943,
+          1050.367951,
+          1050.235987
+        ],
+        "median_us": 1050.235987
+      },
+      "K17408/T1024": {
+        "run_medians_us": [
+          1580.927968,
+          1580.755949,
+          1583.487988
+        ],
+        "median_us": 1580.927968
+      }
+    },
+    "prefill_r128_w32": {
+      "K6144/T128": {
+        "run_medians_us": [
+          113.792002,
+          113.792002
+        ],
+        "median_us": 113.792002
+      },
+      "K6144/T193": {
+        "run_medians_us": [
+          229.504004,
+          229.504004
+        ],
+        "median_us": 229.504004
+      },
+      "K6144/T256": {
+        "run_medians_us": [
+          238.560006,
+          238.591999
+        ],
+        "median_us": 238.5760025
+      },
+      "K6144/T509": {
+        "run_medians_us": [
+          460.799992,
+          460.799992
+        ],
+        "median_us": 460.799992
+      },
+      "K6144/T512": {
+        "run_medians_us": [
+          373.376012,
+          373.376012
+        ],
+        "median_us": 373.376012
+      },
+      "K6144/T513": {
+        "run_medians_us": [
+          460.891992,
+          460.799992
+        ],
+        "median_us": 460.845992
+      },
+      "K6144/T1024": {
+        "run_medians_us": [
+          682.987988,
+          683.008015
+        ],
+        "median_us": 682.9980015
+      },
+      "K17408/T128": {
+        "run_medians_us": [
+          314.112008,
+          314.112008
+        ],
+        "median_us": 314.112008
+      },
+      "K17408/T193": {
+        "run_medians_us": [
+          637.031972,
+          636.799991
+        ],
+        "median_us": 636.9159815
+      },
+      "K17408/T256": {
+        "run_medians_us": [
+          653.688014,
+          653.411984
+        ],
+        "median_us": 653.549999
+      },
+      "K17408/T509": {
+        "run_medians_us": [
+          1280.128002,
+          1279.999971
+        ],
+        "median_us": 1280.0639864999998
+      },
+      "K17408/T512": {
+        "run_medians_us": [
+          1041.02397,
+          1040.768027
+        ],
+        "median_us": 1040.8959985000001
+      },
+      "K17408/T513": {
+        "run_medians_us": [
+          1279.999971,
+          1279.871941
+        ],
+        "median_us": 1279.935956
+      },
+      "K17408/T1024": {
+        "run_medians_us": [
+          1922.431946,
+          1922.431946
+        ],
+        "median_us": 1922.431946
+      }
+    },
+    "prefill_r128_w64": {
+      "K6144/T128": {
+        "run_medians_us": [
+          113.792002,
+          113.792002
+        ],
+        "median_us": 113.792002
+      },
+      "K6144/T193": {
+        "run_medians_us": [
+          224.212006,
+          224.255994
+        ],
+        "median_us": 224.23399999999998
+      },
+      "K6144/T256": {
+        "run_medians_us": [
+          211.712003,
+          211.712003
+        ],
+        "median_us": 211.712003
+      },
+      "K6144/T509": {
+        "run_medians_us": [
+          403.712004,
+          403.712004
+        ],
+        "median_us": 403.712004
+      },
+      "K6144/T512": {
+        "run_medians_us": [
+          382.719994,
+          382.719994
+        ],
+        "median_us": 382.719994
+      },
+      "K6144/T513": {
+        "run_medians_us": [
+          428.927988,
+          428.927988
+        ],
+        "median_us": 428.927988
+      },
+      "K6144/T1024": {
+        "run_medians_us": [
+          627.456009,
+          627.456009
+        ],
+        "median_us": 627.456009
+      },
+      "K17408/T128": {
+        "run_medians_us": [
+          313.984007,
+          314.087987
+        ],
+        "median_us": 314.035997
+      },
+      "K17408/T193": {
+        "run_medians_us": [
+          618.879974,
+          618.987978
+        ],
+        "median_us": 618.933976
+      },
+      "K17408/T256": {
+        "run_medians_us": [
+          583.144009,
+          583.16803
+        ],
+        "median_us": 583.1560195
+      },
+      "K17408/T509": {
+        "run_medians_us": [
+          1122.176051,
+          1122.300029
+        ],
+        "median_us": 1122.23804
+      },
+      "K17408/T512": {
+        "run_medians_us": [
+          1063.287973,
+          1063.29596
+        ],
+        "median_us": 1063.2919665
+      },
+      "K17408/T513": {
+        "run_medians_us": [
+          1197.440028,
+          1197.532058
+        ],
+        "median_us": 1197.4860429999999
+      },
+      "K17408/T1024": {
+        "run_medians_us": [
+          1753.216028,
+          1753.344059
+        ],
+        "median_us": 1753.2800435
+      }
+    }
+  },
+  "model_method": {
+    "order": [
+      "baseline-a",
+      "r128-a",
+      "r128-b",
+      "baseline-b"
+    ],
+    "repeats_per_length_per_session": 3,
+    "prompt_lengths": [
+      128,
+      509,
+      512,
+      1021,
+      2048,
+      8192
+    ],
+    "new_tokens": 16,
+    "ignore_eos": true,
+    "max_context": 16384,
+    "max_concurrency": 1,
+    "kv_dtype": "bf16",
+    "prefill_chunk": 512,
+    "cuda_graph": true,
+    "cpu_wait": "blocking",
+    "speculation": "none",
+    "prefix_reuse": false,
+    "timing_scope": "Unprofiled native prefill; internal first-token timestamp is not streamed TTFB. Client wall and CPU include complete 16-token RPC. Warmup/loading/tokenization excluded."
+  },
+  "model": {
+    "128": {
+      "baseline": {
+        "calls": 6,
+        "prefill_seconds": [
+          0.079370889,
+          0.07912347800000001,
+          0.07918940000000001,
+          0.079733786,
+          0.079940339,
+          0.079956927
+        ],
+        "median_prefill_seconds": 0.0795523375,
+        "native_prefill_tokens_per_second": 1609.0009558240845,
+        "median_native_first_token_seconds": 0.0797494305,
+        "median_native_decode_seconds": 0.2666742000000001,
+        "client_wall_seconds": 2.0876171619747765,
+        "native_cpu_seconds": 0.08999999999999897,
+        "python_cpu_seconds": 0.004061000000000092,
+        "native_cpu_percent": 4.3111352808990935
+      },
+      "r128_w32": {
+        "calls": 6,
+        "prefill_seconds": [
+          0.079271011,
+          0.07940025199999999,
+          0.079502044,
+          0.07945714999999999,
+          0.07958873300000001,
+          0.079677176
+        ],
+        "median_prefill_seconds": 0.07947959699999999,
+        "native_prefill_tokens_per_second": 1610.4127746697907,
+        "median_native_first_token_seconds": 0.0796604205,
+        "median_native_decode_seconds": 0.266971089,
+        "client_wall_seconds": 2.0879895580001175,
+        "native_cpu_seconds": 0.10000000000000142,
+        "python_cpu_seconds": 0.003729999999999123,
+        "native_cpu_percent": 4.789295981718496
+      },
+      "candidate_latency_change_percent": -0.09143728806211282
+    },
+    "509": {
+      "baseline": {
+        "calls": 6,
+        "prefill_seconds": [
+          0.256531356,
+          0.25633026,
+          0.256293965,
+          0.25920309199999997,
+          0.259914757,
+          0.25954727099999997
+        ],
+        "median_prefill_seconds": 0.25786722399999995,
+        "native_prefill_tokens_per_second": 1973.0967534074869,
+        "median_native_first_token_seconds": 0.2580281295,
+        "median_native_decode_seconds": 0.267307977,
+        "client_wall_seconds": 3.1655333919334225,
+        "native_cpu_seconds": 0.09000000000000075,
+        "python_cpu_seconds": 0.005335999999998897,
+        "native_cpu_percent": 2.843122749213243
+      },
+      "r128_w32": {
+        "calls": 6,
+        "prefill_seconds": [
+          0.282014739,
+          0.28324696099999996,
+          0.282502648,
+          0.283540558,
+          0.283669438,
+          0.28375844299999997
+        ],
+        "median_prefill_seconds": 0.2833937595,
+        "native_prefill_tokens_per_second": 1797.8107112381297,
+        "median_native_first_token_seconds": 0.2835660345,
+        "median_native_decode_seconds": 0.2675278,
+        "client_wall_seconds": 3.3190463279606774,
+        "native_cpu_seconds": 0.10999999999999854,
+        "python_cpu_seconds": 0.005219999999999558,
+        "native_cpu_percent": 3.3142050194757564
+      },
+      "candidate_latency_change_percent": 9.899100437828444
+    },
+    "512": {
+      "baseline": {
+        "calls": 6,
+        "prefill_seconds": [
+          0.251513392,
+          0.25181795599999995,
+          0.25120633,
+          0.254126413,
+          0.255050508,
+          0.25469546800000004
+        ],
+        "median_prefill_seconds": 0.2529721845,
+        "native_prefill_tokens_per_second": 2023.1688835345426,
+        "median_native_first_token_seconds": 0.25316481049999995,
+        "median_native_decode_seconds": 0.26693199700000003,
+        "client_wall_seconds": 3.1338816880015656,
+        "native_cpu_seconds": 0.08000000000000007,
+        "python_cpu_seconds": 0.005671999999999677,
+        "native_cpu_percent": 2.5527447416502502
+      },
+      "r128_w32": {
+        "calls": 6,
+        "prefill_seconds": [
+          0.262955987,
+          0.262968841,
+          0.263163614,
+          0.263951264,
+          0.26446287399999996,
+          0.26389395699999996
+        ],
+        "median_prefill_seconds": 0.2635287855,
+        "native_prefill_tokens_per_second": 1942.5867757543979,
+        "median_native_first_token_seconds": 0.26369401849999996,
+        "median_native_decode_seconds": 0.26719306900000006,
+        "client_wall_seconds": 3.1982889570645057,
+        "native_cpu_seconds": 0.09000000000000075,
+        "python_cpu_seconds": 0.005118999999999652,
+        "native_cpu_percent": 2.814004650868247
+      },
+      "candidate_latency_change_percent": 4.173028359171238
+    },
+    "1021": {
+      "baseline": {
+        "calls": 6,
+        "prefill_seconds": [
+          0.506885507,
+          0.506589112,
+          0.5081571,
+          0.5134370269999999,
+          0.513457736,
+          0.5147972239999999
+        ],
+        "median_prefill_seconds": 0.5107970635,
+        "native_prefill_tokens_per_second": 1999.7886570071807,
+        "median_native_first_token_seconds": 0.5110206275,
+        "median_native_decode_seconds": 0.267782231,
+        "client_wall_seconds": 4.68967516295379,
+        "native_cpu_seconds": 0.16999999999999993,
+        "python_cpu_seconds": 0.007320999999998357,
+        "native_cpu_percent": 3.6249845478194165
+      },
+      "r128_w32": {
+        "calls": 6,
+        "prefill_seconds": [
+          0.5441910860000001,
+          0.544000756,
+          0.545822314,
+          0.547150992,
+          0.546700167,
+          0.5496831099999999
+        ],
+        "median_prefill_seconds": 0.5462612405,
+        "native_prefill_tokens_per_second": 1869.079935867004,
+        "median_native_first_token_seconds": 0.546488543,
+        "median_native_decode_seconds": 0.2680495975,
+        "client_wall_seconds": 4.911313748976681,
+        "native_cpu_seconds": 0.15999999999999837,
+        "python_cpu_seconds": 0.007041999999999327,
+        "native_cpu_percent": 3.2577841322667664
+      },
+      "candidate_latency_change_percent": 6.942909334090186
+    },
+    "2048": {
+      "baseline": {
+        "calls": 6,
+        "prefill_seconds": [
+          1.008614739,
+          1.008768828,
+          1.0114006789999999,
+          1.0213285609999998,
+          1.021560129,
+          1.023058549
+        ],
+        "median_prefill_seconds": 1.0163646199999998,
+        "native_prefill_tokens_per_second": 2016.1675752643926,
+        "median_native_first_token_seconds": 1.016636771,
+        "median_native_decode_seconds": 0.26973562349999997,
+        "client_wall_seconds": 7.744605590996798,
+        "native_cpu_seconds": 0.25,
+        "python_cpu_seconds": 0.010870000000000601,
+        "native_cpu_percent": 3.228053347101732
+      },
+      "r128_w32": {
+        "calls": 6,
+        "prefill_seconds": [
+          1.0592783680000002,
+          1.0594739290000001,
+          1.060049899,
+          1.061772641,
+          1.0648021600000002,
+          1.066129193
+        ],
+        "median_prefill_seconds": 1.06091127,
+        "native_prefill_tokens_per_second": 1928.586370878186,
+        "median_native_first_token_seconds": 1.0611907085,
+        "median_native_decode_seconds": 0.2700037875,
+        "client_wall_seconds": 8.024814794072881,
+        "native_cpu_seconds": 0.28000000000000114,
+        "python_cpu_seconds": 0.01072500000000165,
+        "native_cpu_percent": 3.489177098601812
+      },
+      "candidate_latency_change_percent": 4.382939854793477
+    },
+    "8192": {
+      "baseline": {
+        "calls": 6,
+        "prefill_seconds": [
+          4.120291454,
+          4.121722631,
+          4.133124461,
+          4.172208477,
+          4.1736971359999995,
+          4.187038784
+        ],
+        "median_prefill_seconds": 4.152666469,
+        "native_prefill_tokens_per_second": 1973.3353270293867,
+        "median_native_first_token_seconds": 4.153208643,
+        "median_native_decode_seconds": 0.27789262299999995,
+        "client_wall_seconds": 26.67300921404967,
+        "native_cpu_seconds": 0.9500000000000002,
+        "python_cpu_seconds": 0.03120699999999932,
+        "native_cpu_percent": 3.5616528767950175
+      },
+      "r128_w32": {
+        "calls": 6,
+        "prefill_seconds": [
+          4.322638407000001,
+          4.323483015,
+          4.330618429,
+          4.337118897000001,
+          4.339845786,
+          4.349545668
+        ],
+        "median_prefill_seconds": 4.3338686630000005,
+        "native_prefill_tokens_per_second": 1890.2252456202398,
+        "median_native_first_token_seconds": 4.334400011,
+        "median_native_decode_seconds": 0.2782068725,
+        "client_wall_seconds": 27.77668434503721,
+        "native_cpu_seconds": 1.0200000000000005,
+        "python_cpu_seconds": 0.031080999999998582,
+        "native_cpu_percent": 3.672144548750799
+      },
+      "candidate_latency_change_percent": 4.3635142709555375
+    }
+  },
+  "gpu": {
+    "baseline": {
+      "samples": 229,
+      "utilization.gpu": {
+        "mean": 97.58515283842794,
+        "minimum": 0.0,
+        "maximum": 100.0
+      },
+      "utilization.memory": {
+        "mean": 35.903930131004365,
+        "minimum": 0.0,
+        "maximum": 100.0
+      },
+      "memory.used": {
+        "mean": 16964.0,
+        "minimum": 16964.0,
+        "maximum": 16964.0
+      },
+      "power.draw": {
+        "mean": 416.35943231441047,
+        "minimum": 113.36,
+        "maximum": 425.3
+      },
+      "temperature.gpu": {
+        "mean": 60.92576419213974,
+        "minimum": 50.0,
+        "maximum": 67.0
+      },
+      "clocks.sm": {
+        "mean": 2740.6768558951967,
+        "minimum": 2685.0,
+        "maximum": 2775.0
+      },
+      "clocks.mem": {
+        "mean": 10251.0,
+        "minimum": 10251.0,
+        "maximum": 10251.0
+      }
+    },
+    "r128_w32": {
+      "samples": 238,
+      "utilization.gpu": {
+        "mean": 97.92436974789916,
+        "minimum": 0.0,
+        "maximum": 100.0
+      },
+      "utilization.memory": {
+        "mean": 32.634453781512605,
+        "minimum": 0.0,
+        "maximum": 100.0
+      },
+      "memory.used": {
+        "mean": 16964.0,
+        "minimum": 16964.0,
+        "maximum": 16964.0
+      },
+      "power.draw": {
+        "mean": 415.7892857142857,
+        "minimum": 132.88,
+        "maximum": 427.03
+      },
+      "temperature.gpu": {
+        "mean": 61.42857142857143,
+        "minimum": 49.0,
+        "maximum": 65.0
+      },
+      "clocks.sm": {
+        "mean": 2740.0210084033615,
+        "minimum": 2685.0,
+        "maximum": 2775.0
+      },
+      "clocks.mem": {
+        "mean": 10251.0,
+        "minimum": 10251.0,
+        "maximum": 10251.0
+      }
+    }
+  },
+  "correctness": {
+    "independent_oracle": "Naive FP64 fused residual+W*x from independently decoded packed weights, A16 criterion unchanged.",
+    "dense_full_output_tokens": 512,
+    "k_values": [
+      6144,
+      17408
+    ],
+    "additional_checks": "Sampled route/tile boundaries 192..1024, all-value finite scan, guards, input/weight preservation, zero/restored-input eager and graph replay.",
+    "all_three_op_suites_passed": true,
+    "measured_rows_matching_baseline": 72,
+    "measured_rows_total": 72,
+    "session_replay_matches_warm": true,
+    "counterexamples": [],
+    "limitation": "Six short fixed fixtures and 16-token continuations are not broad accuracy or perplexity validation."
+  },
+  "diagnostics": {
+    "public_trace_resources": {
+      "prefill_baseline": [
+        {
+          "threads": 128,
+          "registers_per_thread": 147,
+          "shared_bytes_per_block": 45568,
+          "grid_blocks": 320,
+          "calls": 960,
+          "resource_only_blocks_per_sm_upper_bound": 2,
+          "resource_only_thread_occupancy_upper_bound": 0.16666666666666666,
+          "instrumented_mean_kernel_us": 631.798803125
+        }
+      ],
+      "prefill_r128_w32": [
+        {
+          "threads": 256,
+          "registers_per_thread": 84,
+          "shared_bytes_per_block": 41984,
+          "grid_blocks": 320,
+          "calls": 960,
+          "resource_only_blocks_per_sm_upper_bound": 2,
+          "resource_only_thread_occupancy_upper_bound": 0.3333333333333333,
+          "instrumented_mean_kernel_us": 726.8081593750001
+        }
+      ],
+      "prefill_r128_w64": [
+        {
+          "threads": 128,
+          "registers_per_thread": 147,
+          "shared_bytes_per_block": 41984,
+          "grid_blocks": 320,
+          "calls": 960,
+          "resource_only_blocks_per_sm_upper_bound": 2,
+          "resource_only_thread_occupancy_upper_bound": 0.16666666666666666,
+          "instrumented_mean_kernel_us": 737.1825197916667
+        }
+      ]
+    },
+    "commands": [
+      [
+        "nsys",
+        "profile",
+        "--trace=cuda",
+        "--cuda-graph-trace=node",
+        "--sample=none",
+        "--cpuctxsw=none",
+        "--force-overwrite=false",
+        "-o",
+        "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_baseline",
+        "/home/test/wangyue/venturi-work/qwen/prefill-full/prefill_baseline/bench",
+        "512"
+      ],
+      [
+        "nsys",
+        "export",
+        "--type",
+        "sqlite",
+        "--output",
+        "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_baseline.sqlite",
+        "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_baseline.nsys-rep"
+      ],
+      [
+        "nsys",
+        "profile",
+        "--trace=cuda",
+        "--cuda-graph-trace=node",
+        "--sample=none",
+        "--cpuctxsw=none",
+        "--force-overwrite=false",
+        "-o",
+        "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_r128_w32",
+        "/home/test/wangyue/venturi-work/qwen/prefill-full/prefill_r128_w32/bench",
+        "512"
+      ],
+      [
+        "nsys",
+        "export",
+        "--type",
+        "sqlite",
+        "--output",
+        "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_r128_w32.sqlite",
+        "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_r128_w32.nsys-rep"
+      ],
+      [
+        "nsys",
+        "profile",
+        "--trace=cuda",
+        "--cuda-graph-trace=node",
+        "--sample=none",
+        "--cpuctxsw=none",
+        "--force-overwrite=false",
+        "-o",
+        "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_r128_w64",
+        "/home/test/wangyue/venturi-work/qwen/prefill-full/prefill_r128_w64/bench",
+        "512"
+      ],
+      [
+        "nsys",
+        "export",
+        "--type",
+        "sqlite",
+        "--output",
+        "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_r128_w64.sqlite",
+        "/home/test/wangyue/venturi-work/qwen/prefill-full/public-prefill_r128_w64.nsys-rep"
+      ]
+    ],
+    "archive_matches_production_build": {
+      "/home/test/wangyue/engine/build/src/runtime/libninfer_engine.a": true,
+      "/home/test/wangyue/engine/build/src/product/libninfer_product_logging.a": true,
+      "/home/test/wangyue/engine/build/src/product/libninfer_product_prompt_input.a": true,
+      "/home/test/wangyue/engine/build/src/models/libninfer_model_runtime.a": true,
+      "/home/test/wangyue/engine/build/src/models/libninfer_model_loading.a": true,
+      "/home/test/wangyue/engine/build/third_party/llama-jinja/libninfer_jinja.a": true,
+      "/home/test/wangyue/engine/build/src/artifact/libninfer_artifact.a": true,
+      "/home/test/wangyue/engine/build/src/runtime/libninfer_runtime_support.a": true,
+      "/home/test/wangyue/engine/build/src/ops/libninfer_ops.a": true,
+      "/home/test/wangyue/engine/build/src/ops/libninfer_nvfp4_non_rdc.a": true,
+      "/home/test/wangyue/engine/build/src/core/libninfer_core.a": true,
+      "/home/test/wangyue/engine/build/src/text/libninfer_text.a": true,
+      "/home/test/wangyue/engine/build/src/media/libninfer_media_decode.a": true,
+      "/home/test/wangyue/engine/build/third_party/spdlog/libninfer_third_party_spdlog.a": true,
+      "/home/test/wangyue/engine/build/src/product/libninfer_media_acquire.a": true
+    },
+    "production_runner_sha256": "3c7da6aeb337ee374ce912934c9335252e39326cd9cba3e2163696c06d15dfb4",
+    "current_counter_policy": [
+      "RmProfilingAdminOnly: 1"
+    ],
+    "limitations": [
+      "Resource bounds are not achieved occupancy.",
+      "Hardware counter access remains restricted; no new counter probe or privilege change.",
+      "Instrumented public-Op timing is not model latency or unprofiled throughput."
+    ]
+  },
+  "limitations": [
+    "GPU telemetry covers mixed-length prefill plus 16-token decode, not an isolated kernel.",
+    "Whole-device sampled power does not establish causal energy efficiency.",
+    "Resource-only occupancy bounds are not achieved occupancy; DRAM bandwidth, cache/stall and compute counters unavailable under current policy.",
+    "Larger row tiles structurally duplicate more weight staging/dequantization across token tiles; this is a possible tradeoff, not a counter-verified bottleneck diagnosis."
+  ],
+  "tests": {
+    "cpu_passed": 329,
+    "cpu_skipped": 56,
+    "ruff": "passed",
+    "diff_check": "passed"
+  }
+}

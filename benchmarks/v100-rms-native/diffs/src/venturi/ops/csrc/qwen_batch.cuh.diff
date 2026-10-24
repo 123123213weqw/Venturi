@@ -1,0 +1,13 @@
+--- before/src/venturi/ops/csrc/qwen_batch.cuh
++++ after/src/venturi/ops/csrc/qwen_batch.cuh
+@@ -95,8 +95,8 @@
+                 m.linear(l.matrix[3],w.p("attended"),w.p("projected"),n);
+             }
+             op(venturi_add_run(x,w.p("projected"),w.p("residual"),mul(n,c.hidden),c.dtype,stream));
+-            op(venturi_rms_run(w.p("residual"),static_cast<const float*>(l.post),w.p("mlp_norm"),n,c.hidden,c.dtype,c.epsilon,stream));
+-            m.mlp(l,w.p("mlp_norm"),w.p("mlp_gate"),w.p("mlp_up"),w.p("projected"),n);
++            const bool packed_mlp=m.normalize_mlp(w.p("residual"),static_cast<const float*>(l.post),w.p("mlp_norm"),n);
++            m.mlp(l,w.p("mlp_norm"),w.p("mlp_gate"),w.p("mlp_up"),w.p("projected"),n,false,packed_mlp);
+             op(venturi_add_run(w.p("residual"),w.p("projected"),out,mul(n,c.hidden),c.dtype,stream));
+             std::swap(x,out);
+             for(const auto& segment:segments) {

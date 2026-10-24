@@ -1,0 +1,28 @@
+{
+  "ssh": [
+    "ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ForwardAgent=no",
+    "-o",
+    "StrictHostKeyChecking=yes",
+    "-o",
+    "ControlMaster=auto",
+    "-o",
+    "ControlPath=/tmp/venturi-v100-head-via4080-%C",
+    "-o",
+    "ControlPersist=600",
+    "-o",
+    "ConnectTimeout=90",
+    "-o",
+    "ServerAliveInterval=30",
+    "-o",
+    "ServerAliveCountMax=6",
+    "-o",
+    "ProxyCommand=ssh -o BatchMode=yes -o ForwardAgent=no -o StrictHostKeyChecking=yes -o ControlMaster=no -o ControlPath=none -o ConnectTimeout=60 -o ServerAliveInterval=30 -o ServerAliveCountMax=6 -W %h:%p WZU_4080_Tail",
+    "WZU_Server",
+    "python3 -"
+  ],
+  "scope": "Existing authorized4080 jump reaches the same selected V100 original9022 service; no benchmark executes on the4080. Host keys/agent boundaries unchanged."
+}

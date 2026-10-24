@@ -1,0 +1,31 @@
+{
+  "route": [
+    "ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ForwardAgent=no",
+    "-o",
+    "StrictHostKeyChecking=yes",
+    "-o",
+    "ControlMaster=auto",
+    "-o",
+    "ControlPath=/tmp/venturi-v100-head-readonly-%C",
+    "-o",
+    "ControlPersist=600",
+    "-o",
+    "ProxyCommand=none",
+    "-o",
+    "ConnectTimeout=45",
+    "-o",
+    "ServerAliveInterval=15",
+    "-o",
+    "ServerAliveCountMax=4",
+    "WZU_Server",
+    "python3 -"
+  ],
+  "seconds": 22.037105584,
+  "rc": 0,
+  "stdout": "{\"name\": \"venturi-native-head-controls-v10\", \"exit-code.txt\": \"1\\n\", \"failure.txt\": \"Traceback (most recent call last):\\n  File \\\"/home/data/wangyue/artifacts/venturi-native-head-controls-v10/worker.py\\\", line 102, in <module>\\n    experiment('repeat-llama-tensor-mtp1-cpu-sampling-c2c4','llama','tensor',1,'2,4',3)\\n  File \\\"/home/data/wangyue/artifacts/venturi-native-head-controls-v10/worker.py\\\", line 65, in experiment\\n    run(cmd if engine=='venturi' else cmd[:-1],directory/'benchmark.log',timeout=600);measured=json.loads((directory/'timed/report.json').read_text());assert measured['completed'] and measured['all_outputs_equal_first_wave'],'Fixed greedy outputs unstable'\\n  File \\\"/home/data/wangyue/artifacts/venturi-native-head-controls-v10/worker.py\\\", line 24, in run\\n    if rc:raise RuntimeError(f'Owned command exited {rc}: {path}')\\nRuntimeError: Owned command exited 1: /home/data/wangyue/artifacts/venturi-native-head-controls-v10/repeat-llama-tensor-mtp1-cpu-sampling-c2c4/benchmark.log\\n\", \"cmdline\": null, \"completed\": false, \"experiments\": [{\"label\": \"repeat-llama-tensor-mtp1-cpu-sampling-c2c4\", \"completed\": false, \"summary\": null, \"server_exit_code_before_cleanup\": -11}]}\n{\"name\": \"venturi-native-head-aligned-v11\", \"exit-code.txt\": \"1\\n\", \"failure.txt\": \"Traceback (most recent call last):\\n  File \\\"/home/data/wangyue/artifacts/venturi-native-head-aligned-v11/worker.py\\\", line 31, in <module>\\n    assert (prior/'exit-code.txt').read_text().strip()=='0','Final-control prerequisite failed; preserve and inspect'\\nAssertionError: Final-control prerequisite failed; preserve and inspect\\n\", \"cmdline\": null}\n{\"name\": \"venturi-native-head-controls-profile-v12\", \"exit-code.txt\": \"1\\n\", \"failure.txt\": \"Traceback (most recent call last):\\n  File \\\"/home/data/wangyue/artifacts/venturi-native-head-controls-profile-v12/worker.py\\\", line 28, in <module>\\n    assert (prior/'exit-code.txt').read_text().strip() in (['0'] if prior==campaign else ['0','1']),'Controls must pass; independent diagnostic must be terminal to avoid GPU overlap'\\nAssertionError: Controls must pass; independent diagnostic must be terminal to avoid GPU overlap\\n\", \"cmdline\": null}\n",
+  "stderr": ""
+}

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/Users/wangyue/Documents/Codex/2026-10-15/wo/work/Venturi/benchmarks/v100-rms-native/summarize.py", line 95, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/Users/wangyue/Documents/Codex/2026-10-15/wo/work/Venturi/benchmarks/v100-rms-native/summarize.py", line 84, in main
+    result=dict(full_evidence_archive_transferred=not a.allow_partial_transfer,evidence_integrity_scope='Full archive SHA256 verified' if not a.allow_partial_transfer else 'Only complete tar members received over authenticated SSH; local per-file SHA256 rechecked. Full remote archive hash is pinned but remaining transfer is unfinished.',scope='Qwen3.8 official source native Q8 OFF/ON, same two V100s. No MTP/HTTP/llama.cpp comparison; not production Uncensored weights. Short contexts only.',completed=True,default_enabled=False,production_candidate_deployed=False,correctness=tests,checkpoint=checkpoint,storage=read(storage/'completed.json'),configuration={k:q0[k] for k in ['artifact_id','prompt_token_ids','device_uuids','projection_profile','max_projection_rows','capacity_per_request','activation_precision','weight_storage','new_tokens','mtp']},performance=results,waves=waves,counters={},traces={},production_restored=b,profiler_repair_restored=read(remote/'timeline-repair/production-restored.json'))
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'allow_partial_transfer'

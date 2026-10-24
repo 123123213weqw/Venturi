@@ -1,0 +1,12 @@
+{
+  "target": "same WZU_Server pair of V100-PCIE-32GB GPUs; no hardware substitution",
+  "checkpoint": "Qwen3.8-27B official BF16 source, native Q8 artifact db1c60fea76c415abc892cf6c0eed6c9",
+  "baseline": "SM70 row-pair + SwiGLU-quant + RMSNorm-quant ON; immutable experiment mask zero",
+  "variants": {"1": "cross-request decode convolution/GDN kernels", "2": "FP32 A/B dot + gates fusion preserving FP16 boundaries", "4": "cached per-rank GPU-only head-GDN CUDA Graphs", "8": "submit primary GDN/MLP compute before peer host-staged work", "15": "all four combined"},
+  "independent_fifth": "Export Qwen3.8 MTP from verified source, exact ordinary-target trajectory gate; fixed depths vs adaptive cost including draft/verification",
+  "correctness": "CPU API/build tests, then generated checkpoint logit/private-state bytes incl reset/reorder/graph replay, then actual checkpoint trace/logit/state/greedy bytes vs mask zero; no speed for failed cases",
+  "timing": "unprofiled paired order 0,1,2,4,8,15 / reverse / first order; 16-token fixed prompts, 32 fixed output tokens, context capacity256, max projection rows32, requests1/8; warmup/reset outside timing; TTFT, post-first decode and complete cohort separated",
+  "diagnostics": "CPU process seconds, VRAM/busy/power/clocks/temperature; separate profiler runs for kernel counts/gaps and achieved occupancy/SM/DRAM/cache/stalls",
+  "production": "drain requests, capture exact container ID/config, independent restoration watchdog, temporary stop only that container, restore unchanged config and health API",
+  "promotion": "No default changes solely from microbenchmarks; retain regressions. These native controls cannot establish external llama.cpp superiority."
+}

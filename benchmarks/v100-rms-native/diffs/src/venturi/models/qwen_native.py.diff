@@ -1,0 +1,20 @@
+--- before/src/venturi/models/qwen_native.py
++++ after/src/venturi/models/qwen_native.py
+@@ -592,6 +592,17 @@
+                     model_has_eligible_mlp=enabled and cfg["intermediate_size"] // 2 == 8704,
+                     precision="Original F16 rounding and both residual-A8 passes preserved",
+                 )
++            query = getattr(native, "venturi_q8_rms_quant_enabled", None)
++            if query is not None:
++                query.argtypes, query.restype = [], C.c_int
++                enabled = bool(query())
++                self._projection_info["rms_quant_fusion"] = dict(
++                    compiled_opt_in=enabled,
++                    model_has_eligible_norm=enabled and cfg["hidden_size"] == 5120,
++                    eligible_token_range=[1, 32],
++                    location="post-attention norm and primary MLP input packing",
++                    peer_input="Original materialized FP16 normalized values; peer packing unchanged",
++                )
+         if profiled_create is not None:
+             try:
+                 query = native.venturi_qwen_projection_info

@@ -1,0 +1,11 @@
+{
+  "unix": 1792649709.332822,
+  "integration": "Post-attention RMSNorm + primary two-pass packing, F16 normalized output retained for peer TP. Peer still quantizes transported F16. No persistent pointer cache.",
+  "default": false,
+  "eligibility": "SM70, resident F16 column MLP, residual two-pass; hidden5120 and rows1..32; other profiles and shapes fall back.",
+  "comparison": "Same current source, q8_row_pair and q8_swiglu_quant enabled in both; sole toggle q8_rms_quant OFF/ON.",
+  "correctness": "RMS direct bytes/tails/nonfinite/graphs; eligible hidden5120 hybrid scalar/chunk/cohort/reset/EOS/state plus old fallback/MTP regressions; then full27B teacher/logits/cache and trajectories before speed.",
+  "performance": "Two same V100s, non-spec native C1 and actual8-slot native cohort. Pin checkpoint/prompts/fixed32 output/FP16 KV/context256/row budget32; warmup then >=3 paired unprofiled repeats. Report decode vs complete-cohort, TTFT, CPU cores and telemetry separately.",
+  "service": "Do not stop production until user approval. Wait active requests to drain, capture current container identity/config, stop only captured production container; restore in finally/watchdog. No config changes.",
+  "scope": "Full checkpoint identity must be explicit. Do not silently replace Qwen3.8 with3.5. No llama.cpp superiority claim from native OFF/ON."
+}

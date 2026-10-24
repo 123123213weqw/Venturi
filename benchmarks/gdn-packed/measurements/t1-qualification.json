@@ -1,0 +1,34 @@
+{
+  "tokens": 1,
+  "normalization": "FP32 q/k L2 with epsilon=1e-6",
+  "dtype": "BF16 activations / FP32 state/gates",
+  "source": "Synthetic inputs, checkpoint geometry only; no trained logits/quality claim",
+  "qualification": {
+    "unpack-native": {
+      "passed": true,
+      "max_rounded_abs_error": 0.0,
+      "max_unrounded_abs_error": 5.855699877459902e-05,
+      "elements": 6144,
+      "failed_elements": 0,
+      "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+      "first_failure_indices": [],
+      "max_state_abs_error": 7.272932345259164e-08
+    },
+    "packed-native": {
+      "passed": true,
+      "max_rounded_abs_error": 0.0,
+      "max_unrounded_abs_error": 5.855699877459902e-05,
+      "elements": 6144,
+      "failed_elements": 0,
+      "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+      "first_failure_indices": [],
+      "max_state_abs_error": 7.272932345259164e-08
+    }
+  },
+  "packed_vs_unpacked_bit_exact": true,
+  "baseline_copies_per_replay": 0,
+  "unpack_workspace_bytes": 0,
+  "packed_unpack_workspace_bytes": 0,
+  "phases": [],
+  "timing": "Fixed-state graph replay wrapper; separate state_out; CUDA event intervals can include host submission gaps; CPU time includes event wait"
+}

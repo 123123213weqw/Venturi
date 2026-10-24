@@ -1,0 +1,119 @@
+{
+  "scope": "Separate native TP scalar/cohort timeline; never throughput evidence.\n\nBatch has one native_unsplit C-call range for eight logical requests. Scalar has\neight native_unsplit submitting-thread ranges. Do not equate range/request count.\n",
+  "profiled": true,
+  "logical_requests": 8,
+  "projection_profile": "q8-residual-column-mlp-head-gdn",
+  "projection_rows": 256,
+  "mode": "batch",
+  "batch_info": {
+    "slot_count": 8,
+    "shared_batch_workspace_device_bytes": 177187552,
+    "all_request_device_bytes": 2161925888,
+    "model_device_bytes": 15102129280,
+    "peer_model_device_bytes": 13761438720,
+    "shared_model_pinned_host_bytes": 80871424,
+    "group_forward_calls": 32,
+    "input_rows": 432,
+    "decode_group_calls": 31,
+    "prefill_group_calls": 1,
+    "head_calls": 32,
+    "head_rows": 256,
+    "max_group_rows": 184,
+    "peer_input_copy_bytes": 1307574272,
+    "peer_output_copy_bytes": 2377908224,
+    "requests": [
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 270240736,
+        "native_time_to_first_token_seconds": 0.9676489819539711,
+        "native_generation_seconds": 3.128494027943816
+      },
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 270240736,
+        "native_time_to_first_token_seconds": 0.9676489819539711,
+        "native_generation_seconds": 3.1284943699720316
+      },
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 270240736,
+        "native_time_to_first_token_seconds": 0.9676489819539711,
+        "native_generation_seconds": 3.12849443097366
+      },
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 270240736,
+        "native_time_to_first_token_seconds": 0.9676489819539711,
+        "native_generation_seconds": 3.1284944879589602
+      },
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 270240736,
+        "native_time_to_first_token_seconds": 0.9676489819539711,
+        "native_generation_seconds": 3.128494545991998
+      },
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 270240736,
+        "native_time_to_first_token_seconds": 0.9676489819539711,
+        "native_generation_seconds": 3.1284946449450217
+      },
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 270240736,
+        "native_time_to_first_token_seconds": 0.9676489819539711,
+        "native_generation_seconds": 3.128494762990158
+      },
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 270240736,
+        "native_time_to_first_token_seconds": 0.9676489819539711,
+        "native_generation_seconds": 3.128494796983432
+      }
+    ],
+    "projection_profile": "q8-residual-column-mlp-head-gdn",
+    "activation_quantization_passes": 2,
+    "primary_projection_workspace_bytes": 10027008,
+    "peer_projection_workspace_bytes": 10027008,
+    "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+    "column_mlp_enabled": true,
+    "column_mlp_buffers": {
+      "enabled": 1,
+      "primary_local_fp32_bytes": 5242880,
+      "primary_remote_fp32_bytes": 5242880,
+      "peer_partial_fp32_bytes": 5242880,
+      "peer_gate_up_bytes": 8912896,
+      "peer_activation_bytes": 4456448,
+      "pinned_fp32_partial_bytes": 5242880,
+      "column_down_matrices": 64
+    },
+    "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+    "partial_and_host_transport_dtype": "float32",
+    "head_gdn_enabled": true,
+    "head_gdn_primary_workspace_bytes": 10035200,
+    "head_gdn_peer_workspace_bytes": 10035200,
+    "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+    "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+    "all_peer_request_device_bytes": 615776256,
+    "all_peer_target_backup_device_bytes": 0,
+    "distributed_memory_scope": "all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
+    "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+  },
+  "native_call_ranges": 1
+}

@@ -1,0 +1,1095 @@
+{
+  "scope": "GDN geometry microbenchmark; warmed primitive calls, not serving TPS.",
+  "profiled": false,
+  "completed": true,
+  "precision": "FP16 packed QKV/output; FP32 decay/beta/state; original eight logical warp reduction order",
+  "arms": [
+    "control-256",
+    "candidate-256",
+    "candidate-compact"
+  ],
+  "library_sha256": "031b377c5b2caba6a0b4f558870da934f34a2bd4e7217a212f0962da65119d69",
+  "baseline_library_sha256": "698452e2b2a39f3a5bb4d08d58e37a3330857f6444cc462f96147f53a7ab5e3d",
+  "cases": [
+    {
+      "tokens": 1,
+      "qk_heads": 16,
+      "value_heads": 48,
+      "key_dim": 128,
+      "value_dim": 128,
+      "qwen27b_geometry": true,
+      "output_state_bytes_equal": true,
+      "independent_fp64_output_relative_l2": 0.00020884378041570602,
+      "independent_fp64_state_relative_l2": 6.13370058942747e-08,
+      "waves": [
+        {
+          "arm": "control-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422862.631887,
+          "end_unix": 1792422862.6338425,
+          "gpu_event_ms_per_call": 0.059571001678705215,
+          "wall_seconds": 0.0019629430025815964,
+          "cpu_core_seconds": 0.0019569999999999865
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422862.6338837,
+          "end_unix": 1792422862.6358147,
+          "gpu_event_ms_per_call": 0.05944399908185005,
+          "wall_seconds": 0.0019352769595570862,
+          "cpu_core_seconds": 0.0019359999999997157
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422862.6358457,
+          "end_unix": 1792422862.6369119,
+          "gpu_event_ms_per_call": 0.03251900151371956,
+          "wall_seconds": 0.0010700490092858672,
+          "cpu_core_seconds": 0.0010700000000003485
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422862.636945,
+          "end_unix": 1792422862.6380112,
+          "gpu_event_ms_per_call": 0.0325389988720417,
+          "wall_seconds": 0.0010700590210035443,
+          "cpu_core_seconds": 0.0010710000000000441
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422862.6380403,
+          "end_unix": 1792422862.6399574,
+          "gpu_event_ms_per_call": 0.05912899971008301,
+          "wall_seconds": 0.0019212010083720088,
+          "cpu_core_seconds": 0.0019219999999999793
+        },
+        {
+          "arm": "control-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422862.639987,
+          "end_unix": 1792422862.6419036,
+          "gpu_event_ms_per_call": 0.05900900065898895,
+          "wall_seconds": 0.0019203900010325015,
+          "cpu_core_seconds": 0.0019200000000001438
+        },
+        {
+          "arm": "control-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422862.641933,
+          "end_unix": 1792422862.643847,
+          "gpu_event_ms_per_call": 0.0590130016207695,
+          "wall_seconds": 0.0019178629736416042,
+          "cpu_core_seconds": 0.0019180000000003083
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422862.643876,
+          "end_unix": 1792422862.6457934,
+          "gpu_event_ms_per_call": 0.05910100042819977,
+          "wall_seconds": 0.0019213500199839473,
+          "cpu_core_seconds": 0.0019210000000002836
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422862.645827,
+          "end_unix": 1792422862.6468937,
+          "gpu_event_ms_per_call": 0.03253500163555145,
+          "wall_seconds": 0.0010705649619922042,
+          "cpu_core_seconds": 0.0010710000000004882
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-256": 0.0590130016207695,
+        "candidate-256": 0.05912899971008301,
+        "candidate-compact": 0.03253500163555145
+      }
+    },
+    {
+      "tokens": 2,
+      "qk_heads": 16,
+      "value_heads": 48,
+      "key_dim": 128,
+      "value_dim": 128,
+      "qwen27b_geometry": true,
+      "output_state_bytes_equal": true,
+      "independent_fp64_output_relative_l2": 0.0002051276046597419,
+      "independent_fp64_state_relative_l2": 7.141444153896731e-08,
+      "waves": [
+        {
+          "arm": "control-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422862.8793383,
+          "end_unix": 1792422862.8825324,
+          "gpu_event_ms_per_call": 0.09836699813604355,
+          "wall_seconds": 0.0032023279927670956,
+          "cpu_core_seconds": 0.003197999999999812
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422862.8825786,
+          "end_unix": 1792422862.8857543,
+          "gpu_event_ms_per_call": 0.09827499836683273,
+          "wall_seconds": 0.003181045991368592,
+          "cpu_core_seconds": 0.0031810000000005445
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422862.8857932,
+          "end_unix": 1792422862.8875313,
+          "gpu_event_ms_per_call": 0.05330900102853775,
+          "wall_seconds": 0.0017421810189262033,
+          "cpu_core_seconds": 0.001742999999999828
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422862.8875687,
+          "end_unix": 1792422862.889296,
+          "gpu_event_ms_per_call": 0.05316999927163124,
+          "wall_seconds": 0.001731440017465502,
+          "cpu_core_seconds": 0.0017320000000000668
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422862.88933,
+          "end_unix": 1792422862.8924875,
+          "gpu_event_ms_per_call": 0.09785100072622299,
+          "wall_seconds": 0.0031627179705537856,
+          "cpu_core_seconds": 0.003163000000000249
+        },
+        {
+          "arm": "control-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422862.8925242,
+          "end_unix": 1792422862.8956873,
+          "gpu_event_ms_per_call": 0.09799700230360031,
+          "wall_seconds": 0.003167609975207597,
+          "cpu_core_seconds": 0.003239000000000214
+        },
+        {
+          "arm": "control-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422862.895722,
+          "end_unix": 1792422862.8988824,
+          "gpu_event_ms_per_call": 0.09791000187397003,
+          "wall_seconds": 0.003165251051541418,
+          "cpu_core_seconds": 0.003166000000000224
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422862.8989167,
+          "end_unix": 1792422862.9020796,
+          "gpu_event_ms_per_call": 0.09800700098276138,
+          "wall_seconds": 0.0031671859906055033,
+          "cpu_core_seconds": 0.00316699999999992
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422862.902111,
+          "end_unix": 1792422862.903835,
+          "gpu_event_ms_per_call": 0.05307399854063988,
+          "wall_seconds": 0.0017285090289078653,
+          "cpu_core_seconds": 0.0017289999999996475
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-256": 0.09799700230360031,
+        "candidate-256": 0.09800700098276138,
+        "candidate-compact": 0.05316999927163124
+      }
+    },
+    {
+      "tokens": 4,
+      "qk_heads": 16,
+      "value_heads": 48,
+      "key_dim": 128,
+      "value_dim": 128,
+      "qwen27b_geometry": true,
+      "output_state_bytes_equal": true,
+      "independent_fp64_output_relative_l2": 0.00020872004856953782,
+      "independent_fp64_state_relative_l2": 8.359339015953591e-08,
+      "waves": [
+        {
+          "arm": "control-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422863.1651015,
+          "end_unix": 1792422863.1708295,
+          "gpu_event_ms_per_call": 0.17700700461864471,
+          "wall_seconds": 0.005737086001317948,
+          "cpu_core_seconds": 0.00573200000000007
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422863.1708806,
+          "end_unix": 1792422863.1765645,
+          "gpu_event_ms_per_call": 0.1766580045223236,
+          "wall_seconds": 0.005689215962775052,
+          "cpu_core_seconds": 0.005691000000000113
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422863.1766038,
+          "end_unix": 1792422863.179661,
+          "gpu_event_ms_per_call": 0.09466499835252762,
+          "wall_seconds": 0.0030615259893238544,
+          "cpu_core_seconds": 0.003062999999999594
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422863.1796978,
+          "end_unix": 1792422863.1827576,
+          "gpu_event_ms_per_call": 0.0945649966597557,
+          "wall_seconds": 0.0030639279866591096,
+          "cpu_core_seconds": 0.0030640000000001777
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422863.1827896,
+          "end_unix": 1792422863.188451,
+          "gpu_event_ms_per_call": 0.17608200013637543,
+          "wall_seconds": 0.005666245007887483,
+          "cpu_core_seconds": 0.005666999999999867
+        },
+        {
+          "arm": "control-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422863.188484,
+          "end_unix": 1792422863.1941483,
+          "gpu_event_ms_per_call": 0.17597299814224243,
+          "wall_seconds": 0.005676653003320098,
+          "cpu_core_seconds": 0.005678999999999768
+        },
+        {
+          "arm": "control-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422863.1942217,
+          "end_unix": 1792422863.1999032,
+          "gpu_event_ms_per_call": 0.17640799283981323,
+          "wall_seconds": 0.0056867439998313785,
+          "cpu_core_seconds": 0.005741999999999692
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422863.1999536,
+          "end_unix": 1792422863.2056258,
+          "gpu_event_ms_per_call": 0.17633000016212463,
+          "wall_seconds": 0.0056771170347929,
+          "cpu_core_seconds": 0.005678000000000072
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422863.2056603,
+          "end_unix": 1792422863.2087119,
+          "gpu_event_ms_per_call": 0.09451299905776978,
+          "wall_seconds": 0.0030555709963664412,
+          "cpu_core_seconds": 0.0030559999999999476
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-256": 0.17640799283981323,
+        "candidate-256": 0.17633000016212463,
+        "candidate-compact": 0.0945649966597557
+      }
+    },
+    {
+      "tokens": 8,
+      "qk_heads": 16,
+      "value_heads": 48,
+      "key_dim": 128,
+      "value_dim": 128,
+      "qwen27b_geometry": true,
+      "output_state_bytes_equal": true,
+      "independent_fp64_output_relative_l2": 0.00020796622430603064,
+      "independent_fp64_state_relative_l2": 9.809026139334345e-08,
+      "waves": [
+        {
+          "arm": "control-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422863.529,
+          "end_unix": 1792422863.5396998,
+          "gpu_event_ms_per_call": 0.3327130079269409,
+          "wall_seconds": 0.01070782303577289,
+          "cpu_core_seconds": 0.010704999999999742
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422863.5397542,
+          "end_unix": 1792422863.5504425,
+          "gpu_event_ms_per_call": 0.33271801471710205,
+          "wall_seconds": 0.01069388200994581,
+          "cpu_core_seconds": 0.010693999999999981
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422863.550482,
+          "end_unix": 1792422863.5561893,
+          "gpu_event_ms_per_call": 0.17747600376605988,
+          "wall_seconds": 0.005712833954021335,
+          "cpu_core_seconds": 0.005688999999999389
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422863.5562315,
+          "end_unix": 1792422863.5619411,
+          "gpu_event_ms_per_call": 0.17749500274658203,
+          "wall_seconds": 0.005716351966839284,
+          "cpu_core_seconds": 0.00571699999999975
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422863.561986,
+          "end_unix": 1792422863.5726483,
+          "gpu_event_ms_per_call": 0.3322319984436035,
+          "wall_seconds": 0.010667610040400177,
+          "cpu_core_seconds": 0.0106679999999999
+        },
+        {
+          "arm": "control-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422863.5726902,
+          "end_unix": 1792422863.5833426,
+          "gpu_event_ms_per_call": 0.33196499943733215,
+          "wall_seconds": 0.010657478997018188,
+          "cpu_core_seconds": 0.010659000000000418
+        },
+        {
+          "arm": "control-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422863.583381,
+          "end_unix": 1792422863.594031,
+          "gpu_event_ms_per_call": 0.3319160044193268,
+          "wall_seconds": 0.010654954996425658,
+          "cpu_core_seconds": 0.010655999999999999
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422863.5940666,
+          "end_unix": 1792422863.607104,
+          "gpu_event_ms_per_call": 0.3321309983730316,
+          "wall_seconds": 0.013056853029411286,
+          "cpu_core_seconds": 0.013111000000000317
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422863.6072469,
+          "end_unix": 1792422863.612989,
+          "gpu_event_ms_per_call": 0.17799800634384155,
+          "wall_seconds": 0.005747076007537544,
+          "cpu_core_seconds": 0.0057480000000005305
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-256": 0.33196499943733215,
+        "candidate-256": 0.3322319984436035,
+        "candidate-compact": 0.17749500274658203
+      }
+    },
+    {
+      "tokens": 23,
+      "qk_heads": 16,
+      "value_heads": 48,
+      "key_dim": 128,
+      "value_dim": 128,
+      "qwen27b_geometry": true,
+      "output_state_bytes_equal": true,
+      "independent_fp64_output_relative_l2": 0.0002083608613063012,
+      "independent_fp64_state_relative_l2": 1.0389366722907646e-07,
+      "waves": [
+        {
+          "arm": "control-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422864.1783922,
+          "end_unix": 1792422864.2047853,
+          "gpu_event_ms_per_call": 0.823062002658844,
+          "wall_seconds": 0.02640119899297133,
+          "cpu_core_seconds": 0.02642999999999951
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422864.2048364,
+          "end_unix": 1792422864.2311804,
+          "gpu_event_ms_per_call": 0.822301983833313,
+          "wall_seconds": 0.026350370957516134,
+          "cpu_core_seconds": 0.026351000000000013
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422864.231224,
+          "end_unix": 1792422864.2453523,
+          "gpu_event_ms_per_call": 0.440544992685318,
+          "wall_seconds": 0.01413315098034218,
+          "cpu_core_seconds": 0.014134000000000313
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422864.2453911,
+          "end_unix": 1792422864.2594924,
+          "gpu_event_ms_per_call": 0.4398050010204315,
+          "wall_seconds": 0.014105924987234175,
+          "cpu_core_seconds": 0.014107000000000092
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422864.2595272,
+          "end_unix": 1792422864.2858486,
+          "gpu_event_ms_per_call": 0.821681022644043,
+          "wall_seconds": 0.026327101048082113,
+          "cpu_core_seconds": 0.02632800000000035
+        },
+        {
+          "arm": "control-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422864.2858887,
+          "end_unix": 1792422864.31222,
+          "gpu_event_ms_per_call": 0.8219299912452698,
+          "wall_seconds": 0.026336866954807192,
+          "cpu_core_seconds": 0.026383999999999297
+        },
+        {
+          "arm": "control-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422864.3122613,
+          "end_unix": 1792422864.338586,
+          "gpu_event_ms_per_call": 0.8217399716377258,
+          "wall_seconds": 0.026329646003432572,
+          "cpu_core_seconds": 0.026329999999999742
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422864.3386235,
+          "end_unix": 1792422864.3649604,
+          "gpu_event_ms_per_call": 0.8221499919891357,
+          "wall_seconds": 0.026342206983827055,
+          "cpu_core_seconds": 0.026342999999999783
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422864.364998,
+          "end_unix": 1792422864.379103,
+          "gpu_event_ms_per_call": 0.4398980140686035,
+          "wall_seconds": 0.01410925597883761,
+          "cpu_core_seconds": 0.014110000000000511
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-256": 0.8219299912452698,
+        "candidate-256": 0.8221499919891357,
+        "candidate-compact": 0.4398980140686035
+      }
+    },
+    {
+      "tokens": 32,
+      "qk_heads": 16,
+      "value_heads": 48,
+      "key_dim": 128,
+      "value_dim": 128,
+      "qwen27b_geometry": true,
+      "output_state_bytes_equal": true,
+      "independent_fp64_output_relative_l2": 0.00020785043364710736,
+      "independent_fp64_state_relative_l2": 1.0449715895313749e-07,
+      "waves": [
+        {
+          "arm": "control-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422865.0791137,
+          "end_unix": 1792422865.1155498,
+          "gpu_event_ms_per_call": 1.1372040510177612,
+          "wall_seconds": 0.0364430770277977,
+          "cpu_core_seconds": 0.036496000000001416
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422865.115592,
+          "end_unix": 1792422865.1519856,
+          "gpu_event_ms_per_call": 1.1363669633865356,
+          "wall_seconds": 0.03639960096916184,
+          "cpu_core_seconds": 0.036400999999999684
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422865.152028,
+          "end_unix": 1792422865.1715748,
+          "gpu_event_ms_per_call": 0.6099650263786316,
+          "wall_seconds": 0.019551195960957557,
+          "cpu_core_seconds": 0.019552000000000902
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422865.1716123,
+          "end_unix": 1792422865.1911552,
+          "gpu_event_ms_per_call": 0.6098690032958984,
+          "wall_seconds": 0.019547085976228118,
+          "cpu_core_seconds": 0.01954700000000109
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422865.1911855,
+          "end_unix": 1792422865.2275848,
+          "gpu_event_ms_per_call": 1.136659026145935,
+          "wall_seconds": 0.03640434000408277,
+          "cpu_core_seconds": 0.03646000000000171
+        },
+        {
+          "arm": "control-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422865.2276227,
+          "end_unix": 1792422865.26401,
+          "gpu_event_ms_per_call": 1.1362320184707642,
+          "wall_seconds": 0.03639143699547276,
+          "cpu_core_seconds": 0.036391999999999314
+        },
+        {
+          "arm": "control-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422865.2640438,
+          "end_unix": 1792422865.3004334,
+          "gpu_event_ms_per_call": 1.1362860202789307,
+          "wall_seconds": 0.03639564698096365,
+          "cpu_core_seconds": 0.03641900000000042
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422865.3004763,
+          "end_unix": 1792422865.3368723,
+          "gpu_event_ms_per_call": 1.1364610195159912,
+          "wall_seconds": 0.03640119795454666,
+          "cpu_core_seconds": 0.03640299999999996
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422865.3369102,
+          "end_unix": 1792422865.3564687,
+          "gpu_event_ms_per_call": 0.6103169918060303,
+          "wall_seconds": 0.019563065958209336,
+          "cpu_core_seconds": 0.019562999999999775
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-256": 1.1362860202789307,
+        "candidate-256": 1.1364610195159912,
+        "candidate-compact": 0.6099650263786316
+      }
+    },
+    {
+      "tokens": 1,
+      "qk_heads": 16,
+      "value_heads": 48,
+      "key_dim": 64,
+      "value_dim": 128,
+      "qwen27b_geometry": false,
+      "output_state_bytes_equal": true,
+      "independent_fp64_output_relative_l2": 0.0002103323514755132,
+      "independent_fp64_state_relative_l2": 6.453701290641055e-08,
+      "waves": [
+        {
+          "arm": "control-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422865.5577147,
+          "end_unix": 1792422865.559407,
+          "gpu_event_ms_per_call": 0.05152999982237816,
+          "wall_seconds": 0.0016986160189844668,
+          "cpu_core_seconds": 0.0016940000000005284
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422865.5594442,
+          "end_unix": 1792422865.5611162,
+          "gpu_event_ms_per_call": 0.05143500119447708,
+          "wall_seconds": 0.0016773039824329317,
+          "cpu_core_seconds": 0.0016780000000000683
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422865.5611506,
+          "end_unix": 1792422865.5617185,
+          "gpu_event_ms_per_call": 0.016953999176621437,
+          "wall_seconds": 0.0005718990578316152,
+          "cpu_core_seconds": 0.0005729999999992685
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422865.5617497,
+          "end_unix": 1792422865.562312,
+          "gpu_event_ms_per_call": 0.01676899939775467,
+          "wall_seconds": 0.000566085975151509,
+          "cpu_core_seconds": 0.0005670000000002062
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422865.56234,
+          "end_unix": 1792422865.563998,
+          "gpu_event_ms_per_call": 0.05103899911046028,
+          "wall_seconds": 0.00166245800210163,
+          "cpu_core_seconds": 0.0016629999999988598
+        },
+        {
+          "arm": "control-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422865.5640273,
+          "end_unix": 1792422865.565689,
+          "gpu_event_ms_per_call": 0.05115000158548355,
+          "wall_seconds": 0.0016653999919071794,
+          "cpu_core_seconds": 0.0016660000000001673
+        },
+        {
+          "arm": "control-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422865.5657182,
+          "end_unix": 1792422865.5673785,
+          "gpu_event_ms_per_call": 0.051086001098155975,
+          "wall_seconds": 0.0016647609882056713,
+          "cpu_core_seconds": 0.0016650000000009157
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422865.5674114,
+          "end_unix": 1792422865.569074,
+          "gpu_event_ms_per_call": 0.051169998943805695,
+          "wall_seconds": 0.0016664059949107468,
+          "cpu_core_seconds": 0.0016670000000011953
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422865.5691025,
+          "end_unix": 1792422865.5696664,
+          "gpu_event_ms_per_call": 0.016860000789165497,
+          "wall_seconds": 0.0005675150314345956,
+          "cpu_core_seconds": 0.0005679999999994578
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-256": 0.05115000158548355,
+        "candidate-256": 0.051169998943805695,
+        "candidate-compact": 0.016860000789165497
+      }
+    },
+    {
+      "tokens": 8,
+      "qk_heads": 16,
+      "value_heads": 48,
+      "key_dim": 64,
+      "value_dim": 128,
+      "qwen27b_geometry": false,
+      "output_state_bytes_equal": true,
+      "independent_fp64_output_relative_l2": 0.0002086450919636386,
+      "independent_fp64_state_relative_l2": 1.0207249653645048e-07,
+      "waves": [
+        {
+          "arm": "control-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422865.839158,
+          "end_unix": 1792422865.84847,
+          "gpu_event_ms_per_call": 0.2895269989967346,
+          "wall_seconds": 0.009319558972492814,
+          "cpu_core_seconds": 0.00931500000000085
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422865.848517,
+          "end_unix": 1792422865.8578038,
+          "gpu_event_ms_per_call": 0.2893480062484741,
+          "wall_seconds": 0.00929536804324016,
+          "cpu_core_seconds": 0.009296000000000859
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422865.8578415,
+          "end_unix": 1792422865.8606422,
+          "gpu_event_ms_per_call": 0.08666600286960602,
+          "wall_seconds": 0.002805505006108433,
+          "cpu_core_seconds": 0.002805999999999642
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422865.8606787,
+          "end_unix": 1792422865.8634782,
+          "gpu_event_ms_per_call": 0.08666999638080597,
+          "wall_seconds": 0.002804654010105878,
+          "cpu_core_seconds": 0.0028050000000003905
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422865.8635082,
+          "end_unix": 1792422865.87278,
+          "gpu_event_ms_per_call": 0.2889600098133087,
+          "wall_seconds": 0.00927689898526296,
+          "cpu_core_seconds": 0.00927800000000012
+        },
+        {
+          "arm": "control-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422865.872818,
+          "end_unix": 1792422865.8820915,
+          "gpu_event_ms_per_call": 0.28898799419403076,
+          "wall_seconds": 0.009278270008508116,
+          "cpu_core_seconds": 0.00927800000000012
+        },
+        {
+          "arm": "control-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422865.8821251,
+          "end_unix": 1792422865.891396,
+          "gpu_event_ms_per_call": 0.28889501094818115,
+          "wall_seconds": 0.009275731048546731,
+          "cpu_core_seconds": 0.00927599999999984
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422865.8914292,
+          "end_unix": 1792422865.9006984,
+          "gpu_event_ms_per_call": 0.28883999586105347,
+          "wall_seconds": 0.009274045994970948,
+          "cpu_core_seconds": 0.009341000000000932
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422865.9007325,
+          "end_unix": 1792422865.903532,
+          "gpu_event_ms_per_call": 0.08669000118970871,
+          "wall_seconds": 0.002803511975798756,
+          "cpu_core_seconds": 0.002804000000001139
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-256": 0.28898799419403076,
+        "candidate-256": 0.2889600098133087,
+        "candidate-compact": 0.08666999638080597
+      }
+    },
+    {
+      "tokens": 1,
+      "qk_heads": 16,
+      "value_heads": 48,
+      "key_dim": 256,
+      "value_dim": 128,
+      "qwen27b_geometry": false,
+      "output_state_bytes_equal": true,
+      "independent_fp64_output_relative_l2": 0.00020909170870058496,
+      "independent_fp64_state_relative_l2": 6.727037161124476e-08,
+      "waves": [
+        {
+          "arm": "control-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422866.1976857,
+          "end_unix": 1792422866.1995146,
+          "gpu_event_ms_per_call": 0.05584999918937683,
+          "wall_seconds": 0.0018361620022915304,
+          "cpu_core_seconds": 0.0018320000000002779
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422866.1995559,
+          "end_unix": 1792422866.2013729,
+          "gpu_event_ms_per_call": 0.05586300045251846,
+          "wall_seconds": 0.0018214370356872678,
+          "cpu_core_seconds": 0.0018539999999998003
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422866.201404,
+          "end_unix": 1792422866.2032118,
+          "gpu_event_ms_per_call": 0.05569300055503845,
+          "wall_seconds": 0.0018121229950338602,
+          "cpu_core_seconds": 0.0018119999999992586
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422866.2032444,
+          "end_unix": 1792422866.2050529,
+          "gpu_event_ms_per_call": 0.055661000311374664,
+          "wall_seconds": 0.0018131909891963005,
+          "cpu_core_seconds": 0.0018139999999995382
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422866.2050822,
+          "end_unix": 1792422866.2068913,
+          "gpu_event_ms_per_call": 0.055656999349594116,
+          "wall_seconds": 0.0018131089746020734,
+          "cpu_core_seconds": 0.0018130000000002866
+        },
+        {
+          "arm": "control-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422866.20692,
+          "end_unix": 1792422866.2087247,
+          "gpu_event_ms_per_call": 0.055629000067710876,
+          "wall_seconds": 0.0018084780313074589,
+          "cpu_core_seconds": 0.0018079999999986995
+        },
+        {
+          "arm": "control-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422866.2087567,
+          "end_unix": 1792422866.2105641,
+          "gpu_event_ms_per_call": 0.055697001516819,
+          "wall_seconds": 0.0018111029639840126,
+          "cpu_core_seconds": 0.001811000000000007
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422866.2105927,
+          "end_unix": 1792422866.2123997,
+          "gpu_event_ms_per_call": 0.055681001394987106,
+          "wall_seconds": 0.0018125379574485123,
+          "cpu_core_seconds": 0.0018129999999985102
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422866.2124379,
+          "end_unix": 1792422866.2142522,
+          "gpu_event_ms_per_call": 0.05585400015115738,
+          "wall_seconds": 0.0018184169894084334,
+          "cpu_core_seconds": 0.001818999999999349
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-256": 0.055697001516819,
+        "candidate-256": 0.055681001394987106,
+        "candidate-compact": 0.05569300055503845
+      }
+    },
+    {
+      "tokens": 8,
+      "qk_heads": 16,
+      "value_heads": 48,
+      "key_dim": 256,
+      "value_dim": 128,
+      "qwen27b_geometry": false,
+      "output_state_bytes_equal": true,
+      "independent_fp64_output_relative_l2": 0.0002071829949045697,
+      "independent_fp64_state_relative_l2": 1.0178818126193789e-07,
+      "waves": [
+        {
+          "arm": "control-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422866.6176004,
+          "end_unix": 1792422866.6273446,
+          "gpu_event_ms_per_call": 0.30303001403808594,
+          "wall_seconds": 0.009752201032824814,
+          "cpu_core_seconds": 0.00974800000000009
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422866.6273918,
+          "end_unix": 1792422866.6371024,
+          "gpu_event_ms_per_call": 0.30250200629234314,
+          "wall_seconds": 0.009714471001643687,
+          "cpu_core_seconds": 0.009714999999999918
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 0,
+          "calls": 32,
+          "start_unix": 1792422866.6371336,
+          "end_unix": 1792422866.6468296,
+          "gpu_event_ms_per_call": 0.30215901136398315,
+          "wall_seconds": 0.0097008150187321,
+          "cpu_core_seconds": 0.009700999999999738
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422866.6468675,
+          "end_unix": 1792422866.6565714,
+          "gpu_event_ms_per_call": 0.30235201120376587,
+          "wall_seconds": 0.00970824301475659,
+          "cpu_core_seconds": 0.009707999999998052
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422866.656604,
+          "end_unix": 1792422866.666299,
+          "gpu_event_ms_per_call": 0.3021619915962219,
+          "wall_seconds": 0.009699925954919308,
+          "cpu_core_seconds": 0.009700999999999738
+        },
+        {
+          "arm": "control-256",
+          "repeat": 1,
+          "calls": 32,
+          "start_unix": 1792422866.6663299,
+          "end_unix": 1792422866.676024,
+          "gpu_event_ms_per_call": 0.3021239936351776,
+          "wall_seconds": 0.009698387002572417,
+          "cpu_core_seconds": 0.009698999999999458
+        },
+        {
+          "arm": "control-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422866.6760573,
+          "end_unix": 1792422866.6857495,
+          "gpu_event_ms_per_call": 0.30208200216293335,
+          "wall_seconds": 0.009696000954136252,
+          "cpu_core_seconds": 0.009695999999999927
+        },
+        {
+          "arm": "candidate-256",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422866.6857789,
+          "end_unix": 1792422866.6954727,
+          "gpu_event_ms_per_call": 0.30209600925445557,
+          "wall_seconds": 0.009697721980046481,
+          "cpu_core_seconds": 0.009698000000000206
+        },
+        {
+          "arm": "candidate-compact",
+          "repeat": 2,
+          "calls": 32,
+          "start_unix": 1792422866.695503,
+          "end_unix": 1792422866.7051964,
+          "gpu_event_ms_per_call": 0.3020929992198944,
+          "wall_seconds": 0.009697548986878246,
+          "cpu_core_seconds": 0.00975500000000018
+        }
+      ],
+      "median_gpu_event_ms": {
+        "control-256": 0.3021239936351776,
+        "candidate-256": 0.3021619915962219,
+        "candidate-compact": 0.30215901136398315
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "scope": "Engineering/launcher failures, not model correctness or speed results. No failed attempt is counted as a successful benchmark.",
+  "attempts": [
+    {
+      "directory": "v100/fixtures-v1",
+      "terminal_exit_code": 1,
+      "detail": "New strided numeric cases passed; test-only invalid-argument check mistakenly accessed ResidentLinear._codes instead of plan.resident._codes. Fixed only the test; compiled library is reused after native-source hash verification."
+    },
+    {
+      "directory": "v100/campaign-v2",
+      "terminal_exit_code": null,
+      "observed_process_absent": true,
+      "detail": "Failed before GPU ownership because its prerequisite fixture failed. Uncaught assertion occurred before old worker terminal handling; raw traceback retained, exit code not reconstructed."
+    },
+    {
+      "directory": "v100/campaign-v4",
+      "terminal_exit_code": null,
+      "observed_process_absent": true,
+      "detail": "Generated error-wrapper string had a newline-escaping syntax error; process never ran inference. Raw worker/log retained. Replacement validates the complete generated worker with compile() before dispatch."
+    },
+    {
+      "directory": "v100/final-v6",
+      "terminal_exit_code": 1,
+      "detail": "Intentional campaign prerequisite enforced: candidate was not promoted after no speed gain, so this promotion-only worker stopped before GPU tests/profiling. Superseded by explicitly rejected-experiment diagnostics v8."
+    },
+    {
+      "directory": "v100/external-depth-v7",
+      "terminal_exit_code": 1,
+      "detail": "Stopped before inference because its promotion-only profiling predecessor failed the promotion guard. Superseded by v9 after rejected-experiment diagnostics."
+    }
+  ]
+}

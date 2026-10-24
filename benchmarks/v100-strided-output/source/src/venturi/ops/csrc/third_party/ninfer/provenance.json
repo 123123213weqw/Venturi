@@ -1,0 +1,31 @@
+{
+  "source": "School_4090D:/home/test/wangyue/engine",
+  "upstreams": [
+    "https://github.com/Neroued/ninfer",
+    "https://github.com/satellitedown/cinference",
+    "https://github.com/zedong-peng/qwen38-4090-decode"
+  ],
+  "license": "Apache-2.0; scoped to these vendored files",
+  "files": {
+    "ops/common/memory.cuh": {
+      "source_path": "src/ops/common/memory.cuh",
+      "source_sha256": "ef5f34d587610759f0707aea08b0dc2e833f94fb686e5d23fb857deec02e5e2b",
+      "vendored_sha256": "ef5f34d587610759f0707aea08b0dc2e833f94fb686e5d23fb857deec02e5e2b"
+    },
+    "ops/common/mma.cuh": {
+      "source_path": "src/ops/common/mma.cuh",
+      "source_sha256": "4c4d7d1105b3b660c02bf82576224f323968f17f2d663b89fd38230fac0bf75f",
+      "vendored_sha256": "4c4d7d1105b3b660c02bf82576224f323968f17f2d663b89fd38230fac0bf75f"
+    },
+    "ada_small_t_mma.cuh": {
+      "source_path": "src/ops/linear/ada_small_t_mma.cuh",
+      "source_sha256": "3d6200cee58a9b730d4571b0ee2c53cb51b629d4cf231e332598790ac1c0f602",
+      "vendored_sha256": "8026eaf287d9d582101f2e8140b46c4199c10f34b12a18263f9dba4ed3a8b9d7"
+    }
+  },
+  "modifications": [
+    "Removed engine Weight/core includes and helpers from ada_small_t_mma.cuh.",
+    "Added K=0 runtime reduction width using validated x_ld; existing static-K schedules retained.",
+    "Wrapped the CTA in an independent C ABI and a dimension-independent 2D launch in Venturi."
+  ]
+}

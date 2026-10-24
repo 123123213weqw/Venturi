@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/usr/local/cuda/bin/nvcc",
+    "-O3",
+    "-std=c++20",
+    "-lineinfo",
+    "-shared",
+    "--cudart=static",
+    "-Xcompiler=-fPIC",
+    "-gencode=arch=compute_70,code=sm_70",
+    "-gencode=arch=compute_70,code=compute_70",
+    "/home/data/wangyue/repos/codex-build/Venturi/dp2a-pilot-src-v1/tools/projection/dp2a_pilot.cu",
+    "-o",
+    "/home/data/wangyue/artifacts/venturi-dp2a-pilot-fixtures-v1/libventuri_dp2a_pilot.so"
+  ],
+  "source_sha256": {
+    "tools/projection/dp2a_pilot.cu": "b232eb7a56ead9c12249ee312bfd5ef8e8877fe66c2694b28dd44d71b1ef4c37",
+    "src/venturi/ops/csrc/q8_dp2a.cuh": "458f7cc105c34befdc1c4242e8a162df382b6e8d11bdee557c267ed4b0c3d83e"
+  },
+  "library": "/home/data/wangyue/artifacts/venturi-dp2a-pilot-fixtures-v1/libventuri_dp2a_pilot.so",
+  "library_sha256": "96b41c84b209a97e0b7aa196e1b2cedb2e6d883ce55e4b0c79532eebffd2c876",
+  "control_library_sha256": "19ee200feef03d2ddd10e313b680c393fbf8ee170f367d08d0bbd6b5edaebc13",
+  "production_library_unchanged": true
+}

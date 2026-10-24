@@ -1,0 +1,3728 @@
+{
+  "scope": "Recompute corrected native GDN operator metrics, separate from model TPS.",
+  "corrected_schedule": true,
+  "model_integrated": false,
+  "new_model_tps": false,
+  "integration_gate": {
+    "t3_at_least_110": true,
+    "no_t1_or_independent8_regression_above_two_percent": true,
+    "passed": true
+  },
+  "cells": [
+    {
+      "layer": 0,
+      "sequences": 1,
+      "steps": 1,
+      "blocks_per_arm_per_trial": 2000,
+      "trials_per_arm": 3,
+      "median_block_microseconds": {
+        "row": 261.5599995,
+        "head": 205.64221299999997
+      },
+      "median_process_cpu_microseconds_per_block": {
+        "row": 273.8114999999999,
+        "head": 216.37549999999985
+      },
+      "speedup": 1.2719178406235105,
+      "latency_reduction_fraction": 0.2137856958514026,
+      "paired_trial_speedups": [
+        1.2822065840460144,
+        1.2708331842249163,
+        1.2719178406235105
+      ],
+      "projected_output_relative_l2_vs_row": 8.34075645444261e-06,
+      "source_reference_max_relative_l2": 0.00046523474612260735,
+      "source_reference_min_cosine": 0.9999998975801134,
+      "transport_per_block": {
+        "row": {
+          "h2d_bytes": 44032.0,
+          "d2h_bytes": 44032.0,
+          "h2d_calls": 5.0,
+          "d2h_calls": 4.0,
+          "d2d_calls": 0.0
+        },
+        "head": {
+          "h2d_bytes": 30720.0,
+          "d2h_bytes": 30720.0,
+          "h2d_calls": 2.0,
+          "d2h_calls": 2.0,
+          "d2d_calls": 0.0
+        }
+      },
+      "telemetry_by_trial": [
+        {
+          "mode": "row",
+          "trial": 1,
+          "devices": {
+            "0": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 0.0,
+                "mean": 30.8,
+                "max": 40.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 0.0,
+                "mean": 26.4,
+                "max": 35.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4143.0,
+                "mean": 4143.0,
+                "max": 4143.0
+              },
+              "power_watts": {
+                "min": 69.04,
+                "mean": 70.0,
+                "max": 71.77
+              },
+              "temperature_celsius": {
+                "min": 32.0,
+                "mean": 32.8,
+                "max": 33.0
+              },
+              "sm_clock_mhz": {
+                "min": 1230.0,
+                "mean": 1249.4,
+                "max": 1297.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 4.0,
+                "mean": 59.2,
+                "max": 74.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 2.0,
+                "mean": 33.0,
+                "max": 42.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3687.0,
+                "mean": 3687.0,
+                "max": 3687.0
+              },
+              "power_watts": {
+                "min": 86.86,
+                "mean": 96.47,
+                "max": 101.46
+              },
+              "temperature_celsius": {
+                "min": 31.0,
+                "mean": 31.8,
+                "max": 32.0
+              },
+              "sm_clock_mhz": {
+                "min": 1230.0,
+                "mean": 1340.8,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 1,
+          "devices": {
+            "0": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 40.0,
+                "mean": 60.25,
+                "max": 70.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 35.0,
+                "mean": 43.0,
+                "max": 47.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4143.0,
+                "mean": 4143.0,
+                "max": 4143.0
+              },
+              "power_watts": {
+                "min": 91.36,
+                "mean": 98.32,
+                "max": 102.63
+              },
+              "temperature_celsius": {
+                "min": 33.0,
+                "mean": 33.5,
+                "max": 34.0
+              },
+              "sm_clock_mhz": {
+                "min": 1297.0,
+                "mean": 1359.25,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 72.0,
+                "mean": 74.75,
+                "max": 79.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 39.0,
+                "mean": 42.75,
+                "max": 46.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3687.0,
+                "mean": 3687.0,
+                "max": 3687.0
+              },
+              "power_watts": {
+                "min": 105.25,
+                "mean": 105.99,
+                "max": 106.73
+              },
+              "temperature_celsius": {
+                "min": 33.0,
+                "mean": 33.0,
+                "max": 33.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 2,
+          "devices": {
+            "0": {
+              "samples": 3,
+              "sampled_gpu_busy_percent": {
+                "min": 68.0,
+                "mean": 68.66666666666667,
+                "max": 70.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 44.0,
+                "mean": 44.666666666666664,
+                "max": 46.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4143.0,
+                "mean": 4143.0,
+                "max": 4143.0
+              },
+              "power_watts": {
+                "min": 101.2,
+                "mean": 102.40333333333334,
+                "max": 103.3
+              },
+              "temperature_celsius": {
+                "min": 34.0,
+                "mean": 34.0,
+                "max": 34.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 3,
+              "sampled_gpu_busy_percent": {
+                "min": 76.0,
+                "mean": 77.0,
+                "max": 79.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 44.0,
+                "mean": 44.666666666666664,
+                "max": 46.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3687.0,
+                "mean": 3687.0,
+                "max": 3687.0
+              },
+              "power_watts": {
+                "min": 106.42,
+                "mean": 106.59333333333333,
+                "max": 106.78
+              },
+              "temperature_celsius": {
+                "min": 33.0,
+                "mean": 33.0,
+                "max": 33.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "row",
+          "trial": 2,
+          "devices": {
+            "0": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 40.0,
+                "mean": 49.25,
+                "max": 70.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 34.0,
+                "mean": 37.5,
+                "max": 46.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4143.0,
+                "mean": 4143.0,
+                "max": 4143.0
+              },
+              "power_watts": {
+                "min": 79.96,
+                "mean": 80.255,
+                "max": 80.46
+              },
+              "temperature_celsius": {
+                "min": 34.0,
+                "mean": 34.0,
+                "max": 34.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 71.0,
+                "mean": 73.25,
+                "max": 79.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 38.0,
+                "mean": 40.25,
+                "max": 46.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3687.0,
+                "mean": 3687.0,
+                "max": 3687.0
+              },
+              "power_watts": {
+                "min": 102.07,
+                "mean": 102.2825,
+                "max": 102.52
+              },
+              "temperature_celsius": {
+                "min": 33.0,
+                "mean": 33.0,
+                "max": 33.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "row",
+          "trial": 3,
+          "devices": {
+            "0": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 39.0,
+                "mean": 39.5,
+                "max": 40.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 32.0,
+                "mean": 33.0,
+                "max": 34.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4143.0,
+                "mean": 4143.0,
+                "max": 4143.0
+              },
+              "power_watts": {
+                "min": 80.07,
+                "mean": 80.29499999999999,
+                "max": 80.66
+              },
+              "temperature_celsius": {
+                "min": 34.0,
+                "mean": 34.0,
+                "max": 34.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 70.0,
+                "mean": 71.5,
+                "max": 72.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 38.0,
+                "mean": 38.75,
+                "max": 39.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3687.0,
+                "mean": 3687.0,
+                "max": 3687.0
+              },
+              "power_watts": {
+                "min": 102.26,
+                "mean": 102.58500000000001,
+                "max": 102.81
+              },
+              "temperature_celsius": {
+                "min": 34.0,
+                "mean": 34.0,
+                "max": 34.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 3,
+          "devices": {
+            "0": {
+              "samples": 3,
+              "sampled_gpu_busy_percent": {
+                "min": 49.0,
+                "mean": 56.0,
+                "max": 70.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 36.0,
+                "mean": 39.333333333333336,
+                "max": 46.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4143.0,
+                "mean": 4143.0,
+                "max": 4143.0
+              },
+              "power_watts": {
+                "min": 100.93,
+                "mean": 102.03,
+                "max": 103.94
+              },
+              "temperature_celsius": {
+                "min": 34.0,
+                "mean": 34.333333333333336,
+                "max": 35.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 72.0,
+                "mean": 74.75,
+                "max": 79.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 39.0,
+                "mean": 42.25,
+                "max": 46.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3687.0,
+                "mean": 3687.0,
+                "max": 3687.0
+              },
+              "power_watts": {
+                "min": 81.94,
+                "mean": 100.215,
+                "max": 106.73
+              },
+              "temperature_celsius": {
+                "min": 34.0,
+                "mean": 34.0,
+                "max": 34.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "layer": 0,
+      "sequences": 1,
+      "steps": 3,
+      "blocks_per_arm_per_trial": 2000,
+      "trials_per_arm": 3,
+      "median_block_microseconds": {
+        "row": 333.783606,
+        "head": 256.849353
+      },
+      "median_process_cpu_microseconds_per_block": {
+        "row": 344.2540000000012,
+        "head": 265.60399999999976
+      },
+      "speedup": 1.2995306474453139,
+      "latency_reduction_fraction": 0.23049140705850002,
+      "paired_trial_speedups": [
+        1.2997188560505963,
+        1.2997194424801188,
+        1.2979900225795
+      ],
+      "projected_output_relative_l2_vs_row": 7.58028971471603e-07,
+      "source_reference_max_relative_l2": 0.0002828643117359372,
+      "source_reference_min_cosine": 0.9999999603443396,
+      "transport_per_block": {
+        "row": {
+          "h2d_bytes": 132096.0,
+          "d2h_bytes": 132096.0,
+          "h2d_calls": 5.0,
+          "d2h_calls": 4.0,
+          "d2d_calls": 1.0
+        },
+        "head": {
+          "h2d_bytes": 92160.0,
+          "d2h_bytes": 92160.0,
+          "h2d_calls": 2.0,
+          "d2h_calls": 2.0,
+          "d2d_calls": 0.0
+        }
+      },
+      "telemetry_by_trial": [
+        {
+          "mode": "row",
+          "trial": 1,
+          "devices": {
+            "0": {
+              "samples": 6,
+              "sampled_gpu_busy_percent": {
+                "min": 4.0,
+                "mean": 34.0,
+                "max": 40.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 2.0,
+                "mean": 23.666666666666668,
+                "max": 28.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4159.0,
+                "mean": 4159.0,
+                "max": 4159.0
+              },
+              "power_watts": {
+                "min": 87.45,
+                "mean": 87.75666666666666,
+                "max": 87.96
+              },
+              "temperature_celsius": {
+                "min": 34.0,
+                "mean": 34.166666666666664,
+                "max": 35.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 6,
+              "sampled_gpu_busy_percent": {
+                "min": 37.0,
+                "mean": 65.0,
+                "max": 79.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 16.0,
+                "mean": 28.666666666666668,
+                "max": 35.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3703.0,
+                "mean": 3703.0,
+                "max": 3703.0
+              },
+              "power_watts": {
+                "min": 126.65,
+                "mean": 127.18833333333333,
+                "max": 127.7
+              },
+              "temperature_celsius": {
+                "min": 34.0,
+                "mean": 34.666666666666664,
+                "max": 35.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 1,
+          "devices": {
+            "0": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 39.0,
+                "mean": 61.2,
+                "max": 76.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 27.0,
+                "mean": 35.4,
+                "max": 41.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4159.0,
+                "mean": 4159.0,
+                "max": 4159.0
+              },
+              "power_watts": {
+                "min": 121.65,
+                "mean": 124.412,
+                "max": 125.56
+              },
+              "temperature_celsius": {
+                "min": 35.0,
+                "mean": 35.4,
+                "max": 36.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 77.0,
+                "mean": 81.0,
+                "max": 83.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 35.0,
+                "mean": 38.8,
+                "max": 41.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3703.0,
+                "mean": 3703.0,
+                "max": 3703.0
+              },
+              "power_watts": {
+                "min": 129.07,
+                "mean": 131.59199999999998,
+                "max": 133.03
+              },
+              "temperature_celsius": {
+                "min": 35.0,
+                "mean": 35.4,
+                "max": 36.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 2,
+          "devices": {
+            "0": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 73.0,
+                "mean": 74.8,
+                "max": 76.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 39.0,
+                "mean": 40.2,
+                "max": 41.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4159.0,
+                "mean": 4159.0,
+                "max": 4159.0
+              },
+              "power_watts": {
+                "min": 125.04,
+                "mean": 125.444,
+                "max": 125.97
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 36.0,
+                "max": 36.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 80.0,
+                "mean": 82.4,
+                "max": 83.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 39.0,
+                "mean": 40.6,
+                "max": 41.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3703.0,
+                "mean": 3703.0,
+                "max": 3703.0
+              },
+              "power_watts": {
+                "min": 132.25,
+                "mean": 132.66,
+                "max": 133.03
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 36.0,
+                "max": 36.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "row",
+          "trial": 2,
+          "devices": {
+            "0": {
+              "samples": 6,
+              "sampled_gpu_busy_percent": {
+                "min": 40.0,
+                "mean": 47.666666666666664,
+                "max": 76.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 28.0,
+                "mean": 30.5,
+                "max": 41.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4159.0,
+                "mean": 4159.0,
+                "max": 4159.0
+              },
+              "power_watts": {
+                "min": 89.43,
+                "mean": 89.58500000000001,
+                "max": 89.79
+              },
+              "temperature_celsius": {
+                "min": 35.0,
+                "mean": 35.666666666666664,
+                "max": 36.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 6,
+              "sampled_gpu_busy_percent": {
+                "min": 79.0,
+                "mean": 79.0,
+                "max": 79.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 35.0,
+                "mean": 35.666666666666664,
+                "max": 37.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3703.0,
+                "mean": 3703.0,
+                "max": 3703.0
+              },
+              "power_watts": {
+                "min": 128.89,
+                "mean": 129.54833333333335,
+                "max": 130.06
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 36.0,
+                "max": 36.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "row",
+          "trial": 3,
+          "devices": {
+            "0": {
+              "samples": 6,
+              "sampled_gpu_busy_percent": {
+                "min": 38.0,
+                "mean": 39.333333333333336,
+                "max": 40.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 26.0,
+                "mean": 27.333333333333332,
+                "max": 28.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4159.0,
+                "mean": 4159.0,
+                "max": 4159.0
+              },
+              "power_watts": {
+                "min": 87.84,
+                "mean": 89.42166666666667,
+                "max": 90.11
+              },
+              "temperature_celsius": {
+                "min": 35.0,
+                "mean": 35.0,
+                "max": 35.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 6,
+              "sampled_gpu_busy_percent": {
+                "min": 75.0,
+                "mean": 78.33333333333333,
+                "max": 79.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 33.0,
+                "mean": 34.666666666666664,
+                "max": 35.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3703.0,
+                "mean": 3703.0,
+                "max": 3703.0
+              },
+              "power_watts": {
+                "min": 127.62,
+                "mean": 129.375,
+                "max": 129.96
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 36.333333333333336,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 3,
+          "devices": {
+            "0": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 40.0,
+                "mean": 63.75,
+                "max": 76.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 28.0,
+                "mean": 36.25,
+                "max": 41.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4159.0,
+                "mean": 4159.0,
+                "max": 4159.0
+              },
+              "power_watts": {
+                "min": 125.56,
+                "mean": 125.7575,
+                "max": 126.05
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 36.0,
+                "max": 36.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 76.0,
+                "mean": 79.5,
+                "max": 83.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 35.0,
+                "mean": 38.0,
+                "max": 41.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3703.0,
+                "mean": 3703.0,
+                "max": 3703.0
+              },
+              "power_watts": {
+                "min": 132.16,
+                "mean": 132.485,
+                "max": 132.74
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 37.0,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "layer": 0,
+      "sequences": 8,
+      "steps": 1,
+      "blocks_per_arm_per_trial": 2000,
+      "trials_per_arm": 3,
+      "median_block_microseconds": {
+        "row": 641.7748505000001,
+        "head": 478.1713285
+      },
+      "median_process_cpu_microseconds_per_block": {
+        "row": 650.2890000000008,
+        "head": 487.06549999999993
+      },
+      "speedup": 1.3421441484440657,
+      "latency_reduction_fraction": 0.2549235481454879,
+      "paired_trial_speedups": [
+        1.3446411070211208,
+        1.3417033155173845,
+        1.341979595117445
+      ],
+      "projected_output_relative_l2_vs_row": 9.202199255065366e-06,
+      "source_reference_max_relative_l2": 0.0005146281446692346,
+      "source_reference_min_cosine": 0.9999999012173405,
+      "transport_per_block": {
+        "row": {
+          "h2d_bytes": 352256.0,
+          "d2h_bytes": 352256.0,
+          "h2d_calls": 5.0,
+          "d2h_calls": 4.0,
+          "d2d_calls": 1.0
+        },
+        "head": {
+          "h2d_bytes": 245760.0,
+          "d2h_bytes": 245760.0,
+          "h2d_calls": 2.0,
+          "d2h_calls": 2.0,
+          "d2d_calls": 0.0
+        }
+      },
+      "telemetry_by_trial": [
+        {
+          "mode": "row",
+          "trial": 1,
+          "devices": {
+            "0": {
+              "samples": 12,
+              "sampled_gpu_busy_percent": {
+                "min": 0.0,
+                "mean": 29.583333333333332,
+                "max": 34.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 0.0,
+                "mean": 13.083333333333334,
+                "max": 15.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 83.98,
+                "mean": 85.35083333333334,
+                "max": 86.27
+              },
+              "temperature_celsius": {
+                "min": 35.0,
+                "mean": 35.25,
+                "max": 36.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 12,
+              "sampled_gpu_busy_percent": {
+                "min": 0.0,
+                "mean": 71.58333333333333,
+                "max": 83.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 0.0,
+                "mean": 24.0,
+                "max": 28.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 149.97,
+                "mean": 152.56416666666667,
+                "max": 153.99
+              },
+              "temperature_celsius": {
+                "min": 35.0,
+                "mean": 37.083333333333336,
+                "max": 38.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 1,
+          "devices": {
+            "0": {
+              "samples": 9,
+              "sampled_gpu_busy_percent": {
+                "min": 34.0,
+                "mean": 72.66666666666667,
+                "max": 82.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 15.0,
+                "mean": 26.0,
+                "max": 29.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 138.42,
+                "mean": 141.24,
+                "max": 142.0
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 37.22222222222222,
+                "max": 38.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 9,
+              "sampled_gpu_busy_percent": {
+                "min": 55.0,
+                "mean": 78.88888888888889,
+                "max": 86.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 18.0,
+                "mean": 26.555555555555557,
+                "max": 29.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 146.34,
+                "mean": 150.01111111111112,
+                "max": 151.45
+              },
+              "temperature_celsius": {
+                "min": 38.0,
+                "mean": 38.111111111111114,
+                "max": 39.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 2,
+          "devices": {
+            "0": {
+              "samples": 9,
+              "sampled_gpu_busy_percent": {
+                "min": 59.0,
+                "mean": 76.88888888888889,
+                "max": 82.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 20.0,
+                "mean": 27.0,
+                "max": 29.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 127.91,
+                "mean": 140.42555555555555,
+                "max": 142.39
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 37.888888888888886,
+                "max": 38.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 9,
+              "sampled_gpu_busy_percent": {
+                "min": 61.0,
+                "mean": 82.44444444444444,
+                "max": 86.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 20.0,
+                "mean": 28.0,
+                "max": 29.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 139.27,
+                "mean": 149.73777777777778,
+                "max": 151.74
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 38.666666666666664,
+                "max": 39.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "row",
+          "trial": 2,
+          "devices": {
+            "0": {
+              "samples": 12,
+              "sampled_gpu_busy_percent": {
+                "min": 26.0,
+                "mean": 37.333333333333336,
+                "max": 82.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 11.0,
+                "mean": 15.833333333333334,
+                "max": 29.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 86.51,
+                "mean": 87.16083333333333,
+                "max": 87.48
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 37.0,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 12,
+              "sampled_gpu_busy_percent": {
+                "min": 60.0,
+                "mean": 79.25,
+                "max": 84.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 19.0,
+                "mean": 26.5,
+                "max": 28.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 155.74,
+                "mean": 156.45916666666668,
+                "max": 157.08
+              },
+              "temperature_celsius": {
+                "min": 39.0,
+                "mean": 39.416666666666664,
+                "max": 40.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "row",
+          "trial": 3,
+          "devices": {
+            "0": {
+              "samples": 12,
+              "sampled_gpu_busy_percent": {
+                "min": 24.0,
+                "mean": 32.333333333333336,
+                "max": 34.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 11.0,
+                "mean": 14.333333333333334,
+                "max": 15.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 78.7,
+                "mean": 86.38833333333334,
+                "max": 88.23
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 36.916666666666664,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 12,
+              "sampled_gpu_busy_percent": {
+                "min": 62.0,
+                "mean": 81.25,
+                "max": 83.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 20.0,
+                "mean": 27.333333333333332,
+                "max": 28.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 140.76,
+                "mean": 155.53416666666666,
+                "max": 157.35
+              },
+              "temperature_celsius": {
+                "min": 39.0,
+                "mean": 39.916666666666664,
+                "max": 40.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 3,
+          "devices": {
+            "0": {
+              "samples": 9,
+              "sampled_gpu_busy_percent": {
+                "min": 30.0,
+                "mean": 72.88888888888889,
+                "max": 82.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 13.0,
+                "mean": 25.88888888888889,
+                "max": 29.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 141.08,
+                "mean": 141.96222222222224,
+                "max": 142.59
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 38.111111111111114,
+                "max": 39.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 9,
+              "sampled_gpu_busy_percent": {
+                "min": 58.0,
+                "mean": 79.33333333333333,
+                "max": 86.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 19.0,
+                "mean": 26.77777777777778,
+                "max": 29.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 150.58,
+                "mean": 151.44333333333333,
+                "max": 152.43
+              },
+              "temperature_celsius": {
+                "min": 40.0,
+                "mean": 40.0,
+                "max": 40.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "layer": 62,
+      "sequences": 1,
+      "steps": 1,
+      "blocks_per_arm_per_trial": 2000,
+      "trials_per_arm": 3,
+      "median_block_microseconds": {
+        "row": 260.43519999999995,
+        "head": 205.68259799999998
+      },
+      "median_process_cpu_microseconds_per_block": {
+        "row": 271.77849999999995,
+        "head": 215.82850000000064
+      },
+      "speedup": 1.2661994866478687,
+      "latency_reduction_fraction": 0.210235029673408,
+      "paired_trial_speedups": [
+        1.2653030245322217,
+        1.2665582078806734,
+        1.2651499617872388
+      ],
+      "projected_output_relative_l2_vs_row": 1.3272797335506121e-05,
+      "source_reference_max_relative_l2": 0.000548302217700653,
+      "source_reference_min_cosine": 0.9999998510229323,
+      "transport_per_block": {
+        "row": {
+          "h2d_bytes": 44032.0,
+          "d2h_bytes": 44032.0,
+          "h2d_calls": 5.0,
+          "d2h_calls": 4.0,
+          "d2d_calls": 0.0
+        },
+        "head": {
+          "h2d_bytes": 30720.0,
+          "d2h_bytes": 30720.0,
+          "h2d_calls": 2.0,
+          "d2h_calls": 2.0,
+          "d2d_calls": 0.0
+        }
+      },
+      "telemetry_by_trial": [
+        {
+          "mode": "row",
+          "trial": 1,
+          "devices": {
+            "0": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 0.0,
+                "mean": 28.0,
+                "max": 40.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 0.0,
+                "mean": 23.6,
+                "max": 34.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 81.91,
+                "mean": 82.45,
+                "max": 83.11
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 36.0,
+                "max": 36.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 0.0,
+                "mean": 52.8,
+                "max": 73.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 0.0,
+                "mean": 28.4,
+                "max": 39.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 105.6,
+                "mean": 105.746,
+                "max": 105.84
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 36.2,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 1,
+          "devices": {
+            "0": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 48.0,
+                "mean": 59.5,
+                "max": 71.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 36.0,
+                "mean": 41.0,
+                "max": 46.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 104.64,
+                "mean": 105.42999999999999,
+                "max": 106.71
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 36.5,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 73.0,
+                "mean": 76.25,
+                "max": 79.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 39.0,
+                "mean": 43.25,
+                "max": 46.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 108.68,
+                "mean": 108.875,
+                "max": 109.06
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 37.0,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 2,
+          "devices": {
+            "0": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 68.0,
+                "mean": 69.5,
+                "max": 71.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 44.0,
+                "mean": 45.0,
+                "max": 46.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 104.85,
+                "mean": 105.5175,
+                "max": 106.4
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 37.0,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 76.0,
+                "mean": 79.0,
+                "max": 80.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 44.0,
+                "mean": 45.5,
+                "max": 46.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 108.1,
+                "mean": 108.8725,
+                "max": 110.48
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 37.0,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "row",
+          "trial": 2,
+          "devices": {
+            "0": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 40.0,
+                "mean": 47.6,
+                "max": 59.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 34.0,
+                "mean": 36.8,
+                "max": 41.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 73.75,
+                "mean": 81.176,
+                "max": 83.18
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 36.8,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 73.0,
+                "mean": 74.75,
+                "max": 80.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 39.0,
+                "mean": 41.0,
+                "max": 46.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 105.7,
+                "mean": 105.875,
+                "max": 106.03
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 37.0,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "row",
+          "trial": 3,
+          "devices": {
+            "0": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 38.0,
+                "mean": 39.5,
+                "max": 40.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 32.0,
+                "mean": 33.5,
+                "max": 34.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 82.69,
+                "mean": 83.1125,
+                "max": 83.47
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 36.5,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 4,
+              "sampled_gpu_busy_percent": {
+                "min": 70.0,
+                "mean": 71.5,
+                "max": 73.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 37.0,
+                "mean": 38.0,
+                "max": 39.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 105.95,
+                "mean": 106.135,
+                "max": 106.23
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 37.0,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 3,
+          "devices": {
+            "0": {
+              "samples": 3,
+              "sampled_gpu_busy_percent": {
+                "min": 40.0,
+                "mean": 58.0,
+                "max": 67.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 34.0,
+                "mean": 40.666666666666664,
+                "max": 44.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 104.6,
+                "mean": 105.36666666666666,
+                "max": 106.24
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 37.0,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 3,
+              "sampled_gpu_busy_percent": {
+                "min": 71.0,
+                "mean": 76.33333333333333,
+                "max": 79.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 39.0,
+                "mean": 43.666666666666664,
+                "max": 46.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 109.19,
+                "mean": 109.76333333333334,
+                "max": 110.15
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 37.333333333333336,
+                "max": 38.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "layer": 62,
+      "sequences": 1,
+      "steps": 3,
+      "blocks_per_arm_per_trial": 2000,
+      "trials_per_arm": 3,
+      "median_block_microseconds": {
+        "row": 335.020119,
+        "head": 258.36884249999997
+      },
+      "median_process_cpu_microseconds_per_block": {
+        "row": 344.8670000000007,
+        "head": 267.9824999999987
+      },
+      "speedup": 1.296673839454926,
+      "latency_reduction_fraction": 0.2287960398581318,
+      "paired_trial_speedups": [
+        1.2981684829022637,
+        1.2954629949236236,
+        1.2958811851515812
+      ],
+      "projected_output_relative_l2_vs_row": 4.306769840655408e-06,
+      "source_reference_max_relative_l2": 0.00040967506650089927,
+      "source_reference_min_cosine": 0.9999999161193631,
+      "transport_per_block": {
+        "row": {
+          "h2d_bytes": 132096.0,
+          "d2h_bytes": 132096.0,
+          "h2d_calls": 5.0,
+          "d2h_calls": 4.0,
+          "d2d_calls": 1.0
+        },
+        "head": {
+          "h2d_bytes": 92160.0,
+          "d2h_bytes": 92160.0,
+          "h2d_calls": 2.0,
+          "d2h_calls": 2.0,
+          "d2d_calls": 0.0
+        }
+      },
+      "telemetry_by_trial": [
+        {
+          "mode": "row",
+          "trial": 1,
+          "devices": {
+            "0": {
+              "samples": 7,
+              "sampled_gpu_busy_percent": {
+                "min": 6.0,
+                "mean": 29.714285714285715,
+                "max": 40.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 0.0,
+                "mean": 19.571428571428573,
+                "max": 28.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 62.14,
+                "mean": 86.89,
+                "max": 91.54
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 36.714285714285715,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 7,
+              "sampled_gpu_busy_percent": {
+                "min": 10.0,
+                "mean": 60.285714285714285,
+                "max": 79.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 0.0,
+                "mean": 26.0,
+                "max": 35.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 90.59,
+                "mean": 125.46285714285715,
+                "max": 131.89
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 37.857142857142854,
+                "max": 39.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 1,
+          "devices": {
+            "0": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 40.0,
+                "mean": 65.6,
+                "max": 76.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 28.0,
+                "mean": 36.8,
+                "max": 41.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 126.52,
+                "mean": 127.122,
+                "max": 127.61
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 37.8,
+                "max": 38.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 75.0,
+                "mean": 79.8,
+                "max": 83.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 34.0,
+                "mean": 37.6,
+                "max": 40.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 134.45,
+                "mean": 134.726,
+                "max": 135.42
+              },
+              "temperature_celsius": {
+                "min": 39.0,
+                "mean": 39.0,
+                "max": 39.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 2,
+          "devices": {
+            "0": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 73.0,
+                "mean": 75.4,
+                "max": 76.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 39.0,
+                "mean": 40.6,
+                "max": 41.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 126.33,
+                "mean": 126.898,
+                "max": 127.6
+              },
+              "temperature_celsius": {
+                "min": 38.0,
+                "mean": 38.0,
+                "max": 38.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 80.0,
+                "mean": 82.0,
+                "max": 83.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 39.0,
+                "mean": 39.8,
+                "max": 40.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 132.65,
+                "mean": 134.362,
+                "max": 135.27
+              },
+              "temperature_celsius": {
+                "min": 39.0,
+                "mean": 39.0,
+                "max": 39.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "row",
+          "trial": 2,
+          "devices": {
+            "0": {
+              "samples": 6,
+              "sampled_gpu_busy_percent": {
+                "min": 40.0,
+                "mean": 48.166666666666664,
+                "max": 76.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 28.0,
+                "mean": 30.833333333333332,
+                "max": 41.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 90.86,
+                "mean": 91.10666666666667,
+                "max": 91.38
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 37.833333333333336,
+                "max": 38.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 6,
+              "sampled_gpu_busy_percent": {
+                "min": 76.0,
+                "mean": 78.66666666666667,
+                "max": 83.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 34.0,
+                "mean": 35.5,
+                "max": 40.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 131.7,
+                "mean": 131.98,
+                "max": 132.23
+              },
+              "temperature_celsius": {
+                "min": 39.0,
+                "mean": 39.166666666666664,
+                "max": 40.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "row",
+          "trial": 3,
+          "devices": {
+            "0": {
+              "samples": 6,
+              "sampled_gpu_busy_percent": {
+                "min": 38.0,
+                "mean": 39.666666666666664,
+                "max": 40.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 26.0,
+                "mean": 27.666666666666668,
+                "max": 28.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 90.79,
+                "mean": 91.19,
+                "max": 91.55
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 37.0,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 6,
+              "sampled_gpu_busy_percent": {
+                "min": 75.0,
+                "mean": 77.66666666666667,
+                "max": 79.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 33.0,
+                "mean": 34.333333333333336,
+                "max": 35.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 131.33,
+                "mean": 131.94666666666666,
+                "max": 132.4
+              },
+              "temperature_celsius": {
+                "min": 39.0,
+                "mean": 39.833333333333336,
+                "max": 40.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 3,
+          "devices": {
+            "0": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 40.0,
+                "mean": 59.6,
+                "max": 76.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 28.0,
+                "mean": 34.4,
+                "max": 41.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 107.72,
+                "mean": 123.468,
+                "max": 127.92
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 38.0,
+                "max": 39.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 5,
+              "sampled_gpu_busy_percent": {
+                "min": 77.0,
+                "mean": 79.8,
+                "max": 83.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 35.0,
+                "mean": 37.8,
+                "max": 40.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 122.52,
+                "mean": 132.574,
+                "max": 136.05
+              },
+              "temperature_celsius": {
+                "min": 39.0,
+                "mean": 39.8,
+                "max": 40.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "layer": 62,
+      "sequences": 8,
+      "steps": 1,
+      "blocks_per_arm_per_trial": 2000,
+      "trials_per_arm": 3,
+      "median_block_microseconds": {
+        "row": 644.565882,
+        "head": 480.44746649999996
+      },
+      "median_process_cpu_microseconds_per_block": {
+        "row": 653.631500000003,
+        "head": 489.3585000000015
+      },
+      "speedup": 1.3415949233650502,
+      "latency_reduction_fraction": 0.2546185271096927,
+      "paired_trial_speedups": [
+        1.342189726168532,
+        1.3397223182692564,
+        1.342438388180785
+      ],
+      "projected_output_relative_l2_vs_row": 8.776000997293394e-06,
+      "source_reference_max_relative_l2": 0.0005738656113535325,
+      "source_reference_min_cosine": 0.9999998354238979,
+      "transport_per_block": {
+        "row": {
+          "h2d_bytes": 352256.0,
+          "d2h_bytes": 352256.0,
+          "h2d_calls": 5.0,
+          "d2h_calls": 4.0,
+          "d2d_calls": 1.0
+        },
+        "head": {
+          "h2d_bytes": 245760.0,
+          "d2h_bytes": 245760.0,
+          "h2d_calls": 2.0,
+          "d2h_calls": 2.0,
+          "d2d_calls": 0.0
+        }
+      },
+      "telemetry_by_trial": [
+        {
+          "mode": "row",
+          "trial": 1,
+          "devices": {
+            "0": {
+              "samples": 12,
+              "sampled_gpu_busy_percent": {
+                "min": 0.0,
+                "mean": 29.0,
+                "max": 34.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 0.0,
+                "mean": 12.75,
+                "max": 15.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 83.96,
+                "mean": 87.03666666666666,
+                "max": 87.93
+              },
+              "temperature_celsius": {
+                "min": 36.0,
+                "mean": 36.916666666666664,
+                "max": 37.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 12,
+              "sampled_gpu_busy_percent": {
+                "min": 5.0,
+                "mean": 69.83333333333333,
+                "max": 84.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 1.0,
+                "mean": 23.166666666666668,
+                "max": 28.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 147.22,
+                "mean": 155.51333333333332,
+                "max": 157.3
+              },
+              "temperature_celsius": {
+                "min": 37.0,
+                "mean": 40.0,
+                "max": 41.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 1,
+          "devices": {
+            "0": {
+              "samples": 8,
+              "sampled_gpu_busy_percent": {
+                "min": 34.0,
+                "mean": 72.25,
+                "max": 82.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 15.0,
+                "mean": 25.875,
+                "max": 29.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 141.17,
+                "mean": 142.08375,
+                "max": 142.98
+              },
+              "temperature_celsius": {
+                "min": 38.0,
+                "mean": 38.875,
+                "max": 39.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 8,
+              "sampled_gpu_busy_percent": {
+                "min": 71.0,
+                "mean": 80.875,
+                "max": 86.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 23.0,
+                "mean": 27.25,
+                "max": 29.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 150.67,
+                "mean": 151.445,
+                "max": 152.16
+              },
+              "temperature_celsius": {
+                "min": 41.0,
+                "mean": 41.0,
+                "max": 41.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 2,
+          "devices": {
+            "0": {
+              "samples": 9,
+              "sampled_gpu_busy_percent": {
+                "min": 58.0,
+                "mean": 79.33333333333333,
+                "max": 82.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 20.0,
+                "mean": 28.0,
+                "max": 29.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 135.57,
+                "mean": 140.8211111111111,
+                "max": 142.73
+              },
+              "temperature_celsius": {
+                "min": 39.0,
+                "mean": 39.666666666666664,
+                "max": 40.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 9,
+              "sampled_gpu_busy_percent": {
+                "min": 66.0,
+                "mean": 80.55555555555556,
+                "max": 86.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 22.0,
+                "mean": 27.11111111111111,
+                "max": 29.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 150.14,
+                "mean": 151.13555555555556,
+                "max": 151.55
+              },
+              "temperature_celsius": {
+                "min": 41.0,
+                "mean": 41.333333333333336,
+                "max": 42.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "row",
+          "trial": 2,
+          "devices": {
+            "0": {
+              "samples": 12,
+              "sampled_gpu_busy_percent": {
+                "min": 32.0,
+                "mean": 33.666666666666664,
+                "max": 34.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 12.0,
+                "mean": 14.5,
+                "max": 15.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 85.91,
+                "mean": 87.69166666666666,
+                "max": 88.83
+              },
+              "temperature_celsius": {
+                "min": 38.0,
+                "mean": 38.333333333333336,
+                "max": 39.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 13,
+              "sampled_gpu_busy_percent": {
+                "min": 55.0,
+                "mean": 79.61538461538461,
+                "max": 85.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 17.0,
+                "mean": 26.384615384615383,
+                "max": 29.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 88.75,
+                "mean": 150.70923076923077,
+                "max": 157.88
+              },
+              "temperature_celsius": {
+                "min": 40.0,
+                "mean": 41.76923076923077,
+                "max": 42.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "row",
+          "trial": 3,
+          "devices": {
+            "0": {
+              "samples": 12,
+              "sampled_gpu_busy_percent": {
+                "min": 25.0,
+                "mean": 33.25,
+                "max": 34.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 11.0,
+                "mean": 14.666666666666666,
+                "max": 15.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 86.57,
+                "mean": 87.57916666666667,
+                "max": 88.36
+              },
+              "temperature_celsius": {
+                "min": 38.0,
+                "mean": 38.0,
+                "max": 38.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 12,
+              "sampled_gpu_busy_percent": {
+                "min": 64.0,
+                "mean": 82.25,
+                "max": 84.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 20.0,
+                "mean": 27.333333333333332,
+                "max": 28.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 155.84,
+                "mean": 156.92000000000002,
+                "max": 157.66
+              },
+              "temperature_celsius": {
+                "min": 42.0,
+                "mean": 42.25,
+                "max": 43.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        {
+          "mode": "head",
+          "trial": 3,
+          "devices": {
+            "0": {
+              "samples": 9,
+              "sampled_gpu_busy_percent": {
+                "min": 41.0,
+                "mean": 72.88888888888889,
+                "max": 82.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 15.0,
+                "mean": 25.88888888888889,
+                "max": 29.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 4161.0,
+                "mean": 4161.0,
+                "max": 4161.0
+              },
+              "power_watts": {
+                "min": 141.61,
+                "mean": 142.08333333333334,
+                "max": 142.49
+              },
+              "temperature_celsius": {
+                "min": 39.0,
+                "mean": 39.666666666666664,
+                "max": 40.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            },
+            "1": {
+              "samples": 9,
+              "sampled_gpu_busy_percent": {
+                "min": 62.0,
+                "mean": 80.33333333333333,
+                "max": 86.0
+              },
+              "sampled_memory_controller_busy_percent": {
+                "min": 20.0,
+                "mean": 27.0,
+                "max": 29.0
+              },
+              "used_mib_both_operator_arms_resident": {
+                "min": 3721.0,
+                "mean": 3721.0,
+                "max": 3721.0
+              },
+              "power_watts": {
+                "min": 136.47,
+                "mean": 149.1588888888889,
+                "max": 152.48
+              },
+              "temperature_celsius": {
+                "min": 42.0,
+                "mean": 42.111111111111114,
+                "max": 43.0
+              },
+              "sm_clock_mhz": {
+                "min": 1380.0,
+                "mean": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "min": 877.0,
+                "mean": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "separate_profile": [
+    {
+      "name": "gdn_0_1x1_row",
+      "measured_blocks": 32,
+      "host_span_ms": 9.66412,
+      "kernels": 512,
+      "summed_kernel_ms_not_critical_path": 8.310136,
+      "process_activity_gap_ms_not_device_idle": 2.39537,
+      "per_device_kernel_union_ms": {
+        "0": 5.536888,
+        "1": 2.773248
+      },
+      "simultaneous_two_device_kernel_ms": 1.879266,
+      "transfers": {
+        "host_to_device": {
+          "count": 160,
+          "bytes": 1409024,
+          "nanoseconds": 672326
+        },
+        "device_to_host": {
+          "count": 128,
+          "bytes": 1409024,
+          "nanoseconds": 331905
+        }
+      },
+      "gates_launches": 32,
+      "kernel_attribution": [
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 3543124
+        },
+        {
+          "name": "void vdq::dot<(int)1, (int)2>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 1835626
+        },
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "count": 32,
+          "nanoseconds": 1049898
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 64,
+          "nanoseconds": 699621
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 466308
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 128,
+          "nanoseconds": 339233
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 32,
+          "nanoseconds": 122050
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 95808
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 32,
+          "nanoseconds": 89379
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 32,
+          "nanoseconds": 69089
+        }
+      ]
+    },
+    {
+      "name": "gdn_0_1x1_head",
+      "measured_blocks": 32,
+      "host_span_ms": 7.418124,
+      "kernels": 736,
+      "summed_kernel_ms_not_critical_path": 9.352113,
+      "process_activity_gap_ms_not_device_idle": 1.171835,
+      "per_device_kernel_union_ms": {
+        "0": 4.955889,
+        "1": 4.396224
+      },
+      "simultaneous_two_device_kernel_ms": 3.558263,
+      "transfers": {
+        "host_to_device": {
+          "count": 64,
+          "bytes": 983040,
+          "nanoseconds": 330625
+        },
+        "device_to_host": {
+          "count": 64,
+          "bytes": 983040,
+          "nanoseconds": 177248
+        }
+      },
+      "gates_launches": 64,
+      "kernel_attribution": [
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 3550034
+        },
+        {
+          "name": "void vct::partial<(int)1, (int)4, (bool)0>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 1735497
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 128,
+          "nanoseconds": 1395110
+        },
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "count": 64,
+          "nanoseconds": 1154181
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 452931
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 128,
+          "nanoseconds": 324961
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 64,
+          "nanoseconds": 231810
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 64,
+          "nanoseconds": 195425
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 64,
+          "nanoseconds": 178048
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 32,
+          "nanoseconds": 70402
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "count": 32,
+          "nanoseconds": 63714
+        }
+      ]
+    },
+    {
+      "name": "gdn_0_1x3_row",
+      "measured_blocks": 32,
+      "host_span_ms": 12.712734,
+      "kernels": 544,
+      "summed_kernel_ms_not_critical_path": 11.245904,
+      "process_activity_gap_ms_not_device_idle": 2.470918,
+      "per_device_kernel_union_ms": {
+        "0": 7.759184,
+        "1": 3.48672
+      },
+      "simultaneous_two_device_kernel_ms": 2.209443,
+      "transfers": {
+        "host_to_device": {
+          "count": 160,
+          "bytes": 4227072,
+          "nanoseconds": 1066854
+        },
+        "device_to_host": {
+          "count": 128,
+          "bytes": 4227072,
+          "nanoseconds": 495523
+        }
+      },
+      "gates_launches": 32,
+      "kernel_attribution": [
+        {
+          "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 4696949
+        },
+        {
+          "name": "void <unnamed>::gdn_prefix<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float, float *, float *, int)",
+          "count": 32,
+          "nanoseconds": 2382586
+        },
+        {
+          "name": "void vdt::dot<(int)4, (int)2, (int)8>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 2065584
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 64,
+          "nanoseconds": 734502
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 441447
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 128,
+          "nanoseconds": 369152
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 32,
+          "nanoseconds": 174497
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 124929
+        },
+        {
+          "name": "void <unnamed>::history_prefix<__half>(const T1 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 32,
+          "nanoseconds": 96929
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 32,
+          "nanoseconds": 88000
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 32,
+          "nanoseconds": 71329
+        }
+      ]
+    },
+    {
+      "name": "gdn_0_1x3_head",
+      "measured_blocks": 32,
+      "host_span_ms": 9.653817,
+      "kernels": 800,
+      "summed_kernel_ms_not_critical_path": 12.662973,
+      "process_activity_gap_ms_not_device_idle": 1.321583,
+      "per_device_kernel_union_ms": {
+        "0": 6.596829,
+        "1": 6.066144
+      },
+      "simultaneous_two_device_kernel_ms": 5.061811,
+      "transfers": {
+        "host_to_device": {
+          "count": 64,
+          "bytes": 2949120,
+          "nanoseconds": 573636
+        },
+        "device_to_host": {
+          "count": 64,
+          "bytes": 2949120,
+          "nanoseconds": 294753
+        }
+      },
+      "gates_launches": 64,
+      "kernel_attribution": [
+        {
+          "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 4691065
+        },
+        {
+          "name": "void <unnamed>::gdn_prefix<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float, float *, float *, int)",
+          "count": 64,
+          "nanoseconds": 2518672
+        },
+        {
+          "name": "void vct::partial<(int)4, (int)8, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 2213511
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 128,
+          "nanoseconds": 1388389
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 453155
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 64,
+          "nanoseconds": 347394
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 128,
+          "nanoseconds": 334112
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 64,
+          "nanoseconds": 207554
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 64,
+          "nanoseconds": 187232
+        },
+        {
+          "name": "void <unnamed>::history_prefix<__half>(const T1 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 64,
+          "nanoseconds": 177633
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "count": 32,
+          "nanoseconds": 72736
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 32,
+          "nanoseconds": 71520
+        }
+      ]
+    },
+    {
+      "name": "gdn_0_8x1_row",
+      "measured_blocks": 32,
+      "host_span_ms": 24.415043,
+      "kernels": 960,
+      "summed_kernel_ms_not_critical_path": 22.636902,
+      "process_activity_gap_ms_not_device_idle": 3.450551,
+      "per_device_kernel_union_ms": {
+        "0": 16.823271,
+        "1": 5.813631
+      },
+      "simultaneous_two_device_kernel_ms": 3.916514,
+      "transfers": {
+        "host_to_device": {
+          "count": 160,
+          "bytes": 11272192,
+          "nanoseconds": 2009291
+        },
+        "device_to_host": {
+          "count": 128,
+          "bytes": 11272192,
+          "nanoseconds": 1022565
+        }
+      },
+      "gates_launches": 32,
+      "kernel_attribution": [
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "count": 256,
+          "nanoseconds": 8441553
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 8048038
+        },
+        {
+          "name": "void vdt::dot<(int)8, (int)2, (int)16>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 3129104
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 256,
+          "nanoseconds": 1014668
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 64,
+          "nanoseconds": 837035
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 456645
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 128,
+          "nanoseconds": 412738
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 128993
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 32,
+          "nanoseconds": 87520
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 32,
+          "nanoseconds": 80608
+        }
+      ]
+    },
+    {
+      "name": "gdn_0_8x1_head",
+      "measured_blocks": 32,
+      "host_span_ms": 17.821728,
+      "kernels": 1632,
+      "summed_kernel_ms_not_critical_path": 25.274778,
+      "process_activity_gap_ms_not_device_idle": 1.5939,
+      "per_device_kernel_union_ms": {
+        "0": 12.876315,
+        "1": 12.398463
+      },
+      "simultaneous_two_device_kernel_ms": 10.735423,
+      "transfers": {
+        "host_to_device": {
+          "count": 64,
+          "bytes": 7864320,
+          "nanoseconds": 1250890
+        },
+        "device_to_host": {
+          "count": 64,
+          "bytes": 7864320,
+          "nanoseconds": 729571
+        }
+      },
+      "gates_launches": 64,
+      "kernel_attribution": [
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "count": 512,
+          "nanoseconds": 9260463
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 8027748
+        },
+        {
+          "name": "void vct::partial<(int)8, (int)16, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 3213743
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 512,
+          "nanoseconds": 1893927
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 128,
+          "nanoseconds": 1479334
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 454725
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 128,
+          "nanoseconds": 381345
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 64,
+          "nanoseconds": 227106
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 64,
+          "nanoseconds": 178595
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "count": 32,
+          "nanoseconds": 78944
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 32,
+          "nanoseconds": 78848
+        }
+      ]
+    }
+  ],
+  "achieved_hardware_counters": null,
+  "hardware_counter_policy": "RmProfilingAdminOnly: 1, unchanged; no repeated counter campaign",
+  "reused_exact_cuda_library_resources": {
+    "path": "benchmarks/v100-mtp-draft-residual/v100/profile-v4/resources.json",
+    "sha256": "e9d33b5f0702a439937b8c1daca5638ca302ee626013106e70ee5c27df7c7e24",
+    "scope": "Compiled/static resources only, not achieved occupancy; actual grids/registers/shared sizes in current attribution.json"
+  },
+  "initial_positive_pilot_superseded": "trained-v5 used per-sequence gates in both arms; corrected trained-v8 matches production batched gates; both preserved",
+  "raw_report_signature_label_note": "Raw final_state_signature is the state after the initial one-block correctness run, not the timed 2000-block final state. Equal timed-final canonical state/history bytes are asserted separately by validate() after the last trial.",
+  "correctness_scope": "9 focused two-GPU tests, trained layer0/62 blocks with 20 independent sequence references and exact row/head pre-output states; not a new 98-row model teacher or end-to-end MTP qualification"
+}

@@ -1,0 +1,98 @@
+{
+  "scope": "Separate native TP scalar/cohort timeline; never throughput evidence.\n\nBatch has one native_unsplit C-call range for eight logical requests. Scalar has\neight native_unsplit submitting-thread ranges. Do not equate range/request count.\n",
+  "profiled": true,
+  "logical_requests": 8,
+  "projection_profile": "q8-residual",
+  "projection_rows": 256,
+  "mode": "batch",
+  "batch_info": {
+    "slot_count": 8,
+    "shared_batch_workspace_device_bytes": 197257952,
+    "all_request_device_bytes": 2938265344,
+    "model_device_bytes": 15132735616,
+    "peer_model_device_bytes": 13681639424,
+    "shared_model_pinned_host_bytes": 80871424,
+    "group_forward_calls": 8,
+    "input_rows": 240,
+    "decode_group_calls": 7,
+    "prefill_group_calls": 1,
+    "head_calls": 8,
+    "head_rows": 64,
+    "max_group_rows": 184,
+    "peer_input_copy_bytes": 2077491200,
+    "peer_output_copy_bytes": 1903493120,
+    "requests": [
+      {
+        "position": 30,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.2499685649527237,
+        "native_generation_seconds": 1.8659240459674038
+      },
+      {
+        "position": 30,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.2499685649527237,
+        "native_generation_seconds": 1.8659241779823788
+      },
+      {
+        "position": 30,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.2499685649527237,
+        "native_generation_seconds": 1.8659242109861225
+      },
+      {
+        "position": 30,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.2499685649527237,
+        "native_generation_seconds": 1.8659242459689267
+      },
+      {
+        "position": 30,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.2499685649527237,
+        "native_generation_seconds": 1.8659242799622007
+      },
+      {
+        "position": 30,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.2499685649527237,
+        "native_generation_seconds": 1.8659243480069563
+      },
+      {
+        "position": 30,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.2499685649527237,
+        "native_generation_seconds": 1.8659243820002303
+      },
+      {
+        "position": 30,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.2499685649527237,
+        "native_generation_seconds": 1.865924415003974
+      }
+    ],
+    "projection_profile": "q8-residual",
+    "activation_quantization_passes": 2,
+    "primary_projection_workspace_bytes": 10027008,
+    "peer_projection_workspace_bytes": 10027008,
+    "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic.",
+    "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+  },
+  "native_call_ranges": 1
+}

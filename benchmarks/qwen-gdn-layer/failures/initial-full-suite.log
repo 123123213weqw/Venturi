@@ -1,0 +1,50 @@
+Synced source files: 143
+/home/test/wangyue/venturi-work/qwen/own-blocks-build/afd14a02433a8f9c/libventuri_blocks.so
+........................................................................ [  9%]
+........................................................................ [ 18%]
+.................................sssssss................................ [ 27%]
+........................................................................ [ 36%]
+..................................ssss.................................. [ 45%]
+........................................................................ [ 54%]
+....................................sss................................. [ 63%]
+........................................................................ [ 72%]
+.............................................FF...F...................ss [ 81%]
+sssss..............................s.................................... [ 91%]
+.......................................................................  [100%]
+=================================== FAILURES ===================================
+_____ test_complete_layer_independent_oracle_and_chunk_state[cpu-bf16-9-4] _____
+tests/test_qwen_gdn_layer.py:182: in test_complete_layer_independent_oracle_and_chunk_state
+    torch.testing.assert_close(
+E   AssertionError: Tensor-likes are not equal!
+E   
+E   Mismatched elements: 199 / 3328 (6.0%)
+E   Greatest absolute difference: 3.725290298461914e-09 at index (1, 5, 18)
+E   Greatest relative difference: 9.79144242592156e-05 at index (1, 2, 55)
+_____ test_complete_layer_independent_oracle_and_chunk_state[cpu-bf16-9-6] _____
+tests/test_qwen_gdn_layer.py:181: in test_complete_layer_independent_oracle_and_chunk_state
+    torch.testing.assert_close(torch.cat(parts), output, atol=tolerance, rtol=tolerance)
+E   AssertionError: Tensor-likes are not equal!
+E   
+E   Mismatched elements: 9 / 288 (3.1%)
+E   Greatest absolute difference: 0.00390625 at index (3, 3)
+E   Greatest relative difference: 0.25 at index (4, 0)
+_______ test_complete_layer_independent_oracle_and_chunk_state[cuda-9-6] _______
+tests/test_qwen_gdn_layer.py:133: in test_complete_layer_independent_oracle_and_chunk_state
+    qualified(output, expected, dtype, floor=2e-4)
+tests/test_qwen_gdn_layer.py:92: in qualified
+    assert bool(
+E   AssertionError: (0.00390625, 3.921875)
+E   assert False
+E    +  where False = bool(tensor(False))
+E    +    where tensor(False) = <built-in method all of Tensor object at 0x7ca1bfe25ea0>()
+E    +      where <built-in method all of Tensor object at 0x7ca1bfe25ea0> = tensor([[0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000,\n         0.0000, 0.0000, 0.0000, 0.00...0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000,\n         0.0000, 0.0000, 0.0000, 0.0000, 0.0000]], dtype=torch.float64) <= (((2 * 0.0078125) * tensor([[8.1250e-01, 2.1094e-01, 6.0938e-01, 3.3789e-01, 2.0117e-01, 9.1797e-01,\n         4.6484e-01, 1.6719e+00, 7.89...1, 8.1055e-02, 1.7285e-01, 5.6250e-01, 6.0938e-01, 9.4531e-01,\n         9.2969e-01, 5.3906e-01]], dtype=torch.bfloat16)) + 0.0002).all
+E    +        where 0.0078125 = finfo(resolution=0.01, min=-3.38953e+38, max=3.38953e+38, eps=0.0078125, smallest_normal=1.17549e-38, tiny=1.17549e-38, dtype=bfloat16).eps
+E    +          where finfo(resolution=0.01, min=-3.38953e+38, max=3.38953e+38, eps=0.0078125, smallest_normal=1.17549e-38, tiny=1.17549e-38, dtype=bfloat16) = <class 'torch.finfo'>(torch.bfloat16)
+E    +            where <class 'torch.finfo'> = torch.finfo
+E    +        and   tensor([[8.1250e-01, 2.1094e-01, 6.0938e-01, 3.3789e-01, 2.0117e-01, 9.1797e-01,\n         4.6484e-01, 1.6719e+00, 7.89...1, 8.1055e-02, 1.7285e-01, 5.6250e-01, 6.0938e-01, 9.4531e-01,\n         9.2969e-01, 5.3906e-01]], dtype=torch.bfloat16) = <built-in method abs of Tensor object at 0x7ca1bfe683c0>()
+E    +          where <built-in method abs of Tensor object at 0x7ca1bfe683c0> = tensor([[-8.1250e-01,  2.1094e-01, -6.0938e-01, -3.3789e-01,  2.0117e-01,\n         -9.1797e-01, -4.6484e-01,  1.6719e+...055e-02, -1.7285e-01,  5.6250e-01,  6.0938e-01, -9.4531e-01,\n          9.2969e-01,  5.3906e-01]], dtype=torch.bfloat16).abs
+=========================== short test summary info ============================
+FAILED tests/test_qwen_gdn_layer.py::test_complete_layer_independent_oracle_and_chunk_state[cpu-bf16-9-4]
+FAILED tests/test_qwen_gdn_layer.py::test_complete_layer_independent_oracle_and_chunk_state[cpu-bf16-9-6]
+FAILED tests/test_qwen_gdn_layer.py::test_complete_layer_independent_oracle_and_chunk_state[cuda-9-6]
+3 failed, 766 passed, 22 skipped in 28.58s

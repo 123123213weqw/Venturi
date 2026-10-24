@@ -1,0 +1,14 @@
+[
+  "/usr/local/cuda/bin/nvcc",
+  "-O3",
+  "-std=c++20",
+  "-lineinfo",
+  "-shared",
+  "--cudart=static",
+  "-Xcompiler=-fPIC",
+  "-gencode=arch=compute_70,code=sm_70",
+  "-gencode=arch=compute_70,code=compute_70",
+  "/home/data/wangyue/repos/codex-build/Venturi/dp2a-pilot-src-v1/tools/projection/dp2a_pilot.cu",
+  "-o",
+  "/home/data/wangyue/artifacts/venturi-dp2a-pilot-fixtures-v1/libventuri_dp2a_pilot.so"
+]

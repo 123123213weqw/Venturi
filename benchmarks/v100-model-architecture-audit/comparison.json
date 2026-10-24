@@ -1,0 +1,98 @@
+{
+  "scope": "Text target backbone and MTP geometry only. Not weight identity, tokenizer-content identity, vision-projector equivalence, or bitwise runtime equivalence. Production untouched.",
+  "same_text_architecture": true,
+  "production_gguf_architecture": "qwen35",
+  "native_model_type": "qwen3_5_text",
+  "checks": {
+    "target_layers": {
+      "production": 64,
+      "native": 64,
+      "equal": true
+    },
+    "mtp_layers": {
+      "production": 1,
+      "native": 1,
+      "equal": true
+    },
+    "hidden_size": {
+      "production": 5120,
+      "native": 5120,
+      "equal": true
+    },
+    "intermediate_size": {
+      "production": 17408,
+      "native": 17408,
+      "equal": true
+    },
+    "attention_heads": {
+      "production": 24,
+      "native": 24,
+      "equal": true
+    },
+    "kv_heads": {
+      "production": 4,
+      "native": 4,
+      "equal": true
+    },
+    "head_dim": {
+      "production": 256,
+      "native": 256,
+      "equal": true
+    },
+    "full_attention_interval": {
+      "production": 4,
+      "native": 4,
+      "equal": true
+    },
+    "conv_kernel": {
+      "production": 4,
+      "native": 4,
+      "equal": true
+    },
+    "linear_key_head_dim": {
+      "production": 128,
+      "native": 128,
+      "equal": true
+    },
+    "linear_key_heads": {
+      "production": 16,
+      "native": 16,
+      "equal": true
+    },
+    "linear_value_heads": {
+      "production": 48,
+      "native": 48,
+      "equal": true
+    },
+    "linear_inner_size": {
+      "production": 6144,
+      "native": 6144,
+      "equal": true
+    },
+    "rotary_dims": {
+      "production": 64,
+      "native": 64,
+      "equal": true
+    },
+    "rope_theta": {
+      "production": 10000000.0,
+      "native": 10000000,
+      "equal": true
+    },
+    "vocab_size": {
+      "production": 248320,
+      "native": 248320,
+      "equal": true
+    },
+    "max_context": {
+      "production": 262144,
+      "native": 262144,
+      "equal": true
+    }
+  },
+  "matching_target_layer_schedule": {
+    "linear_attention": 48,
+    "full_attention": 16
+  },
+  "gguf_extra_block": "GGUF block_count 65 includes one nextn/MTP block. Native target has 64 layers and its MTP weights are a separate artifact."
+}

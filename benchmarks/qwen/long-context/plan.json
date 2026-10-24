@@ -1,0 +1,32 @@
+{
+  "args": {
+    "checkpoint": "/dev/shm/venturi-test/venturi-ninfer-d3ae5782742a48c8b058196297a7ddff-f730fa10d9cd5d08/qwen3_8_27b.ninfer",
+    "runner": "/home/test/wangyue/venturi-work/qwen/native/venturi-qwen-runner",
+    "output_dir": "/home/test/wangyue/venturi-work/qwen/long-context",
+    "lengths": [
+      2048,
+      16384,
+      65536,
+      131072,
+      262144
+    ],
+    "seeds": [
+      17,
+      43
+    ],
+    "bf16_limit": 65536,
+    "prefill_chunk": 512,
+    "timeout": 1800
+  },
+  "artifact_id": "d3ae5782742a48c8b058196297a7ddff",
+  "runner_sha256": "112400ecb730d8ab7badd105d84c147d16140b43c15bdb72d6577b6b54091e91",
+  "cases": [],
+  "notes": [
+    "Context capacity includes prompt and output; raw prompt is <= capacity-256, output budget 128, chat template overhead checked by native runner.",
+    "Ordinary greedy generation, default EOS respected, speculative off, prefix reuse off, no research flags inherited.",
+    "Two seeded synthetic registries; three distinct-position facts plus one absent-key check per document. Not LongBench, general quality qualification or an independent FP32 oracle.",
+    "First long request may include lazy graph capture. Timing is observed quality-test latency, not a warmed throughput benchmark.",
+    "BF16 above the explicit comparison limit is not run; high-context K8V4 has exact string ground truth but no BF16 reference.",
+    "NVML peak is sampled whole-device VRAM, including desktop/context, not exact per-process peak."
+  ]
+}

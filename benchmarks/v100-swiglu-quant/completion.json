@@ -1,0 +1,146 @@
+{
+  "stage": "Correctness and isolated V100 operator performance tested; standalone fusion prototype retained. Native integration/full-model gate pending.",
+  "production_deployed": false,
+  "default_enabled": false,
+  "native_model_integrated": false,
+  "full_model_tps_measured": false,
+  "precision_changed": false,
+  "two_pass_residual_a8_retained": true,
+  "correctness_checks_passed": 122,
+  "scope": "SwiGLU plus two-pass activation quantization, then same pinned Down projection; synthetic hidden inputs with production Qwen3.8 Q8_0 weight slices. Not API concurrency or full-model TPS.",
+  "retained_variants": [
+    "fused-128",
+    "fused-256"
+  ],
+  "integration_candidate": "fused-256",
+  "operator_gates": {
+    "fused-128": {
+      "predeclared_operator_gate_passed": true,
+      "results": {
+        "screen": {
+          "producer": {
+            "median": 0.32712882968104595,
+            "min": 0.26303932308292144,
+            "max": 0.35362856386866204
+          },
+          "producer+down": {
+            "median": 0.022946128233718555,
+            "min": 0.010584613050972913,
+            "max": 0.03001227053607014
+          },
+          "mlp-shard": {
+            "median": 0.007752056424446985,
+            "min": 0.0020840149866822033,
+            "max": 0.011058964479577993
+          }
+        },
+        "confirm": {
+          "producer": {
+            "median": 0.33728157582991075,
+            "min": 0.32396609972712154,
+            "max": 0.35059705193269997
+          },
+          "producer+down": {
+            "median": 0.024025725099785844,
+            "min": 0.02019020096753399,
+            "max": 0.0278612492320377
+          },
+          "mlp-shard": {
+            "median": 0.010587108329123296,
+            "min": 0.008406217404823946,
+            "max": 0.012767999253422646
+          }
+        }
+      }
+    },
+    "fused-256": {
+      "predeclared_operator_gate_passed": true,
+      "results": {
+        "screen": {
+          "producer": {
+            "median": 0.3366468336727941,
+            "min": 0.26228842306801003,
+            "max": 0.3679252646888369
+          },
+          "producer+down": {
+            "median": 0.022687732053653487,
+            "min": 0.007020747388266857,
+            "max": 0.026536472481541784
+          },
+          "mlp-shard": {
+            "median": 0.009207231021405415,
+            "min": 0.0007348837855171153,
+            "max": 0.012569764757394464
+          }
+        },
+        "confirm": {
+          "producer": {
+            "median": 0.35358212964132896,
+            "min": 0.35356461034747877,
+            "max": 0.35359964893517914
+          },
+          "producer+down": {
+            "median": 0.023009788343895443,
+            "min": 0.019282687766390416,
+            "max": 0.02673688892140047
+          },
+          "mlp-shard": {
+            "median": 0.011025446043094966,
+            "min": 0.009342974134536997,
+            "max": 0.012707917951652936
+          }
+        }
+      }
+    }
+  },
+  "canonical_attempt": "v2; timed arms share intermediate, packed workspace and Down output addresses",
+  "prototype": "tools/projection/swiglu_quant_probe.cu",
+  "harness": "tools/projection/benchmark_swiglu_quant.py",
+  "tests": "tests/test_swiglu_quant.py",
+  "compiled_library": "/home/data/wangyue/artifacts/venturi-swiglu-quant-v1/libswiglu_quant_probe.so",
+  "library_sha256": "0af998f735c11b8ba81f74ce32af64ff002c2a71a82d8b8db6029cab864c57eb",
+  "control_library_sha256": "d569f3fb9f11598b8fd4c70263bd7948e4d43e5620441c48fcd8b038bcc71284",
+  "local_matches_executed_source_files": 313,
+  "production_after": {
+    "container_id": "fc9e37261f26c3127d5b65080b392ddeda97ba293dfd5573519354222328d70d",
+    "status": "running",
+    "health": "healthy",
+    "started_at": "2026-10-21T06:07:14.516526843Z",
+    "restart_count": 0,
+    "canonical_config_fingerprint": "d5de4a5f11bd9b37624887cf472415ad3939f94366429d97846a0cdf05e579e0",
+    "health_api": {
+      "status": "ok"
+    },
+    "counter_policy": [
+      "RmProfilingAdminOnly: 1"
+    ],
+    "gpu": [
+      "0, GPU-18fbf081-3c6d-d65b-11b8-288a4ce1ab28, 26839 MiB, 0 %, 45.07 W, 1372 MHz, 877 MHz, 40",
+      "1, GPU-f65db2e8-87bb-c88d-363f-23c79f793548, 28915 MiB, 0 %, 36.17 W, 1230 MHz, 877 MHz, 32"
+    ],
+    "unix": 1792596324.621108
+  },
+  "client_health": {
+    "url": "http://127.0.0.1:8001/health",
+    "status": 200,
+    "body": {
+      "status": "ok"
+    },
+    "seconds": 1.1355719566345215,
+    "unix": 1792596777.156249
+  },
+  "limitations": [
+    "Producer fusion also specializes fixed two-pass quantization; not all gain can be attributed solely to removing a launch.",
+    "F16 rounding and both A8 passes preserved. Invalid-group scale bytes remain canonical; debug NaN payloads are not a public contract.",
+    "All Down kernels are pinned and identical across arms. Same timed workspace/intermediate/output addresses in v2.",
+    "FP16 intermediate removed from the fast producer path: theoretical 4 bytes/element of writes plus reads avoided, not necessarily DRAM traffic.",
+    "NCU data is separate from normal timings. XU/ALU pipe metrics are partial instruction-pipe diagnostics, not total compute utilization.",
+    "No default/native model integration or production deployment. Full-model/native integration correctness and serving speed remain untested.",
+    "Separate baseline measured out-of-place; native in-place producer timing not tested.",
+    "CPU process timing includes synchronization/spin waits; graph-node savings do not measure Python kernel-launch overhead.",
+    "NCU ALU/XU and issue activity are partial diagnostics; no total SM compute/FLOP throughput metric collected.",
+    "The legacy whole-model llama.cpp comparison goal is not achieved or closed by this operator experiment."
+  ],
+  "git_head_for_context": "fc972990c036dd32e8d4ef86ac40b729af629477",
+  "working_tree": "Extensive preexisting dirty/untracked files preserved; no commit/push, production stop/restart or deployment."
+}

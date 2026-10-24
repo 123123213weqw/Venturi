@@ -1,0 +1,71 @@
+{
+  "scope": "Native OFF/ON SwiGLU + residual-A8 producer dispatch on SM70.\n\nMeasures producer, producer+Down, and a single TP-rank MLP projection chain.\nUses production Qwen3.8 Q8_0 weights and synthetic F16 hidden inputs; not actual\nfull-model activations or serving TPS. No production/default dispatch changes.\nSwiGLU is out-of-place for the repeated separate baseline; input tensors are\nnot silently modified between replays. All arms share pinned projection kernels.\n",
+  "args": {
+    "gguf": "/home/wzu/models/Qwen3.8-27B-Uncensored-GGUF/Qwen3.8-27B-Uncensored-Q8_0.gguf",
+    "library": "/home/data/wangyue/artifacts/venturi-producer-fusion-native-v1/build/0765d1f981a26bfa/libventuri_blocks.so",
+    "control_library": "/home/data/wangyue/artifacts/venturi-producer-fusion-native-v1/build/2abf99fc86d5c0c8/libventuri_blocks.so",
+    "output_directory": "/home/data/wangyue/artifacts/venturi-producer-fusion-native-v1/operators/profile-native-native-on",
+    "tokens": "8",
+    "layers": "0",
+    "repeats": 7,
+    "profile_arm": "native-on"
+  },
+  "utc": "2026-10-22T05:19:28.635113+00:00",
+  "completed": true,
+  "profiled": true,
+  "cases": [
+    {
+      "layer": 0,
+      "tokens": 8,
+      "hidden": 5120,
+      "intermediate_per_rank": 8704,
+      "down_rows": 5120,
+      "weight_pins": [
+        {
+          "codes_sha256": "c8e25a0915540ed5ce482904b50c13c356ffeeab796406008ff9d2637f379353",
+          "scales_sha256": "48a72c63f970bd73a428e8cdb109f357c50d922e1cdcccbd781bff15bba1016a"
+        },
+        {
+          "codes_sha256": "458a432707402da22fba056cf3ce48fd9536595a5bee94fff54316e4ed932eac",
+          "scales_sha256": "dda5d75fbd45392a39acea9baf30bc1d4fe22e69248b43ac17fc66397e3fe747"
+        },
+        {
+          "codes_sha256": "36ae77d1ade46b016fd75e59d9b473ef156b3f7f87f954915d8374ab666cf474",
+          "scales_sha256": "5108cd6bc7d1a8170f696e23f516d64cc81684e3a085daa59559c247039dafdb"
+        }
+      ],
+      "complete_workspace_bytes_equal": true,
+      "complete_down_bytes_equal": true,
+      "materialized_f16_bytes_equal": true,
+      "sampled_independent_fp64_down_relative_l2": 9.993995655303626e-08,
+      "timed_arms_share_intermediate_workspace_and_down_output_addresses": true,
+      "waves": [],
+      "torch_reserved_bytes": 161480704,
+      "torch_allocated_bytes": 143421440
+    }
+  ],
+  "precision": "Same Q8 codes/F16 weight scales; stable SwiGLU rounded to F16; group32 TWO-pass residual A8, F32 activation scales/Down partial outputs. No single-A8 arithmetic.",
+  "device_uuid": "18fbf081-3c6d-d65b-11b8-288a4ce1ab28",
+  "gguf": {
+    "path": "/home/wzu/models/Qwen3.8-27B-Uncensored-GGUF/Qwen3.8-27B-Uncensored-Q8_0.gguf",
+    "size": 29047084448,
+    "mtime_ns": 1787148105067877936,
+    "architecture": "qwen35"
+  },
+  "library_sha256": "2297cdf759b15de8be588d12ab9e3368a63efc55c9ea7839e2d730a004485de6",
+  "control_library_sha256": "365adff5e04c15364e8ea8574ccb57fc803b9becbbe9672dfbadad7d39116d9c",
+  "kernels_per_logical_call": {
+    "producer": {
+      "native-off": 2,
+      "native-on": 1
+    },
+    "producer+down": {
+      "native-off": 3,
+      "native-on": 2
+    },
+    "mlp-shard": {
+      "native-off": 5,
+      "native-on": 4
+    }
+  }
+}

@@ -1,0 +1,1111 @@
+{
+  "scope": "Research RMSNorm/two-pass A8 fusion; real Qwen3.8 gate/up slices, synthetic inputs and norm weights.\n\nProducer and producer+gate/up only. Not native integration, full-model or API TPS.\nAll timed arms share exact workspace/output addresses and pinned projection kernels.\n",
+  "completed": true,
+  "profiled": false,
+  "args": {
+    "gguf": "/home/wzu/models/Qwen3.8-27B-Uncensored-GGUF/Qwen3.8-27B-Uncensored-Q8_0.gguf",
+    "library": "/home/data/wangyue/artifacts/venturi-producer-fusion-native-v1/operators/librms_quant_probe.so",
+    "control_library": "/home/data/wangyue/artifacts/venturi-producer-fusion-native-v1/build/2abf99fc86d5c0c8/libventuri_blocks.so",
+    "output_directory": "/home/data/wangyue/artifacts/venturi-producer-fusion-native-v1/operators/rms-confirm",
+    "tokens": "1,8",
+    "layers": "0",
+    "repeats": 7,
+    "profile_arm": null
+  },
+  "cases": [
+    {
+      "layer": 0,
+      "tokens": 1,
+      "k": 5120,
+      "n": 8704,
+      "synthetic_effective_norm_weights": true,
+      "weight_pins": [
+        {
+          "codes": "c8e25a0915540ed5ce482904b50c13c356ffeeab796406008ff9d2637f379353",
+          "scales": "48a72c63f970bd73a428e8cdb109f357c50d922e1cdcccbd781bff15bba1016a"
+        },
+        {
+          "codes": "458a432707402da22fba056cf3ce48fd9536595a5bee94fff54316e4ed932eac",
+          "scales": "dda5d75fbd45392a39acea9baf30bc1d4fe22e69248b43ac17fc66397e3fe747"
+        }
+      ],
+      "full_workspace_bytes_equal": true,
+      "full_projection_bytes_equal": true,
+      "full_f16_intermediate_bytes_equal": true,
+      "timed_arms_share_addresses": true,
+      "waves": [
+        {
+          "scope": "producer",
+          "arm": "separate",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.013066879510879516,
+          "wall_seconds": 0.0013825950009049848,
+          "process_cpu_seconds": 0.0013811060000001874
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk8",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.004239360094070435,
+          "wall_seconds": 0.00046292099978018086,
+          "process_cpu_seconds": 0.00046370000000006684
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk32",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.00647167980670929,
+          "wall_seconds": 0.000678921000144328,
+          "process_cpu_seconds": 0.0006794820000002311
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk128",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.016087039709091186,
+          "wall_seconds": 0.0016396699993492803,
+          "process_cpu_seconds": 0.0016403629999999225
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk128",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.016250879764556886,
+          "wall_seconds": 0.0016701109998393804,
+          "process_cpu_seconds": 0.001670041000000122
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk32",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.00634880006313324,
+          "wall_seconds": 0.0006722210000589257,
+          "process_cpu_seconds": 0.0006729839999999321
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk8",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.004116480052471161,
+          "wall_seconds": 0.000443639000877738,
+          "process_cpu_seconds": 0.00044389199999983475
+        },
+        {
+          "scope": "producer",
+          "arm": "separate",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.012677119970321655,
+          "wall_seconds": 0.001298873999985517,
+          "process_cpu_seconds": 0.001299663000000173
+        },
+        {
+          "scope": "producer",
+          "arm": "separate",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.01294335961341858,
+          "wall_seconds": 0.0013472280006681103,
+          "process_cpu_seconds": 0.0013473460000001936
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk8",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.004116480052471161,
+          "wall_seconds": 0.000443524000729667,
+          "process_cpu_seconds": 0.0004438509999999951
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk32",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0062259197235107425,
+          "wall_seconds": 0.0006519189992104657,
+          "process_cpu_seconds": 0.0006526920000000658
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk128",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.016087039709091186,
+          "wall_seconds": 0.0016405999995185994,
+          "process_cpu_seconds": 0.0016413439999998225
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk128",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.016844799518585207,
+          "wall_seconds": 0.0017722859993227758,
+          "process_cpu_seconds": 0.0017712220000003498
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk32",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.006399999856948852,
+          "wall_seconds": 0.0006751309992978349,
+          "process_cpu_seconds": 0.0006753200000000348
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk8",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.004095999896526337,
+          "wall_seconds": 0.0004381929993542144,
+          "process_cpu_seconds": 0.00043842800000026827
+        },
+        {
+          "scope": "producer",
+          "arm": "separate",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.01269760012626648,
+          "wall_seconds": 0.0012998469992453465,
+          "process_cpu_seconds": 0.0013000640000000452
+        },
+        {
+          "scope": "producer",
+          "arm": "separate",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.012912640571594238,
+          "wall_seconds": 0.0013475930009008152,
+          "process_cpu_seconds": 0.0013476510000001163
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk8",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.004239360094070435,
+          "wall_seconds": 0.00046418300007644575,
+          "process_cpu_seconds": 0.00046464400000001405
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk32",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0062566399574279785,
+          "wall_seconds": 0.0006557520009664586,
+          "process_cpu_seconds": 0.0006562670000000992
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk128",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.016148480176925658,
+          "wall_seconds": 0.0016497209999215556,
+          "process_cpu_seconds": 0.0016505239999999866
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk128",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.01627135992050171,
+          "wall_seconds": 0.001676513000347768,
+          "process_cpu_seconds": 0.0016763770000003397
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk32",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.006266880035400391,
+          "wall_seconds": 0.0006554829997185152,
+          "process_cpu_seconds": 0.0006558450000002658
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk8",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.004075520038604737,
+          "wall_seconds": 0.0004354979992058361,
+          "process_cpu_seconds": 0.00043951300000033555
+        },
+        {
+          "scope": "producer",
+          "arm": "separate",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.012687360048294067,
+          "wall_seconds": 0.0012972280001122272,
+          "process_cpu_seconds": 0.0012974880000000688
+        },
+        {
+          "scope": "producer",
+          "arm": "separate",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.01287168025970459,
+          "wall_seconds": 0.003589554000427597,
+          "process_cpu_seconds": 0.003590094999999849
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk8",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.004986880123615265,
+          "wall_seconds": 0.0005633500004478265,
+          "process_cpu_seconds": 0.000563569000000097
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk32",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.00634880006313324,
+          "wall_seconds": 0.0006807369991292944,
+          "process_cpu_seconds": 0.0006814710000000446
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk128",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.016087039709091186,
+          "wall_seconds": 0.0016410520001954865,
+          "process_cpu_seconds": 0.0016417100000003515
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "separate",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.13260479927062988,
+          "wall_seconds": 0.013320084000952193,
+          "process_cpu_seconds": 0.013319269000000133
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk8",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11714559555053711,
+          "wall_seconds": 0.01174624699888227,
+          "process_cpu_seconds": 0.01182319399999976
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk32",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11996159553527833,
+          "wall_seconds": 0.012026865000734688,
+          "process_cpu_seconds": 0.012027263000000232
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk128",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.13155327796936034,
+          "wall_seconds": 0.013184445999286254,
+          "process_cpu_seconds": 0.013184724000000259
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk128",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1316761589050293,
+          "wall_seconds": 0.013212611998824286,
+          "process_cpu_seconds": 0.01321246300000034
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk32",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11961343765258789,
+          "wall_seconds": 0.01199182600066706,
+          "process_cpu_seconds": 0.011992411999999675
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk8",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11678720474243164,
+          "wall_seconds": 0.011710853999829851,
+          "process_cpu_seconds": 0.011711601000000016
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "separate",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.13201408386230468,
+          "wall_seconds": 0.013235106998763513,
+          "process_cpu_seconds": 0.013235756000000265
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "separate",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.131911678314209,
+          "wall_seconds": 0.01324016299986397,
+          "process_cpu_seconds": 0.013240205999999866
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk8",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11691007614135743,
+          "wall_seconds": 0.011772032999942894,
+          "process_cpu_seconds": 0.011834669999999825
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk32",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11961343765258789,
+          "wall_seconds": 0.012009857999146334,
+          "process_cpu_seconds": 0.012010534999999933
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk128",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.13054976463317872,
+          "wall_seconds": 0.013093089000904001,
+          "process_cpu_seconds": 0.014646818000000117
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk128",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.13075455665588379,
+          "wall_seconds": 0.013133119000485749,
+          "process_cpu_seconds": 0.013132306999999344
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk32",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11895808219909668,
+          "wall_seconds": 0.01193321500068123,
+          "process_cpu_seconds": 0.012438796999999724
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk8",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11635711669921875,
+          "wall_seconds": 0.011664908000966534,
+          "process_cpu_seconds": 0.011665185000000022
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "separate",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.13054976463317872,
+          "wall_seconds": 0.01308431399957044,
+          "process_cpu_seconds": 0.013084885999999685
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "separate",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.13082624435424806,
+          "wall_seconds": 0.013139967999450164,
+          "process_cpu_seconds": 0.013198208999999572
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk8",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11630592346191407,
+          "wall_seconds": 0.011662365999654867,
+          "process_cpu_seconds": 0.011662819000000546
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk32",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11892736434936524,
+          "wall_seconds": 0.011924886999622686,
+          "process_cpu_seconds": 0.011925431999999958
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk128",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1303859233856201,
+          "wall_seconds": 0.013084997999612824,
+          "process_cpu_seconds": 0.013077147000000622
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk128",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1305292797088623,
+          "wall_seconds": 0.013100144000418368,
+          "process_cpu_seconds": 0.013100157999999418
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk32",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11891712188720703,
+          "wall_seconds": 0.011922818999664742,
+          "process_cpu_seconds": 0.011923194000000414
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk8",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11636735916137696,
+          "wall_seconds": 0.01166604600075516,
+          "process_cpu_seconds": 0.011666329999999725
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "separate",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1305395221710205,
+          "wall_seconds": 0.013083008001558483,
+          "process_cpu_seconds": 0.013083392000000416
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "separate",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.13065216064453125,
+          "wall_seconds": 0.013109197001540451,
+          "process_cpu_seconds": 0.01317064900000009
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk8",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11635711669921875,
+          "wall_seconds": 0.011667035998470965,
+          "process_cpu_seconds": 0.011667383000000697
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk32",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11896832466125488,
+          "wall_seconds": 0.011925587001314852,
+          "process_cpu_seconds": 0.011925865999999452
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk128",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.13034496307373047,
+          "wall_seconds": 0.013063525999314152,
+          "process_cpu_seconds": 0.013063912000000677
+        }
+      ],
+      "median_ms": {
+        "producer": {
+          "separate": 0.01287168025970459,
+          "chunk8": 0.004116480052471161,
+          "chunk32": 0.00634880006313324,
+          "chunk128": 0.016148480176925658
+        },
+        "producer+gate-up": {
+          "separate": 0.13082624435424806,
+          "chunk8": 0.11636735916137696,
+          "chunk32": 0.11896832466125488,
+          "chunk128": 0.13054976463317872
+        }
+      },
+      "torch_reserved_bytes": 117440512
+    },
+    {
+      "layer": 0,
+      "tokens": 8,
+      "k": 5120,
+      "n": 8704,
+      "synthetic_effective_norm_weights": true,
+      "weight_pins": [
+        {
+          "codes": "c8e25a0915540ed5ce482904b50c13c356ffeeab796406008ff9d2637f379353",
+          "scales": "48a72c63f970bd73a428e8cdb109f357c50d922e1cdcccbd781bff15bba1016a"
+        },
+        {
+          "codes": "458a432707402da22fba056cf3ce48fd9536595a5bee94fff54316e4ed932eac",
+          "scales": "dda5d75fbd45392a39acea9baf30bc1d4fe22e69248b43ac17fc66397e3fe747"
+        }
+      ],
+      "full_workspace_bytes_equal": true,
+      "full_projection_bytes_equal": true,
+      "full_f16_intermediate_bytes_equal": true,
+      "timed_arms_share_addresses": true,
+      "waves": [
+        {
+          "scope": "producer",
+          "arm": "separate",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.012684479951858521,
+          "wall_seconds": 0.0013294499985931907,
+          "process_cpu_seconds": 0.0013283599999995843
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk8",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0045465600490570066,
+          "wall_seconds": 0.00048591900122119114,
+          "process_cpu_seconds": 0.00048617699999997654
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk32",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0059391999244689945,
+          "wall_seconds": 0.0006233530002646148,
+          "process_cpu_seconds": 0.0006236470000002825
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk128",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.015032320022583008,
+          "wall_seconds": 0.0015324450014304603,
+          "process_cpu_seconds": 0.0015328959999996172
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk128",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0156876802444458,
+          "wall_seconds": 0.001632319001146243,
+          "process_cpu_seconds": 0.001631681000000107
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk32",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0064614397287368775,
+          "wall_seconds": 0.0006786430003558053,
+          "process_cpu_seconds": 0.0006791760000002256
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk8",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.00449535995721817,
+          "wall_seconds": 0.0004796470002474962,
+          "process_cpu_seconds": 0.0004800300000002977
+        },
+        {
+          "scope": "producer",
+          "arm": "separate",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.012339199781417847,
+          "wall_seconds": 0.001270944001589669,
+          "process_cpu_seconds": 0.0012721579999999122
+        },
+        {
+          "scope": "producer",
+          "arm": "separate",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.012533760070800782,
+          "wall_seconds": 0.0013017359997320455,
+          "process_cpu_seconds": 0.0013016580000000388
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk8",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.00449535995721817,
+          "wall_seconds": 0.0004798949994437862,
+          "process_cpu_seconds": 0.000480194999999739
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk32",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.005898240208625794,
+          "wall_seconds": 0.0006204569999681553,
+          "process_cpu_seconds": 0.0006208370000004848
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk128",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.015083520412445069,
+          "wall_seconds": 0.00153750699973898,
+          "process_cpu_seconds": 0.0015378039999998094
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk128",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.015206400156021118,
+          "wall_seconds": 0.0015638900003978051,
+          "process_cpu_seconds": 0.0015639590000002812
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk32",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.005928959846496582,
+          "wall_seconds": 0.0006251849990803748,
+          "process_cpu_seconds": 0.0006255550000000554
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk8",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.004444159865379334,
+          "wall_seconds": 0.00047344199992949143,
+          "process_cpu_seconds": 0.0004738229999992072
+        },
+        {
+          "scope": "producer",
+          "arm": "separate",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.012318719625473023,
+          "wall_seconds": 0.0012613779999810504,
+          "process_cpu_seconds": 0.0012618189999997753
+        },
+        {
+          "scope": "producer",
+          "arm": "separate",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.012513279914855957,
+          "wall_seconds": 0.0012994219996471656,
+          "process_cpu_seconds": 0.001298957000000378
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk8",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.00449535995721817,
+          "wall_seconds": 0.0004812049992324319,
+          "process_cpu_seconds": 0.0004816169999992681
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk32",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.005888000130653381,
+          "wall_seconds": 0.0006182110009831376,
+          "process_cpu_seconds": 0.0006185270000003129
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk128",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.015022079944610595,
+          "wall_seconds": 0.0015322609997383552,
+          "process_cpu_seconds": 0.0015325399999994715
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk128",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.015196160078048707,
+          "wall_seconds": 0.0015622699993400602,
+          "process_cpu_seconds": 0.0015620099999997805
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk32",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.005888000130653381,
+          "wall_seconds": 0.0006184729991218774,
+          "process_cpu_seconds": 0.000618768999999908
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk8",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.004423680007457733,
+          "wall_seconds": 0.0004717960000562016,
+          "process_cpu_seconds": 0.00047200299999961004
+        },
+        {
+          "scope": "producer",
+          "arm": "separate",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.01230847954750061,
+          "wall_seconds": 0.0012589910002134275,
+          "process_cpu_seconds": 0.0012595480000001658
+        },
+        {
+          "scope": "producer",
+          "arm": "separate",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.012513279914855957,
+          "wall_seconds": 0.0012992790016141953,
+          "process_cpu_seconds": 0.0012992190000007398
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk8",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0045465600490570066,
+          "wall_seconds": 0.0004849169999943115,
+          "process_cpu_seconds": 0.0004851639999996493
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk32",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.005898240208625794,
+          "wall_seconds": 0.0006175250000524102,
+          "process_cpu_seconds": 0.0006178409999995083
+        },
+        {
+          "scope": "producer",
+          "arm": "chunk128",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.015063040256500244,
+          "wall_seconds": 0.0015343450013460824,
+          "process_cpu_seconds": 0.0015346159999998221
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "separate",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1793190383911133,
+          "wall_seconds": 0.018001626998739084,
+          "process_cpu_seconds": 0.01800065200000045
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk8",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.16463872909545899,
+          "wall_seconds": 0.016504839999470278,
+          "process_cpu_seconds": 0.01650548300000043
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk32",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.16760831832885742,
+          "wall_seconds": 0.01679838999916683,
+          "process_cpu_seconds": 0.01701219599999959
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk128",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.17986560821533204,
+          "wall_seconds": 0.018023164000624092,
+          "process_cpu_seconds": 0.018023971999999944
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk128",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.17969152450561524,
+          "wall_seconds": 0.018014944000242394,
+          "process_cpu_seconds": 0.018014638999999555
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk32",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.16759807586669923,
+          "wall_seconds": 0.016794414999822038,
+          "process_cpu_seconds": 0.01679495299999978
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk8",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.17097728729248046,
+          "wall_seconds": 0.01713234800081409,
+          "process_cpu_seconds": 0.017132888999999984
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "separate",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.17978368759155272,
+          "wall_seconds": 0.018012160999205662,
+          "process_cpu_seconds": 0.01807741700000065
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "separate",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.17942527770996095,
+          "wall_seconds": 0.01799029399990104,
+          "process_cpu_seconds": 0.019569720999999873
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk8",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.16502784729003905,
+          "wall_seconds": 0.016537857000002987,
+          "process_cpu_seconds": 0.01653830000000056
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk32",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.16786432266235352,
+          "wall_seconds": 0.016901029001019197,
+          "process_cpu_seconds": 0.01693499200000037
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk128",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.18063360214233398,
+          "wall_seconds": 0.01810064299934311,
+          "process_cpu_seconds": 0.01844327399999912
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk128",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.17986560821533204,
+          "wall_seconds": 0.018032050000329036,
+          "process_cpu_seconds": 0.018031974999999534
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk32",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.167587833404541,
+          "wall_seconds": 0.01679865699952643,
+          "process_cpu_seconds": 0.016867949999999965
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk8",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.16556032180786132,
+          "wall_seconds": 0.016589917000601417,
+          "process_cpu_seconds": 0.016590480999999713
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "separate",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.18045951843261718,
+          "wall_seconds": 0.01807906900103262,
+          "process_cpu_seconds": 0.01807987699999991
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "separate",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1799577522277832,
+          "wall_seconds": 0.018062381001072936,
+          "process_cpu_seconds": 0.018062055000000576
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk8",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1657548713684082,
+          "wall_seconds": 0.016619414998785942,
+          "process_cpu_seconds": 0.016619978999999674
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk32",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.16732160568237306,
+          "wall_seconds": 0.01677302700045402,
+          "process_cpu_seconds": 0.01677393000000027
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk128",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.17950719833374024,
+          "wall_seconds": 0.017988965999393258,
+          "process_cpu_seconds": 0.01804033399999927
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk128",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.17963008880615233,
+          "wall_seconds": 0.018007996999585885,
+          "process_cpu_seconds": 0.018008014000000294
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk32",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.16732160568237306,
+          "wall_seconds": 0.01676387499901466,
+          "process_cpu_seconds": 0.016764345000000347
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk8",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.16530431747436525,
+          "wall_seconds": 0.01656599499983713,
+          "process_cpu_seconds": 0.017478946999999856
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "separate",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1823948860168457,
+          "wall_seconds": 0.018282150998857105,
+          "process_cpu_seconds": 0.018283430000000322
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "separate",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1821286392211914,
+          "wall_seconds": 0.01825972900041961,
+          "process_cpu_seconds": 0.018656868999999965
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk8",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.16766975402832032,
+          "wall_seconds": 0.01680509900143079,
+          "process_cpu_seconds": 0.0168056889999999
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk32",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.16985088348388672,
+          "wall_seconds": 0.017022592001012526,
+          "process_cpu_seconds": 0.017023635000000148
+        },
+        {
+          "scope": "producer+gate-up",
+          "arm": "chunk128",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1816985511779785,
+          "wall_seconds": 0.018206996999651892,
+          "process_cpu_seconds": 0.01820742299999978
+        }
+      ],
+      "median_ms": {
+        "producer": {
+          "separate": 0.012513279914855957,
+          "chunk8": 0.00449535995721817,
+          "chunk32": 0.005898240208625794,
+          "chunk128": 0.015083520412445069
+        },
+        "producer+gate-up": {
+          "separate": 0.1799577522277832,
+          "chunk8": 0.16556032180786132,
+          "chunk32": 0.16759807586669923,
+          "chunk128": 0.17986560821533204
+        }
+      },
+      "torch_reserved_bytes": 117440512
+    }
+  ],
+  "device_uuid": "18fbf081-3c6d-d65b-11b8-288a4ce1ab28",
+  "library_sha256": "42100698edbafec3a89a17e335d3d796d45eb2c62013d8a3bafe26f453d56fdd",
+  "control_library_sha256": "365adff5e04c15364e8ea8574ccb57fc803b9becbbe9672dfbadad7d39116d9c",
+  "precision": "F16 inputs and preserved norm rounding; same original 256-thread FP32 norm reduction, group32 two-pass residual A8/F32 scales, Q8/F16-scale gate/up weights, F16 outputs.",
+  "gguf": {
+    "path": "/home/wzu/models/Qwen3.8-27B-Uncensored-GGUF/Qwen3.8-27B-Uncensored-Q8_0.gguf",
+    "size": 29047084448,
+    "mtime_ns": 1787148105067877936,
+    "architecture": "qwen35"
+  }
+}

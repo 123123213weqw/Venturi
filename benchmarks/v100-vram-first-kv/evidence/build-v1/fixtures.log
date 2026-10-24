@@ -1,0 +1,38 @@
+...F
+=================================== FAILURES ===================================
+____________ test_quota_failure_no_scalar_mutation_and_mtp_rejected ____________
+
+engines = (<function engines.<locals>.load at 0x74d5e3be72e0>, 2097152, QwenMTPWeights(artifact=<venturi.ninfer.NInferArtifact o...lp/down', source_shape=(32, 64), shape=(32, 64), format='q8_g32_fp16', transform='identity')), tied_embeddings=False)))
+
+    def test_quota_failure_no_scalar_mutation_and_mtp_rejected(engines):
+        load,g,draft=engines;m=load(kv_cache='vram-first',kv_gpu_budget_bytes=g,kv_ram_budget_bytes=0)
+        s=m.create_session(64)
+        try:
+            with pytest.raises(RuntimeError,match='cannot fit'):s.forward([1,2])
+            assert s.info()['position']==0 and not s.info()['failed']
+            with pytest.raises(ValueError,match='not qualified'):NativeQwenMTPModel.from_q8(m,draft)
+        finally:s.close();m.close()
+        m=load(kv_cache='vram-first',kv_gpu_budget_bytes=2*g,kv_ram_budget_bytes=0);a=m.create_session(64);b=m.create_session(64)
+        try:
+>           a.forward([1,2]);before=a.snapshot()
+
+tests/test_qwen_kv_tier.py:83: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/venturi/models/qwen_native.py:986: in forward
+    self.model._backend._check(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <venturi.ops.blocks.CudaBackend object at 0x74d5e3d6aaa0>, result = -1
+
+    def _check(self, result):
+        if result < 0:
+>           raise RuntimeError(
+                self._native.venturi_blocks_error().decode("utf-8", "replace")
+            )
+E           RuntimeError: VRAM-first KV RAM budget exhausted before forward; state unchanged
+
+src/venturi/ops/blocks.py:274: RuntimeError
+=========================== short test summary info ============================
+FAILED tests/test_qwen_kv_tier.py::test_quota_failure_no_scalar_mutation_and_mtp_rejected
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 3 passed in 2.22s

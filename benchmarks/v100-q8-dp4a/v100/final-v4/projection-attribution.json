@@ -1,0 +1,165 @@
+{
+  "scope": "Separate instrumented standalone projection calls. No serving TPS, achieved occupancy or hardware-counter bandwidth claim.",
+  "ranges": [
+    {
+      "label": "projection_0_t1",
+      "launches": 16,
+      "kernel_nanoseconds": 2839307,
+      "activity_span_nanoseconds": 2853579,
+      "activity_union_nanoseconds": 2839307,
+      "gaps_between_this_process_kernels_nanoseconds": 14272,
+      "kernels": [
+        {
+          "name": "void <unnamed>::q8_tiled<__half, (int)1, (int)4>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+          "grid_x": 4352,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 56,
+          "static_shared_bytes": 128,
+          "count": 16,
+          "kernel_nanoseconds": 2839307
+        }
+      ]
+    },
+    {
+      "label": "projection_1_t1",
+      "launches": 32,
+      "kernel_nanoseconds": 1924146,
+      "activity_span_nanoseconds": 1963282,
+      "activity_union_nanoseconds": 1924146,
+      "gaps_between_this_process_kernels_nanoseconds": 39136,
+      "kernels": [
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "grid_x": 20,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 38,
+          "static_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 46303
+        },
+        {
+          "name": "void vdq::dot<(int)1, (int)1>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "grid_x": 4352,
+          "grid_y": 1,
+          "block_x": 128,
+          "registers_per_thread": 52,
+          "static_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 1877843
+        }
+      ]
+    },
+    {
+      "label": "projection_2_t1",
+      "launches": 32,
+      "kernel_nanoseconds": 1884468,
+      "activity_span_nanoseconds": 1921459,
+      "activity_union_nanoseconds": 1884468,
+      "gaps_between_this_process_kernels_nanoseconds": 36991,
+      "kernels": [
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "grid_x": 20,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 38,
+          "static_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 49984
+        },
+        {
+          "name": "void vdq::dot<(int)1, (int)2>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "grid_x": 4352,
+          "grid_y": 1,
+          "block_x": 128,
+          "registers_per_thread": 64,
+          "static_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 1834484
+        }
+      ]
+    },
+    {
+      "label": "projection_0_t8",
+      "launches": 16,
+      "kernel_nanoseconds": 13436832,
+      "activity_span_nanoseconds": 13450912,
+      "activity_union_nanoseconds": 13436832,
+      "gaps_between_this_process_kernels_nanoseconds": 14080,
+      "kernels": [
+        {
+          "name": "void <unnamed>::q8_tiled<__half, (int)4, (int)1>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+          "grid_x": 34816,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 40,
+          "static_shared_bytes": 128,
+          "count": 16,
+          "kernel_nanoseconds": 13436832
+        }
+      ]
+    },
+    {
+      "label": "projection_1_t8",
+      "launches": 32,
+      "kernel_nanoseconds": 5394169,
+      "activity_span_nanoseconds": 5432313,
+      "activity_union_nanoseconds": 5394169,
+      "gaps_between_this_process_kernels_nanoseconds": 38144,
+      "kernels": [
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "grid_x": 160,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 38,
+          "static_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 53696
+        },
+        {
+          "name": "void vdq::dot<(int)4, (int)1>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "grid_x": 4352,
+          "grid_y": 2,
+          "block_x": 128,
+          "registers_per_thread": 56,
+          "static_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 5340473
+        }
+      ]
+    },
+    {
+      "label": "projection_2_t8",
+      "launches": 32,
+      "kernel_nanoseconds": 8108454,
+      "activity_span_nanoseconds": 8145958,
+      "activity_union_nanoseconds": 8108454,
+      "gaps_between_this_process_kernels_nanoseconds": 37504,
+      "kernels": [
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "grid_x": 160,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 38,
+          "static_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 57856
+        },
+        {
+          "name": "void vdq::dot<(int)4, (int)2>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "grid_x": 4352,
+          "grid_y": 2,
+          "block_x": 128,
+          "registers_per_thread": 78,
+          "static_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 8050598
+        }
+      ]
+    }
+  ]
+}

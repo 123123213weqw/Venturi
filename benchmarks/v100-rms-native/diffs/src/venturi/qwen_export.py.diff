@@ -1,0 +1,11 @@
+--- before/src/venturi/qwen_export.py
++++ after/src/venturi/qwen_export.py
+@@ -30,7 +30,7 @@
+     "scale": "FP16(max(abs(group))/127); underflowed groups become zero",
+     "group_size": 32,
+     "k_padding": 128,
+-    "small_float_policy": "Preserve BF16 a/b projections, convolution and decoder/QK norms; preserve FP32 gated norm; widen BF16/F32 A_log and dt_bias to FP32",
++    "small_float_policy": "Preserve BF16 a/b projections, convolution and decoder/QK norms; preserve or exactly widen BF16/F32 gated norm, A_log and dt_bias to FP32",
+ }
+ 
+ 

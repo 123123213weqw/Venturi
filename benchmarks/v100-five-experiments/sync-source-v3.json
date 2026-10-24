@@ -1,0 +1,31 @@
+{
+  "command": [
+    "rsync",
+    "--link-dest=/home/data/wangyue/repos/codex-build/Venturi/five-src-v2",
+    "-az",
+    "--timeout=45",
+    "--exclude=.git/",
+    "--exclude=target/",
+    "--exclude=node_modules/",
+    "--exclude=.env",
+    "--exclude=.env.*",
+    "--exclude=__pycache__/",
+    "--exclude=.pytest_cache/",
+    "--exclude=*.egg-info/",
+    "-e",
+    "ssh -o BatchMode=yes -o ForwardAgent=no -o StrictHostKeyChecking=yes -o ConnectTimeout=12",
+    "--relative",
+    "src",
+    "tests",
+    "tools",
+    "docs",
+    "AGENTS.md",
+    "pyproject.toml",
+    "README.md",
+    "WZU_Server:/home/data/wangyue/repos/codex-build/Venturi/five-src-v3/"
+  ],
+  "rc": 12,
+  "stdout": "",
+  "stderr": "rsync(27153): error: poll: timeout\n",
+  "seconds": 115.04574584960938
+}

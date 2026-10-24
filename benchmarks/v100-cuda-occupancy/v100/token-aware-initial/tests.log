@@ -1,0 +1,34 @@
+.....ssssssssssssssssssssssssssssssssss............ssssssssssss......... [  5%]
+......sssssssssssssss.s............s.s...sss..........ssssssssssssssssss [ 11%]
+sssssssssssssssss..................sssssss........ssssssssssssss........ [ 17%]
+............................................s.s.s....s......ss......ss.. [ 23%]
+.ss.ss......................................ssssss.s.sssssss......ssssss [ 29%]
+.ss......s.ss.s.........sss.ssssss.....ssss............................. [ 35%]
+...............s.........................sssss.......................... [ 41%]
+.........................................sss............................ [ 47%]
+........................................................................ [ 52%]
+......ssssssssssssssssssssssssssssssssssssssssss..............sss.s....s [ 58%]
+s..ss..ss............ssssssssssssssssss..ssss....s...................... [ 64%]
+....................................................ssss..s.ss.......... [ 70%]
+.....s...s..s..ssss..s....ss..ss.s.s.s.s.s..................ssssss....ss [ 76%]
+ss..ss.s....sssssss...........................s......s...s...s...s...s.s [ 82%]
+.sss.ss....ss.s.s.s.sFF...ssss.............ss........................... [ 88%]
+...sssssss...........s.....s..sss.s.sss.s.............ssssssssssss..ssss [ 94%]
+ss...sssssssss.ssss.ssss..........................ssss.........ss......  [100%]
+=================================== FAILURES ===================================
+_____________ test_remote_launcher_quotes_prompt_and_paths[False] ______________
+tests/test_remote_launcher.py:37: in test_remote_launcher_quotes_prompt_and_paths
+    result = subprocess.run(
+/usr/lib/python3.10/subprocess.py:526: in run
+    raise CalledProcessError(retcode, process.args,
+E   subprocess.CalledProcessError: Command '['bash', '/home/data/wangyue/repos/codex-build/Venturi/v100-occupancy-src-v1/scripts/venturi-4090d', 'generate', '--prompt', 'don\'t expand $(touch UNWANTED); "quotes"\nsecond line']' returned non-zero exit status 127.
+______________ test_remote_launcher_quotes_prompt_and_paths[True] ______________
+tests/test_remote_launcher.py:37: in test_remote_launcher_quotes_prompt_and_paths
+    result = subprocess.run(
+/usr/lib/python3.10/subprocess.py:526: in run
+    raise CalledProcessError(retcode, process.args,
+E   subprocess.CalledProcessError: Command '['bash', '/home/data/wangyue/repos/codex-build/Venturi/v100-occupancy-src-v1/scripts/venturi-qwen-4090d', 'generate', '--prompt', 'don\'t expand $(touch UNWANTED); "quotes"\nsecond line']' returned non-zero exit status 127.
+=========================== short test summary info ============================
+FAILED tests/test_remote_launcher.py::test_remote_launcher_quotes_prompt_and_paths[False]
+FAILED tests/test_remote_launcher.py::test_remote_launcher_quotes_prompt_and_paths[True]
+2 failed, 837 passed, 384 skipped in 27.86s

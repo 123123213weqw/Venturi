@@ -1,0 +1,391 @@
+{
+  "scope": "Matched greedy-selector microbenchmark; not model TPS or concurrent serving.\n\nCompare full-logit CPU transfer/selection, allocating Torch GPU selection and\nowned native GPU selection. All validate finite rows, use lowest-index ties,\nreturn [token,status] to the host and include host result consumption. Separate\nnative kernel-event timing excludes host copies; it is not hardware occupancy.\n",
+  "gpu": "Tesla V100-PCIE-32GB",
+  "torch": "2.5.1+cu121",
+  "cuda": "12.1",
+  "library_sha256": "1f531257bea9c60905c87b2ac368eb294f416e01c4525810c3cc3b0ff79d7825",
+  "seed": 8107,
+  "dtype": "FP32",
+  "vocab_size": 248320,
+  "warmup_calls_per_mode": 10,
+  "iterations_per_wave": 100,
+  "cases": [
+    {
+      "rows": 1,
+      "independent_rows_not_serving_requests": true,
+      "exact_expected": [
+        [
+          1000,
+          0
+        ]
+      ],
+      "waves": [
+        {
+          "repeat": 0,
+          "mode": "full-logits-cpu",
+          "start_unix": 1792353286.105321,
+          "end_unix": 1792353286.2354963,
+          "calls": 100,
+          "wall_seconds": 0.13015657203504816,
+          "process_cpu_seconds": 0.5157340000000001,
+          "wall_us_per_call": 1301.5657203504816,
+          "cpu_us_per_call": 5157.340000000002,
+          "row_selections_per_second": 768.3054219734084
+        },
+        {
+          "repeat": 0,
+          "mode": "torch-gpu",
+          "start_unix": 1792353286.2355192,
+          "end_unix": 1792353286.2552958,
+          "calls": 100,
+          "wall_seconds": 0.019764418015256524,
+          "process_cpu_seconds": 0.03575399999999984,
+          "wall_us_per_call": 197.64418015256524,
+          "cpu_us_per_call": 357.53999999999843,
+          "row_selections_per_second": 5059.597501065204
+        },
+        {
+          "repeat": 0,
+          "mode": "native-gpu",
+          "start_unix": 1792353286.2553165,
+          "end_unix": 1792353286.262039,
+          "calls": 100,
+          "wall_seconds": 0.006714095012284815,
+          "process_cpu_seconds": 0.006715999999999944,
+          "wall_us_per_call": 67.14095012284815,
+          "cpu_us_per_call": 67.15999999999944,
+          "row_selections_per_second": 14894.040048141927
+        },
+        {
+          "repeat": 1,
+          "mode": "native-gpu",
+          "start_unix": 1792353286.262064,
+          "end_unix": 1792353286.2686706,
+          "calls": 100,
+          "wall_seconds": 0.0066002499661408365,
+          "process_cpu_seconds": 0.006602000000000441,
+          "wall_us_per_call": 66.00249966140836,
+          "cpu_us_per_call": 66.02000000000442,
+          "row_selections_per_second": 15150.94132994935
+        },
+        {
+          "repeat": 1,
+          "mode": "torch-gpu",
+          "start_unix": 1792353286.2686858,
+          "end_unix": 1792353286.2882288,
+          "calls": 100,
+          "wall_seconds": 0.01953477901406586,
+          "process_cpu_seconds": 0.019536999999999694,
+          "wall_us_per_call": 195.34779014065862,
+          "cpu_us_per_call": 195.36999999999694,
+          "row_selections_per_second": 5119.075057260478
+        },
+        {
+          "repeat": 1,
+          "mode": "full-logits-cpu",
+          "start_unix": 1792353286.2882462,
+          "end_unix": 1792353286.414553,
+          "calls": 100,
+          "wall_seconds": 0.1262957319850102,
+          "process_cpu_seconds": 0.5018639999999999,
+          "wall_us_per_call": 1262.957319850102,
+          "cpu_us_per_call": 5018.6399999999985,
+          "row_selections_per_second": 791.7923941552419
+        },
+        {
+          "repeat": 2,
+          "mode": "full-logits-cpu",
+          "start_unix": 1792353286.4145737,
+          "end_unix": 1792353286.540541,
+          "calls": 100,
+          "wall_seconds": 0.1259570579859428,
+          "process_cpu_seconds": 0.5039889999999998,
+          "wall_us_per_call": 1259.570579859428,
+          "cpu_us_per_call": 5039.8899999999985,
+          "row_selections_per_second": 793.9213697033183
+        },
+        {
+          "repeat": 2,
+          "mode": "torch-gpu",
+          "start_unix": 1792353286.5405593,
+          "end_unix": 1792353286.5601249,
+          "calls": 100,
+          "wall_seconds": 0.019556046987418085,
+          "process_cpu_seconds": 0.03582499999999955,
+          "wall_us_per_call": 195.56046987418085,
+          "cpu_us_per_call": 358.2499999999955,
+          "row_selections_per_second": 5113.507860987332
+        },
+        {
+          "repeat": 2,
+          "mode": "native-gpu",
+          "start_unix": 1792353286.5601442,
+          "end_unix": 1792353286.566808,
+          "calls": 100,
+          "wall_seconds": 0.006656982994172722,
+          "process_cpu_seconds": 0.0066589999999999705,
+          "wall_us_per_call": 66.56982994172722,
+          "cpu_us_per_call": 66.5899999999997,
+          "row_selections_per_second": 15021.81995771002
+        },
+        {
+          "repeat": 3,
+          "mode": "native-gpu",
+          "start_unix": 1792353286.566844,
+          "end_unix": 1792353286.5734432,
+          "calls": 100,
+          "wall_seconds": 0.006592440011445433,
+          "process_cpu_seconds": 0.006593999999999767,
+          "wall_us_per_call": 65.92440011445433,
+          "cpu_us_per_call": 65.93999999999767,
+          "row_selections_per_second": 15168.890399667724
+        },
+        {
+          "repeat": 3,
+          "mode": "torch-gpu",
+          "start_unix": 1792353286.5734587,
+          "end_unix": 1792353286.5928817,
+          "calls": 100,
+          "wall_seconds": 0.01941554801305756,
+          "process_cpu_seconds": 0.019416999999999796,
+          "wall_us_per_call": 194.1554801305756,
+          "cpu_us_per_call": 194.16999999999797,
+          "row_selections_per_second": 5150.5113290001855
+        },
+        {
+          "repeat": 3,
+          "mode": "full-logits-cpu",
+          "start_unix": 1792353286.5928984,
+          "end_unix": 1792353286.728724,
+          "calls": 100,
+          "wall_seconds": 0.13581375899957493,
+          "process_cpu_seconds": 0.5394369999999995,
+          "wall_us_per_call": 1358.1375899957493,
+          "cpu_us_per_call": 5394.369999999994,
+          "row_selections_per_second": 736.3024242655192
+        }
+      ],
+      "median_wall_us": {
+        "full-logits-cpu": 1282.2615201002918,
+        "torch-gpu": 195.45413000741974,
+        "native-gpu": 66.28616480156779
+      },
+      "native_launch_event_us_per_call": [
+        35.14847993850708,
+        33.92512083053589,
+        33.761279582977295,
+        33.617920875549316,
+        33.53600025177002
+      ],
+      "native_event_scope": "Both greedy kernels plus launch gaps; no host-result copies, no profiler",
+      "peak_torch_allocated_bytes": 2733056,
+      "peak_torch_reserved_bytes": 4194304,
+      "logits_host_copy_bytes_cpu_mode": 993280,
+      "result_host_copy_bytes_gpu_modes": 16
+    },
+    {
+      "rows": 8,
+      "independent_rows_not_serving_requests": true,
+      "exact_expected": [
+        [
+          1000,
+          0
+        ],
+        [
+          1000,
+          0
+        ],
+        [
+          1000,
+          0
+        ],
+        [
+          1000,
+          0
+        ],
+        [
+          1000,
+          0
+        ],
+        [
+          1000,
+          0
+        ],
+        [
+          1000,
+          0
+        ],
+        [
+          1000,
+          0
+        ]
+      ],
+      "waves": [
+        {
+          "repeat": 0,
+          "mode": "full-logits-cpu",
+          "start_unix": 1792353286.8937962,
+          "end_unix": 1792353288.0030842,
+          "calls": 100,
+          "wall_seconds": 1.109245103027206,
+          "process_cpu_seconds": 4.0866630000000015,
+          "wall_us_per_call": 11092.45103027206,
+          "cpu_us_per_call": 40866.63000000001,
+          "row_selections_per_second": 721.2112073488044
+        },
+        {
+          "repeat": 0,
+          "mode": "torch-gpu",
+          "start_unix": 1792353288.0031185,
+          "end_unix": 1792353288.0237823,
+          "calls": 100,
+          "wall_seconds": 0.0206510919961147,
+          "process_cpu_seconds": 0.0330130000000004,
+          "wall_us_per_call": 206.510919961147,
+          "cpu_us_per_call": 330.13000000000403,
+          "row_selections_per_second": 38738.8715400867
+        },
+        {
+          "repeat": 0,
+          "mode": "native-gpu",
+          "start_unix": 1792353288.0238051,
+          "end_unix": 1792353288.0318258,
+          "calls": 100,
+          "wall_seconds": 0.008013302984181792,
+          "process_cpu_seconds": 0.008015000000000327,
+          "wall_us_per_call": 80.13302984181792,
+          "cpu_us_per_call": 80.15000000000327,
+          "row_selections_per_second": 99833.98875335112
+        },
+        {
+          "repeat": 1,
+          "mode": "native-gpu",
+          "start_unix": 1792353288.0318618,
+          "end_unix": 1792353288.039615,
+          "calls": 100,
+          "wall_seconds": 0.007746713992673904,
+          "process_cpu_seconds": 0.007747999999999422,
+          "wall_us_per_call": 77.46713992673904,
+          "cpu_us_per_call": 77.47999999999422,
+          "row_selections_per_second": 103269.59285660513
+        },
+        {
+          "repeat": 1,
+          "mode": "torch-gpu",
+          "start_unix": 1792353288.039633,
+          "end_unix": 1792353288.0596743,
+          "calls": 100,
+          "wall_seconds": 0.020032973960042,
+          "process_cpu_seconds": 0.020107999999998682,
+          "wall_us_per_call": 200.32973960042,
+          "cpu_us_per_call": 201.07999999998682,
+          "row_selections_per_second": 39934.16062915517
+        },
+        {
+          "repeat": 1,
+          "mode": "full-logits-cpu",
+          "start_unix": 1792353288.0596921,
+          "end_unix": 1792353289.1780117,
+          "calls": 100,
+          "wall_seconds": 1.1182532950188033,
+          "process_cpu_seconds": 4.1204139999999985,
+          "wall_us_per_call": 11182.532950188033,
+          "cpu_us_per_call": 41204.139999999985,
+          "row_selections_per_second": 715.4014243137536
+        },
+        {
+          "repeat": 2,
+          "mode": "full-logits-cpu",
+          "start_unix": 1792353289.1780603,
+          "end_unix": 1792353290.2899513,
+          "calls": 100,
+          "wall_seconds": 1.111837875971105,
+          "process_cpu_seconds": 4.122285,
+          "wall_us_per_call": 11118.37875971105,
+          "cpu_us_per_call": 41222.85,
+          "row_selections_per_second": 719.5293642081239
+        },
+        {
+          "repeat": 2,
+          "mode": "torch-gpu",
+          "start_unix": 1792353290.2899816,
+          "end_unix": 1792353290.3103166,
+          "calls": 100,
+          "wall_seconds": 0.020322802010923624,
+          "process_cpu_seconds": 0.032223999999999364,
+          "wall_us_per_call": 203.22802010923624,
+          "cpu_us_per_call": 322.23999999999364,
+          "row_selections_per_second": 39364.65058164693
+        },
+        {
+          "repeat": 2,
+          "mode": "native-gpu",
+          "start_unix": 1792353290.310336,
+          "end_unix": 1792353290.3183215,
+          "calls": 100,
+          "wall_seconds": 0.007977161032613367,
+          "process_cpu_seconds": 0.007979999999999876,
+          "wall_us_per_call": 79.77161032613367,
+          "cpu_us_per_call": 79.79999999999876,
+          "row_selections_per_second": 100286.30445459556
+        },
+        {
+          "repeat": 3,
+          "mode": "native-gpu",
+          "start_unix": 1792353290.3183608,
+          "end_unix": 1792353290.3260684,
+          "calls": 100,
+          "wall_seconds": 0.007700856018345803,
+          "process_cpu_seconds": 0.007702999999999349,
+          "wall_us_per_call": 77.00856018345803,
+          "cpu_us_per_call": 77.02999999999349,
+          "row_selections_per_second": 103884.55492404409
+        },
+        {
+          "repeat": 3,
+          "mode": "torch-gpu",
+          "start_unix": 1792353290.3260872,
+          "end_unix": 1792353290.3460233,
+          "calls": 100,
+          "wall_seconds": 0.019928043009713292,
+          "process_cpu_seconds": 0.0199309999999997,
+          "wall_us_per_call": 199.28043009713292,
+          "cpu_us_per_call": 199.309999999997,
+          "row_selections_per_second": 40144.43363104272
+        },
+        {
+          "repeat": 3,
+          "mode": "full-logits-cpu",
+          "start_unix": 1792353290.3460395,
+          "end_unix": 1792353291.4476554,
+          "calls": 100,
+          "wall_seconds": 1.1015982269891538,
+          "process_cpu_seconds": 4.0693889999999975,
+          "wall_us_per_call": 11015.982269891538,
+          "cpu_us_per_call": 40693.88999999998,
+          "row_selections_per_second": 726.2175813286569
+        }
+      ],
+      "median_wall_us": {
+        "full-logits-cpu": 11105.414894991554,
+        "torch-gpu": 201.77887985482812,
+        "native-gpu": 78.61937512643635
+      },
+      "native_launch_event_us_per_call": [
+        34.58400011062622,
+        33.44383955001831,
+        33.4335994720459,
+        33.515520095825195,
+        33.30048084259033
+      ],
+      "native_event_scope": "Both greedy kernels plus launch gaps; no host-result copies, no profiler",
+      "peak_torch_allocated_bytes": 21860864,
+      "peak_torch_reserved_bytes": 46137344,
+      "logits_host_copy_bytes_cpu_mode": 7946240,
+      "result_host_copy_bytes_gpu_modes": 128
+    }
+  ],
+  "performance_scope": "Selector only, NOT full-model performance",
+  "counters": "No achieved occupancy/SM/DRAM/cache/stall measurements; driver policy retained unchanged",
+  "telemetry_exit_code": 0
+}

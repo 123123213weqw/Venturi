@@ -1,0 +1,31 @@
+{
+  "ssh": [
+    "ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ForwardAgent=no",
+    "-o",
+    "StrictHostKeyChecking=yes",
+    "-o",
+    "ControlMaster=auto",
+    "-o",
+    "ProxyCommand=none",
+    "-o",
+    "ConnectTimeout=90",
+    "-o",
+    "ServerAliveInterval=15",
+    "-o",
+    "ServerAliveCountMax=4",
+    "-o",
+    "ControlPath=/tmp/venturi-v100-head-export-%C",
+    "-o",
+    "ControlPersist=600",
+    "-o",
+    "Compression=yes",
+    "WZU_Server",
+    "python3 -"
+  ],
+  "exporter_sha256": "e9eeb45add562d3e766a7f60a531f7cb038cadc1dfda1c78ae29f1fb921c9b35",
+  "reason": "Small shared-master queries recovered, but later bulk sessions stalled. Isolate read-only metadata export on an owned bounded connection; do not alter or terminate the user control master."
+}

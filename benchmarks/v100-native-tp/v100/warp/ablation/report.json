@@ -1,0 +1,935 @@
+{
+  "scope": "Matched Q8 projection-only tile ablation using real checkpoint matrices.\n\nAll libraries share the same immutable GPU Q8 planes and activation values.\nEvery candidate must match original output bytes before timing. Graph replay\namortizes Python launch overhead for this microbenchmark only; it does not imply\nwhole-model graph support. CUDA-event intervals include graph/timeline gaps and\nare not hardware-counter bandwidth or full-engine serving measurements.\n",
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "gpu": "Tesla V100-PCIE-32GB",
+  "dtype": "fp16",
+  "libraries": [
+    {
+      "name": "baseline",
+      "library": "/home/data/wangyue/repos/codex-build/Venturi/v100-q8-tiling-build/78bf7865cd726a8a/libventuri_blocks.so",
+      "sha256": "ff1ccdf856cad8b48e15890072db1508448f3d09cfa22018bc10829169fe5a19"
+    },
+    {
+      "name": "warp1",
+      "library": "/home/data/wangyue/repos/codex-build/Venturi/v100-warp-build/bb970c69fdf4e76d/libventuri_blocks.so",
+      "sha256": "63bea0fc362e7aca72e61ad2174185ec9b28cd910edbba04c2b9f7f54bcace27"
+    },
+    {
+      "name": "warp2",
+      "library": "/home/data/wangyue/repos/codex-build/Venturi/v100-warp-build/71f08844f98abf2d/libventuri_blocks.so",
+      "sha256": "7b80b90c193a43208582275d2c878f54f0301b16e92930cf8289669ef5bab4a0"
+    }
+  ],
+  "graph_nodes": 5,
+  "graph_replays_per_wave": 5,
+  "warmup_replays": 3,
+  "decode_only": true,
+  "hardware_counters_available": false,
+  "cases": [
+    {
+      "shape": [
+        248320,
+        5120
+      ],
+      "role": "text/output_head",
+      "occurrences": 2,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.776309814453125,
+          "wall_seconds": 0.06947180401766673,
+          "process_cpu_seconds": 0.06952399999999948
+        },
+        {
+          "name": "warp1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.032839660644531,
+          "wall_seconds": 0.10087283898610622,
+          "process_cpu_seconds": 0.10092799999999968
+        },
+        {
+          "name": "warp2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.388541412353516,
+          "wall_seconds": 0.059753575013019145,
+          "process_cpu_seconds": 0.059753999999998086
+        },
+        {
+          "name": "warp2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.3911219787597657,
+          "wall_seconds": 0.059813823958393186,
+          "process_cpu_seconds": 0.05987000000000009
+        },
+        {
+          "name": "warp1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.034232177734375,
+          "wall_seconds": 0.10089549096301198,
+          "process_cpu_seconds": 0.1009360000000008
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7804058837890624,
+          "wall_seconds": 0.06954839295940474,
+          "process_cpu_seconds": 0.06958200000000225
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7840921020507814,
+          "wall_seconds": 0.0696404009941034,
+          "process_cpu_seconds": 0.06961700000000093
+        },
+        {
+          "name": "warp1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.032430114746094,
+          "wall_seconds": 0.10086822300218046,
+          "process_cpu_seconds": 0.1009209999999996
+        },
+        {
+          "name": "warp2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.3902207946777345,
+          "wall_seconds": 0.05979773699073121,
+          "process_cpu_seconds": 0.05983899999999842
+        },
+        {
+          "name": "warp2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.395299835205078,
+          "wall_seconds": 0.05992242303909734,
+          "process_cpu_seconds": 0.05991299999999988
+        },
+        {
+          "name": "warp1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.034314270019531,
+          "wall_seconds": 0.10090088698780164,
+          "process_cpu_seconds": 0.10094099999999884
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7824948120117186,
+          "wall_seconds": 0.06961375201353803,
+          "process_cpu_seconds": 0.06961599999999812
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 2.7814503479003907,
+        "warp1": 4.033535919189453,
+        "warp2": 2.39067138671875
+      }
+    },
+    {
+      "shape": [
+        17408,
+        5120
+      ],
+      "role": "text/layers/63/mlp/up",
+      "occurrences": 128,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2045542335510254,
+          "wall_seconds": 0.005166502029169351,
+          "process_cpu_seconds": 0.0051640000000006125
+        },
+        {
+          "name": "warp1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3079782485961914,
+          "wall_seconds": 0.007734597951639444,
+          "process_cpu_seconds": 0.007734999999996717
+        },
+        {
+          "name": "warp2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.19771392822265624,
+          "wall_seconds": 0.004975519957952201,
+          "process_cpu_seconds": 0.004976000000002756
+        },
+        {
+          "name": "warp2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.19791872024536133,
+          "wall_seconds": 0.004979220975656062,
+          "process_cpu_seconds": 0.004979999999999762
+        },
+        {
+          "name": "warp1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.30732288360595705,
+          "wall_seconds": 0.007715304964222014,
+          "process_cpu_seconds": 0.00771699999999953
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2043084716796875,
+          "wall_seconds": 0.005143272981513292,
+          "process_cpu_seconds": 0.00514400000000137
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20389888763427735,
+          "wall_seconds": 0.005129074037540704,
+          "process_cpu_seconds": 0.005129000000000161
+        },
+        {
+          "name": "warp1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3074457550048828,
+          "wall_seconds": 0.00771792302839458,
+          "process_cpu_seconds": 0.007717999999998781
+        },
+        {
+          "name": "warp2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1981644821166992,
+          "wall_seconds": 0.0049842509906739,
+          "process_cpu_seconds": 0.0049850000000013495
+        },
+        {
+          "name": "warp2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.19775487899780272,
+          "wall_seconds": 0.004973943985532969,
+          "process_cpu_seconds": 0.004975000000001728
+        },
+        {
+          "name": "warp1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3072819137573242,
+          "wall_seconds": 0.007719533983618021,
+          "process_cpu_seconds": 0.0077920000000020195
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20369407653808594,
+          "wall_seconds": 0.005123589013237506,
+          "process_cpu_seconds": 0.005123999999998574
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.20410367965698242,
+        "warp1": 0.30738431930541993,
+        "warp2": 0.19783679962158202
+      }
+    },
+    {
+      "shape": [
+        5120,
+        17408
+      ],
+      "role": "text/layers/63/mlp/down",
+      "occurrences": 64,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20774911880493163,
+          "wall_seconds": 0.00524482800392434,
+          "process_cpu_seconds": 0.005241999999999081
+        },
+        {
+          "name": "warp1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.32841728210449217,
+          "wall_seconds": 0.00824343302519992,
+          "process_cpu_seconds": 0.008243999999997698
+        },
+        {
+          "name": "warp2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2755788803100586,
+          "wall_seconds": 0.006923937005922198,
+          "process_cpu_seconds": 0.00692499999999896
+        },
+        {
+          "name": "warp2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2754150390625,
+          "wall_seconds": 0.0069175189710222185,
+          "process_cpu_seconds": 0.0069179999999988695
+        },
+        {
+          "name": "warp1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3273932647705078,
+          "wall_seconds": 0.008217676950152963,
+          "process_cpu_seconds": 0.00821900000000042
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20754432678222656,
+          "wall_seconds": 0.005220671009737998,
+          "process_cpu_seconds": 0.00522099999999881
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20717567443847656,
+          "wall_seconds": 0.0052087390213273466,
+          "process_cpu_seconds": 0.005284000000003175
+        },
+        {
+          "name": "warp1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.32776191711425784,
+          "wall_seconds": 0.008225499012041837,
+          "process_cpu_seconds": 0.00822600000000051
+        },
+        {
+          "name": "warp2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.27623424530029295,
+          "wall_seconds": 0.006933755008503795,
+          "process_cpu_seconds": 0.006933999999997553
+        },
+        {
+          "name": "warp2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2757427215576172,
+          "wall_seconds": 0.006922277039848268,
+          "process_cpu_seconds": 0.006923000000000457
+        },
+        {
+          "name": "warp1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3278028869628906,
+          "wall_seconds": 0.008228053047787398,
+          "process_cpu_seconds": 0.008229000000000042
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20746240615844727,
+          "wall_seconds": 0.00521964899962768,
+          "process_cpu_seconds": 0.005219999999997782
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.2075033664703369,
+        "warp1": 0.3277824020385742,
+        "warp2": 0.27566080093383794
+      }
+    },
+    {
+      "shape": [
+        10240,
+        5120
+      ],
+      "role": "text/layers/62/gdn/qkv",
+      "occurrences": 48,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1237401580810547,
+          "wall_seconds": 0.0031421459862031043,
+          "process_cpu_seconds": 0.003138000000003416
+        },
+        {
+          "name": "warp1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1826406478881836,
+          "wall_seconds": 0.004598807019647211,
+          "process_cpu_seconds": 0.0045989999999989095
+        },
+        {
+          "name": "warp2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12578816413879396,
+          "wall_seconds": 0.0031753050279803574,
+          "process_cpu_seconds": 0.0031750000000023704
+        },
+        {
+          "name": "warp2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1254195213317871,
+          "wall_seconds": 0.003167061018757522,
+          "process_cpu_seconds": 0.003166000000000224
+        },
+        {
+          "name": "warp1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1823539161682129,
+          "wall_seconds": 0.004588120966218412,
+          "process_cpu_seconds": 0.004588999999999288
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12345343589782715,
+          "wall_seconds": 0.0031167170382104814,
+          "process_cpu_seconds": 0.0031180000000006203
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12333056449890137,
+          "wall_seconds": 0.0031128950067795813,
+          "process_cpu_seconds": 0.003160999999998637
+        },
+        {
+          "name": "warp1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.18251775741577148,
+          "wall_seconds": 0.0045932120410725474,
+          "process_cpu_seconds": 0.0045939999999973224
+        },
+        {
+          "name": "warp2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12546048164367676,
+          "wall_seconds": 0.0031669019954279065,
+          "process_cpu_seconds": 0.00316800000000228
+        },
+        {
+          "name": "warp2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12570624351501464,
+          "wall_seconds": 0.003174132958520204,
+          "process_cpu_seconds": 0.0031740000000013424
+        },
+        {
+          "name": "warp1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.18268159866333009,
+          "wall_seconds": 0.004603328998200595,
+          "process_cpu_seconds": 0.004602999999999469
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12312576293945313,
+          "wall_seconds": 0.003108082979451865,
+          "process_cpu_seconds": 0.003108000000000999
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.12339200019836426,
+        "warp1": 0.18257920265197752,
+        "warp2": 0.12558336257934571
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "role": "text/layers/62/gdn/z",
+      "occurrences": 48,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07888895988464356,
+          "wall_seconds": 0.0020255189738236368,
+          "process_cpu_seconds": 0.0020219999999966376
+        },
+        {
+          "name": "warp1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1338982391357422,
+          "wall_seconds": 0.003380799025762826,
+          "process_cpu_seconds": 0.003381999999998442
+        },
+        {
+          "name": "warp2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08540160179138184,
+          "wall_seconds": 0.0021662500221282244,
+          "process_cpu_seconds": 0.002165999999999002
+        },
+        {
+          "name": "warp2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08548352241516113,
+          "wall_seconds": 0.002167333965189755,
+          "process_cpu_seconds": 0.002168000000001058
+        },
+        {
+          "name": "warp1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.133570556640625,
+          "wall_seconds": 0.003369869024027139,
+          "process_cpu_seconds": 0.003371000000001345
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07745535850524903,
+          "wall_seconds": 0.0019671290065161884,
+          "process_cpu_seconds": 0.0020300000000013085
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07753727912902832,
+          "wall_seconds": 0.0019682749989442527,
+          "process_cpu_seconds": 0.0019679999999979714
+        },
+        {
+          "name": "warp1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13303808212280274,
+          "wall_seconds": 0.003356085973791778,
+          "process_cpu_seconds": 0.0033560000000036894
+        },
+        {
+          "name": "warp2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08478719711303712,
+          "wall_seconds": 0.0021491789957508445,
+          "process_cpu_seconds": 0.0021500000000003183
+        },
+        {
+          "name": "warp2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0851968002319336,
+          "wall_seconds": 0.0021600130130536854,
+          "process_cpu_seconds": 0.0021599999999999397
+        },
+        {
+          "name": "warp1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13344767570495605,
+          "wall_seconds": 0.0033659019973129034,
+          "process_cpu_seconds": 0.003367000000000786
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07749631881713867,
+          "wall_seconds": 0.0019666330190375447,
+          "process_cpu_seconds": 0.001967000000000496
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.0775167989730835,
+        "warp1": 0.13350911617279054,
+        "warp2": 0.08529920101165772
+      }
+    },
+    {
+      "shape": [
+        5120,
+        6144
+      ],
+      "role": "text/layers/63/attention/o",
+      "occurrences": 64,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0779468822479248,
+          "wall_seconds": 0.0019957409822382033,
+          "process_cpu_seconds": 0.001993000000002354
+        },
+        {
+          "name": "warp1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12165120124816894,
+          "wall_seconds": 0.0030727979610674083,
+          "process_cpu_seconds": 0.0030740000000015755
+        },
+        {
+          "name": "warp2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.09592831611633301,
+          "wall_seconds": 0.0024285429972223938,
+          "process_cpu_seconds": 0.0024289999999993483
+        },
+        {
+          "name": "warp2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.09605119705200195,
+          "wall_seconds": 0.002431750006508082,
+          "process_cpu_seconds": 0.0024319999999988795
+        },
+        {
+          "name": "warp1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12136447906494141,
+          "wall_seconds": 0.0030643329955637455,
+          "process_cpu_seconds": 0.0030169999999998254
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07766016006469727,
+          "wall_seconds": 0.001974546001292765,
+          "process_cpu_seconds": 0.0019750000000016144
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0777830410003662,
+          "wall_seconds": 0.0019735060050152242,
+          "process_cpu_seconds": 0.0019740000000005864
+        },
+        {
+          "name": "warp1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1212825584411621,
+          "wall_seconds": 0.003060240007471293,
+          "process_cpu_seconds": 0.003061000000002423
+        },
+        {
+          "name": "warp2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0961740779876709,
+          "wall_seconds": 0.0024344369885511696,
+          "process_cpu_seconds": 0.0024340000000009354
+        },
+        {
+          "name": "warp2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.09613311767578125,
+          "wall_seconds": 0.0024340550298802555,
+          "process_cpu_seconds": 0.002525999999999584
+        },
+        {
+          "name": "warp1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1215283203125,
+          "wall_seconds": 0.0030701549840159714,
+          "process_cpu_seconds": 0.0030709999999984916
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07770112037658691,
+          "wall_seconds": 0.001972794998437166,
+          "process_cpu_seconds": 0.0019740000000005864
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.07774208068847656,
+        "warp1": 0.1214463996887207,
+        "warp2": 0.0960921573638916
+      }
+    },
+    {
+      "shape": [
+        12288,
+        5120
+      ],
+      "role": "text/layers/63/attention/q",
+      "occurrences": 16,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14643199920654296,
+          "wall_seconds": 0.003707500989548862,
+          "process_cpu_seconds": 0.0037039999999990414
+        },
+        {
+          "name": "warp1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.22642688751220702,
+          "wall_seconds": 0.005691604979801923,
+          "process_cpu_seconds": 0.00569099999999878
+        },
+        {
+          "name": "warp2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15339520454406738,
+          "wall_seconds": 0.0038648350164294243,
+          "process_cpu_seconds": 0.003865999999998593
+        },
+        {
+          "name": "warp2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15335424423217772,
+          "wall_seconds": 0.0038641050341539085,
+          "process_cpu_seconds": 0.003864999999997565
+        },
+        {
+          "name": "warp1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.22605823516845702,
+          "wall_seconds": 0.0056814749841578305,
+          "process_cpu_seconds": 0.005682000000000187
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14602239608764647,
+          "wall_seconds": 0.0036816829815506935,
+          "process_cpu_seconds": 0.0036819999999977426
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1458995246887207,
+          "wall_seconds": 0.0036774860345758498,
+          "process_cpu_seconds": 0.0036780000000007362
+        },
+        {
+          "name": "warp1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.22601728439331054,
+          "wall_seconds": 0.005679674039129168,
+          "process_cpu_seconds": 0.005723000000003253
+        },
+        {
+          "name": "warp2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15359999656677245,
+          "wall_seconds": 0.0038688359782099724,
+          "process_cpu_seconds": 0.003868999999998124
+        },
+        {
+          "name": "warp2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15355903625488282,
+          "wall_seconds": 0.0038670029607601464,
+          "process_cpu_seconds": 0.0038680000000042014
+        },
+        {
+          "name": "warp1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.22614015579223634,
+          "wall_seconds": 0.005682589020580053,
+          "process_cpu_seconds": 0.005682999999997662
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14606335639953613,
+          "wall_seconds": 0.003679740009829402,
+          "process_cpu_seconds": 0.0036799999999992394
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.1460428762435913,
+        "warp1": 0.22609919548034668,
+        "warp2": 0.1534771203994751
+      }
+    },
+    {
+      "shape": [
+        1024,
+        5120
+      ],
+      "role": "text/layers/63/attention/v",
+      "occurrences": 32,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.015523840188980103,
+          "wall_seconds": 0.0004360480234026909,
+          "process_cpu_seconds": 0.00043199999999998795
+        },
+        {
+          "name": "warp1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.02002943992614746,
+          "wall_seconds": 0.000544038019143045,
+          "process_cpu_seconds": 0.0005440000000014322
+        },
+        {
+          "name": "warp2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.02531327962875366,
+          "wall_seconds": 0.0006613329751417041,
+          "process_cpu_seconds": 0.0006609999999973581
+        },
+        {
+          "name": "warp2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.025272319316864012,
+          "wall_seconds": 0.0006617640028707683,
+          "process_cpu_seconds": 0.0006620000000019388
+        },
+        {
+          "name": "warp1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.01990656018257141,
+          "wall_seconds": 0.0005264490027911961,
+          "process_cpu_seconds": 0.0005269999999981678
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.015237120389938354,
+          "wall_seconds": 0.00041153101483359933,
+          "process_cpu_seconds": 0.0004120000000007451
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.015155199766159057,
+          "wall_seconds": 0.0004084690008312464,
+          "process_cpu_seconds": 0.000408000000000186
+        },
+        {
+          "name": "warp1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.019865599870681764,
+          "wall_seconds": 0.0005251849652267992,
+          "process_cpu_seconds": 0.0005249999999996646
+        },
+        {
+          "name": "warp2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.02531327962875366,
+          "wall_seconds": 0.000661141995806247,
+          "process_cpu_seconds": 0.0006610000000009109
+        },
+        {
+          "name": "warp2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.02531327962875366,
+          "wall_seconds": 0.0006606269744224846,
+          "process_cpu_seconds": 0.0006610000000009109
+        },
+        {
+          "name": "warp1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.01994752049446106,
+          "wall_seconds": 0.0005319130141288042,
+          "process_cpu_seconds": 0.0005330000000043356
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.015155199766159057,
+          "wall_seconds": 0.0004067450063303113,
+          "process_cpu_seconds": 0.00040700000000271075
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.015196160078048707,
+        "warp1": 0.019927040338516236,
+        "warp2": 0.02531327962875366
+      }
+    }
+  ],
+  "completed": true
+}

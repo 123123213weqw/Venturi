@@ -1,0 +1,34 @@
+................FFFF..                                                   [100%]
+=================================== FAILURES ===================================
+__ test_decoder_capture_commits_only_replay_and_native_has_no_fallback[dense] __
+tests/test_decoder_cuda.py:101: in test_decoder_capture_commits_only_replay_and_native_has_no_fallback
+    graph = step.capture(x, cos, sin, out=out, workspace=arena, cache=cache)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/venturi/models/decoder_layer.py:596: in capture
+    with torch.cuda.graph(graph, stream=torch.cuda.current_stream(device)):
+../../../rwkv-distill-2.9b/.venv/lib/python3.12/site-packages/torch/cuda/graphs.py:258: in __enter__
+    self.cuda_graph.capture_begin(
+../../../rwkv-distill-2.9b/.venv/lib/python3.12/site-packages/torch/cuda/graphs.py:117: in capture_begin
+    super().capture_begin(pool=pool, capture_error_mode=capture_error_mode)
+E   RuntimeError: CUDA graphs must be captured on a non-default stream. (However, after capture, it's ok to replay them on the default stream.)
+___ test_decoder_capture_commits_only_replay_and_native_has_no_fallback[q4] ____
+tests/test_decoder_cuda.py:84: in test_decoder_capture_commits_only_replay_and_native_has_no_fallback
+    x = torch.randn(3, 32, dtype=torch.bfloat16, device="cuda")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Offset increment outside graph capture encountered unexpectedly.
+________ test_decoder_stream_ownership_and_two_request_isolation[dense] ________
+tests/test_decoder_cuda.py:138: in test_decoder_stream_ownership_and_two_request_isolation
+    inputs = [torch.randn(5, 32, device="cuda", dtype=torch.bfloat16) for _ in range(2)]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Offset increment outside graph capture encountered unexpectedly.
+_________ test_decoder_stream_ownership_and_two_request_isolation[q4] __________
+tests/test_decoder_cuda.py:138: in test_decoder_stream_ownership_and_two_request_isolation
+    inputs = [torch.randn(5, 32, device="cuda", dtype=torch.bfloat16) for _ in range(2)]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   RuntimeError: Offset increment outside graph capture encountered unexpectedly.
+=========================== short test summary info ============================
+FAILED tests/test_decoder_cuda.py::test_decoder_capture_commits_only_replay_and_native_has_no_fallback[dense]
+FAILED tests/test_decoder_cuda.py::test_decoder_capture_commits_only_replay_and_native_has_no_fallback[q4]
+FAILED tests/test_decoder_cuda.py::test_decoder_stream_ownership_and_two_request_isolation[dense]
+FAILED tests/test_decoder_cuda.py::test_decoder_stream_ownership_and_two_request_isolation[q4]
+4 failed, 18 passed in 1.49s

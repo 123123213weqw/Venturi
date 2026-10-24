@@ -1,0 +1,51 @@
+{
+  "provider": "qwen",
+  "model": "qwen3.8-27b-uncensored",
+  "profile": {
+    "api": "openai-completions",
+    "baseURL": "http://127.0.0.1:8001/v1",
+    "displayName": "qwen",
+    "models": [
+      {
+        "contextWindow": 262144,
+        "id": "qwen3.8-27b-uncensored",
+        "name": "qwen3.8-27b-uncensored",
+        "maxTokens": 32768,
+        "minimumOutputTokens": 4096,
+        "tokenSafetyMargin": 4096,
+        "imageInput": true,
+        "reasoning": {
+          "default_effort": "on",
+          "efforts": [
+            {
+              "id": "off",
+              "name": "Thinking off",
+              "request_patch": {
+                "chat_template_kwargs": {
+                  "enable_thinking": false
+                }
+              }
+            },
+            {
+              "id": "on",
+              "name": "Thinking on",
+              "request_patch": {
+                "chat_template_kwargs": {
+                  "enable_thinking": true
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "settings_revision": 22,
+  "other_settings_preserved": true,
+  "default_unchanged": true,
+  "existing_sessions_not_changed": true,
+  "production_server_parameters_unchanged": true,
+  "initial_request_timeout_seconds": 35,
+  "observed_unchanged_before_bounded_retry": true,
+  "retry_wall_seconds": 3.302858667
+}

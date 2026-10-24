@@ -1,0 +1,3062 @@
+{
+  "scope": "Recompute PP/TP cohort comparisons; never sum request latencies for TPS.",
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "artifact_sha256": "b2428c6e524914853d636b268c21f2ed298ba3d19c682fdef4973e8d634edab8",
+  "library_sha256": "29c2a8cc614387a9029b1cfd16dc78ebd3d9524f4083e1293eea6ea21737e6d4",
+  "workload": {
+    "prompt_tokens": 23,
+    "output_tokens": 32,
+    "decode_tokens": 31,
+    "eos_stopping": false,
+    "emitted_eos": false,
+    "order": [
+      "tp",
+      "pp",
+      "pp",
+      "tp"
+    ],
+    "split_layer": 32
+  },
+  "correctness": {
+    "exact_logits_hidden_gdn_history_kv": true,
+    "unchanged_fixed_cpu_gates": true,
+    "all_concurrent_generated_ids_match_pinned_native": true
+  },
+  "semantics": {
+    "tp": "Existing serialized whole-model request lock, resident row-sharded projections",
+    "pp": "Native stage-local locks/state, two contiguous layer partitions, requests overlap across stages",
+    "both": "Explicit host DMA, FP16 profile, Q8 group32 weights; no MTP/batching/paged KV/whole-model graphs"
+  },
+  "achieved_hardware_counters_available": false,
+  "original_bf16_corpus_quality_qualified": false,
+  "independent_upstream_architecture_qualified": false,
+  "matched_external_engine_comparison": false,
+  "counts": {
+    "1": {
+      "tp": {
+        "trials": 2,
+        "requests_per_trial": 1,
+        "ttft": {
+          "mean_cohort_wall_seconds": 0.49105292701278813,
+          "min_cohort_wall_seconds": 0.4904451639740728,
+          "max_cohort_wall_seconds": 0.4916606900515035,
+          "mean_process_cpu_seconds": 0.4915824999999927,
+          "aggregate_output_tokens_per_wall_second": 2.0364403610895443,
+          "mean_request_completion_latency_seconds": 0.49096987952361815,
+          "max_request_completion_latency_seconds": 0.49157163401832804,
+          "mean_request_thread_cpu_seconds": 0.49086725900000006
+        },
+        "decode": {
+          "mean_cohort_wall_seconds": 1.8051026755128987,
+          "min_cohort_wall_seconds": 1.8046901270281523,
+          "max_cohort_wall_seconds": 1.805515223997645,
+          "mean_process_cpu_seconds": 1.8071365000000021,
+          "aggregate_output_tokens_per_wall_second": 17.173538336921315,
+          "mean_request_completion_latency_seconds": 1.8049063090002164,
+          "max_request_completion_latency_seconds": 1.8053212210070342,
+          "mean_request_thread_cpu_seconds": 1.8048565289999998
+        },
+        "unsplit": {
+          "mean_cohort_wall_seconds": 2.290098150493577,
+          "min_cohort_wall_seconds": 2.2888115090318024,
+          "max_cohort_wall_seconds": 2.291384791955352,
+          "mean_process_cpu_seconds": 2.2925359999999984,
+          "aggregate_output_tokens_per_wall_second": 13.97320022860293,
+          "mean_request_completion_latency_seconds": 2.2900125670130365,
+          "max_request_completion_latency_seconds": 2.2912948279990815,
+          "mean_request_thread_cpu_seconds": 2.289884013
+        },
+        "telemetry": {
+          "1": {
+            "samples": 87,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 75.28735632183908,
+                "min": 69.0,
+                "max": 91.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 34.47126436781609,
+                "min": 24.0,
+                "max": 37.0
+              },
+              "device_used_mib": {
+                "mean": 18541.0,
+                "min": 18541.0,
+                "max": 18541.0
+              },
+              "power_watts": {
+                "mean": 167.43724137931034,
+                "min": 145.24,
+                "max": 221.36
+              },
+              "temperature_c": {
+                "mean": 43.13793103448276,
+                "min": 38.0,
+                "max": 48.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 87,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 64.59770114942529,
+                "min": 56.0,
+                "max": 82.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 33.52873563218391,
+                "min": 24.0,
+                "max": 36.0
+              },
+              "device_used_mib": {
+                "mean": 17223.0,
+                "min": 17223.0,
+                "max": 17223.0
+              },
+              "power_watts": {
+                "mean": 148.52057471264368,
+                "min": 129.38,
+                "max": 196.28
+              },
+              "temperature_c": {
+                "mean": 42.13793103448276,
+                "min": 37.0,
+                "max": 47.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        "initial_native_memory": [
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0
+          }
+        ]
+      },
+      "pp": {
+        "trials": 2,
+        "requests_per_trial": 1,
+        "ttft": {
+          "mean_cohort_wall_seconds": 0.7785810760396998,
+          "min_cohort_wall_seconds": 0.7782041550381109,
+          "max_cohort_wall_seconds": 0.7789579970412888,
+          "mean_process_cpu_seconds": 0.7793175000000012,
+          "aggregate_output_tokens_per_wall_second": 1.2843877545631612,
+          "mean_request_completion_latency_seconds": 0.7784207270306069,
+          "max_request_completion_latency_seconds": 0.7787186240311712,
+          "mean_request_thread_cpu_seconds": 0.7783134759999999
+        },
+        "decode": {
+          "mean_cohort_wall_seconds": 2.0808281050121877,
+          "min_cohort_wall_seconds": 2.078974489006214,
+          "max_cohort_wall_seconds": 2.0826817210181616,
+          "mean_process_cpu_seconds": 2.082826999999998,
+          "aggregate_output_tokens_per_wall_second": 14.897914885582741,
+          "mean_request_completion_latency_seconds": 2.0806356400134973,
+          "max_request_completion_latency_seconds": 2.082543923985213,
+          "mean_request_thread_cpu_seconds": 2.080401653
+        },
+        "unsplit": {
+          "mean_cohort_wall_seconds": 2.847987236978952,
+          "min_cohort_wall_seconds": 2.8476847219862975,
+          "max_cohort_wall_seconds": 2.848289751971606,
+          "mean_process_cpu_seconds": 2.8506810000000016,
+          "aggregate_output_tokens_per_wall_second": 11.236005409190145,
+          "mean_request_completion_latency_seconds": 2.8477266484696884,
+          "max_request_completion_latency_seconds": 2.848036511975806,
+          "mean_request_thread_cpu_seconds": 2.8473669525
+        },
+        "telemetry": {
+          "1": {
+            "samples": 109,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 47.84403669724771,
+                "min": 0.0,
+                "max": 100.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 26.339449541284402,
+                "min": 0.0,
+                "max": 36.0
+              },
+              "device_used_mib": {
+                "mean": 17659.0,
+                "min": 17659.0,
+                "max": 17659.0
+              },
+              "power_watts": {
+                "mean": 134.0002752293578,
+                "min": 43.29,
+                "max": 249.38
+              },
+              "temperature_c": {
+                "mean": 43.63302752293578,
+                "min": 41.0,
+                "max": 48.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1376.6605504587155,
+                "min": 1365.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 109,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 50.825688073394495,
+                "min": 0.0,
+                "max": 100.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 28.65137614678899,
+                "min": 0.0,
+                "max": 37.0
+              },
+              "device_used_mib": {
+                "mean": 18121.0,
+                "min": 18121.0,
+                "max": 18121.0
+              },
+              "power_watts": {
+                "mean": 132.88550458715596,
+                "min": 44.37,
+                "max": 236.05
+              },
+              "temperature_c": {
+                "mean": 43.522935779816514,
+                "min": 40.0,
+                "max": 47.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        "initial_native_memory": [
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          }
+        ]
+      },
+      "pp_over_tp_speedup": {
+        "ttft": 0.6307023662976229,
+        "decode": 0.8674924522428661,
+        "unsplit": 0.8041111002038182
+      }
+    },
+    "2": {
+      "tp": {
+        "trials": 2,
+        "requests_per_trial": 2,
+        "ttft": {
+          "mean_cohort_wall_seconds": 0.9788518144923728,
+          "min_cohort_wall_seconds": 0.9786636129720137,
+          "max_cohort_wall_seconds": 0.9790400160127319,
+          "mean_process_cpu_seconds": 0.9820184999999988,
+          "aggregate_output_tokens_per_wall_second": 2.0432101880887754,
+          "mean_request_completion_latency_seconds": 0.7361960082635051,
+          "max_request_completion_latency_seconds": 0.9789464120403863,
+          "mean_request_thread_cpu_seconds": 0.4903646964999999
+        },
+        "decode": {
+          "mean_cohort_wall_seconds": 3.60787036200054,
+          "min_cohort_wall_seconds": 3.6057136100134812,
+          "max_cohort_wall_seconds": 3.6100271139875986,
+          "mean_process_cpu_seconds": 3.613793000000001,
+          "aggregate_output_tokens_per_wall_second": 17.184652933488834,
+          "mean_request_completion_latency_seconds": 2.7078211619955255,
+          "max_request_completion_latency_seconds": 3.609926357981749,
+          "mean_request_thread_cpu_seconds": 1.8048376767500003
+        },
+        "unsplit": {
+          "mean_cohort_wall_seconds": 4.5753808290173765,
+          "min_cohort_wall_seconds": 4.573177353013307,
+          "max_cohort_wall_seconds": 4.577584305021446,
+          "mean_process_cpu_seconds": 4.582579500000001,
+          "aggregate_output_tokens_per_wall_second": 13.987906666502523,
+          "mean_request_completion_latency_seconds": 3.433129315264523,
+          "max_request_completion_latency_seconds": 4.577370808052365,
+          "mean_request_thread_cpu_seconds": 2.28847924375
+        },
+        "telemetry": {
+          "1": {
+            "samples": 177,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 75.56497175141243,
+                "min": 63.0,
+                "max": 91.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 34.451977401129945,
+                "min": 22.0,
+                "max": 38.0
+              },
+              "device_used_mib": {
+                "mean": 18757.0,
+                "min": 18757.0,
+                "max": 18757.0
+              },
+              "power_watts": {
+                "mean": 169.02333333333334,
+                "min": 68.4,
+                "max": 223.01
+              },
+              "temperature_c": {
+                "mean": 46.11864406779661,
+                "min": 41.0,
+                "max": 51.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 176,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 64.7215909090909,
+                "min": 47.0,
+                "max": 82.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 33.60795454545455,
+                "min": 23.0,
+                "max": 36.0
+              },
+              "device_used_mib": {
+                "mean": 17223.0,
+                "min": 17223.0,
+                "max": 17223.0
+              },
+              "power_watts": {
+                "mean": 151.423125,
+                "min": 134.55,
+                "max": 197.8
+              },
+              "temperature_c": {
+                "mean": 44.75,
+                "min": 41.0,
+                "max": 49.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        "initial_native_memory": [
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 940572672,
+            "peer_output_copy_bytes": 655540224
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 940572672,
+            "peer_output_copy_bytes": 655540224
+          }
+        ]
+      },
+      "pp": {
+        "trials": 2,
+        "requests_per_trial": 2,
+        "ttft": {
+          "mean_cohort_wall_seconds": 1.1793461210036185,
+          "min_cohort_wall_seconds": 1.1748067630105652,
+          "max_cohort_wall_seconds": 1.1838854789966717,
+          "mean_process_cpu_seconds": 1.5690275000000007,
+          "aggregate_output_tokens_per_wall_second": 1.695854986403829,
+          "mean_request_completion_latency_seconds": 0.9854649385088123,
+          "max_request_completion_latency_seconds": 1.1837818379863165,
+          "mean_request_thread_cpu_seconds": 0.7836335165
+        },
+        "decode": {
+          "mean_cohort_wall_seconds": 2.204258370999014,
+          "min_cohort_wall_seconds": 2.203811219020281,
+          "max_cohort_wall_seconds": 2.204705522977747,
+          "mean_process_cpu_seconds": 4.1603715,
+          "aggregate_output_tokens_per_wall_second": 28.12737418431595,
+          "mean_request_completion_latency_seconds": 2.1866878157452447,
+          "max_request_completion_latency_seconds": 2.204557513992768,
+          "mean_request_thread_cpu_seconds": 2.07873108075
+        },
+        "unsplit": {
+          "mean_cohort_wall_seconds": 3.327146598487161,
+          "min_cohort_wall_seconds": 3.326338731974829,
+          "max_cohort_wall_seconds": 3.327954464999493,
+          "mean_process_cpu_seconds": 5.701392000000002,
+          "aggregate_output_tokens_per_wall_second": 19.235701856089094,
+          "mean_request_completion_latency_seconds": 3.3096096002554987,
+          "max_request_completion_latency_seconds": 3.3277998120174743,
+          "mean_request_thread_cpu_seconds": 2.8484931307499997
+        },
+        "telemetry": {
+          "1": {
+            "samples": 129,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 80.65116279069767,
+                "min": 0.0,
+                "max": 100.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 44.24031007751938,
+                "min": 0.0,
+                "max": 60.0
+              },
+              "device_used_mib": {
+                "mean": 17777.0,
+                "min": 17777.0,
+                "max": 17777.0
+              },
+              "power_watts": {
+                "mean": 200.9065891472868,
+                "min": 43.7,
+                "max": 253.99
+              },
+              "temperature_c": {
+                "mean": 49.286821705426355,
+                "min": 44.0,
+                "max": 52.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1374.093023255814,
+                "min": 1357.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 128,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 85.296875,
+                "min": 0.0,
+                "max": 100.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 47.6640625,
+                "min": 0.0,
+                "max": 64.0
+              },
+              "device_used_mib": {
+                "mean": 18239.0,
+                "min": 18239.0,
+                "max": 18239.0
+              },
+              "power_watts": {
+                "mean": 200.464296875,
+                "min": 45.95,
+                "max": 241.07
+              },
+              "temperature_c": {
+                "mean": 48.5078125,
+                "min": 43.0,
+                "max": 51.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        "initial_native_memory": [
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          }
+        ]
+      },
+      "pp_over_tp_speedup": {
+        "ttft": 0.8299953652786631,
+        "decode": 1.6367728980724618,
+        "unsplit": 1.3751665860163127
+      }
+    },
+    "4": {
+      "tp": {
+        "trials": 2,
+        "requests_per_trial": 4,
+        "ttft": {
+          "mean_cohort_wall_seconds": 1.9587087805266492,
+          "min_cohort_wall_seconds": 1.9565089870011434,
+          "max_cohort_wall_seconds": 1.960908574052155,
+          "mean_process_cpu_seconds": 1.9692500000000024,
+          "aggregate_output_tokens_per_wall_second": 2.0421616729182666,
+          "mean_request_completion_latency_seconds": 1.2307036620259169,
+          "max_request_completion_latency_seconds": 1.9608110090484843,
+          "mean_request_thread_cpu_seconds": 0.4917419057499999
+        },
+        "decode": {
+          "mean_cohort_wall_seconds": 7.223659042472718,
+          "min_cohort_wall_seconds": 7.213597767986357,
+          "max_cohort_wall_seconds": 7.233720316959079,
+          "mean_process_cpu_seconds": 7.236820999999999,
+          "aggregate_output_tokens_per_wall_second": 17.165815727309546,
+          "mean_request_completion_latency_seconds": 4.522272670103121,
+          "max_request_completion_latency_seconds": 7.2335567029658705,
+          "mean_request_thread_cpu_seconds": 1.807245961125
+        },
+        "unsplit": {
+          "mean_cohort_wall_seconds": 9.154255717992783,
+          "min_cohort_wall_seconds": 9.151181522989646,
+          "max_cohort_wall_seconds": 9.15732991299592,
+          "mean_process_cpu_seconds": 9.172824500000004,
+          "aggregate_output_tokens_per_wall_second": 13.982567665049459,
+          "mean_request_completion_latency_seconds": 5.7286230265162885,
+          "max_request_completion_latency_seconds": 9.157162229996175,
+          "mean_request_thread_cpu_seconds": 2.2909536635
+        },
+        "telemetry": {
+          "1": {
+            "samples": 354,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 75.7090395480226,
+                "min": 44.0,
+                "max": 91.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 34.53954802259887,
+                "min": 14.0,
+                "max": 38.0
+              },
+              "device_used_mib": {
+                "mean": 19191.0,
+                "min": 19191.0,
+                "max": 19191.0
+              },
+              "power_watts": {
+                "mean": 169.40906779661017,
+                "min": 49.97,
+                "max": 225.61
+              },
+              "temperature_c": {
+                "mean": 49.80790960451977,
+                "min": 47.0,
+                "max": 54.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 355,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 64.7549295774648,
+                "min": 41.0,
+                "max": 82.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 33.52676056338028,
+                "min": 14.0,
+                "max": 36.0
+              },
+              "device_used_mib": {
+                "mean": 17223.0,
+                "min": 17223.0,
+                "max": 17223.0
+              },
+              "power_watts": {
+                "mean": 151.49701408450704,
+                "min": 47.83,
+                "max": 201.46
+              },
+              "temperature_c": {
+                "mean": 47.46478873239437,
+                "min": 44.0,
+                "max": 51.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        "initial_native_memory": [
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 2821718016,
+            "peer_output_copy_bytes": 1966620672
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 2821718016,
+            "peer_output_copy_bytes": 1966620672
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 2821718016,
+            "peer_output_copy_bytes": 1966620672
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 2821718016,
+            "peer_output_copy_bytes": 1966620672
+          }
+        ]
+      },
+      "pp": {
+        "trials": 2,
+        "requests_per_trial": 4,
+        "ttft": {
+          "mean_cohort_wall_seconds": 1.9927664194838144,
+          "min_cohort_wall_seconds": 1.9904595199623145,
+          "max_cohort_wall_seconds": 1.9950733190053143,
+          "mean_process_cpu_seconds": 3.1845709999999983,
+          "aggregate_output_tokens_per_wall_second": 2.0072598378269135,
+          "mean_request_completion_latency_seconds": 1.4118188592474326,
+          "max_request_completion_latency_seconds": 1.9949370240210555,
+          "mean_request_thread_cpu_seconds": 0.7954376557499999
+        },
+        "decode": {
+          "mean_cohort_wall_seconds": 4.3802940714522265,
+          "min_cohort_wall_seconds": 4.375376644951757,
+          "max_cohort_wall_seconds": 4.385211497952696,
+          "mean_process_cpu_seconds": 8.348896499999995,
+          "aggregate_output_tokens_per_wall_second": 28.308601654886036,
+          "mean_request_completion_latency_seconds": 4.327872904599644,
+          "max_request_completion_latency_seconds": 4.385112525953446,
+          "mean_request_thread_cpu_seconds": 2.085892738625
+        },
+        "unsplit": {
+          "mean_cohort_wall_seconds": 6.315594891493674,
+          "min_cohort_wall_seconds": 6.305193622014485,
+          "max_cohort_wall_seconds": 6.325996160972863,
+          "mean_process_cpu_seconds": 11.465308,
+          "aggregate_output_tokens_per_wall_second": 20.267291078533262,
+          "mean_request_completion_latency_seconds": 6.263242674242065,
+          "max_request_completion_latency_seconds": 6.325911391992122,
+          "mean_request_thread_cpu_seconds": 2.864365683125
+        },
+        "telemetry": {
+          "1": {
+            "samples": 243,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 85.5843621399177,
+                "min": 0.0,
+                "max": 100.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 46.98765432098765,
+                "min": 0.0,
+                "max": 63.0
+              },
+              "device_used_mib": {
+                "mean": 18011.0,
+                "min": 18011.0,
+                "max": 18011.0
+              },
+              "power_watts": {
+                "mean": 209.91382716049384,
+                "min": 44.98,
+                "max": 252.94
+              },
+              "temperature_c": {
+                "mean": 53.76543209876543,
+                "min": 48.0,
+                "max": 57.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1374.9670781893003,
+                "min": 1357.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 243,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 90.95473251028807,
+                "min": 0.0,
+                "max": 100.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 50.958847736625515,
+                "min": 0.0,
+                "max": 64.0
+              },
+              "device_used_mib": {
+                "mean": 18473.0,
+                "min": 18473.0,
+                "max": 18473.0
+              },
+              "power_watts": {
+                "mean": 211.86296296296297,
+                "min": 47.1,
+                "max": 245.63
+              },
+              "temperature_c": {
+                "mean": 52.81481481481482,
+                "min": 47.0,
+                "max": 55.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        "initial_native_memory": [
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          }
+        ]
+      },
+      "pp_over_tp_speedup": {
+        "ttft": 0.9829093672875182,
+        "decode": 1.6491265026135136,
+        "unsplit": 1.449468478467869
+      }
+    },
+    "8": {
+      "tp": {
+        "trials": 2,
+        "requests_per_trial": 8,
+        "ttft": {
+          "mean_cohort_wall_seconds": 3.953654782002559,
+          "min_cohort_wall_seconds": 3.9437745430041105,
+          "max_cohort_wall_seconds": 3.9635350210010074,
+          "mean_process_cpu_seconds": 3.9922104999999988,
+          "aggregate_output_tokens_per_wall_second": 2.023444241115036,
+          "mean_request_completion_latency_seconds": 2.2548894099782046,
+          "max_request_completion_latency_seconds": 3.9634472929756157,
+          "mean_request_thread_cpu_seconds": 0.4984134323125
+        },
+        "decode": {
+          "mean_cohort_wall_seconds": 14.43519841550733,
+          "min_cohort_wall_seconds": 14.422028811008204,
+          "max_cohort_wall_seconds": 14.448368020006455,
+          "mean_process_cpu_seconds": 14.508502999999997,
+          "aggregate_output_tokens_per_wall_second": 17.180227999746823,
+          "mean_request_completion_latency_seconds": 8.136559268896235,
+          "max_request_completion_latency_seconds": 14.448264981037937,
+          "mean_request_thread_cpu_seconds": 1.811771181625
+        },
+        "unsplit": {
+          "mean_cohort_wall_seconds": 18.314307897002436,
+          "min_cohort_wall_seconds": 18.309708087996114,
+          "max_cohort_wall_seconds": 18.31890770600876,
+          "mean_process_cpu_seconds": 18.380469499999997,
+          "aggregate_output_tokens_per_wall_second": 13.97814219569282,
+          "mean_request_completion_latency_seconds": 10.318574755514419,
+          "max_request_completion_latency_seconds": 18.318821121007204,
+          "mean_request_thread_cpu_seconds": 2.295359131375
+        },
+        "telemetry": {
+          "1": {
+            "samples": 708,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 75.75564971751412,
+                "min": 19.0,
+                "max": 92.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 34.50423728813559,
+                "min": 8.0,
+                "max": 38.0
+              },
+              "device_used_mib": {
+                "mean": 20057.0,
+                "min": 20057.0,
+                "max": 20057.0
+              },
+              "power_watts": {
+                "mean": 170.91418079096044,
+                "min": 47.05,
+                "max": 228.98
+              },
+              "temperature_c": {
+                "mean": 52.78531073446328,
+                "min": 49.0,
+                "max": 57.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 708,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 64.7683615819209,
+                "min": 10.0,
+                "max": 82.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 33.594632768361585,
+                "min": 6.0,
+                "max": 36.0
+              },
+              "device_used_mib": {
+                "mean": 17223.0,
+                "min": 17223.0,
+                "max": 17223.0
+              },
+              "power_watts": {
+                "mean": 154.0883615819209,
+                "min": 47.52,
+                "max": 206.59
+              },
+              "temperature_c": {
+                "mean": 50.00847457627118,
+                "min": 47.0,
+                "max": 53.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1380.0,
+                "min": 1380.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        "initial_native_memory": [
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 6584008704,
+            "peer_output_copy_bytes": 4588781568
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 6584008704,
+            "peer_output_copy_bytes": 4588781568
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 6584008704,
+            "peer_output_copy_bytes": 4588781568
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 6584008704,
+            "peer_output_copy_bytes": 4588781568
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 6584008704,
+            "peer_output_copy_bytes": 4588781568
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 6584008704,
+            "peer_output_copy_bytes": 4588781568
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 6584008704,
+            "peer_output_copy_bytes": 4588781568
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 15064850048,
+            "request_device_bytes": 175283288,
+            "pinned_host_bytes": 14900736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 13605641728,
+            "peer_input_copy_bytes": 6584008704,
+            "peer_output_copy_bytes": 4588781568
+          }
+        ]
+      },
+      "pp": {
+        "trials": 2,
+        "requests_per_trial": 8,
+        "ttft": {
+          "mean_cohort_wall_seconds": 3.630820787017001,
+          "min_cohort_wall_seconds": 3.628793216019403,
+          "max_cohort_wall_seconds": 3.6328483580145985,
+          "mean_process_cpu_seconds": 6.439193000000003,
+          "aggregate_output_tokens_per_wall_second": 2.2033585432269756,
+          "mean_request_completion_latency_seconds": 2.2686223453856655,
+          "max_request_completion_latency_seconds": 3.632731742982287,
+          "mean_request_thread_cpu_seconds": 0.80427599125
+        },
+        "decode": {
+          "mean_cohort_wall_seconds": 8.781172263494227,
+          "min_cohort_wall_seconds": 8.775161233963445,
+          "max_cohort_wall_seconds": 8.78718329302501,
+          "mean_process_cpu_seconds": 16.775971,
+          "aggregate_output_tokens_per_wall_second": 28.24224289859395,
+          "mean_request_completion_latency_seconds": 8.658986908314546,
+          "max_request_completion_latency_seconds": 8.78712275903672,
+          "mean_request_thread_cpu_seconds": 2.09576266
+        },
+        "unsplit": {
+          "mean_cohort_wall_seconds": 12.240720580506604,
+          "min_cohort_wall_seconds": 12.215164155990351,
+          "max_cohort_wall_seconds": 12.266277005022857,
+          "mean_process_cpu_seconds": 22.992085000000003,
+          "aggregate_output_tokens_per_wall_second": 20.913801464243946,
+          "mean_request_completion_latency_seconds": 12.118450110498088,
+          "max_request_completion_latency_seconds": 12.266237169038504,
+          "mean_request_thread_cpu_seconds": 2.87240605225
+        },
+        "telemetry": {
+          "1": {
+            "samples": 471,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 89.28662420382166,
+                "min": 0.0,
+                "max": 100.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 48.938428874734605,
+                "min": 0.0,
+                "max": 64.0
+              },
+              "device_used_mib": {
+                "mean": 18481.0,
+                "min": 18481.0,
+                "max": 18481.0
+              },
+              "power_watts": {
+                "mean": 218.77543524416137,
+                "min": 45.5,
+                "max": 256.5
+              },
+              "temperature_c": {
+                "mean": 58.67091295116773,
+                "min": 52.0,
+                "max": 61.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1372.9617834394905,
+                "min": 1342.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          },
+          "0": {
+            "samples": 472,
+            "scope": "Device-wide samples in timed windows, not achieved occupancy/bandwidth",
+            "values": {
+              "gpu_busy_percent": {
+                "mean": 94.04025423728814,
+                "min": 0.0,
+                "max": 100.0
+              },
+              "memory_controller_busy_percent": {
+                "mean": 52.46610169491525,
+                "min": 0.0,
+                "max": 64.0
+              },
+              "device_used_mib": {
+                "mean": 18943.0,
+                "min": 18943.0,
+                "max": 18943.0
+              },
+              "power_watts": {
+                "mean": 219.96029661016948,
+                "min": 49.08,
+                "max": 250.1
+              },
+              "temperature_c": {
+                "mean": 57.682203389830505,
+                "min": 51.0,
+                "max": 60.0
+              },
+              "sm_clock_mhz": {
+                "mean": 1379.9661016949153,
+                "min": 1372.0,
+                "max": 1380.0
+              },
+              "memory_clock_mhz": {
+                "mean": 877.0,
+                "min": 877.0,
+                "max": 877.0
+              }
+            }
+          }
+        },
+        "initial_native_memory": [
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          },
+          {
+            "position": 0,
+            "failed": 0,
+            "model_device_bytes": 14331221120,
+            "request_device_bytes": 96476248,
+            "pinned_host_bytes": 17012736,
+            "mapped_payload_bytes": 28601624576,
+            "model_weight_upload_bytes": 28549120000,
+            "streaming_embedding_upload_bytes": 0,
+            "peer_device_index": 1,
+            "peer_transport": "host",
+            "peer_device_bytes": 14331241600,
+            "peer_input_copy_bytes": 0,
+            "peer_output_copy_bytes": 0,
+            "parallelism": "pipeline",
+            "pipeline_transport": "host",
+            "pipeline_split_layer": 32,
+            "peer_request_device_bytes": 96476248,
+            "pipeline_handoffs": 0,
+            "pipeline_activation_payload_bytes": 0,
+            "pipeline_selection_d2h_bytes": 0,
+            "scheduling": "Native stage locks; distinct requests may overlap across stages, no continuous batching"
+          }
+        ]
+      },
+      "pp_over_tp_speedup": {
+        "ttft": 1.0889148801119406,
+        "decode": 1.6438805642748247,
+        "unsplit": 1.4961789035661874
+      }
+    }
+  },
+  "profiler_only": {
+    "tp-c1": {
+      "scope": "Cohort CUDA timelines joined by each submitting request's NVTX/thread range.\n\nPer-device kernel unions reveal two-GPU overlap, not achieved SM occupancy.\nDuration sums are never substituted for request/cohort wall time. Timeline gaps\nrefer only to this process's captured activities, not device-wide idle time.\n",
+      "achieved_hardware_counters": false,
+      "cohorts": [
+        {
+          "name": "native_ttft",
+          "requests": 1,
+          "host_cohort_span_nanoseconds": 499701036,
+          "kernels": 1462,
+          "kernel_nanoseconds": 779086941,
+          "activity_span_nanoseconds": 492919393,
+          "activity_union_nanoseconds": 474448497,
+          "gaps_between_this_process_activities_nanoseconds": 18470896,
+          "transfers": {
+            "host_to_device": {
+              "count": 803,
+              "bytes": 223343288,
+              "nanoseconds": 32646346
+            },
+            "device_to_host": {
+              "count": 803,
+              "bytes": 223343120,
+              "nanoseconds": 24428839
+            }
+          },
+          "kernel_by_name": [
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)4, (int)1>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 800,
+              "nanoseconds": 731403899
+            },
+            {
+              "name": "void <unnamed>::gdn_recurrent<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+              "count": 48,
+              "nanoseconds": 38401760
+            },
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)1, (int)4>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 2,
+              "nanoseconds": 2788972
+            },
+            {
+              "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+              "count": 96,
+              "nanoseconds": 2108217
+            },
+            {
+              "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+              "count": 129,
+              "nanoseconds": 1668127
+            },
+            {
+              "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+              "count": 48,
+              "nanoseconds": 1100607
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+              "count": 128,
+              "nanoseconds": 368639
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+              "count": 64,
+              "nanoseconds": 365472
+            },
+            {
+              "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+              "count": 16,
+              "nanoseconds": 347776
+            },
+            {
+              "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+              "count": 48,
+              "nanoseconds": 263168
+            },
+            {
+              "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+              "count": 48,
+              "nanoseconds": 120192
+            },
+            {
+              "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+              "count": 16,
+              "nanoseconds": 82944
+            },
+            {
+              "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+              "count": 16,
+              "nanoseconds": 52640
+            },
+            {
+              "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+              "count": 1,
+              "nanoseconds": 8576
+            },
+            {
+              "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+              "count": 1,
+              "nanoseconds": 3584
+            },
+            {
+              "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+              "count": 1,
+              "nanoseconds": 2368
+            }
+          ],
+          "per_device_kernel_union_nanoseconds": {
+            "0": 412397415,
+            "1": 366689526
+          },
+          "cross_device_kernel_union_nanoseconds": 436499725,
+          "simultaneous_two_device_kernel_nanoseconds": 342587216
+        },
+        {
+          "name": "native_decode",
+          "requests": 1,
+          "host_cohort_span_nanoseconds": 440917014,
+          "kernels": 10234,
+          "kernel_nanoseconds": 486180196,
+          "activity_span_nanoseconds": 434489964,
+          "activity_union_nanoseconds": 340175684,
+          "gaps_between_this_process_activities_nanoseconds": 94314280,
+          "transfers": {
+            "host_to_device": {
+              "count": 5621,
+              "bytes": 69705272,
+              "nanoseconds": 25235127
+            },
+            "device_to_host": {
+              "count": 5621,
+              "bytes": 69705328,
+              "nanoseconds": 13964240
+            }
+          },
+          "kernel_by_name": [
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)1, (int)4>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 5614,
+              "nanoseconds": 439606620
+            },
+            {
+              "name": "void <unnamed>::gdn_recurrent<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+              "count": 336,
+              "nanoseconds": 17945584
+            },
+            {
+              "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+              "count": 903,
+              "nanoseconds": 12054110
+            },
+            {
+              "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+              "count": 672,
+              "nanoseconds": 6671378
+            },
+            {
+              "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+              "count": 112,
+              "nanoseconds": 3505659
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+              "count": 896,
+              "nanoseconds": 1771321
+            },
+            {
+              "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+              "count": 336,
+              "nanoseconds": 1177534
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+              "count": 448,
+              "nanoseconds": 1043935
+            },
+            {
+              "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+              "count": 336,
+              "nanoseconds": 913853
+            },
+            {
+              "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+              "count": 336,
+              "nanoseconds": 837821
+            },
+            {
+              "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+              "count": 112,
+              "nanoseconds": 332989
+            },
+            {
+              "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+              "count": 112,
+              "nanoseconds": 228800
+            },
+            {
+              "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+              "count": 7,
+              "nanoseconds": 58528
+            },
+            {
+              "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+              "count": 7,
+              "nanoseconds": 16576
+            },
+            {
+              "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+              "count": 7,
+              "nanoseconds": 15488
+            }
+          ],
+          "per_device_kernel_union_nanoseconds": {
+            "0": 266776264,
+            "1": 219403932
+          },
+          "cross_device_kernel_union_nanoseconds": 314432485,
+          "simultaneous_two_device_kernel_nanoseconds": 171747711
+        },
+        {
+          "name": "native_unsplit",
+          "requests": 1,
+          "host_cohort_span_nanoseconds": 934458431,
+          "kernels": 11696,
+          "kernel_nanoseconds": 1265203987,
+          "activity_span_nanoseconds": 927960517,
+          "activity_union_nanoseconds": 814572235,
+          "gaps_between_this_process_activities_nanoseconds": 113388282,
+          "transfers": {
+            "host_to_device": {
+              "count": 6424,
+              "bytes": 293048560,
+              "nanoseconds": 58193912
+            },
+            "device_to_host": {
+              "count": 6424,
+              "bytes": 293048448,
+              "nanoseconds": 38432131
+            }
+          },
+          "kernel_by_name": [
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)4, (int)1>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 800,
+              "nanoseconds": 731328048
+            },
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)1, (int)4>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 5616,
+              "nanoseconds": 442375915
+            },
+            {
+              "name": "void <unnamed>::gdn_recurrent<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+              "count": 384,
+              "nanoseconds": 56374589
+            },
+            {
+              "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+              "count": 1032,
+              "nanoseconds": 13731196
+            },
+            {
+              "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+              "count": 768,
+              "nanoseconds": 8772008
+            },
+            {
+              "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+              "count": 128,
+              "nanoseconds": 3850295
+            },
+            {
+              "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+              "count": 384,
+              "nanoseconds": 2275861
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+              "count": 1024,
+              "nanoseconds": 2147580
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+              "count": 512,
+              "nanoseconds": 1405691
+            },
+            {
+              "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+              "count": 384,
+              "nanoseconds": 1178841
+            },
+            {
+              "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+              "count": 384,
+              "nanoseconds": 958013
+            },
+            {
+              "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+              "count": 128,
+              "nanoseconds": 416895
+            },
+            {
+              "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+              "count": 128,
+              "nanoseconds": 282784
+            },
+            {
+              "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+              "count": 8,
+              "nanoseconds": 66879
+            },
+            {
+              "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+              "count": 8,
+              "nanoseconds": 19808
+            },
+            {
+              "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+              "count": 8,
+              "nanoseconds": 19584
+            }
+          ],
+          "per_device_kernel_union_nanoseconds": {
+            "0": 679172009,
+            "1": 586031978
+          },
+          "cross_device_kernel_union_nanoseconds": 750632008,
+          "simultaneous_two_device_kernel_nanoseconds": 514571979
+        }
+      ]
+    },
+    "tp-c8": {
+      "scope": "Cohort CUDA timelines joined by each submitting request's NVTX/thread range.\n\nPer-device kernel unions reveal two-GPU overlap, not achieved SM occupancy.\nDuration sums are never substituted for request/cohort wall time. Timeline gaps\nrefer only to this process's captured activities, not device-wide idle time.\n",
+      "achieved_hardware_counters": false,
+      "cohorts": [
+        {
+          "name": "native_ttft",
+          "requests": 8,
+          "host_cohort_span_nanoseconds": 4001132975,
+          "kernels": 11696,
+          "kernel_nanoseconds": 6240935567,
+          "activity_span_nanoseconds": 3953716774,
+          "activity_union_nanoseconds": 3802268153,
+          "gaps_between_this_process_activities_nanoseconds": 151448621,
+          "transfers": {
+            "host_to_device": {
+              "count": 6424,
+              "bytes": 1786746304,
+              "nanoseconds": 261189836
+            },
+            "device_to_host": {
+              "count": 6424,
+              "bytes": 1786744960,
+              "nanoseconds": 195240607
+            }
+          },
+          "kernel_by_name": [
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)4, (int)1>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 6400,
+              "nanoseconds": 5859444540
+            },
+            {
+              "name": "void <unnamed>::gdn_recurrent<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+              "count": 384,
+              "nanoseconds": 307272670
+            },
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)1, (int)4>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 16,
+              "nanoseconds": 22320196
+            },
+            {
+              "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+              "count": 768,
+              "nanoseconds": 16876529
+            },
+            {
+              "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+              "count": 1032,
+              "nanoseconds": 13331259
+            },
+            {
+              "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+              "count": 384,
+              "nanoseconds": 8857481
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+              "count": 1024,
+              "nanoseconds": 2927158
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+              "count": 512,
+              "nanoseconds": 2887447
+            },
+            {
+              "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+              "count": 128,
+              "nanoseconds": 2779478
+            },
+            {
+              "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+              "count": 384,
+              "nanoseconds": 2088060
+            },
+            {
+              "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+              "count": 384,
+              "nanoseconds": 952990
+            },
+            {
+              "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+              "count": 128,
+              "nanoseconds": 660575
+            },
+            {
+              "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+              "count": 128,
+              "nanoseconds": 424320
+            },
+            {
+              "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+              "count": 8,
+              "nanoseconds": 67072
+            },
+            {
+              "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+              "count": 8,
+              "nanoseconds": 25920
+            },
+            {
+              "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+              "count": 8,
+              "nanoseconds": 19872
+            }
+          ],
+          "per_device_kernel_union_nanoseconds": {
+            "0": 3301688902,
+            "1": 2939246665
+          },
+          "cross_device_kernel_union_nanoseconds": 3499143996,
+          "simultaneous_two_device_kernel_nanoseconds": 2741791571
+        },
+        {
+          "name": "native_decode",
+          "requests": 8,
+          "host_cohort_span_nanoseconds": 3546669258,
+          "kernels": 81872,
+          "kernel_nanoseconds": 3886346480,
+          "activity_span_nanoseconds": 3488555067,
+          "activity_union_nanoseconds": 2723703498,
+          "gaps_between_this_process_activities_nanoseconds": 764851569,
+          "transfers": {
+            "host_to_device": {
+              "count": 44968,
+              "bytes": 557642176,
+              "nanoseconds": 205345314
+            },
+            "device_to_host": {
+              "count": 44968,
+              "bytes": 557642624,
+              "nanoseconds": 116193804
+            }
+          },
+          "kernel_by_name": [
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)1, (int)4>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 44912,
+              "nanoseconds": 3513941485
+            },
+            {
+              "name": "void <unnamed>::gdn_recurrent<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+              "count": 2688,
+              "nanoseconds": 142988662
+            },
+            {
+              "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+              "count": 7224,
+              "nanoseconds": 96455852
+            },
+            {
+              "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+              "count": 5376,
+              "nanoseconds": 53403854
+            },
+            {
+              "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+              "count": 896,
+              "nanoseconds": 28174433
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+              "count": 7168,
+              "nanoseconds": 14295273
+            },
+            {
+              "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+              "count": 2688,
+              "nanoseconds": 9436009
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+              "count": 3584,
+              "nanoseconds": 8407629
+            },
+            {
+              "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+              "count": 2688,
+              "nanoseconds": 7332173
+            },
+            {
+              "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+              "count": 2688,
+              "nanoseconds": 6675057
+            },
+            {
+              "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+              "count": 896,
+              "nanoseconds": 2673563
+            },
+            {
+              "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+              "count": 896,
+              "nanoseconds": 1832702
+            },
+            {
+              "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+              "count": 56,
+              "nanoseconds": 467453
+            },
+            {
+              "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+              "count": 56,
+              "nanoseconds": 133919
+            },
+            {
+              "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+              "count": 56,
+              "nanoseconds": 128416
+            }
+          ],
+          "per_device_kernel_union_nanoseconds": {
+            "0": 2131154255,
+            "1": 1755192225
+          },
+          "cross_device_kernel_union_nanoseconds": 2511368146,
+          "simultaneous_two_device_kernel_nanoseconds": 1374978334
+        },
+        {
+          "name": "native_unsplit",
+          "requests": 8,
+          "host_cohort_span_nanoseconds": 7517698231,
+          "kernels": 93568,
+          "kernel_nanoseconds": 10116269780,
+          "activity_span_nanoseconds": 7438190293,
+          "activity_union_nanoseconds": 6523486817,
+          "gaps_between_this_process_activities_nanoseconds": 914703476,
+          "transfers": {
+            "host_to_device": {
+              "count": 51392,
+              "bytes": 2344388480,
+              "nanoseconds": 467289519
+            },
+            "device_to_host": {
+              "count": 51392,
+              "bytes": 2344387584,
+              "nanoseconds": 312574083
+            }
+          },
+          "kernel_by_name": [
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)4, (int)1>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 6400,
+              "nanoseconds": 5850178369
+            },
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)1, (int)4>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 44928,
+              "nanoseconds": 3535172185
+            },
+            {
+              "name": "void <unnamed>::gdn_recurrent<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+              "count": 3072,
+              "nanoseconds": 449715563
+            },
+            {
+              "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+              "count": 8256,
+              "nanoseconds": 109810731
+            },
+            {
+              "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+              "count": 6144,
+              "nanoseconds": 70119773
+            },
+            {
+              "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+              "count": 1024,
+              "nanoseconds": 30929972
+            },
+            {
+              "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+              "count": 3072,
+              "nanoseconds": 18291870
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+              "count": 8192,
+              "nanoseconds": 17230234
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+              "count": 4096,
+              "nanoseconds": 11342186
+            },
+            {
+              "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+              "count": 3072,
+              "nanoseconds": 9417074
+            },
+            {
+              "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+              "count": 3072,
+              "nanoseconds": 7629745
+            },
+            {
+              "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+              "count": 1024,
+              "nanoseconds": 3333016
+            },
+            {
+              "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+              "count": 1024,
+              "nanoseconds": 2259099
+            },
+            {
+              "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+              "count": 64,
+              "nanoseconds": 530907
+            },
+            {
+              "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+              "count": 64,
+              "nanoseconds": 155520
+            },
+            {
+              "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+              "count": 64,
+              "nanoseconds": 153536
+            }
+          ],
+          "per_device_kernel_union_nanoseconds": {
+            "0": 5427293290,
+            "1": 4688976490
+          },
+          "cross_device_kernel_union_nanoseconds": 6006126089,
+          "simultaneous_two_device_kernel_nanoseconds": 4110143691
+        }
+      ]
+    },
+    "pp-c1": {
+      "scope": "Cohort CUDA timelines joined by each submitting request's NVTX/thread range.\n\nPer-device kernel unions reveal two-GPU overlap, not achieved SM occupancy.\nDuration sums are never substituted for request/cohort wall time. Timeline gaps\nrefer only to this process's captured activities, not device-wide idle time.\n",
+      "achieved_hardware_counters": false,
+      "cohorts": [
+        {
+          "name": "native_ttft",
+          "requests": 1,
+          "host_cohort_span_nanoseconds": 786501801,
+          "kernels": 1061,
+          "kernel_nanoseconds": 774590748,
+          "activity_span_nanoseconds": 775767514,
+          "activity_union_nanoseconds": 774654043,
+          "gaps_between_this_process_activities_nanoseconds": 1113471,
+          "transfers": {
+            "host_to_device": {
+              "count": 2,
+              "bytes": 235704,
+              "nanoseconds": 36511
+            },
+            "device_to_host": {
+              "count": 2,
+              "bytes": 235536,
+              "nanoseconds": 26784
+            }
+          },
+          "kernel_by_name": [
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)4, (int)1>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 400,
+              "nanoseconds": 726547998
+            },
+            {
+              "name": "void <unnamed>::gdn_recurrent<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+              "count": 48,
+              "nanoseconds": 38528235
+            },
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)1, (int)4>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 1,
+              "nanoseconds": 2783391
+            },
+            {
+              "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+              "count": 96,
+              "nanoseconds": 2131182
+            },
+            {
+              "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+              "count": 129,
+              "nanoseconds": 1724150
+            },
+            {
+              "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+              "count": 48,
+              "nanoseconds": 1115998
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+              "count": 128,
+              "nanoseconds": 434494
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+              "count": 64,
+              "nanoseconds": 394879
+            },
+            {
+              "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+              "count": 16,
+              "nanoseconds": 383964
+            },
+            {
+              "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+              "count": 48,
+              "nanoseconds": 267867
+            },
+            {
+              "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+              "count": 48,
+              "nanoseconds": 119871
+            },
+            {
+              "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+              "count": 16,
+              "nanoseconds": 88480
+            },
+            {
+              "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+              "count": 16,
+              "nanoseconds": 52704
+            },
+            {
+              "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+              "count": 1,
+              "nanoseconds": 10431
+            },
+            {
+              "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+              "count": 1,
+              "nanoseconds": 3968
+            },
+            {
+              "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+              "count": 1,
+              "nanoseconds": 3136
+            }
+          ],
+          "per_device_kernel_union_nanoseconds": {
+            "0": 386244396,
+            "1": 388346352
+          },
+          "cross_device_kernel_union_nanoseconds": 774590748,
+          "simultaneous_two_device_kernel_nanoseconds": 0
+        },
+        {
+          "name": "native_decode",
+          "requests": 1,
+          "host_cohort_span_nanoseconds": 482716335,
+          "kernels": 7427,
+          "kernel_nanoseconds": 463966196,
+          "activity_span_nanoseconds": 471594102,
+          "activity_union_nanoseconds": 464007538,
+          "gaps_between_this_process_activities_nanoseconds": 7586564,
+          "transfers": {
+            "host_to_device": {
+              "count": 14,
+              "bytes": 71736,
+              "nanoseconds": 16927
+            },
+            "device_to_host": {
+              "count": 14,
+              "bytes": 71792,
+              "nanoseconds": 24415
+            }
+          },
+          "kernel_by_name": [
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)1, (int)4>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 2807,
+              "nanoseconds": 416844826
+            },
+            {
+              "name": "void <unnamed>::gdn_recurrent<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+              "count": 336,
+              "nanoseconds": 18009441
+            },
+            {
+              "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+              "count": 903,
+              "nanoseconds": 12106697
+            },
+            {
+              "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+              "count": 672,
+              "nanoseconds": 6783311
+            },
+            {
+              "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+              "count": 112,
+              "nanoseconds": 3502322
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+              "count": 896,
+              "nanoseconds": 1979154
+            },
+            {
+              "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+              "count": 336,
+              "nanoseconds": 1178455
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+              "count": 448,
+              "nanoseconds": 1125754
+            },
+            {
+              "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+              "count": 336,
+              "nanoseconds": 916056
+            },
+            {
+              "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+              "count": 336,
+              "nanoseconds": 831804
+            },
+            {
+              "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+              "count": 112,
+              "nanoseconds": 345403
+            },
+            {
+              "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+              "count": 112,
+              "nanoseconds": 234910
+            },
+            {
+              "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+              "count": 7,
+              "nanoseconds": 71935
+            },
+            {
+              "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+              "count": 7,
+              "nanoseconds": 19552
+            },
+            {
+              "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+              "count": 7,
+              "nanoseconds": 16576
+            }
+          ],
+          "per_device_kernel_union_nanoseconds": {
+            "0": 222176305,
+            "1": 241789891
+          },
+          "cross_device_kernel_union_nanoseconds": 463966196,
+          "simultaneous_two_device_kernel_nanoseconds": 0
+        },
+        {
+          "name": "native_unsplit",
+          "requests": 1,
+          "host_cohort_span_nanoseconds": 1258853488,
+          "kernels": 8488,
+          "kernel_nanoseconds": 1238654058,
+          "activity_span_nanoseconds": 1247313642,
+          "activity_union_nanoseconds": 1238756106,
+          "gaps_between_this_process_activities_nanoseconds": 8557536,
+          "transfers": {
+            "host_to_device": {
+              "count": 16,
+              "bytes": 307440,
+              "nanoseconds": 52480
+            },
+            "device_to_host": {
+              "count": 16,
+              "bytes": 307328,
+              "nanoseconds": 49568
+            }
+          },
+          "kernel_by_name": [
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)4, (int)1>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 400,
+              "nanoseconds": 726667893
+            },
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)1, (int)4>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 2808,
+              "nanoseconds": 419590961
+            },
+            {
+              "name": "void <unnamed>::gdn_recurrent<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+              "count": 384,
+              "nanoseconds": 56543884
+            },
+            {
+              "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+              "count": 1032,
+              "nanoseconds": 13829278
+            },
+            {
+              "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+              "count": 768,
+              "nanoseconds": 8926669
+            },
+            {
+              "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+              "count": 128,
+              "nanoseconds": 3887565
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+              "count": 1024,
+              "nanoseconds": 2417548
+            },
+            {
+              "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+              "count": 384,
+              "nanoseconds": 2293515
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+              "count": 512,
+              "nanoseconds": 1521273
+            },
+            {
+              "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+              "count": 384,
+              "nanoseconds": 1183929
+            },
+            {
+              "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+              "count": 384,
+              "nanoseconds": 948954
+            },
+            {
+              "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+              "count": 128,
+              "nanoseconds": 434079
+            },
+            {
+              "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+              "count": 128,
+              "nanoseconds": 285983
+            },
+            {
+              "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+              "count": 8,
+              "nanoseconds": 81087
+            },
+            {
+              "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+              "count": 8,
+              "nanoseconds": 22048
+            },
+            {
+              "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+              "count": 8,
+              "nanoseconds": 19392
+            }
+          ],
+          "per_device_kernel_union_nanoseconds": {
+            "0": 608399323,
+            "1": 630254735
+          },
+          "cross_device_kernel_union_nanoseconds": 1238654058,
+          "simultaneous_two_device_kernel_nanoseconds": 0
+        }
+      ]
+    },
+    "pp-c8": {
+      "scope": "Cohort CUDA timelines joined by each submitting request's NVTX/thread range.\n\nPer-device kernel unions reveal two-GPU overlap, not achieved SM occupancy.\nDuration sums are never substituted for request/cohort wall time. Timeline gaps\nrefer only to this process's captured activities, not device-wide idle time.\n",
+      "achieved_hardware_counters": false,
+      "cohorts": [
+        {
+          "name": "native_ttft",
+          "requests": 8,
+          "host_cohort_span_nanoseconds": 3669008191,
+          "kernels": 8488,
+          "kernel_nanoseconds": 6210987130,
+          "activity_span_nanoseconds": 3501662289,
+          "activity_union_nanoseconds": 3500101941,
+          "gaps_between_this_process_activities_nanoseconds": 1560348,
+          "transfers": {
+            "host_to_device": {
+              "count": 16,
+              "bytes": 1885632,
+              "nanoseconds": 292924
+            },
+            "device_to_host": {
+              "count": 16,
+              "bytes": 1884288,
+              "nanoseconds": 218399
+            }
+          },
+          "kernel_by_name": [
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)4, (int)1>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 3200,
+              "nanoseconds": 5825947609
+            },
+            {
+              "name": "void <unnamed>::gdn_recurrent<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+              "count": 384,
+              "nanoseconds": 308993330
+            },
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)1, (int)4>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 8,
+              "nanoseconds": 22214101
+            },
+            {
+              "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+              "count": 768,
+              "nanoseconds": 17052605
+            },
+            {
+              "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+              "count": 1032,
+              "nanoseconds": 13821017
+            },
+            {
+              "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+              "count": 384,
+              "nanoseconds": 8932389
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+              "count": 1024,
+              "nanoseconds": 3445704
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+              "count": 512,
+              "nanoseconds": 3177199
+            },
+            {
+              "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+              "count": 128,
+              "nanoseconds": 3050345
+            },
+            {
+              "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+              "count": 384,
+              "nanoseconds": 2144080
+            },
+            {
+              "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+              "count": 384,
+              "nanoseconds": 957561
+            },
+            {
+              "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+              "count": 128,
+              "nanoseconds": 697210
+            },
+            {
+              "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+              "count": 128,
+              "nanoseconds": 423901
+            },
+            {
+              "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+              "count": 8,
+              "nanoseconds": 81504
+            },
+            {
+              "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+              "count": 8,
+              "nanoseconds": 29056
+            },
+            {
+              "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+              "count": 8,
+              "nanoseconds": 19519
+            }
+          ],
+          "per_device_kernel_union_nanoseconds": {
+            "0": 3107946465,
+            "1": 3103040665
+          },
+          "cross_device_kernel_union_nanoseconds": 3499730585,
+          "simultaneous_two_device_kernel_nanoseconds": 2711256545
+        },
+        {
+          "name": "native_decode",
+          "requests": 8,
+          "host_cohort_span_nanoseconds": 2078915045,
+          "kernels": 59416,
+          "kernel_nanoseconds": 3705865744,
+          "activity_span_nanoseconds": 1997100177,
+          "activity_union_nanoseconds": 1992683292,
+          "gaps_between_this_process_activities_nanoseconds": 4416885,
+          "transfers": {
+            "host_to_device": {
+              "count": 112,
+              "bytes": 573888,
+              "nanoseconds": 134592
+            },
+            "device_to_host": {
+              "count": 112,
+              "bytes": 574336,
+              "nanoseconds": 211488
+            }
+          },
+          "kernel_by_name": [
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)1, (int)4>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 22456,
+              "nanoseconds": 3329258328
+            },
+            {
+              "name": "void <unnamed>::gdn_recurrent<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+              "count": 2688,
+              "nanoseconds": 143203137
+            },
+            {
+              "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+              "count": 7224,
+              "nanoseconds": 96924623
+            },
+            {
+              "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+              "count": 5376,
+              "nanoseconds": 54381283
+            },
+            {
+              "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+              "count": 896,
+              "nanoseconds": 28156006
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+              "count": 7168,
+              "nanoseconds": 15905097
+            },
+            {
+              "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+              "count": 2688,
+              "nanoseconds": 9450276
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+              "count": 3584,
+              "nanoseconds": 9140447
+            },
+            {
+              "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+              "count": 2688,
+              "nanoseconds": 7337015
+            },
+            {
+              "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+              "count": 2688,
+              "nanoseconds": 6658693
+            },
+            {
+              "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+              "count": 896,
+              "nanoseconds": 2748047
+            },
+            {
+              "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+              "count": 896,
+              "nanoseconds": 1854322
+            },
+            {
+              "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+              "count": 56,
+              "nanoseconds": 566169
+            },
+            {
+              "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+              "count": 56,
+              "nanoseconds": 147550
+            },
+            {
+              "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+              "count": 56,
+              "nanoseconds": 134751
+            }
+          ],
+          "per_device_kernel_union_nanoseconds": {
+            "0": 1775119990,
+            "1": 1930745754
+          },
+          "cross_device_kernel_union_nanoseconds": 1992654814,
+          "simultaneous_two_device_kernel_nanoseconds": 1713210930
+        },
+        {
+          "name": "native_unsplit",
+          "requests": 8,
+          "host_cohort_span_nanoseconds": 5585475298,
+          "kernels": 67904,
+          "kernel_nanoseconds": 9922027788,
+          "activity_span_nanoseconds": 5467473868,
+          "activity_union_nanoseconds": 5457961340,
+          "gaps_between_this_process_activities_nanoseconds": 9512528,
+          "transfers": {
+            "host_to_device": {
+              "count": 128,
+              "bytes": 2459520,
+              "nanoseconds": 427198
+            },
+            "device_to_host": {
+              "count": 128,
+              "bytes": 2458624,
+              "nanoseconds": 431326
+            }
+          },
+          "kernel_by_name": [
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)4, (int)1>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 3200,
+              "nanoseconds": 5830194527
+            },
+            {
+              "name": "void <unnamed>::q8_tiled<__half, (int)1, (int)4>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+              "count": 22464,
+              "nanoseconds": 3351543316
+            },
+            {
+              "name": "void <unnamed>::gdn_recurrent<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+              "count": 3072,
+              "nanoseconds": 452971723
+            },
+            {
+              "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+              "count": 8256,
+              "nanoseconds": 110758371
+            },
+            {
+              "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+              "count": 6144,
+              "nanoseconds": 71412185
+            },
+            {
+              "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+              "count": 1024,
+              "nanoseconds": 31202531
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+              "count": 8192,
+              "nanoseconds": 19387416
+            },
+            {
+              "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+              "count": 3072,
+              "nanoseconds": 18386782
+            },
+            {
+              "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+              "count": 4096,
+              "nanoseconds": 12327981
+            },
+            {
+              "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+              "count": 3072,
+              "nanoseconds": 9511738
+            },
+            {
+              "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+              "count": 3072,
+              "nanoseconds": 7619893
+            },
+            {
+              "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+              "count": 1024,
+              "nanoseconds": 3446402
+            },
+            {
+              "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+              "count": 1024,
+              "nanoseconds": 2282408
+            },
+            {
+              "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+              "count": 64,
+              "nanoseconds": 651093
+            },
+            {
+              "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+              "count": 64,
+              "nanoseconds": 176256
+            },
+            {
+              "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+              "count": 64,
+              "nanoseconds": 155166
+            }
+          ],
+          "per_device_kernel_union_nanoseconds": {
+            "0": 4882119406,
+            "1": 5039908382
+          },
+          "cross_device_kernel_union_nanoseconds": 5457671245,
+          "simultaneous_two_device_kernel_nanoseconds": 4464356543
+        }
+      ]
+    }
+  },
+  "initial_scheduler": {
+    "scope": "Initial separate final-stage selection lock, preserved rather than promoted",
+    "counts": {
+      "1": {
+        "trials": 2,
+        "requests_per_trial": 1,
+        "ttft": {
+          "mean_cohort_wall_seconds": 0.7788987684762105,
+          "min_cohort_wall_seconds": 0.7786901259678416,
+          "max_cohort_wall_seconds": 0.7791074109845795,
+          "mean_process_cpu_seconds": 0.7796289999999964,
+          "aggregate_output_tokens_per_wall_second": 1.2838638863896759,
+          "mean_request_completion_latency_seconds": 0.7788188809645362,
+          "max_request_completion_latency_seconds": 0.7790545909665525,
+          "mean_request_thread_cpu_seconds": 0.7787647424999999
+        },
+        "decode": {
+          "mean_cohort_wall_seconds": 2.078981412516441,
+          "min_cohort_wall_seconds": 2.0789263090118766,
+          "max_cohort_wall_seconds": 2.079036516021006,
+          "mean_process_cpu_seconds": 2.081285000000001,
+          "aggregate_output_tokens_per_wall_second": 14.91114822545574,
+          "mean_request_completion_latency_seconds": 2.078710169007536,
+          "max_request_completion_latency_seconds": 2.078766077000182,
+          "mean_request_thread_cpu_seconds": 2.078566788
+        },
+        "unsplit": {
+          "mean_cohort_wall_seconds": 2.8498202555056196,
+          "min_cohort_wall_seconds": 2.8493560000206344,
+          "max_cohort_wall_seconds": 2.8502845109906048,
+          "mean_process_cpu_seconds": 2.8530029999999975,
+          "aggregate_output_tokens_per_wall_second": 11.22877835476768,
+          "mean_request_completion_latency_seconds": 2.849554705520859,
+          "max_request_completion_latency_seconds": 2.8500262669986114,
+          "mean_request_thread_cpu_seconds": 2.8494242880000002
+        }
+      },
+      "2": {
+        "trials": 2,
+        "requests_per_trial": 2,
+        "ttft": {
+          "mean_cohort_wall_seconds": 1.173627284966642,
+          "min_cohort_wall_seconds": 1.1721529829665087,
+          "max_cohort_wall_seconds": 1.1751015869667754,
+          "mean_process_cpu_seconds": 1.5636805000000038,
+          "aggregate_output_tokens_per_wall_second": 1.7041185269110763,
+          "mean_request_completion_latency_seconds": 0.9801967469829833,
+          "max_request_completion_latency_seconds": 1.1749863919685595,
+          "mean_request_thread_cpu_seconds": 0.78100885725
+        },
+        "decode": {
+          "mean_cohort_wall_seconds": 2.8773427804990206,
+          "min_cohort_wall_seconds": 2.648102654959075,
+          "max_cohort_wall_seconds": 3.106582906038966,
+          "mean_process_cpu_seconds": 4.135141500000003,
+          "aggregate_output_tokens_per_wall_second": 21.547658631498635,
+          "mean_request_completion_latency_seconds": 2.8517988520034123,
+          "max_request_completion_latency_seconds": 3.1064513440360315,
+          "mean_request_thread_cpu_seconds": 2.06561728925
+        },
+        "unsplit": {
+          "mean_cohort_wall_seconds": 4.070538575499086,
+          "min_cohort_wall_seconds": 3.8378930100006983,
+          "max_cohort_wall_seconds": 4.303184140997473,
+          "mean_process_cpu_seconds": 5.715658999999995,
+          "aggregate_output_tokens_per_wall_second": 15.722735164634328,
+          "mean_request_completion_latency_seconds": 3.97813200323435,
+          "max_request_completion_latency_seconds": 4.303025861969218,
+          "mean_request_thread_cpu_seconds": 2.85480627825
+        }
+      },
+      "4": {
+        "trials": 2,
+        "requests_per_trial": 4,
+        "ttft": {
+          "mean_cohort_wall_seconds": 2.005309878528351,
+          "min_cohort_wall_seconds": 1.9934973080526106,
+          "max_cohort_wall_seconds": 2.0171224490040913,
+          "mean_process_cpu_seconds": 3.1910470000000046,
+          "aggregate_output_tokens_per_wall_second": 1.9947041815479931,
+          "mean_request_completion_latency_seconds": 1.421580065631133,
+          "max_request_completion_latency_seconds": 2.016996036982164,
+          "mean_request_thread_cpu_seconds": 0.7970006952500001
+        },
+        "decode": {
+          "mean_cohort_wall_seconds": 4.657949949003523,
+          "min_cohort_wall_seconds": 4.639948535012081,
+          "max_cohort_wall_seconds": 4.675951362994965,
+          "mean_process_cpu_seconds": 8.349367999999998,
+          "aggregate_output_tokens_per_wall_second": 26.621153373820036,
+          "mean_request_completion_latency_seconds": 4.1316557127502165,
+          "max_request_completion_latency_seconds": 4.675848237995524,
+          "mean_request_thread_cpu_seconds": 2.085970144375
+        },
+        "unsplit": {
+          "mean_cohort_wall_seconds": 6.6246513045043685,
+          "min_cohort_wall_seconds": 6.610523006005678,
+          "max_cohort_wall_seconds": 6.638779603003059,
+          "mean_process_cpu_seconds": 11.474879999999999,
+          "aggregate_output_tokens_per_wall_second": 19.321771685245928,
+          "mean_request_completion_latency_seconds": 5.9575525426262175,
+          "max_request_completion_latency_seconds": 6.638693996006623,
+          "mean_request_thread_cpu_seconds": 2.8668806780000002
+        }
+      },
+      "8": {
+        "trials": 2,
+        "requests_per_trial": 8,
+        "ttft": {
+          "mean_cohort_wall_seconds": 3.618985478999093,
+          "min_cohort_wall_seconds": 3.610415349015966,
+          "max_cohort_wall_seconds": 3.6275556089822203,
+          "mean_process_cpu_seconds": 6.433597999999989,
+          "aggregate_output_tokens_per_wall_second": 2.210564271789388,
+          "mean_request_completion_latency_seconds": 2.257564219431515,
+          "max_request_completion_latency_seconds": 3.627460423973389,
+          "mean_request_thread_cpu_seconds": 0.8035809843749999
+        },
+        "decode": {
+          "mean_cohort_wall_seconds": 8.911932267481461,
+          "min_cohort_wall_seconds": 8.893944719980936,
+          "max_cohort_wall_seconds": 8.929919814981986,
+          "mean_process_cpu_seconds": 16.778796499999984,
+          "aggregate_output_tokens_per_wall_second": 27.827859610751457,
+          "mean_request_completion_latency_seconds": 7.664312669810897,
+          "max_request_completion_latency_seconds": 8.92980769497808,
+          "mean_request_thread_cpu_seconds": 2.0961719324375
+        },
+        "unsplit": {
+          "mean_cohort_wall_seconds": 12.488630248000845,
+          "min_cohort_wall_seconds": 12.47980552300578,
+          "max_cohort_wall_seconds": 12.49745497299591,
+          "mean_process_cpu_seconds": 23.009963999999997,
+          "aggregate_output_tokens_per_wall_second": 20.498645160943887,
+          "mean_request_completion_latency_seconds": 10.892024050688633,
+          "max_request_completion_latency_seconds": 12.497386581962928,
+          "mean_request_thread_cpu_seconds": 2.8746247539375
+        }
+      }
+    }
+  },
+  "final_stage_selection_atomic": true
+}

@@ -1,0 +1,178 @@
+{
+  "profile": "q8-residual-column-mlp",
+  "adopt_as_explicit_opt_in": true,
+  "change_existing_defaults": false,
+  "automatic_strategy_router_implemented": false,
+  "architecture_scope": "Qwen native resident FP16 target/KV, SM70 two-GPU explicit host TP; MLP column/row only. Original row-TP attention/GDN and FP16 draft retained.",
+  "arithmetic_change": "Stored Q8 codes/scales preserved without requantization; FP32 partial transport/sum before a single FP16 cast. FP32 association differs from prior full-K down; not old-profile byte parity.",
+  "quality_scope": "98 represented-Q8/FP16-teacher logit rows plus four final private-state trajectories, batch/reset and MTP gates; not an original-BF16 model or corpus-quality evaluation.",
+  "teacher_logit_rows": 98,
+  "maximum_relative_l2": 0.0032331223660368932,
+  "minimum_centered_cosine": 0.9999930564056051,
+  "maximum_reference_kl": 9.366122705246534e-05,
+  "all_top1_equal": true,
+  "adoption_checks": {
+    "mtp2": {
+      "ratios": {
+        "1": 1.1125992778269411,
+        "2": 1.1095963008862952,
+        "4": 1.1082144272452217,
+        "8": 1.0995181613124323
+      },
+      "cells": {
+        "1": {
+          "ratio": 1.1125992778269411,
+          "threshold": 1.01,
+          "improving_trials": 3,
+          "qualifies": true
+        },
+        "8": {
+          "ratio": 1.0995181613124323,
+          "threshold": 1.02,
+          "improving_trials": 3,
+          "qualifies": true
+        }
+      },
+      "no_cell_regresses_over_two_percent": true,
+      "qualifies": true
+    },
+    "ordinary256": {
+      "ratios": {
+        "1": 1.1185669148934694,
+        "2": 1.1451796201202953,
+        "4": 1.1263078212413185,
+        "8": 1.1293706115520508
+      },
+      "cells": {
+        "1": {
+          "ratio": 1.1185669148934694,
+          "threshold": 1.01,
+          "improving_trials": 3,
+          "qualifies": true
+        },
+        "8": {
+          "ratio": 1.1293706115520508,
+          "threshold": 1.02,
+          "improving_trials": 3,
+          "qualifies": true
+        }
+      },
+      "no_cell_regresses_over_two_percent": true,
+      "qualifies": true
+    },
+    "mtp-batch": {
+      "ratios": {
+        "1": 1.1351059937241794,
+        "2": 1.1133999520098572,
+        "4": 1.1173719152549948,
+        "8": 1.0933622691441112
+      },
+      "cells": {
+        "1": {
+          "ratio": 1.1351059937241794,
+          "threshold": 1.01,
+          "improving_trials": 3,
+          "qualifies": true
+        },
+        "8": {
+          "ratio": 1.0933622691441112,
+          "threshold": 1.02,
+          "improving_trials": 3,
+          "qualifies": true
+        }
+      },
+      "no_cell_regresses_over_two_percent": true,
+      "qualifies": true
+    }
+  },
+  "best_native_http_by_count": {
+    "1": {
+      "label": "repeat-candidate-mtp2",
+      "mode": "scalar",
+      "depth": 2,
+      "profile": "q8-residual-column-mlp",
+      "http_tps": 37.68541391393991,
+      "over_fresh_external_ratio": 1.3040890402015866,
+      "over_best_known_pinned_external_ratio": 1.2489743798337856
+    },
+    "2": {
+      "label": "repeat-candidate-mtp-batch",
+      "mode": "mtp-batch",
+      "depth": 1,
+      "profile": "q8-residual-column-mlp",
+      "http_tps": 50.637843481904724,
+      "over_fresh_external_ratio": 1.4449527357973242,
+      "over_best_known_pinned_external_ratio": 1.3358284850535487
+    },
+    "4": {
+      "label": "repeat-candidate-mtp-batch",
+      "mode": "mtp-batch",
+      "depth": 1,
+      "profile": "q8-residual-column-mlp",
+      "http_tps": 61.708474368428064,
+      "over_fresh_external_ratio": 1.2335833841283705,
+      "over_best_known_pinned_external_ratio": 1.2279391637269266
+    },
+    "8": {
+      "label": "repeat-candidate-ordinary256",
+      "mode": "batch",
+      "depth": 0,
+      "profile": "q8-residual-column-mlp",
+      "http_tps": 73.83633062538635,
+      "over_fresh_external_ratio": 1.123565969765313,
+      "over_best_known_pinned_external_ratio": 1.097330728581507
+    }
+  },
+  "stronger_external_http_by_count": {
+    "1": {
+      "capsule": "v100-strided-output/v100/external-depth-v9",
+      "label": "repeat-llama-tensor-mtp2-c1",
+      "requests": 1,
+      "depth": 2,
+      "http_tps": 30.173088033202983,
+      "post_first_tps": 49.80330372625105
+    },
+    "2": {
+      "capsule": "v100-q8-wmma/v100/campaign-v5",
+      "label": "repeat-llama-tensor-off",
+      "requests": 2,
+      "depth": 0,
+      "http_tps": 37.90744399336179
+    },
+    "4": {
+      "capsule": "v100-q8-wmma/v100/campaign-v5",
+      "label": "repeat-llama-tensor-off",
+      "requests": 4,
+      "depth": 0,
+      "http_tps": 50.253690240757734
+    },
+    "8": {
+      "capsule": "v100-q8-wmma/v100/campaign-v5",
+      "label": "repeat-llama-tensor-off",
+      "requests": 8,
+      "depth": 0,
+      "http_tps": 67.28721679090569
+    }
+  },
+  "complete_http_matrix_goal_met": true,
+  "single_decode_comparison": {
+    "native_tps": 47.62878542470643,
+    "external_tps": 49.74307434664077,
+    "ratio": 0.9574958132422484,
+    "goal_floor": 52.23022806397281,
+    "additional_native_gain_needed_ratio": 1.096610539156841,
+    "goal_met": false,
+    "best_known_pinned_external_tps": 49.80330372625105,
+    "best_known_goal_floor": 52.293468912563604,
+    "over_best_known_ratio": 0.9563378704052027,
+    "additional_gain_to_best_known_goal_ratio": 1.0979383254530246,
+    "best_known_goal_met": false
+  },
+  "full_external_speed_goal_complete": false,
+  "achieved_occupancy": null,
+  "counter_policy_changed": false,
+  "metrics_sha256": "2571584e8dfd304b56cec232d4c976e83133f622a6bbb5dd5d1302a9cfe3e105",
+  "qualification_report_sha256": "904bace8b87a2047191e4fdeab66a420dfacb100d5d9686beb1ef52ac0d655f7",
+  "row_budget_qualification_sha256": "1cee440f9cb5cff6b9f3f9a4581bc97a241dc3c970259375390a8dc861e95f62",
+  "external_control_compatibility_sha256": "95ac4f5200a958dbf12dcf4ffea7e6f6528d67543ab2d8542d31eed0a88fe19d"
+}

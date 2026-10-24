@@ -1,0 +1,1196 @@
+{
+  "date": "2026-10-16",
+  "decision": "promising selective prefill route; experimental runner only, production unchanged",
+  "device": "School_4090D / RTX 4090 D / SM89",
+  "target": "Q4 fused LinearAdd, N=5120, K=6144/17408, wide-T MMA route",
+  "scope": "No decode-kernel changes and no weight/activation/KV precision changes. This is not combined with the earlier vectorized decode experiment.",
+  "selection_rule": "Use the 64x64 tile (warp 32x32, 2 stages) only for 192<T<512 and (T<=256 or T%64!=0). Otherwise keep the original dispatch and 64x128 wide tile.",
+  "rationale": "The smaller tile helps partial 64-column tiles and small MMA extents, but regresses full 512 chunks and larger matrices. Extra 64-aligned controls 320/384/448 also favored the original route.",
+  "reference_profile": "../projection/baseline-profile.json (historical original-runner 509-token trace: about 34.1% of prefill kernel time in this target)",
+  "model_method": {
+    "order": [
+      "baseline-a",
+      "selective-a",
+      "selective-b",
+      "baseline-b"
+    ],
+    "sessions_per_variant": 2,
+    "repeats_per_length_per_session": 3,
+    "raw_prompt_token_lengths": [
+      128,
+      509,
+      1021,
+      2048,
+      8192
+    ],
+    "new_tokens": 16,
+    "ignore_eos": true,
+    "max_context": 16384,
+    "max_concurrency": 1,
+    "kv_dtype": "bf16",
+    "prefill_chunk": 512,
+    "cuda_graph": true,
+    "cpu_wait": "blocking",
+    "speculation": "none",
+    "prefix_reuse": false,
+    "warmup": "All five lengths per resident session before measurement",
+    "length_order": "Ascending, descending, ascending per session",
+    "timings": "Unprofiled native prefill and internal first-token timestamp; first-token timestamp is not streamed client time-to-first-byte. Client wall and CPU include the complete 16-token generation RPC. Loading/tokenization/warmup excluded."
+  },
+  "model": {
+    "128": {
+      "baseline": {
+        "calls": 6,
+        "prefill_seconds": [
+          0.079239885,
+          0.079658641,
+          0.079534516,
+          0.079630449,
+          0.07975101400000001,
+          0.079752394
+        ],
+        "median_prefill_seconds": 0.07964454500000001,
+        "native_prefill_tokens_per_second": 1608.1516570938054,
+        "median_native_first_token_seconds": 0.079786688,
+        "median_decode_seconds": 0.2671263245,
+        "client_wall_seconds": 2.0889069200493395,
+        "native_cpu_seconds": 0.08000000000000007,
+        "python_cpu_seconds": 0.003570999999999991,
+        "native_cpu_percent": 3.8297541758399887
+      },
+      "selective": {
+        "calls": 6,
+        "prefill_seconds": [
+          0.079493092,
+          0.07965695,
+          0.079597862,
+          0.079726641,
+          0.079674163,
+          0.079496546
+        ],
+        "median_prefill_seconds": 0.07962740600000001,
+        "native_prefill_tokens_per_second": 1607.8878489181009,
+        "median_native_first_token_seconds": 0.079759252,
+        "median_decode_seconds": 0.2670735055,
+        "client_wall_seconds": 2.0889218939701095,
+        "native_cpu_seconds": 0.07999999999999918,
+        "python_cpu_seconds": 0.004223000000000532,
+        "native_cpu_percent": 3.829726723192835
+      },
+      "median_prefill_time_reduction_percent": 0.021519364571676025
+    },
+    "509": {
+      "baseline": {
+        "calls": 6,
+        "prefill_seconds": [
+          0.257412171,
+          0.258366771,
+          0.257796858,
+          0.258452431,
+          0.260383517,
+          0.259707707
+        ],
+        "median_prefill_seconds": 0.258409601,
+        "native_prefill_tokens_per_second": 1967.6320596084531,
+        "median_native_first_token_seconds": 0.258569896,
+        "median_decode_seconds": 0.26760288499999996,
+        "client_wall_seconds": 3.1708495089551434,
+        "native_cpu_seconds": 0.11000000000000032,
+        "python_cpu_seconds": 0.00476499999999902,
+        "native_cpu_percent": 3.4691018822980175
+      },
+      "selective": {
+        "calls": 6,
+        "prefill_seconds": [
+          0.24720375,
+          0.252569292,
+          0.248757968,
+          0.24773501,
+          0.252753593,
+          0.250499935
+        ],
+        "median_prefill_seconds": 0.2496289515,
+        "native_prefill_tokens_per_second": 2036.6523424608267,
+        "median_native_first_token_seconds": 0.2497888815,
+        "median_decode_seconds": 0.2678217155,
+        "client_wall_seconds": 3.1191403130069375,
+        "native_cpu_seconds": 0.09000000000000163,
+        "python_cpu_seconds": 0.004853999999999026,
+        "native_cpu_percent": 2.8854104326342136
+      },
+      "median_prefill_time_reduction_percent": 3.3979579187539466
+    },
+    "1021": {
+      "baseline": {
+        "calls": 6,
+        "prefill_seconds": [
+          0.509050965,
+          0.50944589,
+          0.5077206919999999,
+          0.5134108260000001,
+          0.5124397890000001,
+          0.51478132
+        ],
+        "median_prefill_seconds": 0.5109428395,
+        "native_prefill_tokens_per_second": 1997.489617914023,
+        "median_native_first_token_seconds": 0.5111211040000001,
+        "median_decode_seconds": 0.268157494,
+        "client_wall_seconds": 4.694445778091904,
+        "native_cpu_seconds": 0.13999999999999968,
+        "python_cpu_seconds": 0.00647799999999954,
+        "native_cpu_percent": 2.982247673481572
+      },
+      "selective": {
+        "calls": 6,
+        "prefill_seconds": [
+          0.504215914,
+          0.500860862,
+          0.503841651,
+          0.5073339670000001,
+          0.502588743,
+          0.5051203690000001
+        ],
+        "median_prefill_seconds": 0.5040287825,
+        "native_prefill_tokens_per_second": 2025.819438456833,
+        "median_native_first_token_seconds": 0.504206745,
+        "median_decode_seconds": 0.2683541305,
+        "client_wall_seconds": 4.652259887021501,
+        "native_cpu_seconds": 0.1399999999999988,
+        "python_cpu_seconds": 0.006728000000000733,
+        "native_cpu_percent": 3.009290181542942
+      },
+      "median_prefill_time_reduction_percent": 1.353195791287709
+    },
+    "2048": {
+      "baseline": {
+        "calls": 6,
+        "prefill_seconds": [
+          1.0111468460000002,
+          1.013754128,
+          1.0107947780000002,
+          1.021980134,
+          1.022406121,
+          1.0239026279999999
+        ],
+        "median_prefill_seconds": 1.017867131,
+        "native_prefill_tokens_per_second": 2013.111227302426,
+        "median_native_first_token_seconds": 1.0180859135,
+        "median_decode_seconds": 0.2699027475,
+        "client_wall_seconds": 7.752506329037715,
+        "native_cpu_seconds": 0.2599999999999998,
+        "python_cpu_seconds": 0.018597999999999004,
+        "native_cpu_percent": 3.353754114668004
+      },
+      "selective": {
+        "calls": 6,
+        "prefill_seconds": [
+          1.014555098,
+          1.016511792,
+          1.017917004,
+          1.0184942119999998,
+          1.0198471439999999,
+          1.020214809
+        ],
+        "median_prefill_seconds": 1.018205608,
+        "native_prefill_tokens_per_second": 2011.9393211171077,
+        "median_native_first_token_seconds": 1.0184314365,
+        "median_decode_seconds": 0.269990375,
+        "client_wall_seconds": 7.7561786769656464,
+        "native_cpu_seconds": 0.25,
+        "python_cpu_seconds": 0.01002099999999917,
+        "native_cpu_percent": 3.223236730510757
+      },
+      "median_prefill_time_reduction_percent": -0.03325355438752453
+    },
+    "8192": {
+      "baseline": {
+        "calls": 6,
+        "prefill_seconds": [
+          4.137094159999999,
+          4.139352605999999,
+          4.144276095,
+          4.172587396,
+          4.174835170000001,
+          4.1804604219999995
+        ],
+        "median_prefill_seconds": 4.1584317455,
+        "native_prefill_tokens_per_second": 1970.130126608663,
+        "median_native_first_token_seconds": 4.15886414,
+        "median_decode_seconds": 0.27797953200000003,
+        "client_wall_seconds": 26.71292107901536,
+        "native_cpu_seconds": 0.9199999999999999,
+        "python_cpu_seconds": 0.030854999999999855,
+        "native_cpu_percent": 3.444026197205054
+      },
+      "selective": {
+        "calls": 6,
+        "prefill_seconds": [
+          4.149687495,
+          4.152947931,
+          4.156177477,
+          4.1659042,
+          4.167074357999999,
+          4.170716908
+        ],
+        "median_prefill_seconds": 4.1610408385,
+        "native_prefill_tokens_per_second": 1969.0328901818223,
+        "median_native_first_token_seconds": 4.1614967125,
+        "median_decode_seconds": 0.2780929905,
+        "client_wall_seconds": 26.728082684916444,
+        "native_cpu_seconds": 0.9200000000000008,
+        "python_cpu_seconds": 0.03154000000000057,
+        "native_cpu_percent": 3.442072560330666
+      },
+      "median_prefill_time_reduction_percent": -0.06274223456532724
+    }
+  },
+  "output_checks": {
+    "128": {
+      "matching_baseline_rows": 12,
+      "measured_rows": 12
+    },
+    "509": {
+      "matching_baseline_rows": 12,
+      "measured_rows": 12
+    },
+    "1021": {
+      "matching_baseline_rows": 12,
+      "measured_rows": 12
+    },
+    "2048": {
+      "matching_baseline_rows": 12,
+      "measured_rows": 12
+    },
+    "8192": {
+      "matching_baseline_rows": 12,
+      "measured_rows": 12
+    }
+  },
+  "initial_sweep": {
+    "prefill_baseline": {
+      "schedule": [
+        64,
+        128,
+        64,
+        64,
+        32,
+        2,
+        1
+      ],
+      "oracle_exit": 0,
+      "run_medians_us": {
+        "K6144-T128": [
+          125.184,
+          114.047997,
+          114.128001
+        ],
+        "K6144-T193": [
+          202.851996,
+          186.095998,
+          186.624005
+        ],
+        "K6144-T256": [
+          196.352005,
+          196.863994,
+          197.247997
+        ],
+        "K6144-T509": [
+          353.911996,
+          355.199993,
+          355.839998
+        ],
+        "K6144-T512": [
+          326.375991,
+          326.784015,
+          327.42399
+        ],
+        "K6144-T513": [
+          384.095997,
+          385.152012,
+          385.500014
+        ],
+        "K6144-T1024": [
+          568.307996,
+          569.440007,
+          570.348024
+        ],
+        "K17408-T128": [
+          314.112008,
+          314.880013,
+          315.391988
+        ],
+        "K17408-T193": [
+          507.000029,
+          507.987976,
+          508.544028
+        ],
+        "K17408-T256": [
+          536.064029,
+          536.704004,
+          537.855983
+        ],
+        "K17408-T509": [
+          982.527971,
+          984.448016,
+          985.728025
+        ],
+        "K17408-T512": [
+          902.78399,
+          904.320002,
+          905.600011
+        ],
+        "K17408-T513": [
+          1051.136017,
+          1051.776052,
+          1054.592013
+        ],
+        "K17408-T1024": [
+          1580.775976,
+          1583.484054,
+          1585.919976
+        ]
+      }
+    },
+    "prefill_w32": {
+      "schedule": [
+        64,
+        128,
+        64,
+        32,
+        32,
+        2,
+        1
+      ],
+      "oracle_exit": 0,
+      "run_medians_us": {
+        "K6144-T128": [
+          114.012003,
+          114.156
+        ],
+        "K6144-T193": [
+          210.140005,
+          210.667998
+        ],
+        "K6144-T256": [
+          220.287994,
+          220.671996
+        ],
+        "K6144-T509": [
+          422.656,
+          423.680007
+        ],
+        "K6144-T512": [
+          340.48,
+          340.992004
+        ],
+        "K6144-T513": [
+          422.784001,
+          423.907995
+        ],
+        "K6144-T1024": [
+          643.69601,
+          644.864023
+        ],
+        "K17408-T128": [
+          314.880013,
+          315.391988
+        ],
+        "K17408-T193": [
+          582.912028,
+          584.191978
+        ],
+        "K17408-T256": [
+          610.539973,
+          611.455977
+        ],
+        "K17408-T509": [
+          1174.911976,
+          1177.600026
+        ],
+        "K17408-T512": [
+          949.715972,
+          951.04003
+        ],
+        "K17408-T513": [
+          1174.528003,
+          1177.584052
+        ],
+        "K17408-T1024": [
+          1807.615995,
+          1810.143948
+        ]
+      }
+    },
+    "prefill_c64_s2": {
+      "schedule": [
+        64,
+        64,
+        64,
+        32,
+        32,
+        2,
+        1
+      ],
+      "oracle_exit": 0,
+      "run_medians_us": {
+        "K6144-T128": [
+          114.175998,
+          114.047997
+        ],
+        "K6144-T193": [
+          151.904002,
+          152.191997
+        ],
+        "K6144-T256": [
+          184.832007,
+          184.420004
+        ],
+        "K6144-T509": [
+          305.023998,
+          305.135995
+        ],
+        "K6144-T512": [
+          367.872,
+          367.096007
+        ],
+        "K6144-T513": [
+          429.307997,
+          430.848002
+        ],
+        "K6144-T1024": [
+          729.21598,
+          727.800012
+        ],
+        "K17408-T128": [
+          315.391988,
+          315.008014
+        ],
+        "K17408-T193": [
+          419.200003,
+          419.584006
+        ],
+        "K17408-T256": [
+          508.628011,
+          507.632017
+        ],
+        "K17408-T509": [
+          847.472012,
+          847.728014
+        ],
+        "K17408-T512": [
+          1022.304058,
+          1024.255991
+        ],
+        "K17408-T513": [
+          1213.31203,
+          1211.007953
+        ],
+        "K17408-T1024": [
+          2040.704012,
+          2037.595987
+        ]
+      }
+    },
+    "prefill_c64_s3": {
+      "schedule": [
+        64,
+        64,
+        64,
+        32,
+        32,
+        3,
+        1
+      ],
+      "oracle_exit": 0,
+      "run_medians_us": {
+        "K6144-T128": [
+          114.047997,
+          114.175998
+        ],
+        "K6144-T193": [
+          239.488006,
+          239.232004
+        ],
+        "K6144-T256": [
+          285.40799,
+          285.311997
+        ],
+        "K6144-T509": [
+          390.891999,
+          390.891999
+        ],
+        "K6144-T512": [
+          427.740008,
+          427.776009
+        ],
+        "K6144-T513": [
+          487.040013,
+          487.011999
+        ],
+        "K6144-T1024": [
+          846.180022,
+          846.195996
+        ],
+        "K17408-T128": [
+          314.999998,
+          314.996004
+        ],
+        "K17408-T193": [
+          667.775989,
+          667.775989
+        ],
+        "K17408-T256": [
+          794.623971,
+          794.60001
+        ],
+        "K17408-T509": [
+          1085.952044,
+          1086.079955
+        ],
+        "K17408-T512": [
+          1194.751978,
+          1194.880009
+        ],
+        "K17408-T513": [
+          1361.791968,
+          1362.028003
+        ],
+        "K17408-T1024": [
+          2380.671978,
+          2380.800009
+        ]
+      }
+    }
+  },
+  "followup": {
+    "K6144-T319": {
+      "baseline": [
+        377.564013,
+        343.551993
+      ],
+      "narrow": [
+        291.967988,
+        291.072011
+      ]
+    },
+    "K6144-T321": {
+      "baseline": [
+        345.811993,
+        345.72801
+      ],
+      "narrow": [
+        295.935988,
+        296.831995
+      ]
+    },
+    "K6144-T383": {
+      "baseline": [
+        352.256,
+        352.344006
+      ],
+      "narrow": [
+        297.567993,
+        297.472
+      ]
+    },
+    "K6144-T385": {
+      "baseline": [
+        352.348,
+        353.152007
+      ],
+      "narrow": [
+        299.647987,
+        299.775988
+      ]
+    },
+    "K6144-T447": {
+      "baseline": [
+        352.384001,
+        353.280008
+      ],
+      "narrow": [
+        301.952004,
+        302.592009
+      ]
+    },
+    "K6144-T449": {
+      "baseline": [
+        353.024006,
+        353.408009
+      ],
+      "narrow": [
+        302.819997,
+        302.72001
+      ]
+    },
+    "K6144-T479": {
+      "baseline": [
+        353.152007,
+        353.53601
+      ],
+      "narrow": [
+        303.604007,
+        303.092003
+      ]
+    },
+    "K17408-T319": {
+      "baseline": [
+        976.100028,
+        984.951973
+      ],
+      "narrow": [
+        827.264011,
+        827.748001
+      ]
+    },
+    "K17408-T321": {
+      "baseline": [
+        989.311993,
+        990.592003
+      ],
+      "narrow": [
+        832.256019,
+        833.920002
+      ]
+    },
+    "K17408-T383": {
+      "baseline": [
+        977.15199,
+        977.379978
+      ],
+      "narrow": [
+        836.22402,
+        838.271976
+      ]
+    },
+    "K17408-T385": {
+      "baseline": [
+        980.059981,
+        981.083989
+      ],
+      "narrow": [
+        837.603986,
+        837.888002
+      ]
+    },
+    "K17408-T447": {
+      "baseline": [
+        980.192006,
+        981.248021
+      ],
+      "narrow": [
+        841.216028,
+        841.336012
+      ]
+    },
+    "K17408-T449": {
+      "baseline": [
+        980.224013,
+        981.375992
+      ],
+      "narrow": [
+        840.831995,
+        841.856003
+      ]
+    },
+    "K17408-T479": {
+      "baseline": [
+        980.31199,
+        981.248021
+      ],
+      "narrow": [
+        842.239976,
+        841.983974
+      ]
+    },
+    "K6144-T193": {
+      "baseline": [
+        185.599998,
+        203.263998
+      ],
+      "narrow": [
+        152.191997,
+        151.920006
+      ]
+    },
+    "K6144-T200": {
+      "baseline": [
+        185.471997,
+        203.116
+      ],
+      "narrow": [
+        152.168006,
+        151.807994
+      ]
+    },
+    "K6144-T224": {
+      "baseline": [
+        187.391996,
+        187.135994
+      ],
+      "narrow": [
+        152.704,
+        153.344005
+      ]
+    },
+    "K6144-T255": {
+      "baseline": [
+        200.663999,
+        200.172007
+      ],
+      "narrow": [
+        154.855996,
+        155.392006
+      ]
+    },
+    "K6144-T256": {
+      "baseline": [
+        196.608007,
+        196.344003
+      ],
+      "narrow": [
+        184.320003,
+        184.832007
+      ]
+    },
+    "K6144-T257": {
+      "baseline": [
+        331.903994,
+        331.263989
+      ],
+      "narrow": [
+        285.055995,
+        285.795987
+      ]
+    },
+    "K6144-T320": {
+      "baseline": [
+        344.319999,
+        343.676001
+      ],
+      "narrow": [
+        363.263994,
+        364.288002
+      ]
+    },
+    "K6144-T384": {
+      "baseline": [
+        324.864,
+        324.351996
+      ],
+      "narrow": [
+        365.31201,
+        365.276009
+      ]
+    },
+    "K6144-T448": {
+      "baseline": [
+        353.024006,
+        352.376014
+      ],
+      "narrow": [
+        366.079986,
+        366.079986
+      ]
+    },
+    "K6144-T480": {
+      "baseline": [
+        353.62801,
+        353.152007
+      ],
+      "narrow": [
+        303.063989,
+        303.232014
+      ]
+    },
+    "K6144-T508": {
+      "baseline": [
+        355.199993,
+        354.559988
+      ],
+      "narrow": [
+        304.895997,
+        306.304008
+      ]
+    },
+    "K6144-T509": {
+      "baseline": [
+        355.199993,
+        354.647994
+      ],
+      "narrow": [
+        306.416005,
+        305.251986
+      ]
+    },
+    "K6144-T511": {
+      "baseline": [
+        355.199993,
+        354.680002
+      ],
+      "narrow": [
+        304.895997,
+        306.423992
+      ]
+    },
+    "K6144-T512": {
+      "baseline": [
+        326.656014,
+        326.400012
+      ],
+      "narrow": [
+        366.975993,
+        367.960006
+      ]
+    },
+    "K6144-T513": {
+      "baseline": [
+        385.132015,
+        384.000003
+      ],
+      "narrow": [
+        429.18399,
+        430.335999
+      ]
+    },
+    "K17408-T193": {
+      "baseline": [
+        507.903993,
+        507.008016
+      ],
+      "narrow": [
+        418.812007,
+        419.200003
+      ]
+    },
+    "K17408-T200": {
+      "baseline": [
+        507.264018,
+        506.367981
+      ],
+      "narrow": [
+        419.571996,
+        419.968009
+      ]
+    },
+    "K17408-T224": {
+      "baseline": [
+        512.767971,
+        511.864007
+      ],
+      "narrow": [
+        422.239989,
+        422.015995
+      ]
+    },
+    "K17408-T255": {
+      "baseline": [
+        552.42002,
+        551.288009
+      ],
+      "narrow": [
+        425.336003,
+        425.559998
+      ]
+    },
+    "K17408-T256": {
+      "baseline": [
+        536.960006,
+        536.192
+      ],
+      "narrow": [
+        507.643998,
+        508.544028
+      ]
+    },
+    "K17408-T257": {
+      "baseline": [
+        930.271983,
+        929.535985
+      ],
+      "narrow": [
+        800.383985,
+        802.035987
+      ]
+    },
+    "K17408-T320": {
+      "baseline": [
+        985.472023,
+        976.768017
+      ],
+      "narrow": [
+        1012.35199,
+        1011.551976
+      ]
+    },
+    "K17408-T384": {
+      "baseline": [
+        900.864005,
+        900.467992
+      ],
+      "narrow": [
+        1016.571999,
+        1015.295982
+      ]
+    },
+    "K17408-T448": {
+      "baseline": [
+        981.375992,
+        980.480015
+      ],
+      "narrow": [
+        1018.751979,
+        1017.339945
+      ]
+    },
+    "K17408-T480": {
+      "baseline": [
+        981.248021,
+        980.351985
+      ],
+      "narrow": [
+        842.624009,
+        846.463978
+      ]
+    },
+    "K17408-T508": {
+      "baseline": [
+        984.296024,
+        982.527971
+      ],
+      "narrow": [
+        847.212017,
+        847.231984
+      ]
+    },
+    "K17408-T509": {
+      "baseline": [
+        984.448016,
+        982.527971
+      ],
+      "narrow": [
+        847.487986,
+        848.352015
+      ]
+    },
+    "K17408-T511": {
+      "baseline": [
+        984.448016,
+        982.640028
+      ],
+      "narrow": [
+        847.743988,
+        847.487986
+      ]
+    },
+    "K17408-T512": {
+      "baseline": [
+        904.447973,
+        902.656019
+      ],
+      "narrow": [
+        1022.464037,
+        1022.336006
+      ]
+    },
+    "K17408-T513": {
+      "baseline": [
+        1052.800059,
+        1050.495982
+      ],
+      "narrow": [
+        1209.599972,
+        1213.183999
+      ]
+    }
+  },
+  "diagnostics": "diagnostics.json",
+  "gpu_and_cpu_measured_phase": {
+    "baseline": {
+      "client_wall_seconds": 44.41962961514946,
+      "native_cpu_seconds": 1.5099999999999998,
+      "python_cpu_seconds": 0.06426699999999741,
+      "native_cpu_percent": 3.3993979983232667,
+      "telemetry": {
+        "utilization.gpu": {
+          "sample_weighted_mean": 99.07511737089202,
+          "minimum": 81.0,
+          "maximum": 100.0,
+          "samples": 213
+        },
+        "utilization.memory": {
+          "sample_weighted_mean": 30.431924882629108,
+          "minimum": 19.0,
+          "maximum": 100.0,
+          "samples": 213
+        },
+        "memory.used": {
+          "sample_weighted_mean": 16964.0,
+          "minimum": 16964.0,
+          "maximum": 16964.0,
+          "samples": 213
+        },
+        "power.draw": {
+          "sample_weighted_mean": 421.7529577464789,
+          "minimum": 412.2,
+          "maximum": 425.93,
+          "samples": 213
+        },
+        "temperature.gpu": {
+          "sample_weighted_mean": 61.21596244131455,
+          "minimum": 54.0,
+          "maximum": 67.0,
+          "samples": 213
+        },
+        "clocks.sm": {
+          "sample_weighted_mean": 2740.492957746479,
+          "minimum": 2685.0,
+          "maximum": 2775.0,
+          "samples": 213
+        },
+        "clocks.mem": {
+          "sample_weighted_mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0,
+          "samples": 213
+        }
+      }
+    },
+    "selective": {
+      "client_wall_seconds": 44.34458345588064,
+      "native_cpu_seconds": 1.4800000000000004,
+      "python_cpu_seconds": 0.05736600000000003,
+      "native_cpu_percent": 3.3374989337141567,
+      "telemetry": {
+        "utilization.gpu": {
+          "sample_weighted_mean": 99.50943396226415,
+          "minimum": 95.0,
+          "maximum": 100.0,
+          "samples": 212
+        },
+        "utilization.memory": {
+          "sample_weighted_mean": 28.80188679245283,
+          "minimum": 19.0,
+          "maximum": 100.0,
+          "samples": 212
+        },
+        "memory.used": {
+          "sample_weighted_mean": 16964.0,
+          "minimum": 16964.0,
+          "maximum": 16964.0,
+          "samples": 212
+        },
+        "power.draw": {
+          "sample_weighted_mean": 422.3250943396227,
+          "minimum": 415.56,
+          "maximum": 425.29,
+          "samples": 212
+        },
+        "temperature.gpu": {
+          "sample_weighted_mean": 61.778301886792455,
+          "minimum": 57.0,
+          "maximum": 65.0,
+          "samples": 212
+        },
+        "clocks.sm": {
+          "sample_weighted_mean": 2730.0707547169814,
+          "minimum": 2625.0,
+          "maximum": 2760.0,
+          "samples": 212
+        },
+        "clocks.mem": {
+          "sample_weighted_mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0,
+          "samples": 212
+        }
+      }
+    }
+  },
+  "tests": {
+    "initial_independent_fp64_oracles": {
+      "prefill_baseline": 0,
+      "prefill_w32": 0,
+      "prefill_c64_s2": 0,
+      "prefill_c64_s3": 0
+    },
+    "selective_independent_fp64_oracle_exit": 0,
+    "full_output_dense_oracle": {
+      "K": [
+        6144,
+        17408
+      ],
+      "T": 193,
+      "seed": 429,
+      "replay": "Original, zero and restored input"
+    },
+    "selective_sampled_row_oracle": {
+      "seed": 431,
+      "T": [
+        1,
+        192,
+        194,
+        255,
+        256,
+        257,
+        319,
+        320,
+        321,
+        383,
+        384,
+        385,
+        447,
+        448,
+        449,
+        480,
+        509,
+        511,
+        512,
+        513,
+        1024
+      ],
+      "graph_T": [
+        256,
+        385,
+        511,
+        512,
+        513
+      ],
+      "all_output_finiteness_scanned": true
+    },
+    "criterion": "Unchanged fused LinearAdd A16 [1/256, 1/256, 2/256], oracle compiled -fno-fast-math -ffp-contract=off; independent packed decode/naive FP64 formula; output guards and input/weight preservation",
+    "state_replay_matches_warm": true,
+    "invalid_microbenchmark_extents_rejected": [
+      "0",
+      "2049",
+      "512x"
+    ],
+    "cpu_suite": "326 passed, 56 skipped",
+    "ruff_and_diff_checks": "passed"
+  },
+  "builds": {
+    "production_runner_sha256": "3c7da6aeb337ee374ce912934c9335252e39326cd9cba3e2163696c06d15dfb4",
+    "selective_runner_sha256": "b56333e8810d6f556ea4877b68ede9ba1eb9f12384714ac1f1cacc3fd405dbc8",
+    "selective_build": "runner-selective.build.json",
+    "selective_source_and_commands": "selective/results.json",
+    "all_15_external_archives_unchanged": true,
+    "production_unchanged": true,
+    "no_commit_or_push": true
+  },
+  "limitations": [
+    "Small synthetic text fixture, 16 generated tokens per prompt; no broad accuracy, perplexity or long-context claim beyond these cases.",
+    "Only the selected Q4 LinearAdd shapes on the 4090D; not a global speedup for every model or all prefill lengths.",
+    "The initially tried unconditional tile change regresses full chunks. Its timings must not be presented as a general improvement.",
+    "Two ABBA sessions per variant, thermal/clock drift, not a formal confidence interval. Tiny differences at controls are not demonstrated regressions or improvements.",
+    "GPU telemetry covers the complete measured mixed-length generation phase including 16-token decode; whole-device samples include a desktop process and do not measure achieved occupancy or bandwidth percentage.",
+    "Resource-only occupancy ceiling increases 16.7% to 25% for the selected partial-tile case, not a measurement of achieved occupancy. Full 512 case remains at its original ceiling.",
+    "Counter access remains restricted (RmProfilingAdminOnly=1, prior ERR_NVGPUCTRPERM); no repeat counter campaign or privilege changes.",
+    "Public-Op Nsight traces establish resources/dispatch only and are not substituted for unprofiled model performance."
+  ],
+  "tools_sha256": {
+    "tools/projection/test_rowsplit.py": "22bf94016d5b59e25dc0c898bc49aa71155fdb07772159ae5780623d73ccd4ee",
+    "tools/projection/q4_prefill_correctness.cpp": "454b253c236d5f82b8b3e02f114e844134c2345e50dc6cb56e1554160d74e609",
+    "tools/projection/q4_prefill_stream_bench.cu": "0b6cf3d12c2cf3ec1b959bc1643359f2341e04f7eb9ae4fe98cec6e6c2468839",
+    "tools/benchmark_qwen_prefill.py": "c372891af99d785134064ad50987e103ff2ced8465af866a044c2f379c66454c"
+  }
+}

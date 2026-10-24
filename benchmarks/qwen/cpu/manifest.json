@@ -1,0 +1,141 @@
+{
+  "task": "Reduce native CPU consumption during GPU inference without changing model mathematics",
+  "recorded_utc": "2026-10-16T08:20:59.891400+00:00",
+  "source_state": "Uncommitted changes on main; previous mode-switch and long-context work retained. No commit/push.",
+  "diagnosis": "OS process accounting measured approximately one core busy, despite small internal host-active counters: CUDA auto scheduling actively spun during device synchronization on this host.",
+  "change": "Startup-selectable CUDA CPU waiting policy. Default blocking, auto retains previous heuristic. Same GPU synchronization points, graphs, weights, KV profile and model/scheduler/kernel libraries. Only this owned runner context changes; no system settings or unrelated jobs touched.",
+  "implementation": {
+    "protocol": 3,
+    "python": "QwenNativeSession(..., cpu_wait=\"blocking\"|\"auto\")",
+    "cli": "venturi qwen generate|benchmark ... --cpu-wait blocking|auto",
+    "native": "cudaSetDevice; cudaGetDeviceFlags; preserve non-scheduling bits; cudaSetDeviceFlags(... cudaDeviceScheduleBlockingSync or cudaDeviceScheduleAuto); verify effective flags; report applied policy in ready",
+    "startup_timing": "Final runner timer includes CUDA context setup. Pilot differs only in starting the startup timer after wait-policy setup; steady-state wait/math behavior is the same. Pilot source/build retained separately."
+  },
+  "hardware": "2026-10-16T16:20:59+08:00\nServer-4090D\nNVIDIA GeForce RTX 4090 D, 580.178.04, 24564 MiB, 387 MiB, 0 %\n2662, /usr/libexec/gnome-remote-desktop-daemon, 354 MiB\nCPU(s):                                  40\nModel name:                              Intel(R) Xeon(R) CPU E5-2640 v4 @ 2.40GHz\nThread(s) per core:                      2\nCore(s) per socket:                      10\nSocket(s):                               2\nCPU(s) scaling MHz:                      42%\n100\n",
+  "model": {
+    "artifact_id": "d3ae5782742a48c8b058196297a7ddff",
+    "name": "Existing Qwen3.8-27B .ninfer text checkpoint",
+    "staged_path": "/dev/shm/venturi-test/venturi-ninfer-d3ae5782742a48c8b058196297a7ddff-f730fa10d9cd5d08/qwen3_8_27b.ninfer",
+    "precision": "Stored mixed Q4/Q8/BF16/FP32, BF16 KV (native BF16 K / FP16 V); unchanged"
+  },
+  "workload": "One resident model per process. Four measured requests/process, four distinct 509-token raw prompts, 64 fixed output tokens each. Context 2048, chunk 512, CUDA graphs on, no speculation/reuse. Single-mode final order auto-a, blocking-a, blocking-b, auto-b. One warmup before measurement. Startup/warmup excluded.",
+  "accounting": "Linux /proc/<native-pid>/stat utime+stime (all process threads), CLK_TCK=100, sampled before/after each call; parent Python resource.RUSAGE_SELF separately. CPU%=100*process CPU seconds/elapsed wall seconds, 100%=one logical core, not whole host. No CPU/package-power/whole-system-energy or energy/token measurement.",
+  "summaries": {
+    "auto": {
+      "native_cpu_seconds": 10.920000000000002,
+      "python_cpu_seconds": 0.0031930000000004455,
+      "wall_seconds": 10.916276506090071,
+      "native_cpu_percent": 100.03410956023195,
+      "total_cpu_seconds_per_output_token": 0.021334361328125002,
+      "output_tokens": 512,
+      "output_tokens_per_second": 46.90243964728823,
+      "median_first_token_seconds": 0.25556383850000003
+    },
+    "blocking": {
+      "native_cpu_seconds": 0.23999999999999932,
+      "python_cpu_seconds": 0.004826999999999693,
+      "wall_seconds": 11.065670124080498,
+      "native_cpu_percent": 2.1688700034327306,
+      "total_cpu_seconds_per_output_token": 0.0004781777343749981,
+      "output_tokens": 512,
+      "output_tokens_per_second": 46.26922673989838,
+      "median_first_token_seconds": 0.2577592535
+    }
+  },
+  "improvements": {
+    "native_cpu_time_reduction_percent": 97.80219780219781,
+    "total_cpu_per_token_reduction_percent": 97.75864987462916,
+    "output_throughput_change_percent": -1.350063903182197
+  },
+  "correctness": "All 16 final measured single-request sequences (8 per policy) exactly matched the four-prompt unchanged protocol-2 baseline. Single state replay and cross-policy BF16/graphs, K8V4/eager and DFlash2 checks passed. This does not assert universal batch-invariant outputs or original-model quality equivalence.",
+  "validation": {
+    "local_cpu": "309 passed, 56 skipped",
+    "targeted_remote": "62 passed, no skips, 100.90s",
+    "remote_scope": "Existing native tests plus CPU-wait policy/flags, single and parallel state isolation, BF16/K8V4, graphs/eager, DFlash2, malformed/old-runner handling and process-CPU accounting.",
+    "cli": "Actual Mac SSH launcher: parallel default blocking yields ordered APPLE/RIVER; single auto yields APPLE; applied policy verified.",
+    "static": "ruff check src tests tools; Python 3.11 py_compile affected Python; git diff --check passed"
+  },
+  "pilot": {
+    "scope": "Initial wait-policy implementation before startup-timer boundary correction; retained, not mixed into final ABBA aggregates.",
+    "parallel_c4_auto": {
+      "wall_seconds": 4.453281809051987,
+      "native_cpu_seconds": 4.469999999999999,
+      "python_cpu_seconds": 0.0006959999999995858,
+      "native_cpu_percent": 100.37541282283169,
+      "total_cpu_seconds_per_output_token": 0.008731828124999997,
+      "output_tokens": 512,
+      "output_tokens_per_second": 114.97139007894818,
+      "median_first_token_seconds": 0.665306304
+    },
+    "parallel_c4_blocking": {
+      "wall_seconds": 4.509166725969408,
+      "native_cpu_seconds": 0.13999999999999968,
+      "python_cpu_seconds": 0.007680999999999827,
+      "native_cpu_percent": 3.104786505092061,
+      "total_cpu_seconds_per_output_token": 0.00028843945312499904,
+      "output_tokens": 512,
+      "output_tokens_per_second": 113.54647790050991,
+      "median_first_token_seconds": 0.6701209115
+    }
+  },
+  "deployment": {
+    "primary_source": "/home/test/wangyue/venturi-work/qwen/src",
+    "primary_runner": "/home/test/wangyue/venturi-work/qwen/native/venturi-qwen-runner",
+    "runner_sha256": "3c7da6aeb337ee374ce912934c9335252e39326cd9cba3e2163696c06d15dfb4",
+    "tested_candidate": "/home/test/wangyue/venturi-work/qwen/native/venturi-qwen-runner-cpu",
+    "preserved_protocol2_source": "/home/test/wangyue/venturi-work/qwen/protocol2/src",
+    "preserved_protocol2_runner": "/home/test/wangyue/venturi-work/qwen/native/venturi-qwen-runner-protocol2-bdfaf62b626462e5",
+    "notes": "Protocol-1 and protocol-2 evidence/binaries retained. No model weights altered or downloaded. All owned GPU inference processes exited; pre-existing GNOME desktop retained."
+  },
+  "source_sha256": {
+    "src/venturi/backends/csrc/qwen_runner.cpp": "f2f0edc9559085e47efd56382cbcf9d4a13bcdb47f55872382ca2e07c32ecadf",
+    "src/venturi/backends/qwen.py": "b7f1283846d93cb8fc67dceab9deeec5cf02f676bee761c5ab904f629cf2ca74",
+    "src/venturi/qwen_cli.py": "18ada5ca24be9ed8c2ca5ee50a20fde3903e31d8d13051d8735b19c702dd9686",
+    "tools/benchmark_qwen_cpu.py": "f39045215533d9057453fa55a56f1b2f40d6fbe425dbfd79f3fbb412c922468d",
+    "tests/test_qwen_backend.py": "eaf8dbf5e295fd827b8f36daa99e6cca4cb114a3b536d47b9eaa1655ee5005b0",
+    "tests/test_qwen_real.py": "052dcacb42f3818cb42c5ee4af7ba1a72847d5f3106f2108e1ef29891105face",
+    "tests/test_qwen_cpu_tool.py": "4877be4e8659ae7a3b21287cb6937c563a6f78468cd2a5051ef582594a3ba9f2"
+  },
+  "references": [
+    "https://docs.nvidia.com/cuda/archive/13.0.0/cuda-runtime-api/group__CUDART__DEVICE.html"
+  ],
+  "reproduction": {
+    "benchmark": "PYTHONPATH=src python tools/benchmark_qwen_cpu.py <existing-stage> --runner <protocol-3-runner> --cpu-wait auto|blocking --output <new-report.json>",
+    "tests": "VENTURI_TEST_CUDA=1 VENTURI_QWEN_MODEL=<existing-stage> VENTURI_QWEN_RUNNER=<protocol-3-runner> PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src python -m pytest tests/test_qwen_backend.py tests/test_qwen_real.py tests/test_qwen_cpu_tool.py -q --tb=short"
+  },
+  "evidence_sha256": {
+    "auto-a.json": "5441ce4f588338ef112fdf2cd93b54bf588cf851799491990af6a0806ef3f114",
+    "auto-a.log": "ebcb8008f797184f8921388db4ef469c960522ac26d883865fa005c6bf4dd519",
+    "auto-b.json": "d99d203dc31dbe82d3bf3b084665d27ec3af03e9e1318c8609cb7617b280f5db",
+    "auto-b.log": "4a3a96b24a9edecc66e3616c0a6f440ff31f6e85afe436c16f2da2ee5b71caf6",
+    "baseline.json": "d72b384f49439e4d43883de2e14331514af36257a77bc5340a34b25ee60a1c16",
+    "baseline.log": "ca9884d6dece66d083fa7b24279628ef6bff35f618d546c6e2eb88d7b20ddb90",
+    "blocking-a.json": "8d34f2f83d993d24f354b3c1f1c964b8772bf9e45eb20a449efe82611b365c06",
+    "blocking-a.log": "4dadc8dfe44f4f7e9769a95865b456b12703ce29e6fdef3ba2473ddfdc6291a7",
+    "blocking-b.json": "5df607f5d08c032630fe7a826a760167a8f70fc6f4dd45b43520686c95b5ed9b",
+    "blocking-b.log": "3c813880d79861e9667b877150333fd7bbbf1e6aec607477019389043466cfbc",
+    "build.log": "e72d727364808192859793a34a9caa17510fa1111d87f0095156410805c9c07c",
+    "cli-auto.json": "5e021636137e5c3b5da43e56637ee5444c493922ee663a4bd0ed7873d4ee44af",
+    "cli-default-blocking.json": "625f6f19910669299481602c8c870c747c7a9c2a052ef129cd975781a494e2b1",
+    "cpu-tests.log": "9dcc40f9295f39b0b30485d406238068d1f49eb6736e06b95c6b2d28e4224699",
+    "gpu-tests.log": "1febda4c96a015ee672ddcb06dcd572ccfef540391fbed53c922efbf7372d7e7",
+    "pilot/auto-a.json": "f6e1f5c081577c095f03e6d18d08d495bfc0ce265e8d2fe8d406f74975267bea",
+    "pilot/auto-a.log": "2c28c3c83cb0024cc30c7826c778606be09353e26de92e0b2a47a78f308e504c",
+    "pilot/auto-b.json": "9337e0b0fbd08afe0f4e45e4aa1349fb3657ecfb62c58fcef1d4f8c43af0f4cc",
+    "pilot/auto-b.log": "d6d29a907b7b985ccf782809d14ee77e86f110c1062fefc52819d817f51e5a42",
+    "pilot/blocking-a.json": "9d88e529589fec4caf24a2bd6cf5eacbd69597656b3029fb7bd95250b8117575",
+    "pilot/blocking-a.log": "138aab6523c8d235ebe34b5bb58fe3c615aca5629e9103ed1e3782fdea2de56c",
+    "pilot/blocking-b.json": "d06e595183ad472a896dd2a96f937d2202239c8816136fcb0cd2c8a6c18fd8c6",
+    "pilot/blocking-b.log": "5471cb7084cb8696a03106d3adb87464be483a781636487aa4279d39e9b6ebb7",
+    "pilot/build.log": "5efe1d58dbf119316a272b872bb8454198df4635fad9abca7d71e6da094da00c",
+    "pilot/c4-auto.json": "3e7d8d1d5a98de34d452fe667315a95c6849e265a7d8cfd5b4dab4e4de14dd5e",
+    "pilot/c4-auto.log": "2b12f6edafcd7a18fa0e3b3ed6890cfecd878b33bf9c9b4bb2c0a44420d953f1",
+    "pilot/c4-blocking.json": "e8c45ae02a89c0bc7aebb2fe077b72483535761dc60302637939177e0f7cb8d8",
+    "pilot/c4-blocking.log": "753963572399af096213d0f55afb0b7220fd8eef70822ae2b4c2336614885642",
+    "pilot/qwen_runner.cpp": "1f2c96afb4d553258bba3dede763fc5ef2841be4304bfd8ebdaa2506a2814074",
+    "pilot/venturi-qwen-runner-cpu.build.json": "5efe1d58dbf119316a272b872bb8454198df4635fad9abca7d71e6da094da00c",
+    "server-final-check.txt": "d4e7fb6a853ba71b0212be450c03f8ea59585d94c71e8803ff27b572e4727b5a",
+    "summary.json": "f025b888c42708d7dbf575bfaa0b54ac2c6436216f97eb3d02589209c2954819",
+    "venturi-qwen-runner-cpu.build.json": "e72d727364808192859793a34a9caa17510fa1111d87f0095156410805c9c07c"
+  }
+}
