@@ -5,7 +5,8 @@ from time import perf_counter
 
 import torch
 
-from .gpt_neox import GPTNeoXSession, validate_token_ids
+from .gpt_neox import GPTNeoXSession
+from ..text.tokens import validate_token_ids
 
 
 @dataclass

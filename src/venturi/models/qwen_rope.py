@@ -64,7 +64,7 @@ class QwenTextRoPE:
         _shape(tokens, 1)
         if position + tokens > self.maximum_position:
             raise ValueError("Positions exceed configured context")
-        target = backend._device(dtype, device)
+        target = backend.validate_device(dtype, device)
         _outside_capture(target)
         # Match the original CPU FP32 inverse-frequency initialization, then
         # compute phases/trig on the execution device with autocast disabled.

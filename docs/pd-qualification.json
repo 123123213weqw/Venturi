@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "scope": "Opt-in same-process native Q8 TP1 static-state PD; generated hybrid fixture, NOT trained 27B TPS or quality",
+  "cpu": {
+    "scope": "Exported Git index in a clean temporary directory; no operations snapshots or private configuration",
+    "passed": 1840,
+    "skipped": 2844,
+    "seconds": 28.01,
+    "GPU_skips_are_not_passes": true,
+    "architecture_modules": 110,
+    "architecture_boundary_violations": 0
+  },
+  "gpu": {
+    "hardware": "NVIDIA L40, SM89",
+    "available_devices": 6,
+    "foreign_gpu_jobs_preserved": 2,
+    "passed": 16,
+    "skipped": 4,
+    "skipped_reason": "Four 4P4D cases require eight available physical GPUs",
+    "precision": [
+      "FP16",
+      "BF16"
+    ],
+    "transport": [
+      "explicit host staging",
+      "explicit CUDA peer"
+    ],
+    "topologies_passed": [
+      "1P1D",
+      "2P2D"
+    ],
+    "oracle": "No-handoff scalar trajectory: exact continuation logits, greedy tokens, KV prefixes, FP32 GDN recurrent state, convolution history, source/unused-slot isolation; stale/altered/occupied-target rejection",
+    "native_library_sha256": "04bd21fa363878f5147aecc32fd50ced56344b75830f1aa697b8cee72fb5566e",
+    "sm89_compilation": "passed",
+    "sm70_compilation": "passed; compilation only, no V100 execution in this campaign"
+  },
+  "trained_model_TPS": null,
+  "production_changed": false,
+  "services_stopped": [],
+  "performance_qualification": "Uncontended timing deferred; other jobs share the host. Fixture CLI smoke is separate and not a trained-model speed claim.",
+  "source_sha256": {
+    "src/venturi/runtime/state.py": "10d98039734627a4df431a9e573df562125712beb229c85fa2b06608d5c40161",
+    "src/venturi/runtime/pd.py": "a2d5a0f285b877f77bc19636a216da2d57d7071f4bc90ac4b091bd4163dcdd7a",
+    "src/venturi/runtime/continuous.py": "d8315a260f84d342264ae7d3190fc054c6bd90cf45f136d8ad85d8c48ba2fd57",
+    "src/venturi/runtime/worker.py": "b26f522bd386def40be740184ad9e1f982e634ce141420fbbd973ca0b8080676",
+    "src/venturi/models/qwen_pd.py": "89389870203c9a3594b1698fd88612d7fd33bf27c88f9c8842994106c9681866",
+    "src/venturi/ops/csrc/qwen_handoff.cuh": "f2bef5b9cc632f346d5b703ae886b79c501d21ee82df590a9233ea2804ede21e",
+    "src/venturi/ops/csrc/qwen_head_gdn.cuh": "525a0cc0b738ba7a781cc63555b6776cf25ec563686a026d9325a6149f583d0f",
+    "src/venturi/ops/csrc/qwen_runtime.cuh": "cb60ad6dc9cce298e61ff5365bb8e860229fb31669488180cd46e73dd802cf52",
+    "src/venturi/ops/csrc/blocks.cu": "5eab8cf1ec4cc6dfdc7f975bcdbeb3989765a3497fec6ae3ac37d2da7b4526b7",
+    "src/venturi/ops/build.py": "f07085370a6a0f466abd523c0881f9197d3bcbde24202ce89ff43716fd824dfb",
+    "tools/benchmark_pd_native.py": "5aeba0677182df084a36d81d7c624bac2091d17a5e3c3d45601cddb494fd7d4e",
+    "tests/test_pd_native.py": "437e9a0d6b63217ba1571cd62facef948f50e2dc6ee525be41bca34dfbc5cc08"
+  },
+  "fixture_cli_smoke": {
+    "status": "passed_shared_host_fixture_smoke_only",
+    "arms": 15,
+    "repeats_per_arm": 3,
+    "topologies": [
+      "1P1D versus two-device colocated, C1/C2/C4/C8",
+      "2P2D versus four-device colocated, C8"
+    ],
+    "same_output_hashes": true,
+    "cleanup_passed": true,
+    "trained_model_TPS": null,
+    "evidence": "../benchmarks/pd-native-v1/fixture-smoke.json",
+    "result": "PD slower on this short generated fixture; shared host, not an isolated performance claim"
+  }
+}

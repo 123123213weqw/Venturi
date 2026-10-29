@@ -94,7 +94,7 @@ class Q8VocabularyWeights:
         self.validate()
         if dtype not in (torch.float16, torch.bfloat16):
             raise ValueError("Q8 vocabulary supports FP16/BF16 activations")
-        target = backend._device(dtype, device)
+        target = backend.validate_device(dtype, device)
         codes, scales = (
             x.detach().to(target, copy=True) for x in (self.codes, self.scales)
         )
@@ -129,7 +129,7 @@ class ResidentQ8Vocabulary:
 
     def prepare_embedding(self, ids):
         _ids(ids, self.vocab_size)
-        self.backend._device(self.dtype, self.device)
+        self.backend.validate_device(self.dtype, self.device)
         indices = torch.tensor(ids, dtype=torch.int64, device=self.device)
         if self.device.type == "cuda":
             torch.cuda.current_stream(self.device).synchronize()
@@ -139,7 +139,7 @@ class ResidentQ8Vocabulary:
         _shape(tokens, self.vocab_size)
         if tokens * self.vocab_size >= 2**31:
             raise ValueError("Q8 head row count must fit int32")
-        self.backend._device(self.dtype, self.device)
+        self.backend.validate_device(self.dtype, self.device)
         return Q8OutputHead(self, tokens)
 
 
@@ -152,7 +152,7 @@ class Q8Embedding:
         r = self.resident
         _tensor(out, (self._indices.numel(), r.hidden_size), r.dtype, r.device, "out")
         _no_overlap(out, r.storage_tensors + (self._indices,))
-        if r.backend.name == "torch-reference":
+        if r.backend.execution_kind == "torch":
             codes, scales = r._codes[self._indices], r._scales[self._indices]
             out.copy_(
                 (codes.float() * scales.float().repeat_interleave(32, -1))[
@@ -189,7 +189,7 @@ class Q8OutputHead:
         _tensor(x, (self.tokens, r.hidden_size), r.dtype, r.device, "x")
         _tensor(out, (self.tokens, r.vocab_size), r.dtype, r.device, "out")
         _no_overlap(out, (x,) + r.storage_tensors)
-        if r.backend.name == "torch-reference":
+        if r.backend.execution_kind == "torch":
             # Explicit allocating, tiled FP32 reference. No full-vocabulary dense
             # reconstruction; the block bound keeps peak scratch under control.
             for start in range(0, r.vocab_size, 512):
@@ -264,7 +264,7 @@ class NInferVocabulary:
             raise ValueError("Tied vocabulary must reference the same physical object")
         if dtype not in (torch.float16, torch.bfloat16):
             raise ValueError("Q8 vocabulary supports FP16/BF16 activations")
-        backend._device(dtype, device)
+        backend.validate_device(dtype, device)
         residents = {}
         for name, obj in zip(names, objects):
             if obj not in residents:

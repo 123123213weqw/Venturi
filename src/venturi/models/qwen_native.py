@@ -9,8 +9,6 @@ whole-model CUDA graphs. Diagnostic forward returns owned CPU FP32 logits.
 
 import copy
 import ctypes as C
-import hashlib
-import json
 import threading
 import weakref
 
@@ -21,6 +19,7 @@ from ..ops import CudaBackend, DenseWeight
 from ..ops.vocabulary import _ids
 from .gdn_frontend import GDNFrontendWeights
 from .qwen_weights import QwenQ8Weights
+from .qwen_metadata import LoadedQwenSource, source_digest
 from .qwen_rope import QwenTextRoPE
 from .qwen_model import _memory_guard, qwen_resident_bytes
 from .decoder_layer import _outside_capture
@@ -160,9 +159,7 @@ def _bind(backend):
 
 
 def _digest(weights):
-    return hashlib.sha256(
-        json.dumps([weights.config, weights.artifact.manifest], sort_keys=True).encode()
-    ).digest()
+    return source_digest(weights.config, weights.artifact.manifest)
 
 
 class NativeQwenModel:
@@ -192,6 +189,7 @@ class NativeQwenModel:
         kv_cache="static",
         kv_gpu_budget_bytes=0,
         kv_ram_budget_bytes=0,
+        metadata_mode="checked-json",
     ):
         if not isinstance(weights, QwenQ8Weights) or not isinstance(
             backend, CudaBackend
@@ -201,6 +199,8 @@ class NativeQwenModel:
             )
         if weight_mode not in ("streaming", "resident"):
             raise ValueError("Select explicit streaming or resident weight_mode")
+        if metadata_mode not in ("checked-json", "sealed"):
+            raise ValueError("Metadata mode must be explicit checked-json or sealed")
         if type(max_tokens) is not int or not 1 <= max_tokens <= 1024:
             raise ValueError(
                 "Native Qwen max_tokens must be 1..1024; longer prompts are chunked"
@@ -272,7 +272,7 @@ class NativeQwenModel:
                 raise RuntimeError(
                     "Explicit projection profile exports absent; rebuild blocks"
                 ) from e
-        target = backend._device(dtype, device)
+        target = backend.validate_device(dtype, device)
         if tensor_parallel_transport not in ("peer", "host"):
             raise ValueError("Tensor parallel transport must be explicit peer or host")
         if tensor_parallel_device is None and tensor_parallel_transport != "peer":
@@ -283,7 +283,7 @@ class NativeQwenModel:
         if tensor_parallel_device is not None:
             if weight_mode != "resident":
                 raise ValueError("Tensor parallel requires explicit resident weights")
-            peer = backend._device(dtype, tensor_parallel_device)
+            peer = backend.validate_device(dtype, tensor_parallel_device)
             if peer == target:
                 raise ValueError("Tensor parallel peer must be a different CUDA device")
             if tensor_parallel_transport == "peer" and not (
@@ -750,6 +750,10 @@ class NativeQwenModel:
         self._lock = threading.RLock()
         self._finalizer = weakref.finalize(self, native.venturi_qwen_destroy, handle)
         try:
+            self._metadata_seal = None
+            if metadata_mode == "sealed":
+                self._metadata_seal = LoadedQwenSource.capture(owned, initial_digest)
+                self._weights = self._metadata_seal
             self._metadata()
         except Exception:
             self.close()
@@ -821,21 +825,36 @@ class NativeQwenModel:
                         scope="Request retains native KV ownership; model-handle diagnostics unavailable after owner close")
 
     def _metadata(self):
-        if _digest(self._weights) != self._digest:
+        # The detached loaded descriptor has no mutable nested maps/lists. Check
+        # its identity rather than reserializing hundreds of roles per token.
+        if (self._metadata_seal is None and _digest(self._weights) != self._digest) or (
+            self._metadata_seal is not None and self._weights is not self._metadata_seal
+        ):
             raise RuntimeError("Native Qwen metadata changed; recreate model")
-        stamps = tuple(
-            (
-                f.path.stat().st_dev,
-                f.path.stat().st_ino,
-                f.path.stat().st_size,
-                f.path.stat().st_mtime_ns,
-                f.path.stat().st_ctime_ns,
-            )
-            for f in self._weights.artifact.files
-        )
+        stamps = []
+        for file in self._weights.artifact.files:
+            stat = file.path.stat()
+            stamps.append((stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns))
+        stamps = tuple(stamps)
         if stamps != self._stamps:
             raise RuntimeError("Native Qwen source changed; recreate and verify model")
         _outside_capture(self.device)
+
+    def _binding_weights(self):
+        """Detached metadata reader for one-time cross-artifact binding (MTP).
+
+        Loaded capsules intentionally are not mutable checkpoint readers. Reopen
+        only the metadata, preserving the exact loaded directory digest and file
+        guards; no model weight planes are materialized or reread here.
+        """
+        self._metadata()
+        if isinstance(self._weights, QwenQ8Weights):
+            return self._weights
+        weights = QwenQ8Weights.from_ninfer(NInferArtifact(self._weights.artifact.path))
+        if _digest(weights) != self._weights.digest:
+            raise RuntimeError("Native Qwen binding metadata differs from loaded source")
+        self._metadata()
+        return weights
 
     def create_session(self, capacity):
         if (

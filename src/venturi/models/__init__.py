@@ -1,115 +1,76 @@
-"""Explicit model adapters; checkpoint loading remains architecture-independent."""
+"""Public models API, resolved only when a concrete export is requested.
 
-from .decoder_layer import (
-    AttentionDimensions,
-    CapturedDecoderStep,
-    DecoderLayerWeights,
-    DecoderStep,
-    DecoderWorkspace,
-    LayerKVCache,
-    PreparedDecoderLayer,
-    ResidentDecoderLayer,
-)
-from .gdn_frontend import (
-    GDNFrontendWeights,
-    GDNMixerWorkspace,
-    PreparedGDNMixerCore,
-    ResidentGDNFrontend,
-)
-from .gated_mlp import (
-    GatedMLPWeights,
-    GatedMLPWorkspace,
-    PreparedGatedMLP,
-    ResidentGatedMLP,
-)
-from .qwen_gdn_layer import (
-    GDNLayerState,
-    PreparedQwenGDNLayer,
-    QwenGDNWorkspace,
-    ResidentQwenGDNLayer,
-)
-from .qwen_attention_layer import (
-    ResidentQwenAttentionLayer,
-    PreparedQwenAttentionLayer,
-    QwenAttentionWorkspace,
-    QwenAttentionStep,
-)
-from .qwen_rope import QwenTextRoPE
-from .qwen_model import (
-    ResidentQwenModel,
-    QwenSession,
-    qwen_resident_bytes,
-    qwen_request_bytes,
-)
-from .qwen_streaming import StreamingQwenModel, StreamingQwenSession
-from .qwen_source import QwenSourceBinding, QwenSourcePlan
-from .qwen_weights import QwenQ8Weights
-from .llama import LlamaConfig, LlamaModel, LlamaSession, LlamaWeights
-from .gpt_neox import GPTNeoXConfig, GPTNeoXModel, GPTNeoXSession
+Importing the namespace does not load unrelated model families, tensor frameworks
+or native adapters. Existing public names retain their implementation identities.
+"""
 
-__all__ = [
-    "AdaptiveQwenMTPBatch",
-    "NativeQwenBatchSession",
-    "NativeQwenMTPBatchSession",
-    "QwenMTPPlan",
-    "QwenMTPWeights",
-    "NativeQwenMTPModel",
-    "NativeQwenMTPSession",
-    "NativeQwenModel",
-    "NativeQwenPipelineModel",
-    "NativeQwenPipelineSession",
-    "NativeQwenSession",
-    "StreamingQwenModel",
-    "StreamingQwenSession",
-    "qwen_request_bytes",
-    "ResidentQwenModel",
-    "QwenSession",
-    "qwen_resident_bytes",
-    "ResidentQwenAttentionLayer",
-    "PreparedQwenAttentionLayer",
-    "QwenAttentionWorkspace",
-    "QwenAttentionStep",
-    "QwenTextRoPE",
-    "GDNLayerState",
-    "PreparedQwenGDNLayer",
-    "QwenGDNWorkspace",
-    "ResidentQwenGDNLayer",
-    "QwenSourceBinding",
-    "QwenSourcePlan",
-    "QwenQ8Weights",
-    "GDNFrontendWeights",
-    "GDNMixerWorkspace",
-    "PreparedGDNMixerCore",
-    "ResidentGDNFrontend",
-    "LlamaConfig",
-    "LlamaWeights",
-    "LlamaModel",
-    "LlamaSession",
-    "GPTNeoXConfig",
-    "GPTNeoXModel",
-    "GPTNeoXSession",
-    "GatedMLPWeights",
-    "GatedMLPWorkspace",
-    "PreparedGatedMLP",
-    "ResidentGatedMLP",
-    "AttentionDimensions",
-    "DecoderLayerWeights",
-    "ResidentDecoderLayer",
-    "PreparedDecoderLayer",
-    "DecoderStep",
-    "CapturedDecoderStep",
-    "DecoderWorkspace",
-    "LayerKVCache",
-]
-from .qwen_native import NativeQwenModel, NativeQwenSession
+from importlib import import_module
 
-from .qwen_pipeline import NativeQwenPipelineModel, NativeQwenPipelineSession
+_EXPORTS = {
+    "AdaptiveQwenMTPBatch": ".qwen_adaptive_mtp",
+    "NativeQwenBatchSession": ".qwen_batch",
+    "NativeQwenMTPBatchSession": ".qwen_mtp_batch",
+    "QwenMTPPlan": ".qwen_mtp",
+    "QwenMTPWeights": ".qwen_mtp",
+    "NativeQwenMTPModel": ".qwen_mtp_native",
+    "NativeQwenMTPSession": ".qwen_mtp_native",
+    "NativeQwenModel": ".qwen_native",
+    "NativeQwenPipelineModel": ".qwen_pipeline",
+    "NativeQwenPipelineSession": ".qwen_pipeline",
+    "NativeQwenSession": ".qwen_native",
+    "StreamingQwenModel": ".qwen_streaming",
+    "StreamingQwenSession": ".qwen_streaming",
+    "qwen_request_bytes": ".qwen_model",
+    "ResidentQwenModel": ".qwen_model",
+    "QwenSession": ".qwen_model",
+    "qwen_resident_bytes": ".qwen_model",
+    "ResidentQwenAttentionLayer": ".qwen_attention_layer",
+    "PreparedQwenAttentionLayer": ".qwen_attention_layer",
+    "QwenAttentionWorkspace": ".qwen_attention_layer",
+    "QwenAttentionStep": ".qwen_attention_layer",
+    "QwenTextRoPE": ".qwen_rope",
+    "GDNLayerState": ".qwen_gdn_layer",
+    "PreparedQwenGDNLayer": ".qwen_gdn_layer",
+    "QwenGDNWorkspace": ".qwen_gdn_layer",
+    "ResidentQwenGDNLayer": ".qwen_gdn_layer",
+    "QwenSourceBinding": ".qwen_source",
+    "QwenSourcePlan": ".qwen_source",
+    "QwenQ8Weights": ".qwen_weights",
+    "GDNFrontendWeights": ".gdn_frontend",
+    "GDNMixerWorkspace": ".gdn_frontend",
+    "PreparedGDNMixerCore": ".gdn_frontend",
+    "ResidentGDNFrontend": ".gdn_frontend",
+    "LlamaConfig": ".llama",
+    "LlamaWeights": ".llama",
+    "LlamaModel": ".llama",
+    "LlamaSession": ".llama",
+    "GPTNeoXConfig": ".gpt_neox",
+    "GPTNeoXModel": ".gpt_neox",
+    "GPTNeoXSession": ".gpt_neox",
+    "GatedMLPWeights": ".gated_mlp",
+    "GatedMLPWorkspace": ".gated_mlp",
+    "PreparedGatedMLP": ".gated_mlp",
+    "ResidentGatedMLP": ".gated_mlp",
+    "AttentionDimensions": ".decoder_layer",
+    "DecoderLayerWeights": ".decoder_layer",
+    "ResidentDecoderLayer": ".decoder_layer",
+    "PreparedDecoderLayer": ".decoder_layer",
+    "DecoderStep": ".decoder_layer",
+    "CapturedDecoderStep": ".decoder_layer",
+    "DecoderWorkspace": ".decoder_layer",
+    "LayerKVCache": ".decoder_layer",
+}
+__all__ = list(_EXPORTS)
 
-from .qwen_mtp import QwenMTPPlan, QwenMTPWeights
-from .qwen_mtp_native import NativeQwenMTPModel, NativeQwenMTPSession
 
-from .qwen_batch import NativeQwenBatchSession
+def __getattr__(name):
+    module = _EXPORTS.get(name)
+    if module is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    value = getattr(import_module(module, __name__), name)
+    globals()[name] = value
+    return value
 
-from .qwen_mtp_batch import NativeQwenMTPBatchSession
 
-from .qwen_adaptive_mtp import AdaptiveQwenMTPBatch
+def __dir__():
+    return sorted(set(globals()) | set(__all__))

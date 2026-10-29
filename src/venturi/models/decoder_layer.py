@@ -111,6 +111,27 @@ class DecoderLayerWeights:
         ):
             raise ValueError("attention_norm must be a floating-point [hidden] vector")
 
+    def validate_backend(self, backend, *, dimensions, dtype, device):
+        """Reject missing core operations/formats before allocating weights."""
+        if not isinstance(dimensions, AttentionDimensions):
+            raise TypeError("Explicit AttentionDimensions are required")
+        if (
+            self.query.out_features != dimensions.query_width
+            or self.key.out_features != dimensions.kv_width
+        ):
+            raise ValueError("Projection widths do not match AttentionDimensions")
+        if dtype != torch.bfloat16 and not (
+            backend.capabilities.reference and dtype == torch.float64
+        ):
+            raise ValueError(
+                "Decoder currently supports BF16, plus explicit FP64 reference mode"
+            )
+        for operation in ("rmsnorm", "rope", "attention", "add"):
+            backend.require(operation, dtype=dtype, device=device)
+        for weight in (self.query, self.key, self.value, self.output):
+            backend.require_linear(weight, dtype=dtype, device=device)
+        self.mlp.validate_backend(backend, dtype=dtype, device=device)
+
     def upload(
         self,
         backend,
@@ -120,19 +141,7 @@ class DecoderLayerWeights:
         device="cuda:0",
         epsilon=1e-6,
     ):
-        if not isinstance(dimensions, AttentionDimensions):
-            raise TypeError("Explicit AttentionDimensions are required")
-        if (
-            self.query.out_features != dimensions.query_width
-            or self.key.out_features != dimensions.kv_width
-        ):
-            raise ValueError("Projection widths do not match AttentionDimensions")
-        if dtype != torch.bfloat16 and not (
-            backend.name == "torch-reference" and dtype == torch.float64
-        ):
-            raise ValueError(
-                "Decoder currently supports BF16, plus explicit FP64 reference mode"
-            )
+        self.validate_backend(backend, dimensions=dimensions, dtype=dtype, device=device)
         return ResidentDecoderLayer(
             backend,
             dimensions,
@@ -200,7 +209,7 @@ class ResidentDecoderLayer(DenseKVCacheOwner):
     def empty_cache(self, *, capacity):
         """One layer of one request; no allocation per append, no implicit prefix sharing."""
         _shape(capacity, 1)
-        self._backend._device(self.dtype, self.device)
+        self._backend.validate_device(self.dtype, self.device)
         return LayerKVCache(self, capacity)
 
     def prepare(self, *, tokens):

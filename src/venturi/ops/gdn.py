@@ -53,7 +53,7 @@ def prepare_gdn(
     ):
         raise ValueError("GDN scale must be a normal positive FP32 value")
     if dtype not in (torch.float16, torch.bfloat16) and not (
-        backend.name == "torch-reference" and dtype == torch.float64
+        backend.execution_kind == "torch" and dtype == torch.float64
     ):
         raise ValueError("GDN supports FP16/BF16, plus explicit FP64 reference mode")
     return PreparedGDN(
@@ -66,7 +66,7 @@ def prepare_gdn(
         normalize_qk,
         float(scale),
         dtype,
-        backend._device(dtype, device),
+        backend.validate_device(dtype, device),
     )
 
 
@@ -143,7 +143,7 @@ class PreparedGDN:
         _no_overlap(state_out, readonly + (out,))
         _no_overlap(state_out, (state,), allow_inplace=True)
         _no_overlap(out, readonly + (state,))
-        if self.backend.name == "torch-reference":
+        if self.backend.execution_kind == "torch":
             if packed:
                 width = self.qk_heads * self.key_dim
                 q, k, v = (

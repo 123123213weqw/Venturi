@@ -103,7 +103,7 @@ def prepare_q8_dp4a(resident, *, tokens, residual_compensation):
     _shape(tokens, resident.hidden_size)
     if resident.dtype != torch.float16 or resident.device.type != "cuda":
         raise ValueError("DP4A experimental profile requires CUDA FP16 input/output")
-    resident.backend._device(resident.dtype, resident.device)
+    resident.backend.validate_device(resident.dtype, resident.device)
     if tokens * resident.vocab_size >= 2**31:
         raise ValueError("DP4A output geometry exceeds int32")
     native = _bind(resident.backend)

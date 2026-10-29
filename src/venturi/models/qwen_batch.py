@@ -2,7 +2,9 @@
 
 Python handles metadata/submission only. Prefill packing, grouped projections,
 sequence-local state updates, active decode compaction and greedy control are C++.
-This is cohort batching, not MTP batching, paging or continuous mid-call admission.
+The generate entry remains fixed-cohort. The optional step entry exposes one
+bounded mixed prefill/decode iteration to an external owner; it is not MTP,
+paging or a scheduler by itself.
 """
 
 import ctypes as C
@@ -40,6 +42,14 @@ def _bind(backend):
 
 
 class NativeQwenBatchSession:
+    @property
+    def max_token_rows(self):
+        return self.model._max_tokens
+
+    @property
+    def vocab_size(self):
+        return self.model._cfg["vocab_size"]
+
     @classmethod
     def create(cls, model, capacities):
         if type(model) is not NativeQwenModel or model._mode != "resident":
@@ -92,7 +102,7 @@ class NativeQwenBatchSession:
             raise ValueError("Explicit unique valid batch slots required")
         return (C.c_int * len(slots))(*slots)
 
-    def _inputs(self, prompts, slots):
+    def _inputs(self, prompts, slots, *, max_rows=None):
         if not isinstance(prompts, (list, tuple)) or not prompts:
             raise ValueError("Nonempty list of tokenized prompts required")
         slots = list(range(len(prompts))) if slots is None else slots
@@ -102,6 +112,8 @@ class NativeQwenBatchSession:
         flat, offsets = [], [0]
         for prompt in prompts:
             _ids(prompt, self.model._cfg["vocab_size"])
+            if max_rows is not None and len(flat) + len(prompt) > max_rows:
+                raise ValueError("Step token rows exceed prepared model workspace")
             flat.extend(prompt)
             offsets.append(len(flat))
         if len(flat) >= 2**31:
@@ -111,6 +123,54 @@ class NativeQwenBatchSession:
             (C.c_int64 * len(flat))(*flat),
             (C.c_int * len(offsets))(*offsets),
         )
+
+    def step(self, prompts, *, slots=None, sample_slots=None, decode_slots=()):
+        """Commit ONE bounded group and return greedy IDs for requested slots.
+
+        Each prompt is a contiguous append to one private request. Only completed
+        prefills and decode rows should be sampled; partial prefills may pass an
+        empty sample list. Decode rows must each append exactly one token. No
+        logits, tensor math, state migration or automatic strategy fallback is
+        performed in Python. Failed native execution poisons participating slots
+        until reset. Requires the additive native step export; old libraries are
+        rejected for this method without breaking their existing cohort API.
+        """
+        if type(self) is not NativeQwenBatchSession:
+            raise ValueError("Step requires an ordinary target batch, not MTP")
+        selected, tokens, offsets = self._inputs(
+            prompts, slots, max_rows=self.model._max_tokens
+        )
+        samples = list(selected) if sample_slots is None else sample_slots
+        for name, values in (("sample", samples), ("decode", decode_slots)):
+            if not isinstance(values, (list, tuple)):
+                raise ValueError(f"Explicit {name} slot list required")
+            if values:
+                self._slots(values)
+            if not set(values).issubset(set(selected)):
+                raise ValueError(f"Step {name} slots must belong to this iteration")
+        extents = {int(s): offsets[i + 1] - offsets[i] for i, s in enumerate(selected)}
+        if any(extents[s] != 1 for s in decode_slots):
+            raise ValueError("Each decode slot must append exactly one token")
+        sample_ids = (C.c_int * len(samples))(*samples)
+        decode_ids = (C.c_int * len(decode_slots))(*decode_slots)
+        output = (C.c_int64 * len(samples))()
+        with self._lock:
+            self._check()
+            fn = getattr(self, "_step_fn", None)
+            if fn is None:
+                fn = getattr(self.model._backend._native, "venturi_qwen_batch_step", None)
+                if fn is None:
+                    raise RuntimeError("Native batch step export absent; rebuild explicitly")
+                p, i = C.c_void_p, C.c_int
+                fn.argtypes = [p, p, i, p, p, p, i, p, i, p, C.c_uint64]
+                fn.restype = i
+                self._step_fn = fn
+            self.model._backend._check(fn(
+                self._handle, selected, len(selected), tokens, offsets,
+                sample_ids, len(samples), decode_ids, len(decode_slots),
+                output, len(samples),
+            ))
+        return list(output)
 
     def forward(self, prompts, *, slots=None):
         """Diagnostic owned CPU FP32 final-row logits per selected request."""

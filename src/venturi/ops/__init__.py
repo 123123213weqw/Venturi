@@ -1,60 +1,64 @@
-"""Optional architecture-independent execution backends."""
+"""Public ops API, resolved only when a concrete export is requested.
 
-from .ada import AdaBackend, PreparedLinear, ResidentQ4Weight
-from .attention import PreparedCausalAttention, PreparedRoPE
-from .embedding import PreparedEmbedding
-from .gdn import PreparedGDN
-from .blocks import CudaBackend, ResidentLinear, ResidentRMSNorm, TorchBackend
-from .state_space import (
-    ResidentCausalConv,
-    PreparedCausalConv,
-    ResidentGDNGates,
-    PreparedGDNGates,
-    ResidentGatedRMSNorm,
-    PreparedGatedRMSNorm,
-)
-from .vocabulary import NInferVocabulary, Q8VocabularyWeights, ResidentQ8Vocabulary
-from .qwen_attention import (
-    ResidentQwenQKNorm,
-    PreparedQwenQKNormRoPE,
-    PreparedQwenOutputGate,
-)
-from .weights import DenseWeight, Q4RowSplitWeight, Q8RowSplitWeight
-from .sampling import PreparedGreedy, prepare_greedy
-from .q8_dp4a import PreparedQ8DP4A, prepare_q8_dp4a
-from .q8_wmma import PreparedQ8WMMA, prepare_q8_wmma
+Importing the namespace does not load unrelated model families, tensor frameworks
+or native adapters. Existing public names retain their implementation identities.
+"""
 
-__all__ = [
-    "PreparedQ8DP4A",
-    "prepare_q8_dp4a",
-    "PreparedQ8WMMA",
-    "prepare_q8_wmma",
-    "PreparedGreedy",
-    "prepare_greedy",
-    "ResidentQwenQKNorm",
-    "PreparedQwenQKNormRoPE",
-    "PreparedQwenOutputGate",
-    "ResidentCausalConv",
-    "PreparedCausalConv",
-    "ResidentGDNGates",
-    "PreparedGDNGates",
-    "ResidentGatedRMSNorm",
-    "PreparedGatedRMSNorm",
-    "NInferVocabulary",
-    "Q8VocabularyWeights",
-    "ResidentQ8Vocabulary",
-    "PreparedEmbedding",
-    "PreparedGDN",
-    "AdaBackend",
-    "PreparedLinear",
-    "Q4RowSplitWeight",
-    "Q8RowSplitWeight",
-    "DenseWeight",
-    "CudaBackend",
-    "TorchBackend",
-    "ResidentLinear",
-    "ResidentRMSNorm",
-    "ResidentQ4Weight",
-    "PreparedRoPE",
-    "PreparedCausalAttention",
-]
+from importlib import import_module
+
+_EXPORTS = {
+    "Backend": ".backend",
+    "BackendCapabilities": ".backend",
+    "LinearPlan": ".backend",
+    "LinearWeight": ".backend",
+    "OperatorBackend": ".backend",
+    "OperatorSupport": ".backend",
+    "UnsupportedOperationError": ".backend",
+    "create_backend": ".backend",
+    "PreparedQ8DP4A": ".q8_dp4a",
+    "prepare_q8_dp4a": ".q8_dp4a",
+    "PreparedQ8WMMA": ".q8_wmma",
+    "prepare_q8_wmma": ".q8_wmma",
+    "PreparedGreedy": ".sampling",
+    "prepare_greedy": ".sampling",
+    "ResidentQwenQKNorm": ".qwen_attention",
+    "PreparedQwenQKNormRoPE": ".qwen_attention",
+    "PreparedQwenOutputGate": ".qwen_attention",
+    "ResidentCausalConv": ".state_space",
+    "PreparedCausalConv": ".state_space",
+    "ResidentGDNGates": ".state_space",
+    "PreparedGDNGates": ".state_space",
+    "ResidentGatedRMSNorm": ".state_space",
+    "PreparedGatedRMSNorm": ".state_space",
+    "NInferVocabulary": ".vocabulary",
+    "Q8VocabularyWeights": ".vocabulary",
+    "ResidentQ8Vocabulary": ".vocabulary",
+    "PreparedEmbedding": ".embedding",
+    "PreparedGDN": ".gdn",
+    "AdaBackend": ".ada",
+    "PreparedLinear": ".ada",
+    "Q4RowSplitWeight": ".weights",
+    "Q8RowSplitWeight": ".weights",
+    "DenseWeight": ".weights",
+    "CudaBackend": ".blocks",
+    "TorchBackend": ".blocks",
+    "ResidentLinear": ".blocks",
+    "ResidentRMSNorm": ".blocks",
+    "ResidentQ4Weight": ".ada",
+    "PreparedRoPE": ".attention",
+    "PreparedCausalAttention": ".attention",
+}
+__all__ = list(_EXPORTS)
+
+
+def __getattr__(name):
+    module = _EXPORTS.get(name)
+    if module is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    value = getattr(import_module(module, __name__), name)
+    globals()[name] = value
+    return value
+
+
+def __dir__():
+    return sorted(set(globals()) | set(__all__))

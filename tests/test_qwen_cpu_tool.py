@@ -6,7 +6,7 @@ import sys
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "tools"))
-from benchmark_qwen_cpu import process_cpu, summary  # noqa: E402
+from process_metrics import process_cpu, summary  # noqa: E402
 
 
 def test_proc_stat_handles_spaces_and_parentheses_in_comm(monkeypatch):
@@ -15,7 +15,7 @@ def test_proc_stat_handles_spaces_and_parentheses_in_comm(monkeypatch):
     monkeypatch.setattr(
         Path, "read_text", lambda self: "123 (worker ) name) " + " ".join(fields)
     )
-    monkeypatch.setattr("benchmark_qwen_cpu.os.sysconf", lambda key: 100)
+    monkeypatch.setattr("process_metrics.os.sysconf", lambda key: 100)
     assert process_cpu(123) == 3.0
 
 

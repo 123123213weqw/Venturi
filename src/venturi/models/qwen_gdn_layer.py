@@ -62,12 +62,12 @@ class ResidentQwenGDNLayer:
         if cfg["layer_types"][layer] != "linear_attention":
             raise ValueError("Requested layer is not a GDN layer")
         if dtype not in (torch.float16, torch.bfloat16) and not (
-            backend.name == "torch-reference" and dtype == torch.float64
+            backend.capabilities.reference and dtype == torch.float64
         ):
             raise ValueError(
                 "GDN layer currently supports FP16/BF16, plus explicit FP64 reference mode"
             )
-        target = backend._device(dtype, device)
+        target = backend.validate_device(dtype, device)
         _outside_capture(target)
         prefix = f"text/layers/{layer}/"
         frontend = GDNFrontendWeights.from_ninfer(weights.artifact, layer=layer).upload(

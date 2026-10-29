@@ -210,7 +210,44 @@ def test_column_tp_header_is_a_blocks_build_dependency(monkeypatch, tmp_path):
     assert "q8_projection_dispatch.cuh" in manifest["source_sha256"]
     assert "q8_producer.cuh" in manifest["source_sha256"]
     assert "q8_rms_producer.cuh" in manifest["source_sha256"]
-    assert len(manifest["source_sha256"]) == 17
+    assert "gdn_warp_decode.cuh" in manifest["source_sha256"]
+    assert "qwen_handoff.cuh" in manifest["source_sha256"]
+    assert len(manifest["source_sha256"]) == 19
+
+
+def test_warp_decode_is_opt_in_sm70_and_part_of_cache_key(monkeypatch, tmp_path):
+    import json
+    from venturi.ops.build import build_blocks_backend
+
+    commands = []
+
+    def compiler(command, **kwargs):
+        if command[-1] == "--version":
+            return subprocess.CompletedProcess(command, 0, "fake compiler", "")
+        commands.append(command)
+        Path(command[-1]).write_bytes(b"fake library; no native compilation")
+        return subprocess.CompletedProcess(command, 0, "", "")
+
+    monkeypatch.setattr(sys, "platform", "linux")
+    monkeypatch.setattr(subprocess, "run", compiler)
+    baseline = build_blocks_backend(tmp_path, nvcc="fake", architecture="sm70")
+    candidate = build_blocks_backend(
+        tmp_path, nvcc="fake", architecture="sm70", gdn_warp_decode=True
+    )
+    assert baseline != candidate
+    assert "-DVENTURI_GDN_WARP_DECODE=0" in commands[0]
+    assert "-DVENTURI_GDN_WARP_DECODE=1" in commands[1]
+    record = json.loads(candidate.with_name("build.json").read_text())
+    assert "gdn_warp_decode.cuh" in record["source_sha256"]
+    assert build_blocks_backend(
+        tmp_path, nvcc="fake", architecture="sm70", gdn_warp_decode=True
+    ) == candidate
+    assert len(commands) == 2
+    for bad in (None, 1, "true"):
+        with pytest.raises(ValueError, match="Warp GDN"):
+            build_blocks_backend(tmp_path, architecture="sm70", gdn_warp_decode=bad)
+    with pytest.raises(ValueError, match="Warp GDN"):
+        build_blocks_backend(tmp_path, architecture="sm89", gdn_warp_decode=True)
 
 
 def test_swiglu_quant_is_opt_in_sm70_and_in_build_identity(monkeypatch, tmp_path):

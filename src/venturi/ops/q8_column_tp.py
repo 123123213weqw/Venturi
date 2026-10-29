@@ -138,7 +138,7 @@ def prepare_q8_column_partial(resident, *, tokens):
     _shape(tokens, resident.hidden_size)
     if resident.dtype != torch.float16 or resident.device.type != "cuda":
         raise ValueError("Column partial requires CUDA FP16 activation storage")
-    resident.backend._device(resident.dtype, resident.device)
+    resident.backend.validate_device(resident.dtype, resident.device)
     if torch.cuda.get_device_capability(resident.device) != (7, 0):
         raise ValueError("Column partial is an explicit SM70 research operator")
     if tokens * resident.vocab_size >= 2**31 - 256:

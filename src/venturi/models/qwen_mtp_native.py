@@ -154,7 +154,7 @@ class NativeQwenMTPModel(NativeQwenModel):
         if target._mode != "resident" or target._max_tokens < 2:
             raise ValueError("MTP target requires resident weights and max_tokens >= 2")
         weights = QwenMTPWeights.from_ninfer(NInferArtifact(weights.artifact.path))
-        weights.validate_target(target._weights)
+        weights.validate_target(target._binding_weights())
         cfg, backend = target.config, target._backend
         device = (
             target.pipeline_device

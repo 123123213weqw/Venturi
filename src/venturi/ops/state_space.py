@@ -33,7 +33,7 @@ def _ready(device):
 
 
 def upload_causal_conv(backend, weight, *, dtype, device):
-    target = backend._device(dtype, device)
+    target = backend.validate_device(dtype, device)
     if not isinstance(weight, torch.Tensor) or weight.ndim != 2:
         raise ValueError("Causal convolution weight requires [kernel,channels]")
     kernel, channels = weight.shape
@@ -70,7 +70,7 @@ class ResidentCausalConv:
 
     def prepare(self, *, tokens):
         _shape(tokens, self._weight.shape[1])
-        self.backend._device(self.dtype, self._weight.device)
+        self.backend.validate_device(self.dtype, self._weight.device)
         return PreparedCausalConv(self, tokens)
 
 
@@ -99,7 +99,7 @@ class PreparedCausalConv:
         _no_overlap(out, (x, history, history_out, r._weight))
         _no_overlap(history_out, (x, r._weight))
         _no_overlap(history_out, (history,), allow_inplace=True)
-        if r.backend.name == "torch-reference":
+        if r.backend.execution_kind == "torch":
             work = torch.float64 if dtype == torch.float64 else torch.float32
             joined = torch.cat((history, x))
             acc = torch.zeros_like(x, dtype=work)
@@ -133,7 +133,7 @@ class PreparedCausalConv:
 
 
 def upload_gdn_gates(backend, a_log, dt_bias, *, dtype, device):
-    target = backend._device(dtype, device)
+    target = backend.validate_device(dtype, device)
     if not isinstance(a_log, torch.Tensor) or a_log.ndim != 1:
         raise ValueError("A_log must be a floating-point [heads] vector")
     _shape(1, a_log.numel())
@@ -167,7 +167,7 @@ class ResidentGDNGates:
         _shape(tokens, self._rate.numel())
         if type(round_beta) is not bool:
             raise ValueError("round_beta must be boolean")
-        self.backend._device(self.dtype, self._rate.device)
+        self.backend.validate_device(self.dtype, self._rate.device)
         return PreparedGDNGates(self, tokens, round_beta)
 
 
@@ -192,7 +192,7 @@ class PreparedGDNGates:
             _tensor(tensor, shape, r._rate.dtype, device, name)
         _no_overlap(log_decay, (a, b, beta) + r.storage_tensors)
         _no_overlap(beta, (a, b) + r.storage_tensors)
-        if r.backend.name == "torch-reference":
+        if r.backend.execution_kind == "torch":
             work = r._rate.dtype
             log_decay.copy_(-r._rate * F.softplus(a.to(work) + r._bias))
             value = b.to(work).sigmoid()
@@ -218,7 +218,7 @@ class PreparedGDNGates:
 
 
 def upload_gated_rmsnorm(backend, weight, *, dtype, device, epsilon=1e-6):
-    target = backend._device(dtype, device)
+    target = backend.validate_device(dtype, device)
     epsilon = _epsilon(epsilon)
     if not isinstance(weight, torch.Tensor) or weight.ndim != 1:
         raise ValueError("Gated RMSNorm weight requires a [features] vector")
@@ -255,7 +255,7 @@ class ResidentGatedRMSNorm:
         _shape(tokens, heads)
         if tokens * heads >= 2**31:
             raise ValueError("Gated RMSNorm row count must fit int32")
-        self.backend._device(self.dtype, self._weight.device)
+        self.backend.validate_device(self.dtype, self._weight.device)
         return PreparedGatedRMSNorm(self, tokens, heads)
 
 
@@ -278,7 +278,7 @@ class PreparedGatedRMSNorm:
         for name, tensor in (("x", x), ("z", z), ("out", out)):
             _tensor(tensor, shape, dtype, device, name)
         _no_overlap(out, (x, z, r._weight))
-        if r.backend.name == "torch-reference":
+        if r.backend.execution_kind == "torch":
             work = torch.float64 if dtype == torch.float64 else torch.float32
             value = x.to(work)
             normal = (
@@ -311,7 +311,7 @@ def upload_zero_centered_rmsnorm(backend, weight, *, dtype, device, epsilon=1e-6
     Reuses the existing norm kernel. No per-forward add or hidden numerical
     fallback. The source checkpoint tensor remains unchanged.
     """
-    backend._device(dtype, device)
+    backend.validate_device(dtype, device)
     if (
         not isinstance(weight, torch.Tensor)
         or weight.ndim != 1

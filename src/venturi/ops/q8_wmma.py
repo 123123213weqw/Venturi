@@ -71,7 +71,7 @@ def prepare_q8_wmma(resident, *, tokens, split_k_warps=4):
         or resident.hidden_size > 2**31 - 128
     ):
         raise ValueError("WMMA launch geometry exceeds supported int32/grid bounds")
-    resident.backend._device(resident.dtype, resident.device)
+    resident.backend.validate_device(resident.dtype, resident.device)
     try:
         fn = resident.backend._native.venturi_q8_wmma_run
     except AttributeError as e:

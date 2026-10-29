@@ -93,7 +93,7 @@ class StreamingQwenModel:
         if not isinstance(weights, QwenQ8Weights):
             raise TypeError("Expected complete preflighted QwenQ8Weights")
         if dtype not in (torch.float16, torch.bfloat16) and not (
-            backend.name == "torch-reference" and dtype == torch.float64
+            backend.capabilities.reference and dtype == torch.float64
         ):
             raise ValueError(
                 "Streaming supports explicit FP16/BF16, plus FP64 reference"
@@ -108,7 +108,7 @@ class StreamingQwenModel:
             "head_dim"
         ] not in (64, 128, 256):
             raise ValueError("Native Qwen attention head_dim must be 64, 128 or 256")
-        self.device = backend._device(dtype, device)
+        self.device = backend.validate_device(dtype, device)
         self.reserve_bytes, self.memory_budget_bytes = (
             reserve_bytes,
             memory_budget_bytes,
@@ -152,7 +152,7 @@ class StreamingQwenModel:
     def _role_bytes(self, role):
         obj = self._weights._object(role)
         n, k = obj["shape"]
-        if self.backend.name == "torch-reference":
+        if self.backend.capabilities.reference:
             return n * k * (8 if self.dtype == torch.float64 else 4)
         padded = (k + 127) // 128 * 128
         return n * (padded + padded // 32 * 2)
@@ -160,7 +160,7 @@ class StreamingQwenModel:
     def _layer_bytes(self, i):
         return qwen_resident_bytes(
             self._weights,
-            reference=self.backend.name == "torch-reference",
+            reference=self.backend.capabilities.reference,
             dtype=self.dtype,
             layer=i,
         )

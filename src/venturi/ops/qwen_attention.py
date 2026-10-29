@@ -16,7 +16,7 @@ from .state_space import _owned, _ready
 def upload_qwen_qk_norm(
     backend, query_weight, key_weight, *, dtype, device, epsilon=1e-6
 ):
-    target = backend._device(dtype, device)
+    target = backend.validate_device(dtype, device)
     epsilon = _epsilon(epsilon)
     if (
         not isinstance(query_weight, torch.Tensor)
@@ -69,7 +69,7 @@ class ResidentQwenQKNorm:
             or 2 * query_heads * self.head_dim >= 2**31
         ):
             raise ValueError("Unsupported QK head/rotary geometry")
-        self.backend._device(self.dtype, self.device)
+        self.backend.validate_device(self.dtype, self.device)
         return PreparedQwenQKNormRoPE(self, tokens, query_heads, kv_heads, rotary_dim)
 
 
@@ -106,7 +106,7 @@ class PreparedQwenQKNormRoPE:
             qg, key, None, None, query_out=query_out, key_out=key_out, norm_only=True
         )
         r = self.resident
-        if r.backend.name == "torch-reference":
+        if r.backend.execution_kind == "torch":
             work = torch.float64 if r.dtype == torch.float64 else torch.float32
             q = qg.reshape(self.tokens, self.query_heads, 2 * r.head_dim)[
                 ..., : r.head_dim
@@ -153,7 +153,7 @@ class PreparedQwenQKNormRoPE:
         self.validate(qg, key, cos, sin, query_out=query_out, key_out=key_out)
         r = self.resident
         d = r.head_dim
-        if r.backend.name == "torch-reference":
+        if r.backend.execution_kind == "torch":
             work = torch.float64 if r.dtype == torch.float64 else torch.float32
             half = self.rotary_dim // 2
             c, s = (t.to(r.dtype).to(work)[:, None, :] for t in (cos, sin))
@@ -220,7 +220,7 @@ def prepare_qwen_output_gate(backend, *, tokens, heads, head_dim, dtype, device)
     if head_dim not in (64, 128, 256) or 2 * heads * head_dim >= 2**31:
         raise ValueError("Unsupported gated attention head geometry")
     return PreparedQwenOutputGate(
-        backend, tokens, heads, head_dim, dtype, backend._device(dtype, device)
+        backend, tokens, heads, head_dim, dtype, backend.validate_device(dtype, device)
     )
 
 
@@ -246,7 +246,7 @@ class PreparedQwenOutputGate:
     def run(self, x, qg, *, out):
         """Read packed gate without a copy; sigmoid rounds before multiplication."""
         self.validate(x, qg, out=out)
-        if self.backend.name == "torch-reference":
+        if self.backend.execution_kind == "torch":
             work = torch.float64 if self.dtype == torch.float64 else torch.float32
             gate = qg.reshape(self.tokens, self.heads, 2 * self.head_dim)[
                 ..., self.head_dim :

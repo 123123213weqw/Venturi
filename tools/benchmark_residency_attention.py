@@ -19,9 +19,9 @@ from time import perf_counter, time
 
 import torch
 
-from benchmark_qwen_gpu import FIELDS, telemetry
+from gpu_telemetry import FIELDS, telemetry
 from benchmark_shared_mlp import cpu_seconds, make_weights, phase
-from run_qwen_validation import idle_gpu
+from gpu_telemetry import idle_gpu
 from venturi.ops import AdaBackend, CudaBackend, TorchBackend
 
 

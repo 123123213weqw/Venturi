@@ -17,9 +17,9 @@ def prepare_embedding(resident, token_ids):
     if len(token_ids) >= 2**31:
         raise ValueError("Embedding token count must fit int32")
     backend = resident._backend
-    device = backend._device(resident.dtype, resident.device)
+    device = backend.validate_device(resident.dtype, resident.device)
     payload = resident._payload
-    if backend.name == "torch-reference":
+    if backend.execution_kind == "torch":
         weight, quantized = payload
         if quantized and quantized != "q8_g32_fp16":
             raise ValueError("Quantized reference lookup currently supports Q8 only")
@@ -28,7 +28,7 @@ def prepare_embedding(resident, token_ids):
             raise ValueError("Embedding requires dense storage, not a Q4 Linear")
         weight = payload
     if weight.dtype != resident.dtype and (
-        backend.name != "torch-reference" or not quantized
+        backend.execution_kind != "torch" or not quantized
     ):
         raise ValueError("Mixed FP32 Linear is not a vocabulary; use a typed embedding")
     indices = torch.tensor(token_ids, dtype=torch.int64, device=device)
@@ -54,7 +54,7 @@ class PreparedEmbedding:
         r = self.resident
         _tensor(out, (self.tokens, r.in_features), r.dtype, r.device, "out")
         _no_overlap(out, (self._weight, self._indices))
-        if r._backend.name == "torch-reference":
+        if r._backend.execution_kind == "torch":
             if self._weight.dtype != r.dtype:
                 out.copy_(
                     torch.index_select(self._weight, 0, self._indices).to(r.dtype)

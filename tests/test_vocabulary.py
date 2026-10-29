@@ -220,7 +220,7 @@ def test_explicit_fp16_vocabulary_binding_and_preflight(tmp_path, monkeypatch):
     assert bound.embedding is bound.head and bound.head.dtype == torch.float16
 
     class Unsupported:
-        def _device(self, dtype, device):
+        def validate_device(self, dtype, device):
             raise ValueError("unsupported architecture/precision")
 
     def forbidden(*a, **k):

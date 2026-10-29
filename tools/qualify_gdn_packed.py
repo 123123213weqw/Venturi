@@ -15,10 +15,10 @@ import subprocess
 
 import torch
 
-from benchmark_qwen_gpu import FIELDS, telemetry
+from gpu_telemetry import FIELDS, telemetry
 from qualify_checkpoint_gdn import bf16_check, phase, write
 from qualify_native_q8_bootstrap import capture
-from run_qwen_validation import idle_gpu
+from gpu_telemetry import idle_gpu
 from venturi.ninfer import NInferArtifact
 from venturi.ops import CudaBackend
 

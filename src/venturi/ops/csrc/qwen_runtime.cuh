@@ -740,7 +740,9 @@ struct Session {
             if (md.layers[i].kind==0) {
                 const auto hb=mul(mul(c.convolution-1,packed),2)/(md.head_gdn_enabled?2:1),sb=mul(mul(c.gvh*c.gvd,c.gkd),4)/(md.head_gdn_enabled?2:1);
                 statebuf(history[i],hb,true);statebuf(state[i],sb,true);
-                if(md.head_gdn_enabled){Device d(c.second_device);for(auto pair:{std::pair<std::unique_ptr<Buffer>*,std::uint64_t>{&peer_history[i],hb},{&peer_state[i],sb}}){auto b=std::make_unique<Buffer>();b->allocate(pair.second);check(cudaMemsetAsync(b->ptr,0,b->bytes,md.second_stream.ptr));peer_device_bytes=add(peer_device_bytes,b->bytes);*pair.first=std::move(b);}}
+                if(md.head_gdn_enabled){Device d(c.second_device);
+                    const std::array<std::pair<std::unique_ptr<Buffer>*,std::uint64_t>,2> planes{{{&peer_history[i],hb},{&peer_state[i],sb}}};
+                    for(auto pair:planes){auto b=std::make_unique<Buffer>();b->allocate(pair.second);check(cudaMemsetAsync(b->ptr,0,b->bytes,md.second_stream.ptr));peer_device_bytes=add(peer_device_bytes,b->bytes);*pair.first=std::move(b);}}
             }
             else if(md.kv_tier)tiered_kv[i]=md.kv_tier->create(mul(mul(cap,kw),2),mul(kw,2));
             else { statebuf(keys[i],mul(mul(cap,kw),2),false);statebuf(values[i],mul(mul(cap,kw),2),false); }

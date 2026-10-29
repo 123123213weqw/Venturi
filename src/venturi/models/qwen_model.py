@@ -128,7 +128,7 @@ class ResidentQwenModel:
         if not isinstance(weights, QwenQ8Weights):
             raise TypeError("Expected complete preflighted QwenQ8Weights")
         if dtype not in (torch.float16, torch.bfloat16) and not (
-            backend.name == "torch-reference" and dtype == torch.float64
+            backend.capabilities.reference and dtype == torch.float64
         ):
             raise ValueError(
                 "Qwen model supports FP16/BF16, plus explicit FP64 reference"
@@ -143,12 +143,12 @@ class ResidentQwenModel:
         ):
             raise ValueError("Native Qwen attention head_dim must be 64, 128 or 256")
         rope = QwenTextRoPE.from_config(cfg)
-        target = backend._device(dtype, device)
+        target = backend.validate_device(dtype, device)
         _outside_capture(target)
         _memory_guard(
             target,
             qwen_resident_bytes(
-                weights, reference=backend.name == "torch-reference", dtype=dtype
+                weights, reference=backend.capabilities.reference, dtype=dtype
             ),
             reserve_bytes,
             memory_budget_bytes,

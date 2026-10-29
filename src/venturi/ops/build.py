@@ -22,6 +22,7 @@ def _build_backend(
     q8_row_pair=False,
     q8_swiglu_quant=False,
     q8_rms_quant=False,
+    gdn_warp_decode=False,
 ) -> Path:
     """Build the optional C ABI library and retain compiler output/provenance."""
     import sys
@@ -55,6 +56,10 @@ def _build_backend(
         q8_rms_quant and (component != "blocks" or architecture != "sm70")
     ):
         raise ValueError("Q8 RMS quantization is an explicit boolean SM70 blocks experiment")
+    if type(gdn_warp_decode) is not bool or (
+        gdn_warp_decode and (component != "blocks" or architecture != "sm70")
+    ):
+        raise ValueError("Warp GDN decode is an explicit boolean SM70 blocks experiment")
     if sys.platform != "linux":
         raise RuntimeError(
             "Build Venturi CUDA operators on a Linux CUDA machine, not the local Mac"
@@ -77,6 +82,7 @@ def _build_backend(
             source / "qwen_pipeline.cuh",
             source / "qwen_mtp.cuh",
             source / "qwen_batch.cuh",
+            source / "qwen_handoff.cuh",
             source / "q8_dp4a.cuh",
             source / "q8_column_tp.cuh",
             source / "q8_wmma.cuh",
@@ -86,6 +92,7 @@ def _build_backend(
             source / "q8_projection_dispatch.cuh",
             source / "q8_producer.cuh",
             source / "q8_rms_producer.cuh",
+            source / "gdn_warp_decode.cuh",
         ]
         if component == "blocks"
         else [
@@ -102,6 +109,7 @@ def _build_backend(
                 "qwen_pipeline.cuh",
                 "qwen_mtp.cuh",
                 "qwen_batch.cuh",
+                "qwen_handoff.cuh",
                 "q8_dp4a.cuh",
                 "q8_column_tp.cuh",
                 "q8_wmma.cuh",
@@ -111,6 +119,7 @@ def _build_backend(
                 "q8_projection_dispatch.cuh",
                 "q8_producer.cuh",
                 "q8_rms_producer.cuh",
+                "gdn_warp_decode.cuh",
             )
         ]
     )
@@ -137,6 +146,7 @@ def _build_backend(
                 f"-DVENTURI_Q8_ROW_PAIR={int(q8_row_pair)}",
                 f"-DVENTURI_Q8_SWIGLU_QUANT={int(q8_swiglu_quant)}",
                 f"-DVENTURI_Q8_RMS_QUANT={int(q8_rms_quant)}",
+                f"-DVENTURI_GDN_WARP_DECODE={int(gdn_warp_decode)}",
             ]
             if component == "blocks"
             else []
@@ -219,6 +229,7 @@ def build_blocks_backend(
     q8_row_pair=False,
     q8_swiglu_quant=False,
     q8_rms_quant=False,
+    gdn_warp_decode=False,
 ) -> Path:
     """Build Venturi-owned blocks and cuBLAS bridge, without an external engine."""
     return _build_backend(
@@ -232,6 +243,7 @@ def build_blocks_backend(
         q8_row_pair=q8_row_pair,
         q8_swiglu_quant=q8_swiglu_quant,
         q8_rms_quant=q8_rms_quant,
+        gdn_warp_decode=gdn_warp_decode,
     )
 
 
@@ -247,6 +259,7 @@ def main() -> None:
     parser.add_argument("--q8-row-pair", action="store_true", help="Experimental SM70 native projection dispatch; default off")
     parser.add_argument("--q8-swiglu-quant", action="store_true", help="Experimental SM70 native SwiGLU/two-pass activation quantization fusion; default off")
     parser.add_argument("--q8-rms-quant", action="store_true", help="Experimental SM70 native post-attention RMS/two-pass activation quantization fusion; default off")
+    parser.add_argument("--gdn-warp-decode", action="store_true", help="Experimental SM70 single-token DK128 warp GDN; default off")
     args = parser.parse_args()
     if args.component == "ada" and args.architecture != "sm89":
         parser.error("Ada Q4 supports sm89 only")
@@ -256,6 +269,8 @@ def main() -> None:
         parser.error("--q8-swiglu-quant requires --component blocks --architecture sm70")
     if args.q8_rms_quant and (args.component != "blocks" or args.architecture != "sm70"):
         parser.error("--q8-rms-quant requires --component blocks --architecture sm70")
+    if args.gdn_warp_decode and (args.component != "blocks" or args.architecture != "sm70"):
+        parser.error("--gdn-warp-decode requires --component blocks --architecture sm70")
     build = build_blocks_backend if args.component == "blocks" else build_cuda_backend
     print(
         build(
@@ -270,6 +285,7 @@ def main() -> None:
                     q8_row_pair=args.q8_row_pair,
                     q8_swiglu_quant=args.q8_swiglu_quant,
                     q8_rms_quant=args.q8_rms_quant,
+                    gdn_warp_decode=args.gdn_warp_decode,
                 )
                 if args.component == "blocks"
                 else {}

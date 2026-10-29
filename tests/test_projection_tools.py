@@ -1,6 +1,5 @@
 """Projection experiment orchestration, without invoking a local compiler."""
 
-import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -17,62 +16,6 @@ def load_tool(path):
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
-
-
-def test_runner_overlay_is_explicit_and_precedes_archives(monkeypatch, tmp_path):
-    tool = load_tool("tools/build_qwen_runner.py")
-    source, build = tmp_path / "source", tmp_path / "build"
-    (source / "include/ninfer").mkdir(parents=True)
-    build.mkdir()
-    (source / "include/ninfer/engine.h").write_text("header")
-    for name in ("LICENSE", "NOTICE", "upstream-provenance.json"):
-        (source / name).write_text(name)
-    archive = build / "libops.a"
-    archive.write_bytes(b"unchanged archive")
-    obj = tmp_path / "candidate.o"
-    obj.write_bytes(b"replacement")
-    cpp = tmp_path / "transport.cpp"
-    cpp.write_text("transport")
-    monkeypatch.setattr(
-        tool.subprocess,
-        "check_output",
-        lambda *a, **k: ": && /usr/bin/c++ old.o -o apps/ninfer libops.a && :\n",
-    )
-    calls = []
-
-    def fake_link(command, **kwargs):
-        calls.append(command)
-        Path(command[command.index("-o") + 1]).write_bytes(b"fake executable")
-
-    monkeypatch.setattr(tool.subprocess, "run", fake_link)
-    for overlay in (False, True):
-        output = tmp_path / ("candidate" if overlay else "baseline")
-        args = [
-            "tool",
-            "--source",
-            str(source),
-            "--build",
-            str(build),
-            "--runner-source",
-            str(cpp),
-            "--output",
-            str(output),
-        ]
-        monkeypatch.setattr(
-            sys, "argv", args + (["--ops-object", str(obj)] if overlay else [])
-        )
-        tool.main()
-        report = json.loads(output.with_suffix(".build.json").read_text())
-        if overlay:
-            assert calls[-1].index(str(obj)) < calls[-1].index("libops.a")
-            assert (
-                report["experimental_ops_object"]["sha256"]
-                == hashlib.sha256(obj.read_bytes()).hexdigest()
-            )
-        else:
-            assert str(obj) not in calls[-1]
-            assert report["experimental_ops_object"] is None
-    assert archive.read_bytes() == b"unchanged archive"
 
 
 def test_experiment_rejects_changed_external_source_before_build(monkeypatch, tmp_path):

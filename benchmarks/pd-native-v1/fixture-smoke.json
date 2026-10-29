@@ -1,0 +1,3742 @@
+{
+  "schema": 1,
+  "status": "passed_shared_host_fixture_smoke_only",
+  "scope": "generated-fixture CLI smoke; shared host with foreign GPU/CPU tenants; NOT trained TPS or isolated performance qualification",
+  "fixture_sha256": "a06535c864419adedf8996ce9a64ec36f748298fd36bb9e90adbc12a6ad1cccd",
+  "fixture": "Generated Q8 four-layer hybrid; no trained weight quality or TPS claim",
+  "native_library_sha256": "04bd21fa363878f5147aecc32fd50ced56344b75830f1aa697b8cee72fb5566e",
+  "workload": {
+    "prompt_tokens": 6,
+    "output_tokens": 16,
+    "requests": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "capacity": 64,
+    "rows": 32,
+    "slots_per_target": 8,
+    "prefill_chunk_size": 16,
+    "precision": "Q8 weights / FP16 activation-KV / FP32 recurrent state",
+    "warmup_rounds": 1,
+    "scored_repeats": 3,
+    "timing": "Shared request wall incl queue, prefill, transfer, decode; excludes loading/tokenization; not post-first decode TPS"
+  },
+  "host_shared": true,
+  "foreign_gpu_jobs_preserved": 2,
+  "host_loadavg_before": [
+    7.1455078125,
+    4.71826171875,
+    2.78369140625
+  ],
+  "host_loadavg_after": [
+    5.22265625,
+    4.57373046875,
+    2.83837890625
+  ],
+  "profiler": false,
+  "achieved_occupancy_and_DRAM_bandwidth": "not measured",
+  "gpu_sampling_limit": "1 Hz snapshots can miss these millisecond fixture rounds; GPU/memory-controller busy are NOT achieved occupancy or bandwidth",
+  "all_comparison_output_hashes_equal": true,
+  "selected_devices_final_memory_used_MiB": 0,
+  "services_changed": [],
+  "results": [
+    {
+      "case": "1p1d-c1-colocated-host.json",
+      "configuration": {
+        "mode": "colocated",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0
+        ],
+        "decode_devices": [
+          1
+        ],
+        "transport": "host",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.007426700554788113,
+          "process_cpu_seconds": 0.007475733000000151,
+          "process_cpu_percent_one_core_100": 100.66021842203435,
+          "output_tokens": 16,
+          "aggregate_output_tokens_per_second": 2154.3887331884607,
+          "requests_per_second": 134.6492958242788,
+          "output_ids_sha256": "8b93a260efc6de920431f15756ace18d5da18b2a1deac783a111b4beb5876b6d",
+          "requests": [
+            {
+              "queue_seconds": 0.00017132237553596497,
+              "ttft_seconds": 0.0011310866102576256,
+              "wall_seconds": 0.007346783764660358,
+              "max_inter_token_seconds": 0.0006290469318628311
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.00484185665845871,
+          "process_cpu_seconds": 0.004854565000000033,
+          "process_cpu_percent_one_core_100": 100.2624683553802,
+          "output_tokens": 16,
+          "aggregate_output_tokens_per_second": 3304.5174875319876,
+          "requests_per_second": 206.53234297074923,
+          "output_ids_sha256": "8b93a260efc6de920431f15756ace18d5da18b2a1deac783a111b4beb5876b6d",
+          "requests": [
+            {
+              "queue_seconds": 7.159728556871414e-05,
+              "ttft_seconds": 0.0004109479486942291,
+              "wall_seconds": 0.004792277701199055,
+              "max_inter_token_seconds": 0.0003056945279240608
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.004824050702154636,
+          "process_cpu_seconds": 0.004836842000000008,
+          "process_cpu_percent_one_core_100": 100.26515678700595,
+          "output_tokens": 16,
+          "aggregate_output_tokens_per_second": 3316.71472541814,
+          "requests_per_second": 207.29467033863375,
+          "output_ids_sha256": "8b93a260efc6de920431f15756ace18d5da18b2a1deac783a111b4beb5876b6d",
+          "requests": [
+            {
+              "queue_seconds": 7.911864668130875e-05,
+              "ttft_seconds": 0.0004214746877551079,
+              "wall_seconds": 0.004770465195178986,
+              "max_inter_token_seconds": 0.0003083888441324234
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 3304.5174875319876,
+      "model_and_request_setup_seconds": 0.7885897634550929,
+      "stats_before": [
+        {
+          "iterations": 16,
+          "input_rows": 21,
+          "decode_rows": 15,
+          "prefill_rows": 6,
+          "mixed_iterations": 0,
+          "emitted_tokens": 16,
+          "completed_requests": 1,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        },
+        {
+          "iterations": 0,
+          "input_rows": 0,
+          "decode_rows": 0,
+          "prefill_rows": 0,
+          "mixed_iterations": 0,
+          "emitted_tokens": 0,
+          "completed_requests": 0,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        }
+      ],
+      "stats_after": [
+        {
+          "iterations": 64,
+          "input_rows": 84,
+          "decode_rows": 60,
+          "prefill_rows": 24,
+          "mixed_iterations": 0,
+          "emitted_tokens": 64,
+          "completed_requests": 4,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        },
+        {
+          "iterations": 0,
+          "input_rows": 0,
+          "decode_rows": 0,
+          "prefill_rows": 0,
+          "mixed_iterations": 0,
+          "emitted_tokens": 0,
+          "completed_requests": 0,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        }
+      ],
+      "peak_process_rss_KiB": 994660,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "51.40 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "29"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "43.12 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "29"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    },
+    {
+      "case": "1p1d-c1-pd-host.json",
+      "configuration": {
+        "mode": "pd",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0
+        ],
+        "decode_devices": [
+          1
+        ],
+        "transport": "host",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.009531651623547077,
+          "process_cpu_seconds": 0.009794740999999885,
+          "process_cpu_percent_one_core_100": 102.76016567582967,
+          "output_tokens": 16,
+          "aggregate_output_tokens_per_second": 1678.6177917448701,
+          "requests_per_second": 104.91361198405438,
+          "output_ids_sha256": "8b93a260efc6de920431f15756ace18d5da18b2a1deac783a111b4beb5876b6d",
+          "requests": [
+            {
+              "queue_seconds": 0.00024800561368465424,
+              "ttft_seconds": 0.0025700442492961884,
+              "wall_seconds": 0.00942327082157135,
+              "max_inter_token_seconds": 0.0009275162592530251
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.005634100176393986,
+          "process_cpu_seconds": 0.005886598000000021,
+          "process_cpu_percent_one_core_100": 104.4815998242978,
+          "output_tokens": 16,
+          "aggregate_output_tokens_per_second": 2839.8501089912356,
+          "requests_per_second": 177.49063181195223,
+          "output_ids_sha256": "8b93a260efc6de920431f15756ace18d5da18b2a1deac783a111b4beb5876b6d",
+          "requests": [
+            {
+              "queue_seconds": 8.508004248142242e-05,
+              "ttft_seconds": 0.0011598989367485046,
+              "wall_seconds": 0.005561361089348793,
+              "max_inter_token_seconds": 0.0003521544858813286
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.005368880927562714,
+          "process_cpu_seconds": 0.005593133000000083,
+          "process_cpu_percent_one_core_100": 104.17688668202915,
+          "output_tokens": 16,
+          "aggregate_output_tokens_per_second": 2980.136869465542,
+          "requests_per_second": 186.25855434159638,
+          "output_ids_sha256": "8b93a260efc6de920431f15756ace18d5da18b2a1deac783a111b4beb5876b6d",
+          "requests": [
+            {
+              "queue_seconds": 8.715502917766571e-05,
+              "ttft_seconds": 0.0009044809266924858,
+              "wall_seconds": 0.005285744555294514,
+              "max_inter_token_seconds": 0.0003305533900856972
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 2839.8501089912356,
+      "model_and_request_setup_seconds": 0.7634553806856275,
+      "stats_before": [
+        {
+          "prefill_steps": 1,
+          "decode_steps": 15,
+          "prefill_rows": 6,
+          "decode_rows": 15,
+          "handoffs": 1,
+          "transferred_bytes": 33392,
+          "transfer_wall_seconds": 0.0006694504991173744,
+          "emitted_tokens": 16,
+          "completed_requests": 1,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "stats_after": [
+        {
+          "prefill_steps": 4,
+          "decode_steps": 60,
+          "prefill_rows": 24,
+          "decode_rows": 60,
+          "handoffs": 4,
+          "transferred_bytes": 133568,
+          "transfer_wall_seconds": 0.00209941528737545,
+          "emitted_tokens": 64,
+          "completed_requests": 4,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "peak_process_rss_KiB": 994704,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "74.37 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "30"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "69.84 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "30"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    },
+    {
+      "case": "1p1d-c1-pd-peer.json",
+      "configuration": {
+        "mode": "pd",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0
+        ],
+        "decode_devices": [
+          1
+        ],
+        "transport": "peer",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.007215598598122597,
+          "process_cpu_seconds": 0.007539893000000131,
+          "process_cpu_percent_one_core_100": 104.4943520273136,
+          "output_tokens": 16,
+          "aggregate_output_tokens_per_second": 2217.418247761591,
+          "requests_per_second": 138.58864048509943,
+          "output_ids_sha256": "8b93a260efc6de920431f15756ace18d5da18b2a1deac783a111b4beb5876b6d",
+          "requests": [
+            {
+              "queue_seconds": 0.00017231889069080353,
+              "ttft_seconds": 0.0012009777128696442,
+              "wall_seconds": 0.007111041806638241,
+              "max_inter_token_seconds": 0.0010988255962729454
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.005492080003023148,
+          "process_cpu_seconds": 0.005805773999999708,
+          "process_cpu_percent_one_core_100": 105.71175213769439,
+          "output_tokens": 16,
+          "aggregate_output_tokens_per_second": 2913.2860393862993,
+          "requests_per_second": 182.0803774616437,
+          "output_ids_sha256": "8b93a260efc6de920431f15756ace18d5da18b2a1deac783a111b4beb5876b6d",
+          "requests": [
+            {
+              "queue_seconds": 8.11256468296051e-05,
+              "ttft_seconds": 0.0008635539561510086,
+              "wall_seconds": 0.005407636985182762,
+              "max_inter_token_seconds": 0.0003474624827504158
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.005452433601021767,
+          "process_cpu_seconds": 0.005737829999999722,
+          "process_cpu_percent_one_core_100": 105.2342938926294,
+          "output_tokens": 16,
+          "aggregate_output_tokens_per_second": 2934.469481114205,
+          "requests_per_second": 183.4043425696378,
+          "output_ids_sha256": "8b93a260efc6de920431f15756ace18d5da18b2a1deac783a111b4beb5876b6d",
+          "requests": [
+            {
+              "queue_seconds": 0.00010467972606420517,
+              "ttft_seconds": 0.0008407924324274063,
+              "wall_seconds": 0.0053756358101964,
+              "max_inter_token_seconds": 0.00033196713775396347
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 2913.2860393862993,
+      "model_and_request_setup_seconds": 0.7690169317647815,
+      "stats_before": [
+        {
+          "prefill_steps": 1,
+          "decode_steps": 15,
+          "prefill_rows": 6,
+          "decode_rows": 15,
+          "handoffs": 1,
+          "transferred_bytes": 33392,
+          "transfer_wall_seconds": 0.004303001798689365,
+          "emitted_tokens": 16,
+          "completed_requests": 1,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "stats_after": [
+        {
+          "prefill_steps": 4,
+          "decode_steps": 60,
+          "prefill_rows": 24,
+          "decode_rows": 60,
+          "handoffs": 4,
+          "transferred_bytes": 133568,
+          "transfer_wall_seconds": 0.004964355379343033,
+          "emitted_tokens": 64,
+          "completed_requests": 4,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "peak_process_rss_KiB": 995460,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "74.28 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "30"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "66.11 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "30"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    },
+    {
+      "case": "1p1d-c2-colocated-host.json",
+      "configuration": {
+        "mode": "colocated",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0
+        ],
+        "decode_devices": [
+          1
+        ],
+        "transport": "host",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.008152036927640438,
+          "process_cpu_seconds": 0.015289789000000109,
+          "process_cpu_percent_one_core_100": 187.55789670380767,
+          "output_tokens": 32,
+          "aggregate_output_tokens_per_second": 3925.39929394827,
+          "requests_per_second": 245.33745587176688,
+          "output_ids_sha256": "4bb8e0fdd89eb3880b42eab156f94b924edda7929b6e930a95d955e4fb697f2c",
+          "requests": [
+            {
+              "queue_seconds": 0.00021489616483449936,
+              "ttft_seconds": 0.0013708369806408882,
+              "wall_seconds": 0.008060682564973831,
+              "max_inter_token_seconds": 0.001153973862528801
+            },
+            {
+              "queue_seconds": 0.00031943339854478836,
+              "ttft_seconds": 0.001445690169930458,
+              "wall_seconds": 0.0077750664204359055,
+              "max_inter_token_seconds": 0.0008208369836211205
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.005687045864760876,
+          "process_cpu_seconds": 0.0108916859999999,
+          "process_cpu_percent_one_core_100": 191.51746370622712,
+          "output_tokens": 32,
+          "aggregate_output_tokens_per_second": 5626.822916671784,
+          "requests_per_second": 351.6764322919865,
+          "output_ids_sha256": "4bb8e0fdd89eb3880b42eab156f94b924edda7929b6e930a95d955e4fb697f2c",
+          "requests": [
+            {
+              "queue_seconds": 0.00012303050607442856,
+              "ttft_seconds": 0.0005495352670550346,
+              "wall_seconds": 0.005614031106233597,
+              "max_inter_token_seconds": 0.00043595675379037857
+            },
+            {
+              "queue_seconds": 0.00011933222413063049,
+              "ttft_seconds": 0.0005462281405925751,
+              "wall_seconds": 0.005397539585828781,
+              "max_inter_token_seconds": 0.0003306400030851364
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.005564016290009022,
+          "process_cpu_seconds": 0.010827565999999678,
+          "process_cpu_percent_one_core_100": 194.5998256590676,
+          "output_tokens": 32,
+          "aggregate_output_tokens_per_second": 5751.241249501826,
+          "requests_per_second": 359.45257809386413,
+          "output_ids_sha256": "4bb8e0fdd89eb3880b42eab156f94b924edda7929b6e930a95d955e4fb697f2c",
+          "requests": [
+            {
+              "queue_seconds": 0.00010891631245613098,
+              "ttft_seconds": 0.0005153017118573189,
+              "wall_seconds": 0.005449861288070679,
+              "max_inter_token_seconds": 0.00033732596784830093
+            },
+            {
+              "queue_seconds": 0.00010966043919324875,
+              "ttft_seconds": 0.0005392907187342644,
+              "wall_seconds": 0.005461076274514198,
+              "max_inter_token_seconds": 0.000338088721036911
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 5626.822916671784,
+      "model_and_request_setup_seconds": 0.7532457998022437,
+      "stats_before": [
+        {
+          "iterations": 16,
+          "input_rows": 21,
+          "decode_rows": 15,
+          "prefill_rows": 6,
+          "mixed_iterations": 0,
+          "emitted_tokens": 16,
+          "completed_requests": 1,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        },
+        {
+          "iterations": 16,
+          "input_rows": 21,
+          "decode_rows": 15,
+          "prefill_rows": 6,
+          "mixed_iterations": 0,
+          "emitted_tokens": 16,
+          "completed_requests": 1,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        }
+      ],
+      "stats_after": [
+        {
+          "iterations": 64,
+          "input_rows": 84,
+          "decode_rows": 60,
+          "prefill_rows": 24,
+          "mixed_iterations": 0,
+          "emitted_tokens": 64,
+          "completed_requests": 4,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        },
+        {
+          "iterations": 64,
+          "input_rows": 84,
+          "decode_rows": 60,
+          "prefill_rows": 24,
+          "mixed_iterations": 0,
+          "emitted_tokens": 64,
+          "completed_requests": 4,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        }
+      ],
+      "peak_process_rss_KiB": 994780,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "88.32 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "31"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "10 %",
+              "utilization.memory [%]": "1 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "72.45 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "31"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    },
+    {
+      "case": "1p1d-c2-pd-host.json",
+      "configuration": {
+        "mode": "pd",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0
+        ],
+        "decode_devices": [
+          1
+        ],
+        "transport": "host",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.010559664107859135,
+          "process_cpu_seconds": 0.01081761700000028,
+          "process_cpu_percent_one_core_100": 102.44281342196444,
+          "output_tokens": 32,
+          "aggregate_output_tokens_per_second": 3030.399421150497,
+          "requests_per_second": 189.39996382190606,
+          "output_ids_sha256": "4bb8e0fdd89eb3880b42eab156f94b924edda7929b6e930a95d955e4fb697f2c",
+          "requests": [
+            {
+              "queue_seconds": 0.0003254646435379982,
+              "ttft_seconds": 0.0030318209901452065,
+              "wall_seconds": 0.010432546027004719,
+              "max_inter_token_seconds": 0.0013655750080943108
+            },
+            {
+              "queue_seconds": 0.000606129877269268,
+              "ttft_seconds": 0.003313768655061722,
+              "wall_seconds": 0.010342947207391262,
+              "max_inter_token_seconds": 0.0009986050426959991
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.00678304024040699,
+          "process_cpu_seconds": 0.007016082999999895,
+          "process_cpu_percent_one_core_100": 103.43566824511308,
+          "output_tokens": 32,
+          "aggregate_output_tokens_per_second": 4717.648556671391,
+          "requests_per_second": 294.85303479196193,
+          "output_ids_sha256": "4bb8e0fdd89eb3880b42eab156f94b924edda7929b6e930a95d955e4fb697f2c",
+          "requests": [
+            {
+              "queue_seconds": 0.00014458037912845612,
+              "ttft_seconds": 0.0010966518893837929,
+              "wall_seconds": 0.006693222559988499,
+              "max_inter_token_seconds": 0.0007539279758930206
+            },
+            {
+              "queue_seconds": 0.00020411796867847443,
+              "ttft_seconds": 0.0014118636026978493,
+              "wall_seconds": 0.00664896983653307,
+              "max_inter_token_seconds": 0.0003911135718226433
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.006607825867831707,
+          "process_cpu_seconds": 0.0068310110000000535,
+          "process_cpu_percent_one_core_100": 103.37758797874591,
+          "output_tokens": 32,
+          "aggregate_output_tokens_per_second": 4842.742626706125,
+          "requests_per_second": 302.6714141691328,
+          "output_ids_sha256": "4bb8e0fdd89eb3880b42eab156f94b924edda7929b6e930a95d955e4fb697f2c",
+          "requests": [
+            {
+              "queue_seconds": 0.00014522485435009003,
+              "ttft_seconds": 0.0010615549981594086,
+              "wall_seconds": 0.0065195877104997635,
+              "max_inter_token_seconds": 0.0007584327831864357
+            },
+            {
+              "queue_seconds": 0.00019259843975305557,
+              "ttft_seconds": 0.001378057524561882,
+              "wall_seconds": 0.006474495865404606,
+              "max_inter_token_seconds": 0.00039234571158885956
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 4717.648556671391,
+      "model_and_request_setup_seconds": 0.7834454085677862,
+      "stats_before": [
+        {
+          "prefill_steps": 2,
+          "decode_steps": 17,
+          "prefill_rows": 12,
+          "decode_rows": 30,
+          "handoffs": 2,
+          "transferred_bytes": 66784,
+          "transfer_wall_seconds": 0.0010786354541778564,
+          "emitted_tokens": 32,
+          "completed_requests": 2,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "stats_after": [
+        {
+          "prefill_steps": 5,
+          "decode_steps": 62,
+          "prefill_rows": 48,
+          "decode_rows": 120,
+          "handoffs": 8,
+          "transferred_bytes": 267136,
+          "transfer_wall_seconds": 0.003159676678478718,
+          "emitted_tokens": 128,
+          "completed_requests": 8,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "peak_process_rss_KiB": 994540,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "75.43 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "31"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "10 %",
+              "utilization.memory [%]": "1 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "72.36 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "31"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    },
+    {
+      "case": "1p1d-c2-pd-peer.json",
+      "configuration": {
+        "mode": "pd",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0
+        ],
+        "decode_devices": [
+          1
+        ],
+        "transport": "peer",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.011638815514743328,
+          "process_cpu_seconds": 0.01313608399999966,
+          "process_cpu_percent_one_core_100": 112.86444040082674,
+          "output_tokens": 32,
+          "aggregate_output_tokens_per_second": 2749.4206742485426,
+          "requests_per_second": 171.8387921405339,
+          "output_ids_sha256": "4bb8e0fdd89eb3880b42eab156f94b924edda7929b6e930a95d955e4fb697f2c",
+          "requests": [
+            {
+              "queue_seconds": 0.00024422723799943924,
+              "ttft_seconds": 0.002696320414543152,
+              "wall_seconds": 0.010603182017803192,
+              "max_inter_token_seconds": 0.0013487832620739937
+            },
+            {
+              "queue_seconds": 0.0024549756199121475,
+              "ttft_seconds": 0.004768140614032745,
+              "wall_seconds": 0.011149868369102478,
+              "max_inter_token_seconds": 0.00163290835916996
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.006580200046300888,
+          "process_cpu_seconds": 0.006810147000000377,
+          "process_cpu_percent_one_core_100": 103.49452831344779,
+          "output_tokens": 32,
+          "aggregate_output_tokens_per_second": 4863.074036478428,
+          "requests_per_second": 303.94212727990174,
+          "output_ids_sha256": "4bb8e0fdd89eb3880b42eab156f94b924edda7929b6e930a95d955e4fb697f2c",
+          "requests": [
+            {
+              "queue_seconds": 0.0001425333321094513,
+              "ttft_seconds": 0.0009972825646400452,
+              "wall_seconds": 0.0064898328855633736,
+              "max_inter_token_seconds": 0.0006665941327810287
+            },
+            {
+              "queue_seconds": 0.00019230041652917862,
+              "ttft_seconds": 0.0012240791693329811,
+              "wall_seconds": 0.0064455075189471245,
+              "max_inter_token_seconds": 0.00039246026426553726
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.006519250571727753,
+          "process_cpu_seconds": 0.006757896999999957,
+          "process_cpu_percent_one_core_100": 103.66064205764924,
+          "output_tokens": 32,
+          "aggregate_output_tokens_per_second": 4908.539662331043,
+          "requests_per_second": 306.78372889569016,
+          "output_ids_sha256": "4bb8e0fdd89eb3880b42eab156f94b924edda7929b6e930a95d955e4fb697f2c",
+          "requests": [
+            {
+              "queue_seconds": 0.00013636797666549683,
+              "ttft_seconds": 0.0009760884568095207,
+              "wall_seconds": 0.0064348578453063965,
+              "max_inter_token_seconds": 0.0006845686584711075
+            },
+            {
+              "queue_seconds": 0.00019258540123701096,
+              "ttft_seconds": 0.0012141847983002663,
+              "wall_seconds": 0.006393824703991413,
+              "max_inter_token_seconds": 0.0004029730334877968
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 4863.074036478428,
+      "model_and_request_setup_seconds": 0.7456427868455648,
+      "stats_before": [
+        {
+          "prefill_steps": 1,
+          "decode_steps": 15,
+          "prefill_rows": 12,
+          "decode_rows": 30,
+          "handoffs": 2,
+          "transferred_bytes": 66784,
+          "transfer_wall_seconds": 0.00456323754042387,
+          "emitted_tokens": 32,
+          "completed_requests": 2,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "stats_after": [
+        {
+          "prefill_steps": 5,
+          "decode_steps": 63,
+          "prefill_rows": 48,
+          "decode_rows": 120,
+          "handoffs": 8,
+          "transferred_bytes": 267136,
+          "transfer_wall_seconds": 0.006656664423644543,
+          "emitted_tokens": 128,
+          "completed_requests": 8,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "peak_process_rss_KiB": 995560,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "74.27 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "31"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "11 %",
+              "utilization.memory [%]": "1 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "71.93 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "32"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    },
+    {
+      "case": "1p1d-c4-colocated-host.json",
+      "configuration": {
+        "mode": "colocated",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0
+        ],
+        "decode_devices": [
+          1
+        ],
+        "transport": "host",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.007849153131246567,
+          "process_cpu_seconds": 0.01487142199999969,
+          "process_cpu_percent_one_core_100": 189.4653060187893,
+          "output_tokens": 64,
+          "aggregate_output_tokens_per_second": 8153.745879313201,
+          "requests_per_second": 509.60911745707506,
+          "output_ids_sha256": "6d29bef8555b28f08caee13d2008ee7d4eacfc56203425c5606770fa06768bee",
+          "requests": [
+            {
+              "queue_seconds": 0.00030119623988866806,
+              "ttft_seconds": 0.0016628531739115715,
+              "wall_seconds": 0.007687404751777649,
+              "max_inter_token_seconds": 0.0009291479364037514
+            },
+            {
+              "queue_seconds": 0.00040233973413705826,
+              "ttft_seconds": 0.0018131425604224205,
+              "wall_seconds": 0.007662239484488964,
+              "max_inter_token_seconds": 0.0008302303031086922
+            },
+            {
+              "queue_seconds": 0.00017310958355665207,
+              "ttft_seconds": 0.0015201987698674202,
+              "wall_seconds": 0.007544750347733498,
+              "max_inter_token_seconds": 0.0009291479364037514
+            },
+            {
+              "queue_seconds": 0.00033379625529050827,
+              "ttft_seconds": 0.0017283745110034943,
+              "wall_seconds": 0.007577471435070038,
+              "max_inter_token_seconds": 0.0008302303031086922
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.006070137955248356,
+          "process_cpu_seconds": 0.011771581999999725,
+          "process_cpu_percent_one_core_100": 193.9261032745029,
+          "output_tokens": 64,
+          "aggregate_output_tokens_per_second": 10543.417706786118,
+          "requests_per_second": 658.9636066741324,
+          "output_ids_sha256": "6d29bef8555b28f08caee13d2008ee7d4eacfc56203425c5606770fa06768bee",
+          "requests": [
+            {
+              "queue_seconds": 0.00017005112022161484,
+              "ttft_seconds": 0.0006357794627547264,
+              "wall_seconds": 0.0059935906901955605,
+              "max_inter_token_seconds": 0.000374634750187397
+            },
+            {
+              "queue_seconds": 8.621998131275177e-05,
+              "ttft_seconds": 0.0005323290824890137,
+              "wall_seconds": 0.00580756738781929,
+              "max_inter_token_seconds": 0.00036552920937538147
+            },
+            {
+              "queue_seconds": 0.0001254575327038765,
+              "ttft_seconds": 0.0005864212289452553,
+              "wall_seconds": 0.005944232456386089,
+              "max_inter_token_seconds": 0.000374634750187397
+            },
+            {
+              "queue_seconds": 5.054939538240433e-05,
+              "ttft_seconds": 0.0004915092140436172,
+              "wall_seconds": 0.005766747519373894,
+              "max_inter_token_seconds": 0.00036552920937538147
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.0059827836230397224,
+          "process_cpu_seconds": 0.011538757999999927,
+          "process_cpu_percent_one_core_100": 192.86604241484056,
+          "output_tokens": 64,
+          "aggregate_output_tokens_per_second": 10697.361635064948,
+          "requests_per_second": 668.5851021915593,
+          "output_ids_sha256": "6d29bef8555b28f08caee13d2008ee7d4eacfc56203425c5606770fa06768bee",
+          "requests": [
+            {
+              "queue_seconds": 0.0002363240346312523,
+              "ttft_seconds": 0.0007019545882940292,
+              "wall_seconds": 0.005907213315367699,
+              "max_inter_token_seconds": 0.0003654640167951584
+            },
+            {
+              "queue_seconds": 0.0001302948221564293,
+              "ttft_seconds": 0.0005800044164061546,
+              "wall_seconds": 0.005707385018467903,
+              "max_inter_token_seconds": 0.0003605475649237633
+            },
+            {
+              "queue_seconds": 0.00015830807387828827,
+              "ttft_seconds": 0.0006195493042469025,
+              "wall_seconds": 0.005824808031320572,
+              "max_inter_token_seconds": 0.0003654640167951584
+            },
+            {
+              "queue_seconds": 6.787758320569992e-05,
+              "ttft_seconds": 0.0005126707255840302,
+              "wall_seconds": 0.005640051327645779,
+              "max_inter_token_seconds": 0.0003605475649237633
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 10543.417706786118,
+      "model_and_request_setup_seconds": 0.7440749518573284,
+      "stats_before": [
+        {
+          "iterations": 17,
+          "input_rows": 42,
+          "decode_rows": 30,
+          "prefill_rows": 12,
+          "mixed_iterations": 1,
+          "emitted_tokens": 32,
+          "completed_requests": 2,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        },
+        {
+          "iterations": 17,
+          "input_rows": 42,
+          "decode_rows": 30,
+          "prefill_rows": 12,
+          "mixed_iterations": 1,
+          "emitted_tokens": 32,
+          "completed_requests": 2,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        }
+      ],
+      "stats_after": [
+        {
+          "iterations": 65,
+          "input_rows": 168,
+          "decode_rows": 120,
+          "prefill_rows": 48,
+          "mixed_iterations": 1,
+          "emitted_tokens": 128,
+          "completed_requests": 8,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        },
+        {
+          "iterations": 65,
+          "input_rows": 168,
+          "decode_rows": 120,
+          "prefill_rows": 48,
+          "mixed_iterations": 1,
+          "emitted_tokens": 128,
+          "completed_requests": 8,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        }
+      ],
+      "peak_process_rss_KiB": 994604,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "74.34 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "31"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "11 %",
+              "utilization.memory [%]": "1 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "71.96 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "32"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    },
+    {
+      "case": "1p1d-c4-pd-host.json",
+      "configuration": {
+        "mode": "pd",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0
+        ],
+        "decode_devices": [
+          1
+        ],
+        "transport": "host",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.014207353815436363,
+          "process_cpu_seconds": 0.014535455999999947,
+          "process_cpu_percent_one_core_100": 102.30938279447295,
+          "output_tokens": 64,
+          "aggregate_output_tokens_per_second": 4504.709380184765,
+          "requests_per_second": 281.5443362615478,
+          "output_ids_sha256": "6d29bef8555b28f08caee13d2008ee7d4eacfc56203425c5606770fa06768bee",
+          "requests": [
+            {
+              "queue_seconds": 0.0004040822386741638,
+              "ttft_seconds": 0.0033416887745261192,
+              "wall_seconds": 0.0140334228053689,
+              "max_inter_token_seconds": 0.0031980667263269424
+            },
+            {
+              "queue_seconds": 0.0007735118269920349,
+              "ttft_seconds": 0.00400006677955389,
+              "wall_seconds": 0.013961688615381718,
+              "max_inter_token_seconds": 0.002474917098879814
+            },
+            {
+              "queue_seconds": 0.0009382376447319984,
+              "ttft_seconds": 0.004629278555512428,
+              "wall_seconds": 0.013930781744420528,
+              "max_inter_token_seconds": 0.0018163463100790977
+            },
+            {
+              "queue_seconds": 0.0010871710255742073,
+              "ttft_seconds": 0.004992169328033924,
+              "wall_seconds": 0.013905640691518784,
+              "max_inter_token_seconds": 0.0014302730560302734
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.0109044024720788,
+          "process_cpu_seconds": 0.01212624100000026,
+          "process_cpu_percent_one_core_100": 111.20500211772291,
+          "output_tokens": 64,
+          "aggregate_output_tokens_per_second": 5869.189087973853,
+          "requests_per_second": 366.8243179983658,
+          "output_ids_sha256": "6d29bef8555b28f08caee13d2008ee7d4eacfc56203425c5606770fa06768bee",
+          "requests": [
+            {
+              "queue_seconds": 0.00010537542402744293,
+              "ttft_seconds": 0.001290936954319477,
+              "wall_seconds": 0.008973952382802963,
+              "max_inter_token_seconds": 0.0008614500984549522
+            },
+            {
+              "queue_seconds": 0.0010879607871174812,
+              "ttft_seconds": 0.0025625312700867653,
+              "wall_seconds": 0.009873041883111,
+              "max_inter_token_seconds": 0.0012698210775852203
+            },
+            {
+              "queue_seconds": 0.0009742854163050652,
+              "ttft_seconds": 0.003125249408185482,
+              "wall_seconds": 0.01000458374619484,
+              "max_inter_token_seconds": 0.0012393584474921227
+            },
+            {
+              "queue_seconds": 0.0010145073756575584,
+              "ttft_seconds": 0.003921927884221077,
+              "wall_seconds": 0.010273981839418411,
+              "max_inter_token_seconds": 0.0008068010210990906
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.008894725702702999,
+          "process_cpu_seconds": 0.009159448000000125,
+          "process_cpu_percent_one_core_100": 102.9761715666699,
+          "output_tokens": 64,
+          "aggregate_output_tokens_per_second": 7195.275283255916,
+          "requests_per_second": 449.70470520349477,
+          "output_ids_sha256": "6d29bef8555b28f08caee13d2008ee7d4eacfc56203425c5606770fa06768bee",
+          "requests": [
+            {
+              "queue_seconds": 0.0002701831981539726,
+              "ttft_seconds": 0.0014663785696029663,
+              "wall_seconds": 0.008763314224779606,
+              "max_inter_token_seconds": 0.001528758555650711
+            },
+            {
+              "queue_seconds": 0.00031324662268161774,
+              "ttft_seconds": 0.0017749965190887451,
+              "wall_seconds": 0.008710866793990135,
+              "max_inter_token_seconds": 0.0011632181704044342
+            },
+            {
+              "queue_seconds": 0.00034456048160791397,
+              "ttft_seconds": 0.0020864205434918404,
+              "wall_seconds": 0.008673430420458317,
+              "max_inter_token_seconds": 0.0008116783574223518
+            },
+            {
+              "queue_seconds": 0.0003692386671900749,
+              "ttft_seconds": 0.002394779585301876,
+              "wall_seconds": 0.008633912540972233,
+              "max_inter_token_seconds": 0.0004617702215909958
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 5869.189087973853,
+      "model_and_request_setup_seconds": 0.7642361046746373,
+      "stats_before": [
+        {
+          "prefill_steps": 1,
+          "decode_steps": 15,
+          "prefill_rows": 24,
+          "decode_rows": 60,
+          "handoffs": 4,
+          "transferred_bytes": 133568,
+          "transfer_wall_seconds": 0.0013255607336759567,
+          "emitted_tokens": 64,
+          "completed_requests": 4,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "stats_after": [
+        {
+          "prefill_steps": 5,
+          "decode_steps": 65,
+          "prefill_rows": 96,
+          "decode_rows": 240,
+          "handoffs": 16,
+          "transferred_bytes": 534272,
+          "transfer_wall_seconds": 0.006435861811041832,
+          "emitted_tokens": 256,
+          "completed_requests": 16,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "peak_process_rss_KiB": 994604,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "1 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "75.61 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "32"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "11 %",
+              "utilization.memory [%]": "1 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "69.81 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "32"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    },
+    {
+      "case": "1p1d-c4-pd-peer.json",
+      "configuration": {
+        "mode": "pd",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0
+        ],
+        "decode_devices": [
+          1
+        ],
+        "transport": "peer",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.011864140629768372,
+          "process_cpu_seconds": 0.012175033000000113,
+          "process_cpu_percent_one_core_100": 102.6204373324072,
+          "output_tokens": 64,
+          "aggregate_output_tokens_per_second": 5394.406725036392,
+          "requests_per_second": 337.1504203147745,
+          "output_ids_sha256": "6d29bef8555b28f08caee13d2008ee7d4eacfc56203425c5606770fa06768bee",
+          "requests": [
+            {
+              "queue_seconds": 0.00042736902832984924,
+              "ttft_seconds": 0.002893442288041115,
+              "wall_seconds": 0.01171619538217783,
+              "max_inter_token_seconds": 0.0021055005490779877
+            },
+            {
+              "queue_seconds": 0.0006475001573562622,
+              "ttft_seconds": 0.003069654107093811,
+              "wall_seconds": 0.01163217518478632,
+              "max_inter_token_seconds": 0.0018558641895651817
+            },
+            {
+              "queue_seconds": 0.0007877182215452194,
+              "ttft_seconds": 0.0032818084582686424,
+              "wall_seconds": 0.011586577631533146,
+              "max_inter_token_seconds": 0.0016001313924789429
+            },
+            {
+              "queue_seconds": 0.0009269518777728081,
+              "ttft_seconds": 0.0035060010850429535,
+              "wall_seconds": 0.011552167125046253,
+              "max_inter_token_seconds": 0.0013432316482067108
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.010002218186855316,
+          "process_cpu_seconds": 0.011108131000000299,
+          "process_cpu_percent_one_core_100": 111.05667555421203,
+          "output_tokens": 64,
+          "aggregate_output_tokens_per_second": 6398.580675245349,
+          "requests_per_second": 399.9112922028343,
+          "output_ids_sha256": "6d29bef8555b28f08caee13d2008ee7d4eacfc56203425c5606770fa06768bee",
+          "requests": [
+            {
+              "queue_seconds": 7.84965232014656e-05,
+              "ttft_seconds": 0.0009956881403923035,
+              "wall_seconds": 0.008123059757053852,
+              "max_inter_token_seconds": 0.0006993869319558144
+            },
+            {
+              "queue_seconds": 0.0008350377902388573,
+              "ttft_seconds": 0.001980287954211235,
+              "wall_seconds": 0.00905968900769949,
+              "max_inter_token_seconds": 0.0010895729064941406
+            },
+            {
+              "queue_seconds": 0.0007484527304768562,
+              "ttft_seconds": 0.002420966513454914,
+              "wall_seconds": 0.009230788797140121,
+              "max_inter_token_seconds": 0.0011149197816848755
+            },
+            {
+              "queue_seconds": 0.0007752068340778351,
+              "ttft_seconds": 0.0030766725540161133,
+              "wall_seconds": 0.009492539800703526,
+              "max_inter_token_seconds": 0.0008367737755179405
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.0084708696231246,
+          "process_cpu_seconds": 0.008716242999999846,
+          "process_cpu_percent_one_core_100": 102.89667280683204,
+          "output_tokens": 64,
+          "aggregate_output_tokens_per_second": 7555.304572896106,
+          "requests_per_second": 472.2065358060066,
+          "output_ids_sha256": "6d29bef8555b28f08caee13d2008ee7d4eacfc56203425c5606770fa06768bee",
+          "requests": [
+            {
+              "queue_seconds": 0.00022453907877206802,
+              "ttft_seconds": 0.0012983987107872963,
+              "wall_seconds": 0.008361540734767914,
+              "max_inter_token_seconds": 0.0012478763237595558
+            },
+            {
+              "queue_seconds": 0.00027202069759368896,
+              "ttft_seconds": 0.001523382030427456,
+              "wall_seconds": 0.008316852152347565,
+              "max_inter_token_seconds": 0.000976191833615303
+            },
+            {
+              "queue_seconds": 0.00030431337654590607,
+              "ttft_seconds": 0.0017487676814198494,
+              "wall_seconds": 0.008281557820737362,
+              "max_inter_token_seconds": 0.0007131798192858696
+            },
+            {
+              "queue_seconds": 0.00033593643456697464,
+              "ttft_seconds": 0.00197477824985981,
+              "wall_seconds": 0.008248655125498772,
+              "max_inter_token_seconds": 0.00045179110020399094
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 6398.580675245349,
+      "model_and_request_setup_seconds": 0.7290244223549962,
+      "stats_before": [
+        {
+          "prefill_steps": 1,
+          "decode_steps": 15,
+          "prefill_rows": 24,
+          "decode_rows": 60,
+          "handoffs": 4,
+          "transferred_bytes": 133568,
+          "transfer_wall_seconds": 0.005160307511687279,
+          "emitted_tokens": 64,
+          "completed_requests": 4,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "stats_after": [
+        {
+          "prefill_steps": 5,
+          "decode_steps": 65,
+          "prefill_rows": 96,
+          "decode_rows": 240,
+          "handoffs": 16,
+          "transferred_bytes": 534272,
+          "transfer_wall_seconds": 0.00830054935067892,
+          "emitted_tokens": 256,
+          "completed_requests": 16,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "peak_process_rss_KiB": 995504,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "1 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "90.39 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "32"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "14 %",
+              "utilization.memory [%]": "1 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "87.43 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "32"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    },
+    {
+      "case": "1p1d-c8-colocated-host.json",
+      "configuration": {
+        "mode": "colocated",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0
+        ],
+        "decode_devices": [
+          1
+        ],
+        "transport": "host",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.009466730989515781,
+          "process_cpu_seconds": 0.017637646000000284,
+          "process_cpu_percent_one_core_100": 186.31189604451242,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 13521.034889631646,
+          "requests_per_second": 845.0646806019779,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.000619933009147644,
+              "ttft_seconds": 0.0025176359340548515,
+              "wall_seconds": 0.009317290037870407,
+              "max_inter_token_seconds": 0.0006068190559744835
+            },
+            {
+              "queue_seconds": 0.0003507118672132492,
+              "ttft_seconds": 0.0021259868517518044,
+              "wall_seconds": 0.008960023522377014,
+              "max_inter_token_seconds": 0.0007569240406155586
+            },
+            {
+              "queue_seconds": 0.0004968410357832909,
+              "ttft_seconds": 0.002379484474658966,
+              "wall_seconds": 0.009179138578474522,
+              "max_inter_token_seconds": 0.0006068190559744835
+            },
+            {
+              "queue_seconds": 0.00028324779123067856,
+              "ttft_seconds": 0.002042185515165329,
+              "wall_seconds": 0.008876222185790539,
+              "max_inter_token_seconds": 0.0007569240406155586
+            },
+            {
+              "queue_seconds": 0.000441073440015316,
+              "ttft_seconds": 0.0023120278492569923,
+              "wall_seconds": 0.009111681953072548,
+              "max_inter_token_seconds": 0.0006068190559744835
+            },
+            {
+              "queue_seconds": 0.00023111887276172638,
+              "ttft_seconds": 0.0019776206463575363,
+              "wall_seconds": 0.008811657316982746,
+              "max_inter_token_seconds": 0.0007569240406155586
+            },
+            {
+              "queue_seconds": 0.0003855070099234581,
+              "ttft_seconds": 0.002247381955385208,
+              "wall_seconds": 0.009047036059200764,
+              "max_inter_token_seconds": 0.0006068190559744835
+            },
+            {
+              "queue_seconds": 0.00017514824867248535,
+              "ttft_seconds": 0.0019121579825878143,
+              "wall_seconds": 0.008746194653213024,
+              "max_inter_token_seconds": 0.0007569240406155586
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.007849136367440224,
+          "process_cpu_seconds": 0.015471617999999854,
+          "process_cpu_percent_one_core_100": 197.11236084748379,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 16307.526587379652,
+          "requests_per_second": 1019.2204117112283,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.00011342484503984451,
+              "ttft_seconds": 0.0005406178534030914,
+              "wall_seconds": 0.0072316816076636314,
+              "max_inter_token_seconds": 0.0005983998998999596
+            },
+            {
+              "queue_seconds": 0.00011757668107748032,
+              "ttft_seconds": 0.00057174451649189,
+              "wall_seconds": 0.007288279943168163,
+              "max_inter_token_seconds": 0.0006137853488326073
+            },
+            {
+              "queue_seconds": 0.00023830588907003403,
+              "ttft_seconds": 0.0007993942126631737,
+              "wall_seconds": 0.007315617986023426,
+              "max_inter_token_seconds": 0.0004516458138823509
+            },
+            {
+              "queue_seconds": 0.00028538983315229416,
+              "ttft_seconds": 0.0008614705875515938,
+              "wall_seconds": 0.007373474538326263,
+              "max_inter_token_seconds": 0.0004590507596731186
+            },
+            {
+              "queue_seconds": 0.00017754454165697098,
+              "ttft_seconds": 0.0007347166538238525,
+              "wall_seconds": 0.007250940427184105,
+              "max_inter_token_seconds": 0.0004516458138823509
+            },
+            {
+              "queue_seconds": 0.0002313721925020218,
+              "ttft_seconds": 0.0008033616468310356,
+              "wall_seconds": 0.007315365597605705,
+              "max_inter_token_seconds": 0.0004590507596731186
+            },
+            {
+              "queue_seconds": 0.0001240493729710579,
+              "ttft_seconds": 0.0006778435781598091,
+              "wall_seconds": 0.0071940673515200615,
+              "max_inter_token_seconds": 0.0004516458138823509
+            },
+            {
+              "queue_seconds": 0.00017795898020267487,
+              "ttft_seconds": 0.0007468853145837784,
+              "wall_seconds": 0.007258889265358448,
+              "max_inter_token_seconds": 0.0004590507596731186
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.007502972148358822,
+          "process_cpu_seconds": 0.014487384000000159,
+          "process_cpu_percent_one_core_100": 193.08860160395352,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 17059.906057094766,
+          "requests_per_second": 1066.2441285684229,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.00032084155827760696,
+              "ttft_seconds": 0.0008970508351922035,
+              "wall_seconds": 0.007301410660147667,
+              "max_inter_token_seconds": 0.0004402957856655121
+            },
+            {
+              "queue_seconds": 0.0003430629149079323,
+              "ttft_seconds": 0.0009553106501698494,
+              "wall_seconds": 0.007339666597545147,
+              "max_inter_token_seconds": 0.0004413686692714691
+            },
+            {
+              "queue_seconds": 0.00023394450545310974,
+              "ttft_seconds": 0.0008056079968810081,
+              "wall_seconds": 0.0072099678218364716,
+              "max_inter_token_seconds": 0.0004402957856655121
+            },
+            {
+              "queue_seconds": 0.00027482397854328156,
+              "ttft_seconds": 0.0008825017139315605,
+              "wall_seconds": 0.007266857661306858,
+              "max_inter_token_seconds": 0.0004413686692714691
+            },
+            {
+              "queue_seconds": 0.000172371044754982,
+              "ttft_seconds": 0.0007404191419482231,
+              "wall_seconds": 0.0071447789669036865,
+              "max_inter_token_seconds": 0.0004402957856655121
+            },
+            {
+              "queue_seconds": 0.00021280255168676376,
+              "ttft_seconds": 0.0008172793313860893,
+              "wall_seconds": 0.007201635278761387,
+              "max_inter_token_seconds": 0.0004413686692714691
+            },
+            {
+              "queue_seconds": 0.00011107791215181351,
+              "ttft_seconds": 0.000675705261528492,
+              "wall_seconds": 0.007080065086483955,
+              "max_inter_token_seconds": 0.0004402957856655121
+            },
+            {
+              "queue_seconds": 0.00015566963702440262,
+              "ttft_seconds": 0.0007567247375845909,
+              "wall_seconds": 0.0071410806849598885,
+              "max_inter_token_seconds": 0.0004413686692714691
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 16307.526587379652,
+      "model_and_request_setup_seconds": 0.7439885819330812,
+      "stats_before": [
+        {
+          "iterations": 17,
+          "input_rows": 84,
+          "decode_rows": 60,
+          "prefill_rows": 24,
+          "mixed_iterations": 1,
+          "emitted_tokens": 64,
+          "completed_requests": 4,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        },
+        {
+          "iterations": 17,
+          "input_rows": 84,
+          "decode_rows": 60,
+          "prefill_rows": 24,
+          "mixed_iterations": 1,
+          "emitted_tokens": 64,
+          "completed_requests": 4,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        }
+      ],
+      "stats_after": [
+        {
+          "iterations": 66,
+          "input_rows": 336,
+          "decode_rows": 240,
+          "prefill_rows": 96,
+          "mixed_iterations": 2,
+          "emitted_tokens": 256,
+          "completed_requests": 16,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        },
+        {
+          "iterations": 66,
+          "input_rows": 336,
+          "decode_rows": 240,
+          "prefill_rows": 96,
+          "mixed_iterations": 2,
+          "emitted_tokens": 256,
+          "completed_requests": 16,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        }
+      ],
+      "peak_process_rss_KiB": 994696,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "88.71 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "32"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "5 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "72.59 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "33"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    },
+    {
+      "case": "1p1d-c8-pd-host.json",
+      "configuration": {
+        "mode": "pd",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0
+        ],
+        "decode_devices": [
+          1
+        ],
+        "transport": "host",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.018338105641305447,
+          "process_cpu_seconds": 0.01936556600000028,
+          "process_cpu_percent_one_core_100": 105.6028707588015,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 6980.001233698204,
+          "requests_per_second": 436.2500771061377,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.0006164265796542168,
+              "ttft_seconds": 0.004270054399967194,
+              "wall_seconds": 0.016676999628543854,
+              "max_inter_token_seconds": 0.002701660618185997
+            },
+            {
+              "queue_seconds": 0.0007694615051150322,
+              "ttft_seconds": 0.004720749333500862,
+              "wall_seconds": 0.016559382900595665,
+              "max_inter_token_seconds": 0.002134275622665882
+            },
+            {
+              "queue_seconds": 0.0008811550214886665,
+              "ttft_seconds": 0.00500651728361845,
+              "wall_seconds": 0.01648584194481373,
+              "max_inter_token_seconds": 0.001773197203874588
+            },
+            {
+              "queue_seconds": 0.0010157069191336632,
+              "ttft_seconds": 0.005314811132848263,
+              "wall_seconds": 0.01644652709364891,
+              "max_inter_token_seconds": 0.001424708403646946
+            },
+            {
+              "queue_seconds": 0.001148010604083538,
+              "ttft_seconds": 0.005632048472762108,
+              "wall_seconds": 0.01641372125595808,
+              "max_inter_token_seconds": 0.0010738847777247429
+            },
+            {
+              "queue_seconds": 0.0012795338407158852,
+              "ttft_seconds": 0.007046617567539215,
+              "wall_seconds": 0.01718905381858349,
+              "max_inter_token_seconds": 0.0016054315492510796
+            },
+            {
+              "queue_seconds": 0.0014067171141505241,
+              "ttft_seconds": 0.00798324029892683,
+              "wall_seconds": 0.017538384534418583,
+              "max_inter_token_seconds": 0.0015627378597855568
+            },
+            {
+              "queue_seconds": 0.0015308186411857605,
+              "ttft_seconds": 0.008917808532714844,
+              "wall_seconds": 0.017834525555372238,
+              "max_inter_token_seconds": 0.0012178970500826836
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.015296784229576588,
+          "process_cpu_seconds": 0.016120275000000017,
+          "process_cpu_percent_one_core_100": 105.38342411100496,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 8367.771819158557,
+          "requests_per_second": 522.9857386974098,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.0004399418830871582,
+              "ttft_seconds": 0.0024206768721342087,
+              "wall_seconds": 0.013754152692854404,
+              "max_inter_token_seconds": 0.002059263177216053
+            },
+            {
+              "queue_seconds": 0.0005186023190617561,
+              "ttft_seconds": 0.0028034942224621773,
+              "wall_seconds": 0.013703051023185253,
+              "max_inter_token_seconds": 0.001622830517590046
+            },
+            {
+              "queue_seconds": 0.0005689151585102081,
+              "ttft_seconds": 0.003106893040239811,
+              "wall_seconds": 0.013663271442055702,
+              "max_inter_token_seconds": 0.0012771440669894218
+            },
+            {
+              "queue_seconds": 0.0006200773641467094,
+              "ttft_seconds": 0.003418590873479843,
+              "wall_seconds": 0.013630405999720097,
+              "max_inter_token_seconds": 0.00093026552349329
+            },
+            {
+              "queue_seconds": 0.0006685685366392136,
+              "ttft_seconds": 0.0037283115088939667,
+              "wall_seconds": 0.013598859310150146,
+              "max_inter_token_seconds": 0.0008835606276988983
+            },
+            {
+              "queue_seconds": 0.0007173260673880577,
+              "ttft_seconds": 0.004602786153554916,
+              "wall_seconds": 0.014351560734212399,
+              "max_inter_token_seconds": 0.001424652524292469
+            },
+            {
+              "queue_seconds": 0.0007616057991981506,
+              "ttft_seconds": 0.0054232897236943245,
+              "wall_seconds": 0.01466289907693863,
+              "max_inter_token_seconds": 0.0014314772561192513
+            },
+            {
+              "queue_seconds": 0.0008022775873541832,
+              "ttft_seconds": 0.006261717528104782,
+              "wall_seconds": 0.014926538802683353,
+              "max_inter_token_seconds": 0.0011128932237625122
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.01461267750710249,
+          "process_cpu_seconds": 0.015490752000000274,
+          "process_cpu_percent_one_core_100": 106.008991113853,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 8759.51720263351,
+          "requests_per_second": 547.4698251645943,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.00028823036700487137,
+              "ttft_seconds": 0.0018673455342650414,
+              "wall_seconds": 0.013084061443805695,
+              "max_inter_token_seconds": 0.0019702836871147156
+            },
+            {
+              "queue_seconds": 0.0003574639558792114,
+              "ttft_seconds": 0.002193666063249111,
+              "wall_seconds": 0.01305310893803835,
+              "max_inter_token_seconds": 0.0016099531203508377
+            },
+            {
+              "queue_seconds": 0.00040184613317251205,
+              "ttft_seconds": 0.0025078067556023598,
+              "wall_seconds": 0.013028222136199474,
+              "max_inter_token_seconds": 0.0012688785791397095
+            },
+            {
+              "queue_seconds": 0.00044001825153827667,
+              "ttft_seconds": 0.0028231898322701454,
+              "wall_seconds": 0.01300314161926508,
+              "max_inter_token_seconds": 0.0009263372048735619
+            },
+            {
+              "queue_seconds": 0.0004799170419573784,
+              "ttft_seconds": 0.0031438004225492477,
+              "wall_seconds": 0.012980264611542225,
+              "max_inter_token_seconds": 0.0008841250091791153
+            },
+            {
+              "queue_seconds": 0.0005172956734895706,
+              "ttft_seconds": 0.004016990773379803,
+              "wall_seconds": 0.013751162216067314,
+              "max_inter_token_seconds": 0.0014263875782489777
+            },
+            {
+              "queue_seconds": 0.000553046353161335,
+              "ttft_seconds": 0.004848218522965908,
+              "wall_seconds": 0.014073815196752548,
+              "max_inter_token_seconds": 0.001438818871974945
+            },
+            {
+              "queue_seconds": 0.0005896519869565964,
+              "ttft_seconds": 0.005713603459298611,
+              "wall_seconds": 0.014348152093589306,
+              "max_inter_token_seconds": 0.0011193379759788513
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 8367.771819158557,
+      "model_and_request_setup_seconds": 0.7663943953812122,
+      "stats_before": [
+        {
+          "prefill_steps": 2,
+          "decode_steps": 19,
+          "prefill_rows": 48,
+          "decode_rows": 120,
+          "handoffs": 8,
+          "transferred_bytes": 267136,
+          "transfer_wall_seconds": 0.005222119390964508,
+          "emitted_tokens": 128,
+          "completed_requests": 8,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "stats_after": [
+        {
+          "prefill_steps": 8,
+          "decode_steps": 76,
+          "prefill_rows": 192,
+          "decode_rows": 480,
+          "handoffs": 32,
+          "transferred_bytes": 1068544,
+          "transfer_wall_seconds": 0.0160712581127882,
+          "emitted_tokens": 512,
+          "completed_requests": 32,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "peak_process_rss_KiB": 994376,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "76.50 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "32"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "71.00 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "33"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    },
+    {
+      "case": "1p1d-c8-pd-peer.json",
+      "configuration": {
+        "mode": "pd",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0
+        ],
+        "decode_devices": [
+          1
+        ],
+        "transport": "peer",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.01899221632629633,
+          "process_cpu_seconds": 0.020092120000000158,
+          "process_cpu_percent_one_core_100": 105.79133922448491,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 6739.603098495312,
+          "requests_per_second": 421.225193655957,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.0007860707119107246,
+              "ttft_seconds": 0.0038303593173623085,
+              "wall_seconds": 0.01731667947024107,
+              "max_inter_token_seconds": 0.0035367216914892197
+            },
+            {
+              "queue_seconds": 0.0010480200871825218,
+              "ttft_seconds": 0.004621200263500214,
+              "wall_seconds": 0.017199908383190632,
+              "max_inter_token_seconds": 0.002633284777402878
+            },
+            {
+              "queue_seconds": 0.0011685946956276894,
+              "ttft_seconds": 0.00506772194057703,
+              "wall_seconds": 0.01712655182927847,
+              "max_inter_token_seconds": 0.002114654518663883
+            },
+            {
+              "queue_seconds": 0.0012768954038619995,
+              "ttft_seconds": 0.005277029238641262,
+              "wall_seconds": 0.017058921977877617,
+              "max_inter_token_seconds": 0.0018393909558653831
+            },
+            {
+              "queue_seconds": 0.001377270556986332,
+              "ttft_seconds": 0.005478315986692905,
+              "wall_seconds": 0.01699085906147957,
+              "max_inter_token_seconds": 0.00157160684466362
+            },
+            {
+              "queue_seconds": 0.0014384081587195396,
+              "ttft_seconds": 0.007288316264748573,
+              "wall_seconds": 0.017747963778674603,
+              "max_inter_token_seconds": 0.001968681812286377
+            },
+            {
+              "queue_seconds": 0.0014793947339057922,
+              "ttft_seconds": 0.008574972860515118,
+              "wall_seconds": 0.018062432296574116,
+              "max_inter_token_seconds": 0.0014503579586744308
+            },
+            {
+              "queue_seconds": 0.0015183202922344208,
+              "ttft_seconds": 0.009365702047944069,
+              "wall_seconds": 0.01832988392561674,
+              "max_inter_token_seconds": 0.0012156683951616287
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.015118537470698357,
+          "process_cpu_seconds": 0.016341756999999735,
+          "process_cpu_percent_one_core_100": 108.09085886562859,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 8466.427407285939,
+          "requests_per_second": 529.1517129553712,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.0004199780523777008,
+              "ttft_seconds": 0.002315256744623184,
+              "wall_seconds": 0.01352116372436285,
+              "max_inter_token_seconds": 0.002050899900496006
+            },
+            {
+              "queue_seconds": 0.0005018357187509537,
+              "ttft_seconds": 0.002656206488609314,
+              "wall_seconds": 0.013469795696437359,
+              "max_inter_token_seconds": 0.0016562854871153831
+            },
+            {
+              "queue_seconds": 0.0005576610565185547,
+              "ttft_seconds": 0.003009277395904064,
+              "wall_seconds": 0.01343381218612194,
+              "max_inter_token_seconds": 0.0012644892558455467
+            },
+            {
+              "queue_seconds": 0.0006073638796806335,
+              "ttft_seconds": 0.0033572521060705185,
+              "wall_seconds": 0.013399054296314716,
+              "max_inter_token_seconds": 0.0008795540779829025
+            },
+            {
+              "queue_seconds": 0.0006561148911714554,
+              "ttft_seconds": 0.003611873835325241,
+              "wall_seconds": 0.013366113416850567,
+              "max_inter_token_seconds": 0.0008287401869893074
+            },
+            {
+              "queue_seconds": 0.0007017767056822777,
+              "ttft_seconds": 0.004408787935972214,
+              "wall_seconds": 0.014131098054349422,
+              "max_inter_token_seconds": 0.0013694241642951965
+            },
+            {
+              "queue_seconds": 0.0007443102076649666,
+              "ttft_seconds": 0.005152875557541847,
+              "wall_seconds": 0.014448986388742924,
+              "max_inter_token_seconds": 0.0013718120753765106
+            },
+            {
+              "queue_seconds": 0.0007946807891130447,
+              "ttft_seconds": 0.005943750962615013,
+              "wall_seconds": 0.014728584326803684,
+              "max_inter_token_seconds": 0.0011371010914444923
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.01573794335126877,
+          "process_cpu_seconds": 0.016575454999999906,
+          "process_cpu_percent_one_core_100": 105.3216079765824,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 8133.210111579214,
+          "requests_per_second": 508.32563197370087,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.0005549062043428421,
+              "ttft_seconds": 0.003212421201169491,
+              "wall_seconds": 0.014164539985358715,
+              "max_inter_token_seconds": 0.001859160140156746
+            },
+            {
+              "queue_seconds": 0.0008724303916096687,
+              "ttft_seconds": 0.003405836410820484,
+              "wall_seconds": 0.014069990254938602,
+              "max_inter_token_seconds": 0.0015684450045228004
+            },
+            {
+              "queue_seconds": 0.001025678589940071,
+              "ttft_seconds": 0.0037262337282299995,
+              "wall_seconds": 0.014020876958966255,
+              "max_inter_token_seconds": 0.0011968640610575676
+            },
+            {
+              "queue_seconds": 0.0011690221726894379,
+              "ttft_seconds": 0.0039713624864816666,
+              "wall_seconds": 0.01398311834782362,
+              "max_inter_token_seconds": 0.0009117033332586288
+            },
+            {
+              "queue_seconds": 0.001308714970946312,
+              "ttft_seconds": 0.004223695956170559,
+              "wall_seconds": 0.013949104584753513,
+              "max_inter_token_seconds": 0.0008244412019848824
+            },
+            {
+              "queue_seconds": 0.0014456454664468765,
+              "ttft_seconds": 0.005059738643467426,
+              "wall_seconds": 0.014699460007250309,
+              "max_inter_token_seconds": 0.0013647321611642838
+            },
+            {
+              "queue_seconds": 0.0015823626890778542,
+              "ttft_seconds": 0.005812991410493851,
+              "wall_seconds": 0.015013213269412518,
+              "max_inter_token_seconds": 0.0013580406084656715
+            },
+            {
+              "queue_seconds": 0.0017106244340538979,
+              "ttft_seconds": 0.006590312346816063,
+              "wall_seconds": 0.015280968509614468,
+              "max_inter_token_seconds": 0.0011253571137785912
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 8133.210111579214,
+      "model_and_request_setup_seconds": 0.7918391600251198,
+      "stats_before": [
+        {
+          "prefill_steps": 2,
+          "decode_steps": 19,
+          "prefill_rows": 48,
+          "decode_rows": 120,
+          "handoffs": 8,
+          "transferred_bytes": 267136,
+          "transfer_wall_seconds": 0.008902216330170631,
+          "emitted_tokens": 128,
+          "completed_requests": 8,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "stats_after": [
+        {
+          "prefill_steps": 8,
+          "decode_steps": 76,
+          "prefill_rows": 192,
+          "decode_rows": 480,
+          "handoffs": 32,
+          "transferred_bytes": 1068544,
+          "transfer_wall_seconds": 0.01942269131541252,
+          "emitted_tokens": 512,
+          "completed_requests": 32,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 1,
+          "decode_workers": 1,
+          "prefill_free_slots": [
+            8
+          ],
+          "decode_free_slots": [
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "peak_process_rss_KiB": 995500,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "73.93 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "32"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "10 %",
+              "utilization.memory [%]": "1 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "72.09 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "33"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    },
+    {
+      "case": "2p2d-c8-colocated-host.json",
+      "configuration": {
+        "mode": "colocated",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0,
+          1
+        ],
+        "decode_devices": [
+          2,
+          3
+        ],
+        "transport": "host",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.009978411719202995,
+          "process_cpu_seconds": 0.030397030000000047,
+          "process_cpu_percent_one_core_100": 304.6279393493291,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 12827.692783378528,
+          "requests_per_second": 801.730798961158,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.0007986528798937798,
+              "ttft_seconds": 0.0023983819410204887,
+              "wall_seconds": 0.008904236368834972,
+              "max_inter_token_seconds": 0.0007058940827846527
+            },
+            {
+              "queue_seconds": 0.0011921636760234833,
+              "ttft_seconds": 0.0027778977528214455,
+              "wall_seconds": 0.009793085977435112,
+              "max_inter_token_seconds": 0.0006471574306488037
+            },
+            {
+              "queue_seconds": 0.0005305558443069458,
+              "ttft_seconds": 0.0024890098720788956,
+              "wall_seconds": 0.008954048156738281,
+              "max_inter_token_seconds": 0.0006172405555844307
+            },
+            {
+              "queue_seconds": 0.00026142504066228867,
+              "ttft_seconds": 0.0019187014549970627,
+              "wall_seconds": 0.008408457040786743,
+              "max_inter_token_seconds": 0.00090837012976408
+            },
+            {
+              "queue_seconds": 0.0006064167246222496,
+              "ttft_seconds": 0.002189585007727146,
+              "wall_seconds": 0.00869543943554163,
+              "max_inter_token_seconds": 0.0007058940827846527
+            },
+            {
+              "queue_seconds": 0.0010524308308959007,
+              "ttft_seconds": 0.0026216739788651466,
+              "wall_seconds": 0.009636862203478813,
+              "max_inter_token_seconds": 0.0006471574306488037
+            },
+            {
+              "queue_seconds": 0.000406571663916111,
+              "ttft_seconds": 0.002348322421312332,
+              "wall_seconds": 0.008813360705971718,
+              "max_inter_token_seconds": 0.0006172405555844307
+            },
+            {
+              "queue_seconds": 0.00014115404337644577,
+              "ttft_seconds": 0.0017817532643675804,
+              "wall_seconds": 0.008271508850157261,
+              "max_inter_token_seconds": 0.00090837012976408
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.006641530431807041,
+          "process_cpu_seconds": 0.02343391100000014,
+          "process_cpu_percent_one_core_100": 352.83902167748096,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 19272.666340124484,
+          "requests_per_second": 1204.5416462577803,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.00044235121458768845,
+              "ttft_seconds": 0.0010681049898266792,
+              "wall_seconds": 0.006553103215992451,
+              "max_inter_token_seconds": 0.00038188137114048004
+            },
+            {
+              "queue_seconds": 0.0003452897071838379,
+              "ttft_seconds": 0.0009515406563878059,
+              "wall_seconds": 0.006412173621356487,
+              "max_inter_token_seconds": 0.0003874748945236206
+            },
+            {
+              "queue_seconds": 0.000251060351729393,
+              "ttft_seconds": 0.0008340282365679741,
+              "wall_seconds": 0.006206289865076542,
+              "max_inter_token_seconds": 0.0003688270226120949
+            },
+            {
+              "queue_seconds": 0.000155571848154068,
+              "ttft_seconds": 0.0007246648892760277,
+              "wall_seconds": 0.00624337512999773,
+              "max_inter_token_seconds": 0.00047373492270708084
+            },
+            {
+              "queue_seconds": 0.00032372400164604187,
+              "ttft_seconds": 0.0009446758776903152,
+              "wall_seconds": 0.006429674103856087,
+              "max_inter_token_seconds": 0.00038188137114048004
+            },
+            {
+              "queue_seconds": 0.00023677479475736618,
+              "ttft_seconds": 0.000838165171444416,
+              "wall_seconds": 0.006298798136413097,
+              "max_inter_token_seconds": 0.0003874748945236206
+            },
+            {
+              "queue_seconds": 0.000150938518345356,
+              "ttft_seconds": 0.0007284041494131088,
+              "wall_seconds": 0.006100665777921677,
+              "max_inter_token_seconds": 0.0003688270226120949
+            },
+            {
+              "queue_seconds": 6.220582872629166e-05,
+              "ttft_seconds": 0.0006263172253966331,
+              "wall_seconds": 0.006145027466118336,
+              "max_inter_token_seconds": 0.00047373492270708084
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.0066721560433506966,
+          "process_cpu_seconds": 0.022930858000000054,
+          "process_cpu_percent_one_core_100": 343.6798817505531,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 19184.20360200682,
+          "requests_per_second": 1199.0127251254262,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.0004121372476220131,
+              "ttft_seconds": 0.0010350290685892105,
+              "wall_seconds": 0.006582573056221008,
+              "max_inter_token_seconds": 0.0005988152697682381
+            },
+            {
+              "queue_seconds": 0.0003181677311658859,
+              "ttft_seconds": 0.0009186742827296257,
+              "wall_seconds": 0.0063659679144620895,
+              "max_inter_token_seconds": 0.00043860916048288345
+            },
+            {
+              "queue_seconds": 0.00022930186241865158,
+              "ttft_seconds": 0.0007959520444273949,
+              "wall_seconds": 0.0060554929077625275,
+              "max_inter_token_seconds": 0.0004540206864476204
+            },
+            {
+              "queue_seconds": 0.0001405784860253334,
+              "ttft_seconds": 0.0006884187459945679,
+              "wall_seconds": 0.006223096512258053,
+              "max_inter_token_seconds": 0.0004701893776655197
+            },
+            {
+              "queue_seconds": 0.00030450988560914993,
+              "ttft_seconds": 0.0009227022528648376,
+              "wall_seconds": 0.0064702462404966354,
+              "max_inter_token_seconds": 0.0005988152697682381
+            },
+            {
+              "queue_seconds": 0.00022246968001127243,
+              "ttft_seconds": 0.0008182106539607048,
+              "wall_seconds": 0.006265504285693169,
+              "max_inter_token_seconds": 0.00043860916048288345
+            },
+            {
+              "queue_seconds": 0.00014022551476955414,
+              "ttft_seconds": 0.0007020756602287292,
+              "wall_seconds": 0.005961616523563862,
+              "max_inter_token_seconds": 0.0004540206864476204
+            },
+            {
+              "queue_seconds": 5.848705768585205e-05,
+              "ttft_seconds": 0.0006014108657836914,
+              "wall_seconds": 0.006136088632047176,
+              "max_inter_token_seconds": 0.0004701893776655197
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 19184.20360200682,
+      "model_and_request_setup_seconds": 1.1148321349173784,
+      "stats_before": [
+        {
+          "iterations": 17,
+          "input_rows": 42,
+          "decode_rows": 30,
+          "prefill_rows": 12,
+          "mixed_iterations": 1,
+          "emitted_tokens": 32,
+          "completed_requests": 2,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        },
+        {
+          "iterations": 17,
+          "input_rows": 42,
+          "decode_rows": 30,
+          "prefill_rows": 12,
+          "mixed_iterations": 1,
+          "emitted_tokens": 32,
+          "completed_requests": 2,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        },
+        {
+          "iterations": 17,
+          "input_rows": 42,
+          "decode_rows": 30,
+          "prefill_rows": 12,
+          "mixed_iterations": 1,
+          "emitted_tokens": 32,
+          "completed_requests": 2,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        },
+        {
+          "iterations": 17,
+          "input_rows": 42,
+          "decode_rows": 30,
+          "prefill_rows": 12,
+          "mixed_iterations": 1,
+          "emitted_tokens": 32,
+          "completed_requests": 2,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        }
+      ],
+      "stats_after": [
+        {
+          "iterations": 65,
+          "input_rows": 168,
+          "decode_rows": 120,
+          "prefill_rows": 48,
+          "mixed_iterations": 1,
+          "emitted_tokens": 128,
+          "completed_requests": 8,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        },
+        {
+          "iterations": 65,
+          "input_rows": 168,
+          "decode_rows": 120,
+          "prefill_rows": 48,
+          "mixed_iterations": 1,
+          "emitted_tokens": 128,
+          "completed_requests": 8,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        },
+        {
+          "iterations": 65,
+          "input_rows": 168,
+          "decode_rows": 120,
+          "prefill_rows": 48,
+          "mixed_iterations": 1,
+          "emitted_tokens": 128,
+          "completed_requests": 8,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        },
+        {
+          "iterations": 65,
+          "input_rows": 168,
+          "decode_rows": 120,
+          "prefill_rows": 48,
+          "mixed_iterations": 1,
+          "emitted_tokens": 128,
+          "completed_requests": 8,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "active_requests": 0,
+          "pending_requests": 0,
+          "free_slots": 8,
+          "token_budget": 32,
+          "prefill_chunk_size": 16,
+          "prefill_policy": "round-robin",
+          "closed": false,
+          "failed": false,
+          "scope": "Per scheduler instance; throughput needs a shared wall interval, not summed request durations"
+        }
+      ],
+      "peak_process_rss_KiB": 1231816,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "77.43 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "33"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "75.25 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "33"
+            },
+            {
+              "index": "4",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "50.05 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "28"
+            },
+            {
+              "index": "5",
+              "utilization.gpu [%]": "15 %",
+              "utilization.memory [%]": "1 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "43.65 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "29"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    },
+    {
+      "case": "2p2d-c8-pd-host.json",
+      "configuration": {
+        "mode": "pd",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0,
+          1
+        ],
+        "decode_devices": [
+          2,
+          3
+        ],
+        "transport": "host",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.017966821789741516,
+          "process_cpu_seconds": 0.03305751200000007,
+          "process_cpu_percent_one_core_100": 183.99198470858576,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 7124.242756895598,
+          "requests_per_second": 445.2651723059749,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.0006595738232135773,
+              "ttft_seconds": 0.003647979348897934,
+              "wall_seconds": 0.015379038639366627,
+              "max_inter_token_seconds": 0.0022366326302289963
+            },
+            {
+              "queue_seconds": 0.0013857018202543259,
+              "ttft_seconds": 0.00414122361689806,
+              "wall_seconds": 0.01561786513775587,
+              "max_inter_token_seconds": 0.0026554595679044724
+            },
+            {
+              "queue_seconds": 0.0035705557093024254,
+              "ttft_seconds": 0.005825623869895935,
+              "wall_seconds": 0.01612984761595726,
+              "max_inter_token_seconds": 0.003277634270489216
+            },
+            {
+              "queue_seconds": 0.004175681620836258,
+              "ttft_seconds": 0.0067796483635902405,
+              "wall_seconds": 0.015962718054652214,
+              "max_inter_token_seconds": 0.001339542679488659
+            },
+            {
+              "queue_seconds": 0.00580478273332119,
+              "ttft_seconds": 0.00822189450263977,
+              "wall_seconds": 0.016433659940958023,
+              "max_inter_token_seconds": 0.0018820622935891151
+            },
+            {
+              "queue_seconds": 0.006994003430008888,
+              "ttft_seconds": 0.00939615722745657,
+              "wall_seconds": 0.016636093147099018,
+              "max_inter_token_seconds": 0.0008369181305170059
+            },
+            {
+              "queue_seconds": 0.00820431299507618,
+              "ttft_seconds": 0.009907486848533154,
+              "wall_seconds": 0.01669213827699423,
+              "max_inter_token_seconds": 0.0007605943828821182
+            },
+            {
+              "queue_seconds": 0.009462286718189716,
+              "ttft_seconds": 0.010845442302525043,
+              "wall_seconds": 0.017515103332698345,
+              "max_inter_token_seconds": 0.0008819159120321274
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.013274476863443851,
+          "process_cpu_seconds": 0.027380594000000258,
+          "process_cpu_percent_one_core_100": 206.26495704250902,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 9642.564548249356,
+          "requests_per_second": 602.6602842655848,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.0004435162991285324,
+              "ttft_seconds": 0.0015895124524831772,
+              "wall_seconds": 0.010844981297850609,
+              "max_inter_token_seconds": 0.0012101763859391212
+            },
+            {
+              "queue_seconds": 0.0006515728309750557,
+              "ttft_seconds": 0.001821429468691349,
+              "wall_seconds": 0.010537434369325638,
+              "max_inter_token_seconds": 0.0010996591299772263
+            },
+            {
+              "queue_seconds": 0.0015505598857998848,
+              "ttft_seconds": 0.002956165000796318,
+              "wall_seconds": 0.011566994711756706,
+              "max_inter_token_seconds": 0.0012860586866736412
+            },
+            {
+              "queue_seconds": 0.0020187459886074066,
+              "ttft_seconds": 0.003573128953576088,
+              "wall_seconds": 0.01126699149608612,
+              "max_inter_token_seconds": 0.0010737888514995575
+            },
+            {
+              "queue_seconds": 0.002934882417321205,
+              "ttft_seconds": 0.004555120132863522,
+              "wall_seconds": 0.012217624112963676,
+              "max_inter_token_seconds": 0.001219215802848339
+            },
+            {
+              "queue_seconds": 0.0038408897817134857,
+              "ttft_seconds": 0.005174936726689339,
+              "wall_seconds": 0.012309088371694088,
+              "max_inter_token_seconds": 0.0008818050846457481
+            },
+            {
+              "queue_seconds": 0.004534357227385044,
+              "ttft_seconds": 0.0062117548659443855,
+              "wall_seconds": 0.012786999344825745,
+              "max_inter_token_seconds": 0.0008445465937256813
+            },
+            {
+              "queue_seconds": 0.005242601968348026,
+              "ttft_seconds": 0.006371228024363518,
+              "wall_seconds": 0.012876304797828197,
+              "max_inter_token_seconds": 0.0008479645475745201
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.013348662294447422,
+          "process_cpu_seconds": 0.027016061999999952,
+          "process_cpu_percent_one_core_100": 202.3877854130574,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 9588.97582218733,
+          "requests_per_second": 599.3109888867082,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.0004780599847435951,
+              "ttft_seconds": 0.00160880945622921,
+              "wall_seconds": 0.011007578112185001,
+              "max_inter_token_seconds": 0.0012193406000733376
+            },
+            {
+              "queue_seconds": 0.0007558111101388931,
+              "ttft_seconds": 0.0018447088077664375,
+              "wall_seconds": 0.010676263831555843,
+              "max_inter_token_seconds": 0.0011079385876655579
+            },
+            {
+              "queue_seconds": 0.0015842616558074951,
+              "ttft_seconds": 0.002990366891026497,
+              "wall_seconds": 0.011755465529859066,
+              "max_inter_token_seconds": 0.0012915553525090218
+            },
+            {
+              "queue_seconds": 0.0020522624254226685,
+              "ttft_seconds": 0.0036181844770908356,
+              "wall_seconds": 0.011426100507378578,
+              "max_inter_token_seconds": 0.000937948003411293
+            },
+            {
+              "queue_seconds": 0.002971060574054718,
+              "ttft_seconds": 0.004690426401793957,
+              "wall_seconds": 0.012571045197546482,
+              "max_inter_token_seconds": 0.001770266331732273
+            },
+            {
+              "queue_seconds": 0.003885110840201378,
+              "ttft_seconds": 0.0052197398617863655,
+              "wall_seconds": 0.012419227510690689,
+              "max_inter_token_seconds": 0.001017499715089798
+            },
+            {
+              "queue_seconds": 0.0046704113483428955,
+              "ttft_seconds": 0.005935133434832096,
+              "wall_seconds": 0.012827920727431774,
+              "max_inter_token_seconds": 0.000896058976650238
+            },
+            {
+              "queue_seconds": 0.005290265195071697,
+              "ttft_seconds": 0.006547784432768822,
+              "wall_seconds": 0.012981195002794266,
+              "max_inter_token_seconds": 0.0008508050814270973
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 9588.97582218733,
+      "model_and_request_setup_seconds": 1.1638533947989345,
+      "stats_before": [
+        {
+          "prefill_steps": 8,
+          "decode_steps": 41,
+          "prefill_rows": 48,
+          "decode_rows": 120,
+          "handoffs": 8,
+          "transferred_bytes": 267136,
+          "transfer_wall_seconds": 0.0049014100804924965,
+          "emitted_tokens": 128,
+          "completed_requests": 8,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 2,
+          "decode_workers": 2,
+          "prefill_free_slots": [
+            8,
+            8
+          ],
+          "decode_free_slots": [
+            8,
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "stats_after": [
+        {
+          "prefill_steps": 32,
+          "decode_steps": 166,
+          "prefill_rows": 192,
+          "decode_rows": 480,
+          "handoffs": 32,
+          "transferred_bytes": 1068544,
+          "transfer_wall_seconds": 0.01786306593567133,
+          "emitted_tokens": 512,
+          "completed_requests": 32,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 2,
+          "decode_workers": 2,
+          "prefill_free_slots": [
+            8,
+            8
+          ],
+          "decode_free_slots": [
+            8,
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "peak_process_rss_KiB": 1232180,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "77.87 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "33"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "78.64 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "34"
+            },
+            {
+              "index": "4",
+              "utilization.gpu [%]": "5 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "71.76 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "29"
+            },
+            {
+              "index": "5",
+              "utilization.gpu [%]": "16 %",
+              "utilization.memory [%]": "1 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "64.58 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "30"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    },
+    {
+      "case": "2p2d-c8-pd-peer.json",
+      "configuration": {
+        "mode": "pd",
+        "checkpoint_scope": "generated-fixture",
+        "prefill_devices": [
+          0,
+          1
+        ],
+        "decode_devices": [
+          2,
+          3
+        ],
+        "transport": "peer",
+        "capacity": 64,
+        "slots": 8,
+        "rows": 32,
+        "prefill_chunk_size": 16,
+        "dtype": "fp16",
+        "repeats": 3,
+        "warmup_rounds": 1
+      },
+      "status": "passed",
+      "repeats": [
+        {
+          "wall_seconds": 0.01720554567873478,
+          "process_cpu_seconds": 0.0315453950000002,
+          "process_cpu_percent_one_core_100": 183.3443448352166,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 7439.461810165184,
+          "requests_per_second": 464.966363135324,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.00048290006816387177,
+              "ttft_seconds": 0.0037222858518362045,
+              "wall_seconds": 0.014983350411057472,
+              "max_inter_token_seconds": 0.0021110782399773598
+            },
+            {
+              "queue_seconds": 0.001152542419731617,
+              "ttft_seconds": 0.004030304029583931,
+              "wall_seconds": 0.014462167397141457,
+              "max_inter_token_seconds": 0.0019354037940502167
+            },
+            {
+              "queue_seconds": 0.0033250851556658745,
+              "ttft_seconds": 0.005579865537583828,
+              "wall_seconds": 0.015378333628177643,
+              "max_inter_token_seconds": 0.002996332012116909
+            },
+            {
+              "queue_seconds": 0.003900226205587387,
+              "ttft_seconds": 0.006581784226000309,
+              "wall_seconds": 0.014605642296373844,
+              "max_inter_token_seconds": 0.0009353039786219597
+            },
+            {
+              "queue_seconds": 0.005363735370337963,
+              "ttft_seconds": 0.007526034489274025,
+              "wall_seconds": 0.015474502928555012,
+              "max_inter_token_seconds": 0.0018637944012880325
+            },
+            {
+              "queue_seconds": 0.0067589543759822845,
+              "ttft_seconds": 0.008678894490003586,
+              "wall_seconds": 0.015267868526279926,
+              "max_inter_token_seconds": 0.0007252134382724762
+            },
+            {
+              "queue_seconds": 0.007538245990872383,
+              "ttft_seconds": 0.00916133914142847,
+              "wall_seconds": 0.015752269886434078,
+              "max_inter_token_seconds": 0.0006433557718992233
+            },
+            {
+              "queue_seconds": 0.008778547868132591,
+              "ttft_seconds": 0.009888670407235622,
+              "wall_seconds": 0.016148577444255352,
+              "max_inter_token_seconds": 0.0008498067036271095
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.013409397564828396,
+          "process_cpu_seconds": 0.02566393400000022,
+          "process_cpu_percent_one_core_100": 191.3876732785844,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 9545.544412504563,
+          "requests_per_second": 596.5965257815352,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.0004940088838338852,
+              "ttft_seconds": 0.0016661379486322403,
+              "wall_seconds": 0.011074209585785866,
+              "max_inter_token_seconds": 0.0014795521274209023
+            },
+            {
+              "queue_seconds": 0.0007607480511069298,
+              "ttft_seconds": 0.0019127121195197105,
+              "wall_seconds": 0.011181389912962914,
+              "max_inter_token_seconds": 0.0013146661221981049
+            },
+            {
+              "queue_seconds": 0.0016414737328886986,
+              "ttft_seconds": 0.002969905734062195,
+              "wall_seconds": 0.011770240031182766,
+              "max_inter_token_seconds": 0.0021499404683709145
+            },
+            {
+              "queue_seconds": 0.002069692127406597,
+              "ttft_seconds": 0.0035592718049883842,
+              "wall_seconds": 0.011922535486519337,
+              "max_inter_token_seconds": 0.0015752753242850304
+            },
+            {
+              "queue_seconds": 0.002960124984383583,
+              "ttft_seconds": 0.004254460334777832,
+              "wall_seconds": 0.012051034718751907,
+              "max_inter_token_seconds": 0.0018061986193060875
+            },
+            {
+              "queue_seconds": 0.0035928860306739807,
+              "ttft_seconds": 0.005395188927650452,
+              "wall_seconds": 0.01221325621008873,
+              "max_inter_token_seconds": 0.0007424727082252502
+            },
+            {
+              "queue_seconds": 0.0042330427095294,
+              "ttft_seconds": 0.0058699678629636765,
+              "wall_seconds": 0.012320744805037975,
+              "max_inter_token_seconds": 0.0007213614881038666
+            },
+            {
+              "queue_seconds": 0.00546806026250124,
+              "ttft_seconds": 0.006662456318736076,
+              "wall_seconds": 0.013032705523073673,
+              "max_inter_token_seconds": 0.000865396112203598
+            }
+          ]
+        },
+        {
+          "wall_seconds": 0.013686702586710453,
+          "process_cpu_seconds": 0.025940971999999896,
+          "process_cpu_percent_one_core_100": 189.53412507982839,
+          "output_tokens": 128,
+          "aggregate_output_tokens_per_second": 9352.143015388217,
+          "requests_per_second": 584.5089384617636,
+          "output_ids_sha256": "b0f025712e8babbff13b8dc17fc7b338d6270ca184bd1545741a2b27c62d493a",
+          "requests": [
+            {
+              "queue_seconds": 0.0004671309143304825,
+              "ttft_seconds": 0.0014178073033690453,
+              "wall_seconds": 0.010995286516845226,
+              "max_inter_token_seconds": 0.0015258537605404854
+            },
+            {
+              "queue_seconds": 0.0007219510152935982,
+              "ttft_seconds": 0.0019949274137616158,
+              "wall_seconds": 0.011525565758347511,
+              "max_inter_token_seconds": 0.0012567667290568352
+            },
+            {
+              "queue_seconds": 0.0014025988057255745,
+              "ttft_seconds": 0.004147917963564396,
+              "wall_seconds": 0.012086979113519192,
+              "max_inter_token_seconds": 0.0016083121299743652
+            },
+            {
+              "queue_seconds": 0.002122114412486553,
+              "ttft_seconds": 0.0034979060292243958,
+              "wall_seconds": 0.012229940854012966,
+              "max_inter_token_seconds": 0.001917933113873005
+            },
+            {
+              "queue_seconds": 0.0035205138847231865,
+              "ttft_seconds": 0.0048462338745594025,
+              "wall_seconds": 0.012367337942123413,
+              "max_inter_token_seconds": 0.0017654923722147942
+            },
+            {
+              "queue_seconds": 0.0042001837864518166,
+              "ttft_seconds": 0.005966557189822197,
+              "wall_seconds": 0.012844368815422058,
+              "max_inter_token_seconds": 0.0008769035339355469
+            },
+            {
+              "queue_seconds": 0.004828334785997868,
+              "ttft_seconds": 0.006070513278245926,
+              "wall_seconds": 0.012602037750184536,
+              "max_inter_token_seconds": 0.0009244084358215332
+            },
+            {
+              "queue_seconds": 0.00610347930341959,
+              "ttft_seconds": 0.007067978382110596,
+              "wall_seconds": 0.013349085114896297,
+              "max_inter_token_seconds": 0.0008440222591161728
+            }
+          ]
+        }
+      ],
+      "median_aggregate_output_tokens_per_second": 9352.143015388217,
+      "model_and_request_setup_seconds": 1.1207623360678554,
+      "stats_before": [
+        {
+          "prefill_steps": 8,
+          "decode_steps": 42,
+          "prefill_rows": 48,
+          "decode_rows": 120,
+          "handoffs": 8,
+          "transferred_bytes": 267136,
+          "transfer_wall_seconds": 0.03175460081547499,
+          "emitted_tokens": 128,
+          "completed_requests": 8,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 2,
+          "decode_workers": 2,
+          "prefill_free_slots": [
+            8,
+            8
+          ],
+          "decode_free_slots": [
+            8,
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "stats_after": [
+        {
+          "prefill_steps": 32,
+          "decode_steps": 164,
+          "prefill_rows": 192,
+          "decode_rows": 480,
+          "handoffs": 32,
+          "transferred_bytes": 1068544,
+          "transfer_wall_seconds": 0.04235752206295729,
+          "emitted_tokens": 512,
+          "completed_requests": 32,
+          "cancelled_requests": 0,
+          "failed_requests": 0,
+          "pending_requests": 0,
+          "active_requests": 0,
+          "prefill_workers": 2,
+          "decode_workers": 2,
+          "prefill_free_slots": [
+            8,
+            8
+          ],
+          "decode_free_slots": [
+            8,
+            8
+          ],
+          "closed": false,
+          "failed": false,
+          "scope": "State handoff and native token events, not HTTP streaming. Transfer wall times may overlap; do not sum them as global elapsed time."
+        }
+      ],
+      "peak_process_rss_KiB": 1235564,
+      "gpu_samples": [
+        {
+          "exit": 0,
+          "gpu_rows": [
+            {
+              "index": "0",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "78.05 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "33"
+            },
+            {
+              "index": "1",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "75.33 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "34"
+            },
+            {
+              "index": "4",
+              "utilization.gpu [%]": "0 %",
+              "utilization.memory [%]": "0 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "69.32 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "30"
+            },
+            {
+              "index": "5",
+              "utilization.gpu [%]": "11 %",
+              "utilization.memory [%]": "1 %",
+              "memory.used [MiB]": "519 MiB",
+              "power.draw [W]": "67.73 W",
+              "clocks.current.sm [MHz]": "2490 MHz",
+              "clocks.current.memory [MHz]": "9001 MHz",
+              "temperature.gpu": "30"
+            }
+          ]
+        }
+      ],
+      "cleanup_errors": []
+    }
+  ]
+}

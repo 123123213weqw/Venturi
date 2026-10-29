@@ -79,7 +79,7 @@ class NativeQwenPipelineModel(NativeQwenModel):
             raise ValueError(
                 "Pipeline split must leave at least one layer in each stage"
             )
-        a, b = backend._device(dtype, device), backend._device(dtype, pipeline_device)
+        a, b = backend.validate_device(dtype, device), backend.validate_device(dtype, pipeline_device)
         if a == b:
             raise ValueError("Pipeline requires two different CUDA devices")
         stages = []

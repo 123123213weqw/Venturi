@@ -50,7 +50,7 @@ def batch_engine(request):
     return base_port.__wrapped__(request)
 
 
-def load(tmp_path, engine, tp, *, tied=False, profile="fp16"):
+def load(tmp_path, engine, tp, *, tied=False, profile="fp16", metadata_mode="checked-json"):
     backend, dtype, device = engine
     if tp and torch.cuda.device_count() < 2:
         pytest.skip("two devices required")
@@ -64,6 +64,7 @@ def load(tmp_path, engine, tp, *, tied=False, profile="fp16"):
         max_tokens=8,
         reserve_bytes=0,
         projection_profile=profile,
+        metadata_mode=metadata_mode,
         **(
             dict(tensor_parallel_device="cuda:1", tensor_parallel_transport="host")
             if tp

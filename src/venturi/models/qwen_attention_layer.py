@@ -72,12 +72,12 @@ class ResidentQwenAttentionLayer(DenseKVCacheOwner):
         if cfg["layer_types"][layer] != "full_attention":
             raise ValueError("Requested layer is not full attention")
         if dtype not in (torch.float16, torch.bfloat16) and not (
-            backend.name == "torch-reference" and dtype == torch.float64
+            backend.capabilities.reference and dtype == torch.float64
         ):
             raise ValueError(
                 "Qwen attention layer supports FP16/BF16, plus explicit FP64 reference mode"
             )
-        target = backend._device(dtype, device)
+        target = backend.validate_device(dtype, device)
         _outside_capture(target)
         rope = QwenTextRoPE.from_config(cfg)
         dimensions = AttentionDimensions(

@@ -9,7 +9,7 @@ from time import perf_counter
 
 import torch
 
-from .generation import LocalTokenizer
+from .text import LocalTokenizer
 from .models import (
     NativeQwenModel,
     NativeQwenPipelineModel,

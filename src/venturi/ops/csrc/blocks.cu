@@ -291,6 +291,8 @@ __global__ void gdn_compact(const T* q, const T* k,
     }
     state_out[state_idx] = s;
 }
+#include "gdn_warp_decode.cuh"
+
 template<class T, bool Packed>
 __global__ void gdn_prefix(const T* q, const T* k,
     const T* v, const float* g, const float* beta, const float* state,
@@ -881,6 +883,7 @@ extern "C" int venturi_gdn_run(const void* q, const void* k, const void* v,
         check(cudaGetLastError()); return 0;
     } catch (const std::exception& e) { error_text = e.what(); return -1; }
 }
+extern "C" int venturi_gdn_warp_decode_enabled(){return VENTURI_GDN_WARP_DECODE;}
 extern "C" int venturi_gdn_compact_run(const void* q, const void* k, const void* v,
     const float* g, const float* beta, const float* state, void* out, float* state_out,
     int tokens, int hqk, int hv, int dk, int dv, int normalize, int packed, int dtype, float scale, void* raw_stream) {
@@ -896,7 +899,11 @@ extern "C" int venturi_gdn_compact_run(const void* q, const void* k, const void*
             throw std::invalid_argument("invalid GDN operand/configuration");
         validate(tokens, dk, dtype);
         if (dtype != 0 && dtype != 1) throw std::invalid_argument("GDN supports FP16/BF16 activations");
-        if (dtype == 0) {
+        if (VENTURI_GDN_WARP_DECODE && dtype==0 && tokens==1 && dk==128) {
+            gdn_warp_decode<<<(static_cast<std::uint64_t>(hv)*dv+3)/4,128,0,static_cast<cudaStream_t>(raw_stream)>>>(
+                static_cast<const __half*>(q),static_cast<const __half*>(k),static_cast<const __half*>(v),
+                g,beta,state,static_cast<__half*>(out),state_out,hqk,hv,dv,normalize,scale);
+        } else if (dtype == 0) {
             if (packed) gdn_compact<__half,true><<<hv*dv,dk,0,static_cast<cudaStream_t>(raw_stream)>>>(
                 static_cast<const __half*>(q),static_cast<const __half*>(k),static_cast<const __half*>(v),
                 g,beta,state,static_cast<__half*>(out),state_out,tokens,hqk,hv,dk,dv,normalize,scale);
@@ -1093,5 +1100,7 @@ extern "C" int venturi_qwen_gate_run(const void* x, const void* qg, void* out,
 #include "qwen_batch.cuh"
 
 #include "qwen_pipeline.cuh"
+
+#include "qwen_handoff.cuh"
 
 #include "qwen_mtp.cuh"

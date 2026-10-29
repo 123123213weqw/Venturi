@@ -1,7 +1,8 @@
 """Loopback-only completion adapter for matched benchmarks, not a production server.
 
-Python owns HTTP and preallocated slot submission only; one native generate call
-owns all model/token execution. Fixed greedy, no cache reuse, no streaming.
+Python owns HTTP and admission only; native generate (cohorts) or native step
+(explicit continuous mode) owns model execution. Greedy, no prefix reuse or HTTP
+streaming. Continuous token-availability timings are not HTTP streaming TTFT.
 """
 
 import argparse
@@ -15,7 +16,7 @@ import signal
 import threading
 
 
-def request_values(body, slots, capacity, vocab):
+def request_values(body, slots, capacity, vocab, *, max_prompt_tokens=32):
     if not isinstance(body, dict):
         raise ValueError("Expected a JSON object")
     ids = body.get("prompt")
@@ -23,7 +24,7 @@ def request_values(body, slots, capacity, vocab):
     if (
         not isinstance(ids, list)
         or not ids
-        or len(ids) > 32
+        or len(ids) > max_prompt_tokens
         or any(type(t) is not int or not 0 <= t < vocab for t in ids)
     ):
         raise ValueError("Expected nonempty pretokenized prompt")
@@ -188,6 +189,71 @@ class CompletionBatcher:
             raise RuntimeError("Native batch admission did not settle")
 
 
+class ContinuousCompletionBatcher:
+    """Loopback adapter; client lanes are NOT native cache-slot identities.
+
+    One explicitly started owner schedules private slots and resolves each
+    request independently. Callbacks only bridge small token/timing metadata;
+    HTTP JSON work stays on request threads. No device introspection per response.
+    """
+
+    def __init__(self, batch, *, token_budget, prefill_chunk_size, max_pending,
+                 prefill_policy="round-robin"):
+        from venturi.runtime import ContinuousScheduler, ContinuousWorker
+
+        self.worker = ContinuousWorker(ContinuousScheduler(
+            batch, token_budget=token_budget,
+            prefill_chunk_size=prefill_chunk_size, max_pending=max_pending,
+            prefill_policy=prefill_policy,
+        )).start()
+
+    def submit(self, slot, prompt, maximum):
+        prompt_tokens = len(prompt)
+        ticket = self.worker.submit(prompt, max_new_tokens=maximum, eos_token_ids=())
+        response = Future()
+
+        def cancel_request(future):
+            if future.cancelled():
+                self.worker.cancel(ticket)
+
+        def complete(source):
+            if source.cancelled():
+                response.cancel()
+                return
+            # Cancellation can win until this final publication boundary.
+            if not response.set_running_or_notify_cancel():
+                return
+            try:
+                value = source.result()
+                response.set_result(dict(
+                    tokens=list(value.output_ids), tokens_predicted=len(value.output_ids),
+                    tokens_evaluated=prompt_tokens, tokens_cached=0, id_slot=slot,
+                    request_id=value.request_id, finish_reason=value.finish_reason,
+                    native_timings=None,
+                    scheduler_timings=dict(
+                        queue_seconds=value.queue_seconds,
+                        time_to_first_token_seconds=value.time_to_first_token_seconds,
+                        wall_seconds=value.wall_seconds,
+                        max_inter_token_seconds=value.max_inter_token_seconds,
+                    ),
+                    scheduler_timings_scope=(
+                        "Submission to this request's native token availability/completion; "
+                        "includes queue/scheduling, not native-only or HTTP streaming timing"
+                    ),
+                    id_slot_scope="HTTP client lane only; private native slot assigned dynamically",
+                ))
+            except BaseException as error:
+                response.set_exception(error)
+
+        response.add_done_callback(cancel_request)
+        ticket.future.add_done_callback(complete)
+        return response
+
+    def close(self):
+        # A timeout must propagate: callers MUST NOT free a still-owned batch.
+        self.worker.close(timeout=180)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("artifact")
@@ -209,6 +275,14 @@ def main():
     p.add_argument("--capacity", type=int, default=256)
     p.add_argument("--ready-file", required=True)
     p.add_argument("--batch-target", action="store_true")
+    p.add_argument("--continuous-target", action="store_true",
+                   help="Opt-in ordinary TP decode-step scheduling; no MTP/graphs/PP")
+    p.add_argument("--prefill-chunk-size", type=int, default=16)
+    p.add_argument("--prefill-policy", choices=("round-robin", "balanced", "balanced-short"), default="round-robin",
+                   help="Experimental balanced prefill sharing; continuous-target only")
+    p.add_argument("--max-pending", type=int, default=128)
+    p.add_argument("--metadata-mode", choices=("checked-json", "sealed"), default="checked-json",
+                   help="Experimental immutable loaded descriptors; does not disable source-file guards")
     p.add_argument(
         "--adaptive-mtp",
         action="store_true",
@@ -237,6 +311,18 @@ def main():
         default="fp16",
     )
     args = p.parse_args()
+    if args.prefill_policy != "round-robin" and not args.continuous_target:
+        p.error("Balanced prefill requires an explicit continuous target")
+    if args.metadata_mode == "sealed" and args.mode != "tp":
+        p.error("Sealed metadata benchmark mode currently requires an explicit TP target")
+    if args.continuous_target and (
+        args.mode != "tp" or args.mtp_artifact or args.adaptive_mtp
+        or args.batch_target or args.batch_mtp or args.target_layer_graph
+        or args.mtp_depth != 1 or args.mtp_recovery != "replay"
+        or not 1 <= args.prefill_chunk_size <= args.projection_rows
+        or not 1 <= args.max_pending <= 65536
+    ):
+        p.error("Continuous target requires ordinary TP, bounded prefill/pending and no fixed/MTP/graph overrides")
     if args.adaptive_mtp and (
         args.mode != "tp"
         or not args.mtp_artifact
@@ -317,6 +403,7 @@ def main():
             tensor_parallel_device="cuda:1",
             tensor_parallel_transport="host",
             projection_profile=args.projection_profile,
+            metadata_mode=args.metadata_mode,
             **kw,
         )
         if args.mode == "tp"
@@ -339,7 +426,7 @@ def main():
                 QwenMTPWeights.from_ninfer(NInferArtifact(args.mtp_artifact)),
                 draft_projection_profile=args.mtp_draft_projection_profile,
             )
-        if args.batch_target or args.batch_mtp or args.adaptive_mtp:
+        if args.batch_target or args.batch_mtp or args.adaptive_mtp or args.continuous_target:
             if args.adaptive_mtp:
                 from venturi.adaptive_mtp import AdaptiveMTPPolicy
 
@@ -350,9 +437,16 @@ def main():
                 batch.prepare()
             else:
                 batch = model.create_batch([args.capacity] * args.slots)
-            admission = CompletionBatcher(
-                batch, args.slots, args.batch_window_ms / 1000
-            )
+            if args.continuous_target:
+                admission = ContinuousCompletionBatcher(
+                    batch, token_budget=args.projection_rows,
+                    prefill_chunk_size=args.prefill_chunk_size, max_pending=args.max_pending,
+                    prefill_policy=args.prefill_policy,
+                )
+            else:
+                admission = CompletionBatcher(
+                    batch, args.slots, args.batch_window_ms / 1000
+                )
         else:
             sessions = [model.create_session(args.capacity) for _ in range(args.slots)]
         if args.mtp_artifact and args.mtp_recovery == "prefix":
@@ -382,12 +476,17 @@ def main():
             if args.mtp_artifact
             else None,
             scope=__doc__,
-            batched_target=args.batch_target or args.batch_mtp or args.adaptive_mtp,
+            continuous_target=args.continuous_target,
+            prefill_chunk_size=args.prefill_chunk_size if args.continuous_target else None,
+            prefill_policy=args.prefill_policy if args.continuous_target else None,
+            max_pending=args.max_pending if args.continuous_target else None,
+            batched_target=args.batch_target or args.batch_mtp or args.adaptive_mtp or args.continuous_target,
             batched_mtp=args.batch_mtp,
-            batch_window_ms=args.batch_window_ms
+            batch_window_ms=0 if args.continuous_target else args.batch_window_ms
             if args.batch_target or args.batch_mtp or args.adaptive_mtp
             else None,
             projection_profile=args.projection_profile,
+            metadata_mode=args.metadata_mode,
             mtp_draft_projection_profile=model.projection_info[
                 "mtp_draft_projection_profile"
             ]
@@ -423,12 +522,16 @@ def main():
                         args.slots,
                         args.capacity,
                         weights.config["vocab_size"],
+                        max_prompt_tokens=args.capacity if args.continuous_target else 32,
                     )
                     with locks[slot]:
                         if admission is not None:
-                            result = admission.submit(slot, ids, count).result(
-                                timeout=180
-                            )
+                            response = admission.submit(slot, ids, count)
+                            try:
+                                result = response.result(timeout=180)
+                            except TimeoutError:
+                                response.cancel()
+                                raise
                         else:
                             session = sessions[slot]
                             session.reset()

@@ -74,7 +74,7 @@ def engine():
     return CudaBackend(path), torch.float16, "cuda:0"
 
 
-def load(weights, engine, rows=8, profile=PROFILE):
+def load(weights, engine, rows=8, profile=PROFILE, *, metadata_mode="checked-json"):
     backend, dtype, device = engine
     return NativeQwenModel.from_q8(
         weights,
@@ -87,6 +87,7 @@ def load(weights, engine, rows=8, profile=PROFILE):
         tensor_parallel_device="cuda:1",
         tensor_parallel_transport="host",
         projection_profile=profile,
+        metadata_mode=metadata_mode,
     )
 
 

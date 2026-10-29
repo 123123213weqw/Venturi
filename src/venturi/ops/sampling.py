@@ -22,7 +22,7 @@ def prepare_greedy(
         raise ValueError("Greedy selection supports at most 65535 independent rows")
     if dtype not in (torch.float16, torch.bfloat16, torch.float32):
         raise ValueError("Greedy logits require explicit FP16/BF16/FP32")
-    target = backend._device(dtype, device)
+    target = backend.validate_device(dtype, device)
     return PreparedGreedy(backend, rows, vocab_size, dtype, target)
 
 
@@ -55,7 +55,7 @@ class PreparedGreedy:
             raise ValueError("Greedy workspace must have 16-byte alignment")
         _no_overlap(out, (logits, workspace))
         _no_overlap(workspace, (logits,))
-        if self.backend.name == "torch-reference":
+        if self.backend.execution_kind == "torch":
             valid = logits.isfinite().all(dim=1)
             out[:, 0].copy_(torch.where(valid, logits.argmax(dim=1), -1))
             out[:, 1].copy_(~valid)

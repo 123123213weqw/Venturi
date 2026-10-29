@@ -2,18 +2,49 @@
 
 A specialized, high-performance inference engine.
 
+## Native-only model execution
+
+Venturi does not package or select external whole-model engines. The legacy
+`qwen` external command has been removed; use `qwen-native` only for its supported
+Q8 architecture and formats. There is no external fallback for missing models.
+
+This does **not** mean zero dependencies or every kernel is original: PyTorch,
+safetensors, tokenizers, CUDA/cuBLAS, the explicit Siphon loader, and attributed
+Ada Q4 operator code remain. Offline numerical/reference comparisons and frozen
+historical measurements are not product inference backends. Existing production
+services were not stopped, reconfigured or migrated.
+
+## Repository guide
+
+- [Architecture and incremental refactor plan](docs/architecture.md): module
+  boundaries, explicit CLI dispatch, shared text, lazy APIs and remaining work.
+- [Prepared operator backend contract](docs/backend-interface.md): capabilities,
+  ownership and native/reference execution boundaries.
+- [Explicit native PD pools](docs/pd-disaggregation.md): request-state handoff,
+  prefill/decode worker ownership, supported scope and qualification limits.
+- [Flash-Next status](docs/qwen38-flash-next.md) and
+  [DeepSeek V4.1 qualification](docs/deepseek41-4090.md): experimental support,
+  real-model limits and separate evidence, not implied support for every model.
+
+The detailed milestones and measurements below are retained historical records;
+their model/hardware/precision/scope limitations still apply.
+
 **Siphon loads the weights; Venturi runs the model.**
 
-That is the dense safetensors path. The optional Qwen path below explicitly
-uses an external NInfer/Cinference native backend, not Siphon or GPT-NeoX math.
+That is the dense safetensors path. The separate Qwen Q8 path uses Venturi-owned
+C++/CUDA execution. External whole-model engine adapters are no longer shipped.
 
 ## First milestone: a model-agnostic loader
 
 Venturi **loads checkpoint tensors**, provides reusable Ada Q4 Linear operators,
 and can generate text with its first **dense GPT-NeoX model adapter** (Pythia).
-An independent, opt-in native backend supports the existing quantized Qwen
-checkpoint; its upstream mathematics/kernels are explicitly attributed.
+The independent Qwen Q8 runtime implements its own model execution. The separate
+Ada Q4 operator still contains explicitly attributed upstream kernel code.
 Other architectures are not executable merely because their weights can load.
+DeepSeek V4.1 qualification is [tracked separately](docs/deepseek41-4090.md):
+asset admission and CPU semantic oracles do **not** imply a complete
+Venturi-native DeepSeek executor or measured TPS. The former external adapter
+was removed; unsupported architectures fail rather than switching engines.
 The loading core has no architecture-specific configuration classes, required
 weight names, layer counts, or model adapters. Architecture interpretation and
 execution kernels are separate components, not part of checkpoint loading.
@@ -54,6 +85,12 @@ The optional operator API below interprets one explicit packed format; it does
 not infer an execution format from arbitrary quantization metadata.
 
 ## Independent reusable feed-forward block
+
+CPU-reference and native-CUDA prepared operators now share a public
+`OperatorBackend` contract, explicit `create_backend(...)` factory, exact
+format-aware capability preflight, and device/allocation/synchronization API.
+See [backend interface](docs/backend-interface.md) for ownership, compatibility
+and extension boundaries. This does **not** add Metal/MLX or automatic fallback.
 
 `venturi.models.GatedMLPWeights` is the first standalone building block toward
 a Venturi-owned model core. It composes the same explicit mathematics for
@@ -529,971 +566,33 @@ uses an explicit non-default preparation stream with dependencies; CUDA arenas
 retain 256-byte alignment, while CPU tests check relative region alignment.
 
 
-## Qwen-27B: explicit optional native backend
+<a id="qwen-27b-explicit-optional-native-backend"></a>
 
-`venturi qwen` supports the existing NInfer v3 artifact whose text config is
-`Qwen3_5ForCausalLM`: the tested 27B checkpoint has 48 linear-attention and 16
-full-attention layers, mixed stored formats, and an optional paired DFlash2
-component. This is **not GPT-NeoX execution, a generic HF Qwen loader, or a new
-Venturi implementation of Qwen CUDA kernels**. Qwen mathematics, quantized
-materialization, CUDA graphs and speculative verification run in the external,
-Apache-2.0 NInfer/Cinference implementation. Venturi owns explicit artifact
-inspection, verified staging, resident-process transport, CLI and measurement.
+## Qwen: owned native execution only
 
-No weights are expanded to a full FP16 model. Vision and MTP are not enabled;
-only text and the explicitly selected drafter are materialized. The Python
-client does not create a PyTorch CUDA context or run per-token Python forwards.
-One owned native process holds the GPU model across API calls. A call can run
-one request or a bounded native batch; there is no HTTP server or background
-service. Closing the session releases it.
-Python transport time and native generation times are reported separately.
+The former external-engine `venturi qwen` command, NInfer/Cinference runner,
+Strata runtime adapter and their build/launch tools were removed on October 28.
+They are not silently redirected to a different model implementation. The old
+instructions and measurements are retained only as
+[archived source/evidence](operations/native-only-20261028-v1/source-before/README.md#qwen-27b-explicit-optional-native-backend),
+not supported commands or current native performance claims.
 
-### Build against the existing Ada native implementation
-
-Run this **on the CUDA server**, with a compatible source tree and its existing
-Release SM89 Ninja build. The backend currently uses the dependency's in-tree
-C++ interface, not an installed, version-independent SDK:
+Use the existing **owned Q8 runtime** explicitly with a supported Qwen Q8 export:
 
 ```bash
-python tools/build_qwen_runner.py \
-  --source /home/test/wangyue/engine \
-  --build /home/test/wangyue/engine/build \
-  --output /home/test/wangyue/venturi-work/qwen/native/venturi-qwen-runner
+venturi qwen-native inspect /absolute/path/to/qwen-q8.ninfer
+venturi qwen-native generate /absolute/path/to/qwen-q8.ninfer \
+  --blocks-library /absolute/path/to/libventuri_blocks.so \
+  --weight-mode resident --device cuda:0 --dtype fp16 \
+  --token-ids 1,2,3 --max-tokens 256 --max-new-tokens 32
 ```
 
-The tool compiles only Venturi's transport and links the selected existing
-static libraries. It does not modify/rebuild upstream sources, install packages
-or download models. The build report hashes the linked archives; LICENSE,
-NOTICE and upstream provenance are copied beside the executable. The native
-binary is not included in the wheel or repository. A different dependency
-version must compile and pass acceptance before it can be claimed compatible.
-
-### Inspect, generate and reuse
-
-```bash
-venturi qwen inspect /absolute/path/to/model.ninfer --json
-venturi qwen generate /absolute/path/to/model.ninfer \
-  --runner /absolute/path/to/venturi-qwen-runner \
-  --prompt 'Explain why the sky looks blue.' --max-new-tokens 64 --json
-venturi qwen benchmark /absolute/path/to/model.ninfer \
-  --runner /absolute/path/to/venturi-qwen-runner \
-  --prompt 'Write a Python merge-sort function.' --max-new-tokens 128 \
-  --ignore-eos --warmup 1 --repeats 3 --json
-```
-
-Defaults: non-thinking user chat via the embedded template, greedy selection,
-BF16 KV, context 2048, prefill chunks 128, CUDA graphs on, blocking CPU waits,
-speculative decoding off. `--raw-prompt` bypasses the chat template.
-`--execution eager` disables graphs; `--prefill-chunk`, `--max-context` and `--kv-dtype bf16|k8v4` are explicit
-startup choices. Prompt plus requested output must fit context: no truncation.
-EOS is respected in generation; only the explicit benchmark `--ignore-eos`
-requests fixed output lengths. Prefix reuse is disabled for isolated-request
-measurements. Startup is not hidden inside warmed TPS. Research `NINFER_*`
-environment flags are removed from the child environment, preventing unnoticed
-weight/state precision or head-screen changes.
-
-```python
-from venturi.backends.qwen import QwenNativeSession
-
-with QwenNativeSession(
-    '/absolute/path/to/model.ninfer',
-    runner='/absolute/path/to/venturi-qwen-runner',
-) as model:
-    first = model.generate('Explain CUDA graphs.', max_new_tokens=64)
-    second = model.generate('Now explain quantization.', max_new_tokens=64)
-    print(first['text'], second['text'])
-```
-
-RPC calls are sequential; independent concurrent Python calls are rejected. Use
-`generate_many` for native parallel execution within one call (below). Invalid
-requests are rejected before execution where possible. Native process exit,
-malformed responses and read timeout close the owned process; no other GPU job
-is stopped. No fallback to a different model, precision or backend is implicit.
-
-For the existing deployment, from the Mac checkout:
-
-```bash
-bash scripts/venturi-qwen-4090d generate \
-  --prompt 'Explain CUDA graphs.' --max-new-tokens 64
-```
-
-The launcher uses the staged Venturi source and explicit native runner on
-School_4090D. Model paths refer to that server. `VENTURI_QWEN_MODEL`,
-`VENTURI_QWEN_RUNNER`, `VENTURI_QWEN_DIR`, `VENTURI_REMOTE_PYTHON` and
-`VENTURI_SSH_HOST` override that deployment without changing credentials.
-
-### Switch between single and parallel dispatch
-
-`single` is the default: requests execute one at a time. `parallel` submits the
-whole input list before waiting, so the existing native scheduler can form
-compact decode batches on **one GPU with one copy of the weights**. This is
-request batching, not tensor parallelism, multi-GPU execution, Python threads,
-or a guarantee that one person's request generates faster.
-
-```bash
-# Serial list: repeat --prompt, or use --prompts-file prompts.json.
-venturi qwen generate /absolute/path/to/model.ninfer \
-  --runner /absolute/path/to/venturi-qwen-runner \
-  --mode single --prompt 'What is 2+2?' --prompt 'Explain gravity briefly.'
-
-# Native parallel list: reserve up to four active requests.
-venturi qwen generate /absolute/path/to/model.ninfer \
-  --runner /absolute/path/to/venturi-qwen-runner \
-  --mode parallel --max-concurrency 4 \
-  --prompt 'What is 2+2?' --prompt 'Explain gravity briefly.' --json
-```
-
-The SSH launcher accepts these same options. `--prompts-file` is a JSON array
-of 1–16 strings; its path is **on the server** when using the launcher. Results
-retain input order, each request has isolated recurrent/KV state, EOS is
-respected, and prefix reuse remains disabled. Every prompt is prepared and
-checked against the output budget before any request in that list is submitted.
-One prompt alone is still B=1, even with `--mode parallel`.
-
-For switching **without reloading the model**, reserve concurrency once:
-
-```python
-with QwenNativeSession(
-    '/absolute/path/to/model.ninfer',
-    runner='/absolute/path/to/venturi-qwen-runner',
-    mode='single', max_concurrency=4, max_context=2048,
-) as model:
-    prompts = ['What is 2+2?', 'Explain gravity briefly.']
-    serial = model.generate_many(prompts, max_new_tokens=64)
-    model.set_mode('parallel')
-    batched = model.generate_many(prompts, max_new_tokens=64)
-    model.set_mode('single')
-    one = model.generate('Now explain CUDA graphs.', max_new_tokens=64)
-    # A per-call override does not change the session's default mode.
-    batched_again = model.generate_many(prompts, mode='parallel')
-```
-
-`set_mode` is idle-only and changes dispatch, **not the startup GPU reservation**.
-The native maximum concurrency is fixed at 1–8. Defaults are C=1 in single mode
-and C=4 in parallel mode; parallel needs C>=2. A session initially created with
-C=1 needs reopening with a larger reservation before it can run parallel. A
-single request in a C=4 session does not release the other reserved lane state.
-The list limit is 16, with excess active requests waiting in the native FIFO.
-The session timeout covers the complete batch response, not each row separately.
-
-`--max-context` is the per-request ceiling. `--kv-capacity` is the **shared
-physical token budget**, rounded to 64-token pages; by default it reserves
-`C * ceil(max_context / 64) * 64` tokens. An explicit smaller shared budget can
-reduce VRAM but may reduce simultaneous admissions. It must hold one full
-context and at least one page per lane; it cannot exceed the full C-lane page
-capacity. No automatic KV precision change or OOM fallback is performed.
-In particular, the successful **single-request 256K K8V4 test does not mean four
-256K caches fit on a 24 GB GPU**. Use shorter per-request contexts for parallel
-work, or explicitly budget a shared cache and accept lower concurrency.
-
-For list benchmarking, `venturi qwen benchmark` uses the same prompt/mode
-options. It reports **all output tokens / elapsed batch wall time**, including
-preparation, prefill and queueing, excluding startup and warmup. It does not sum
-overlapping per-request decode times. Native `runtime.mean_decode_batch` exposes
-the actual compact batch size; configured C is only an upper bound. The existing
-one-prompt single benchmark retains its separate decode-only metric.
-
-**Numerical limitation:** serial and compact-batched execution are not guaranteed
-to produce identical greedy token IDs. Acceptance found counterexamples with
-both BF16 and K8V4 KV on the stored quantized checkpoint. Single-row dispatch
-and serial resets are checked independently, alongside literal-answer/state
-isolation tests. These checks are not a broad model-quality evaluation; do not
-interpret successful batching as a proof of lossless numerical equivalence.
-
-This interface requires the **protocol-3 runner** built from the current source.
-Older binaries fail explicitly rather than silently ignoring concurrency. The
-math, paged cache, scheduler and kernels are still the external NInfer/Cinference
-implementation; this change exposes those capabilities in Venturi's public API.
-`tools/validate_qwen_modes.py` is a finite production-path acceptance/comparison
-with one resident process, serial/parallel mode switches, ordered exact-ID
-comparisons on its stated workload, and wall-clock throughput.
-
-Production-API acceptance on the same RTX 4090D / Qwen27B checkpoint used eight
-requests per wave, **509 raw prompt tokens + 64 fixed output tokens each**,
-context 2048, prefill chunk 512, graphs on, no speculation/reuse. Each comparison
-kept one model resident: warm both dispatch paths, then two measured waves per
-mode in single/parallel/parallel/single order. These retained runs used the
-protocol-2 runner and CUDA automatic CPU waits, before the blocking-wait default.
-
-| Startup reservation | KV profile / shared capacity | Single total tokens/s | Parallel total tokens/s | Actual parallel decode batch |
-|---|---|---:|---:|---:|
-| C=4 | BF16 / 8192 | 46.82 | 116.11 | 3.91 |
-| C=8 | K8V4 / 4608 | 46.98 | 150.05 | 7.20 |
-
-These are **separate within-configuration serial/parallel comparisons**, not an
-isolated precision comparison. Serial state replay and one-row parallel checks
-passed; four distinct literal answers were returned in the correct order under
-each tested configuration. Some ordinary raw/chat greedy outputs differed
-across modes; full IDs, reproduction script, the initial failed equality tests,
-and revised behavioral checks are retained in
-[`benchmarks/qwen/modes`](benchmarks/qwen/modes/). This is a bounded offline API,
-not a new HTTP server or batch-invariant numerical implementation.
-
-### CPU-efficient CUDA waits
-
-The native runner defaults to `--cpu-wait blocking`. CUDA blocks the waiting
-CPU thread on a synchronization primitive instead of busy-waiting for GPU
-completion. This changes the **CPU waiting policy**, not the model mathematics,
-KV precision, GPU stream dependencies, CUDA Graphs or request concurrency. It
-only affects this owned runner process's CUDA context, not other GPU jobs or
-system-wide settings. See the
-[NVIDIA CUDA 13 runtime reference](https://docs.nvidia.com/cuda/archive/13.0.0/cuda-runtime-api/group__CUDART__DEVICE.html).
-
-```bash
-# CPU-efficient default; works with single or parallel dispatch.
-venturi qwen generate /absolute/path/to/model.ninfer \
-  --runner /absolute/path/to/venturi-qwen-runner \
-  --cpu-wait blocking --prompt 'Explain CUDA graphs.'
-
-# Restore CUDA's previous automatic scheduling heuristic for latency comparison.
-# On the tested server this heuristic actively spins while waiting.
-venturi qwen benchmark /absolute/path/to/model.ninfer \
-  --runner /absolute/path/to/venturi-qwen-runner \
-  --cpu-wait auto --prompt 'Explain CUDA graphs.' --json
-```
-
-Python uses `QwenNativeSession(..., cpu_wait='blocking')` or `cpu_wait='auto'`.
-This is a startup choice, independent of runtime `set_mode`. The protocol-3
-startup response reports the applied policy and CUDA device flags; mismatched
-runners fail rather than silently ignoring the option. Non-scheduling CUDA
-context flags are preserved. A sleeping CPU may have extra wakeup latency;
-`auto` remains available when maximum raw throughput matters more than freeing
-CPU capacity.
-
-The earlier internal `host_active_fraction` counter **is not process CPU use**:
-it excludes time inside device waiting, where the driver may still spin. Use
-`tools/benchmark_qwen_cpu.py` on the Linux CUDA server to measure actual native
-process user+system CPU seconds from `/proc/<pid>/stat`, plus Python process CPU
-separately. **100% means one logical CPU core**, not the whole machine. Measurements
-include all threads in the owned native process and exclude startup/warmup.
-These counters do not measure CPU power, whole-system energy or energy/token.
-
-On the RTX 4090D / dual Xeon E5-2640 v4 server, a counterbalanced
-`auto / blocking / blocking / auto` comparison used four measured requests per
-process after warmup: each 509 raw prompt tokens + 64 fixed output tokens,
-BF16 KV, context 2048, chunk 512, graphs enabled, no speculation or prefix reuse.
-Startup and warmup were excluded. Combining both processes per policy:
-
-| Metric | CUDA auto | Blocking waits |
-|---|---:|---:|
-| Native CPU utilization (100% = one logical core) | 100.03% | 2.17% |
-| Native CPU seconds for 512 output tokens | 10.92 | 0.24 |
-| Native + Python CPU milliseconds/output token | 21.334 | 0.478 |
-| Total output tokens/s, including prefill | 46.90 | 46.27 |
-| Median native first-token latency | 255.56 ms | 257.76 ms |
-
-This freed almost one CPU core: **97.8% less native CPU time**, at the cost of
-**1.35% lower output throughput** on this workload. It is not a free tokens/s or
-energy-efficiency claim. All 16 measured single-request sequences matched the
-unchanged protocol-2 baseline's IDs. Targeted GPU/transport/accounting validation
-passed **62 tests**, including BF16/graphs, K8V4/eager, DFlash2, state replay and
-parallel dispatch; local CPU validation passed **309 tests** with 56 opt-in tests
-skipped. The separate pilot C4 experiment also reduced CPU use, with a small
-throughput cost. Evidence and the retained pilot are in
-[`benchmarks/qwen/cpu`](benchmarks/qwen/cpu/). Only the native wait policy and
-transport contract changed; external model/kernel libraries were not rebuilt.
-
-### Optional byte-exact RAM staging
-
-The native dependency uses direct reads, which can reread a slow disk at every
-startup. Explicit staging copies the complete encoded artifact into selected
-storage, verifies source/destination SHA256, preserves volumes/bindings and
-records the up-front cost. Nothing is dequantized or repacked. For tmpfs, the
-full artifact consumes host RAM until deleted or rebooted; it is not free GPU
-memory, an automatic eviction cache, or a resident decode optimization.
-
-```bash
-# On the server; inspect the JSON report before using the resulting path.
-venturi qwen stage /absolute/path/to/model.ninfer \
-  --directory /dev/shm/venturi --json
-# --reuse verifies the staged files before returning an existing cache.
-venturi qwen stage /absolute/path/to/model.ninfer \
-  --directory /dev/shm/venturi --reuse --json
-```
-
-Pass the report's `path` to generate/benchmark, or set `VENTURI_QWEN_MODEL` for
-the SSH launcher. The original checkpoint is never modified. A new private
-staging directory is published atomically; insufficient space/source mutation
-fails without replacing an existing cache. Staging and checksum time must be
-included when evaluating a first cold request.
-
-The v3 reader validates framing, file identity/sizes, object ranges, known
-encoded sizes and binding/resource references. Supported inspection layouts
-are contiguous BF16/FP32/INT32 and row-split Q4/Q5/Q6-G64/Q8-G32 with FP16 scales.
-Unknown formats fail explicitly. Bounded encoded reads span volumes; one-row
-diagnostic reconstruction is independently tested. Architecture binding and
-native Op capability validation still belong to the backend.
-
-### Speculative decoding and validation
-
-```bash
-venturi qwen benchmark /absolute/path/to/model.ninfer \
-  --runner /absolute/path/to/venturi-qwen-runner \
-  --speculative dflash2 --draft-tokens 8 \
-  --prompt 'Write a detailed explanation of how rain forms.' \
-  --max-new-tokens 128 --ignore-eos --warmup 1 --repeats 3 --json
-```
-
-`--verify-tree --draft-tokens 15 --optimized-proposal --kv-dtype k8v4` explicitly
-selects the other evaluated upstream DFlash2 route. That route requires K8V4
-and 24x256 attention; it is rejected before GPU startup otherwise. K8V4 changes
-cache precision and is measured against a separate K8V4 baseline, not silently
-substituted for BF16 KV. No new draft model is downloaded or
-trained. Reports retain rounds, drafted/accepted tokens and acceptance by
-position. Speculative batching/state schedules can change floating-point
-rounding relative to token-by-token execution: greedy-ID agreement is measured,
-not assumed. No FP32/BF16-original model-quality equivalence follows from speed.
-
-```bash
-PYTHONPATH=src python tools/run_qwen_validation.py /absolute/path/to/model.ninfer \
-  --runner /absolute/path/to/venturi-qwen-runner \
-  --baseline-cli /absolute/path/to/existing/ninfer \
-  --output-dir /absolute/path/to/new-results --profile
-```
-
-Acceptance compares the independent product CLI with Venturi transport on the
-same quantized native backend; it is not an independent mathematical oracle.
-The tool measures eager/graph/graph/eager, an explicit prefill-chunk variant,
-and DFlash2 chain/tree routes sequentially with prefix reuse off. Other GPU
-compute jobs stop the benchmark; only the known GNOME remote desktop service
-is allowed. Nsight brackets warmed generation, excluding loading; profiler
-timings are not substituted for unprofiled throughput.
-
-### Eight-request DFlash2 comparison on RTX 4090D
-
-A 2026-10-17 production-API test compared ordinary decoding with DFlash2 chain8
-at startup concurrency 8. One `generate_many` RPC submitted eight distinct
-non-thinking chat prompts (mixed prose/code), not eight HTTP clients. Both modes
-used the same RAM-staged quantized checkpoint, BF16 KV, context 2048, total KV
-capacity 16384, prefill chunk 512, CUDA graphs, blocking CPU waits, no prefix
-reuse, and 128 output tokens per request with EOS explicitly ignored. Tree
-verification and the indexed proposal head were off.
-
-Fresh resident sessions ran ordinary/DFlash2/DFlash2/ordinary. Each warmed one
-eight-request wave, then measured three waves: six measured waves and 6144
-output tokens per variant. Loading and warmup were excluded; aggregate
-throughput divides total outputs by shared client wall time, including prefill
-and JSON transport, never by summed concurrent request durations.
-
-| Measurement | Ordinary, C8 | DFlash2 chain8, C8 |
-|---|---:|---:|
-| Aggregate output tokens/s | 333.76 | 346.54 |
-| Median whole-batch client wall | 3.068 s | 2.955 s |
-| Median internal native first-token time | 301.2 ms | 380.3 ms |
-| Native CPU, 100% = one core | 4.94% | 4.46% |
-| Sampled whole-device GPU busy | 97.3% | 98.7% |
-| Whole-device VRAM | 18040 MiB | 19980 MiB |
-
-The observed aggregate gain is **3.83%**, not a multi-fold C8 speedup and not
-346.54 tokens/s per request. The drafter accepted 4872 of 9528 proposed tokens
-(51.13%), averaging 3.98 accepted draft tokens per speculative request-round.
-Mean active request rows per decode round were 7.58/5.37; startup capacity 8
-does not mean every round retains eight unfinished requests. Native first-token
-timestamps are not streamed client TTFT; this API returns a completed batch.
-
-**Speculation remains experimental and off by default.** Ordinary output matched
-its reference in 48/48 measured rows; DFlash2 matched 36/48. Two of eight prompts
-diverged consistently in all six measured DFlash waves: CPU-cache explanation
-at zero-based output index 61 and word-frequency code at index 42. Raw token IDs
-and comparisons are retained. Within-session warmup replay matched for all
-96 measured rows, and all four native processes exited cleanly. Repeatability
-does not establish lossless equivalence or an independent mathematical oracle.
-
-Sampled power averaged 392.7/400.2 W, SM clocks 2775.0/2771.3 MHz, memory clocks
-10251 MHz in both, and temperatures 52.4/54.5 C. These whole-device samples do
-not establish energy efficiency. Counter policy remained `RmProfilingAdminOnly:
-1`; achieved occupancy, compute throughput, DRAM bandwidth and cache/stall
-counters were unavailable. No new counter probe, privilege/clock change,
-kernel edit or model download was made. This is a throughput comparison, not
-a counter-verified bottleneck diagnosis. Local validation passed 332 CPU tests
-with 56 hardware/environment skips; Ruff and diff checks passed.
-
-Run `tools/benchmark_qwen_dflash.py CHECKPOINT --runner RUNNER
---output-directory NEW_DIRECTORY --repeats 3` on the CUDA host to reproduce.
-The commands, complete outputs, CPU/wall counters, telemetry and summary are in
-[`benchmarks/qwen/dflash-c8`](benchmarks/qwen/dflash-c8/).
-
-### Measured Qwen result on RTX 4090D
-
-The retained ordinary/speculative and concurrency/long-context measurements below
-used the earlier CUDA automatic CPU-wait policy. The current CPU-policy comparison
-is reported above; do not assume identical throughput under blocking waits.
-
-The native integration passed **310 GPU-enabled tests with no skips** (three
-expected Siphon warnings). Local CPU validation passed **259 tests**, with
-51 opt-in asset/GPU tests skipped. Both ordinary and DFlash2 transports matched
-the existing same-mode CLI's generated IDs on two 32-output-token chat cases;
-changed-prompt/reset isolation and an actual early-EOS DFlash2 request passed.
-This qualifies the integration, not the original full-precision model's quality.
-
-Normal non-thinking chat, BF16 KV, graphs enabled, prefix reuse disabled, one
-warmup and two measured requests per prompt, EOS respected (both long answers
-reached the 128-token cap):
-
-| Prompt | Ordinary decode | DFlash2 chain, K=8 | Same 128 greedy IDs |
-| --- | --- | --- | --- |
-| Explain the blue sky | 57.18 tokens/s | 199.10 tokens/s | yes |
-| Merge two sorted lists in Python | 57.16 tokens/s | 411.30 tokens/s | yes |
-
-**These are two prompts, not Spec-Bench or a general Qwen speed claim.** Loading,
-staging and preparation are excluded from these warmed decode rates. The CUDA
-kernels and DFlash2 algorithm are the external backend's, not new Venturi work.
-
-The separate fixed-output raw-token suite used three repeats after one warmup,
-128 outputs, context 2048, identical prompt IDs and no prefix reuse:
-
-| Raw workload | BF16 KV ordinary graphs | BF16 KV chain8 | K8V4 ordinary graphs | K8V4 chain8 | K8V4 tree15 |
-| --- | --- | --- | --- | --- | --- |
-| Prose | 57.17 | 162.07 | 57.20 | 161.93 | 193.32 |
-| Code | 57.13 | 341.97 | 57.22 | 361.67 | 561.43 |
-| Repeated 512-token prefix | 56.76 | 403.04 | 57.08 | 408.61 | 825.73 |
-
-Rates are tokens/s; BF16 ordinary graphs combine both measured graph processes.
-This raw suite explicitly ignores EOS to fix output length. The repeated-prefix
-workload is very predictable and is **not representative interactive throughput**.
-K8V4 is a distinct precision experiment with its own baseline, not a free speedup
-over the BF16 numerical contract. Tree15 also uses the indexed proposal head.
-
-**Speculation remains experimental and off by default.** The raw prose chain
-first diverged from ordinary BF16 decoding at output index 99 (99 matching
-tokens). K8V4 ordinary decoding differed from BF16 at index 22. Other listed
-workloads matched, and tree15 matched its same-KV ordinary sequence on these
-three cases, but universal lossless greedy decoding is **not established**.
-These discrepancies are retained, not hidden by a relaxed tolerance or an
-assertion that plausible prose proves correctness. Their root cause has not
-been isolated to a particular rounding operation or kernel.
-
-Ordinary graph policy improved decode by about 2%, not Pythia's order-of-magnitude
-gain. In the warmed 32-output Nsight trace, host kernel-launch calls fell from
-19,139 to 601 plus 31 graph launches, but both paths still executed 19,139 GPU
-kernels. Projection kernels accounted for approximately 95% of summed GPU kernel
-duration; additional RMSNorm/RoPE fusion was therefore not the first target.
-This is kernel-time attribution, not a measured DRAM utilization percentage.
-
-For the 512-token prompt, explicitly increasing `--prefill-chunk 128` to
-`--prefill-chunk 512` reduced median first-token time from about **312.9 ms to
-254.3 ms** (18.7% shorter), without changing greedy IDs on the three tested
-workloads. Separate prefill-only traces contained 3,797 versus 889 GPU kernel
-instances and 307 versus 249 ms summed kernel duration. The larger chunk selects
-different existing GEMM/fused-SwiGLU routes as well as reducing chunk overhead;
-it is not just graph capture. Defaults remain conservative; this is a measured
-option, not an automatically optimal choice for every context/model.
-
-One observed cold disk load took about 125 seconds. Verified staging copied the
-complete 16.94-GiB artifact in **181.1 seconds**; subsequent native starts from
-that RAM copy took **6.5–7.8 seconds**, still excluded from warmed TPS. Staging
-uses additional host RAM and must amortize across starts. The RAM copy remains
-under the explicit path recorded in the staging report; closing a GPU session
-does not remove it. No model, profiler binary trace or native executable is
-committed to the repository.
-
-Raw timing runs, numerical counterexamples, CLI acceptance, source/build hashes,
-staging checksums, CPU/GPU test logs and Nsight text statistics are retained in
-[`benchmarks/qwen`](benchmarks/qwen/). An initial unsupported BF16/tree request
-and a test-deployment/environment failure are retained too; completed timing
-runs were reused, not overwritten or selected by best throughput.
-
-### Concurrency, paging and remaining bottlenecks
-
-The external Engine **already implements paged KV storage**, with 64-token page
-groups, startup-fixed concurrency 1–8, and compact decode batches. Venturi's
-production `QwenNativeSession.generate_many` now exposes single/parallel dispatch
-with prefix reuse disabled (see above). The historical measurements below used
-`tools/csrc/qwen_concurrency_probe.cpp`, retained for cache/profiling experiments;
-they are not measurements of a new paging implementation or HTTP serving API.
-
-On the same 4090D/checkpoint, eight requests per wave, each with 512 raw prompt
-tokens and 64 output tokens, produced these **total output rates including
-prefill and queueing**, excluding model startup:
-
-| Maximum concurrency | Total output tokens/s | Actual mean decode batch |
-|---|---:|---:|
-| 1 | 47.08 | 1.00 |
-| 2 | 79.53 | 1.99 |
-| 4 | 117.41 | 3.91 |
-| 8 | 151.15 | 7.20 |
-
-Runs used native BF16 KV (BF16 K / FP16 V), ordinary greedy decoding, no reuse,
-and no speculative backend. Each process had one warmup and two measured waves;
-concurrency order was 1/2/4/8 then 8/4/2/1. All four measured waves per setting
-contribute to the rate. Fixed-output runs ignore EOS; separate normal chat tests
-respect EOS. Higher aggregate throughput does **not** make each stream faster.
-This is not a Qwen-vs-llama.cpp comparison or a universal serving benchmark.
-
-Capacity, cache and scheduling findings:
-
-- Eight slots with only 2,048 shared KV token-equivalents achieved about **95
-  tokens/s**, versus about **151** with sufficient capacity. A workload-specific
-  4,608-token budget retained the throughput while reserving **736 MiB less KV
-  memory** than the 16,384-token budget. This does not establish the right budget
-  for arbitrary prompt/output lengths. Paging cannot replace admission capacity.
-- A 795-token chat prompt reused 778–788 tokens on warm requests. Measured
-  prefill fell from approximately **475–540 ms to 34–52 ms**. Changed suffixes and
-  an explicit reuse-disabled control matched their corresponding greedy outputs.
-  This is one cache sequence, not a statistically qualified cache benchmark.
-- Prefill chunks trade throughput for delivery gaps. Separate unprofiled
-  streaming observations, excluding their warmup, recorded:
-
-| Prefill chunk | Total output tokens/s | p95 token-commit gap | Maximum gap |
-|---|---:|---:|---:|
-| 128 | 121.36 | 97.38 ms | 99.31 ms |
-| 256 | 138.19 | 157.33 ms | 159.04 ms |
-| 512 | 150.52 | 271.40 ms | 275.67 ms |
-
-These are native commit timestamps, not network-arrival timestamps. Long gaps
-occur while other prompts prefill. A latency-budgeted chunk policy is a next
-candidate, not an implemented adaptive scheduler.
-
-NVTX-correlated Nsight node traces attributed about **96% of prefill GPU kernel
-duration to projections**, versus about **86% of decode at concurrency eight**.
-Recurrent updates grew from about 1.3% of single-request decode kernel time to
-7.7% at concurrency eight. Prioritize quantized projection/GEMM routes, prefill
-scheduling, and then recurrent-state updates over replacing the existing paging
-mechanism. These short-context results do not settle long-context attention.
-Nsight Compute hardware counters were denied with `ERR_NVGPUCTRPERM`; recorded
-register/shared-memory limits give theoretical occupancy ceilings only, **not
-measured occupancy, DRAM utilization, or tensor-core utilization**.
-
-To reproduce on a CUDA host with the existing compatible external build:
-
-```bash
-python tools/build_qwen_runner.py --source /absolute/path/to/ninfer \
-  --build /absolute/path/to/ninfer/build \
-  --runner-source tools/csrc/qwen_concurrency_probe.cpp \
-  --output /absolute/path/to/venturi-qwen-probe
-PYTHONPATH=src python tools/benchmark_qwen_concurrency.py /absolute/path/to/model.ninfer \
-  --runner /absolute/path/to/venturi-qwen-probe \
-  --workloads benchmarks/qwen/workloads.json \
-  --output-dir /absolute/path/to/new-evidence-directory
-```
-
-Use `--only` to select named cases; `--profile --profile-node` enables optional
-Nsight graph-node traces with additional instrumentation overhead. Existing
-named evidence is never overwritten. Full traces stay on the GPU host; compact
-timings, launch geometry, consistency comparisons, retained configuration
-failures and interpretation are in `benchmarks/qwen/concurrency/manifest.json`.
-The new tools have nine passing CPU contract tests on both hosts; the full local
-suite has 268 passing tests and 51 opt-in skips. Ordinary raw comparisons matched
-all 384 tested sequences, and normal chat matched all 48 comparisons. This is
-same-backend consistency testing, not independent FP32 mathematical qualification.
-The earlier speculative numerical counterexample remains relevant.
-
-### GPU-efficiency acceptance and the current gap
-
-[`AGENTS.md`](AGENTS.md) requires relevant inference optimizations to include
-correctness, unprofiled before/after measurements and GPU diagnostics, with
-unavailable hardware counters explicitly recorded. The reusable Linux telemetry
-command is:
-
-```bash
-PYTHONPATH=src python tools/benchmark_qwen_gpu.py /absolute/path/to/model.ninfer \
-  --runner /absolute/path/to/venturi-qwen-runner \
-  --output-directory /absolute/path/to/new-report-directory
-```
-
-The current protocol-3 / blocking-wait comparison kept one C=4-capable model
-resident, with a fixed shared KV reservation of 8192 tokens. Both modes ran eight
-509-token raw prompts and 64 fixed output tokens/request, context 2048, chunk
-512, BF16 KV, CUDA Graphs, no speculation/reuse. Both modes were warmed before
-single/parallel/parallel/single measured waves. Throughput includes preparation,
-prefill and queueing, excluding startup/warmup. NVML was sampled every 200 ms;
-the first second of each wave was excluded from telemetry statistics to reduce
-coarse-sample boundary mixing.
-
-| Measurement | Single dispatch | Parallel dispatch, C=4 |
-|---|---:|---:|
-| Total output tokens/s | 46.28 | 114.95 |
-| Actual mean decode batch | 1.00 | 3.91 |
-| Native CPU utilization (100%=one logical core) | 2.17% | 2.92% |
-| NVML GPU busy time | 98.80% | 98.91% |
-| NVML memory-controller busy time | 87.97% | 68.29% |
-| Whole-device VRAM used | 16914 MiB | 16914 MiB |
-| Sampled whole-device GPU power | 414.49 W | 403.63 W |
-
-A separate `--cpu-wait auto` session repeated the same dispatch workload:
-single/parallel throughput was 46.88/116.24 tokens/s, GPU busy time
-99.95%/100.00%, native CPU use 100.26%/100.12% of one logical core. Restoring
-busy-waiting therefore recovered only about 1.3%/1.1% throughput at the cost of
-nearly a full CPU core. The earlier counterbalanced CPU comparison is the
-stronger wait-policy throughput experiment. GPU telemetry sessions were ordered
-blocking then auto, not counterbalanced across policies; their small power and
-temperature differences do not establish causal energy savings.
-
-These are whole-device, time-based samples, including the pre-existing desktop
-process. Memory-controller busy is **not bandwidth utilization**; its mode
-comparison also reflects different prefill/decode time proportions. A GPU busy
-reading near 99% does not measure SM occupancy or the fraction of peak compute
-achieved. See the [NVIDIA monitoring definitions](https://docs.nvidia.com/deploy/nvidia-smi/index.html).
-
-Separate warmed Nsight Systems node traces attributed **96.08% of prefill kernel
-time to projections** in both modes, **94.29% of single decode** and **89.81% of
-parallel decode**. Single decode's largest groups were fused Q4 SwiGLU GEMV
-(38.48%), Q4 row-split GEMV (29.38%), dual small-T MMA projections (18.42%) and
-Q8 output projection (8.01%). The next single-request kernel targets are therefore
-Q4 SwiGLU and residual/down projections, rather than another Python rewrite.
-
-Instrumented kernel-timeline coverage was 90.27%/93.21%, but node tracing increased
-wall time: those figures are **not unprofiled idle fractions or guaranteed
-speedup headroom**. Throughput above comes only from the unprofiled runs. The
-fresh Nsight Compute probe again failed with `ERR_NVGPUCTRPERM`; achieved SM
-occupancy, compute/Tensor Core utilization, DRAM GB/s, L2 hit rate and stall
-counters remain unavailable. No driver/privilege settings were changed. Launch
-resource ceilings in the trace analysis are theoretical, not measured occupancy.
-There is currently **no defensible numerical percentage of unused compute
-capacity**. See [Nsight metric definitions](https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html).
-
-Both unprofiled waves within each mode produced identical IDs; cross-mode IDs
-are not universally equal, consistent with the earlier batching counterexamples.
-Raw telemetry, complete outputs, profiler summaries, counter-denial logs and
-measurement tests are retained in
-[`benchmarks/qwen/gpu-gap`](benchmarks/qwen/gpu-gap/). Binary profiler traces remain
-on the server; model/kernel code was not changed in this diagnostic run.
-
-### Projection scheduling experiment: no promoted speedup
-
-The first GPU projection experiment targeted single-request Q4 gate/up SwiGLU,
-previously about 38.48% of decode kernel time. Eleven alternative schedules
-plus the original schedule were compiled in isolated directories on the 4090D:
-warp count, asynchronous pipeline depth, group tile size, shared/global activation
-reads and weight-copy cache policy. External sources, archives and the production
-runner were not overwritten. Replacement objects link before unchanged archives.
-
-A public-Op, rotating-weight CUDA-graph benchmark reads eight distinct matrices
-(757,596,160 aggregate storage bytes, larger than device L2), with 64 calls per
-graph, 30 warmup graphs and 50 timed graphs. Forward/reverse screening found the
-best candidate, `g8w4s3`, at about **102.46 us versus 103.01 us** for the original:
-only roughly **0.5% kernel-level gain**, not a model throughput claim. Its shared
-memory fell from 23,296 to 16,768 bytes/block and registers from 40 to 39/thread,
-but resource-only occupancy ceilings (33.3% to 50% in separate node traces) are
-not achieved occupancy measurements. The traced target-kernel duration fell
-only about 0.37%; profiler timing is not substituted for unprofiled throughput.
-More warps and cached-global activation variants did not help. The earlier
-write-flush benchmark is retained as a separate cache condition; its upstream
-`dram_spec_pct` uses another GPU's nominal peak and **must not be used here**.
-
-The selected candidate and baseline passed independent packed-weight decoding
-and FP64 SwiGLU-oracle checks at T=1/2/17/32/512, two seeds, guarded buffers,
-unchanged inputs/weights, and positive/negative graph replay at T=1/2/17. The
-existing A16 criterion was not loosened. A matched, unprofiled full-model ABBA
-comparison used the same resident mixed-precision Qwen checkpoint, BF16 KV,
-2,048 context capacity, four reserved slots, chunk 512, CUDA graphs, blocking
-CPU waits, no speculation/reuse, eight 509-token raw prompts and 64 fixed output
-tokens each. Both dispatch modes warmed before measurement in each session.
-
-| Across two sessions per variant | Original | Candidate |
-|---|---:|---:|
-| Single total output tokens/s, including prefill | 46.215 | 46.205 |
-| Parallel total output tokens/s | 114.698 | 114.609 |
-| Single native CPU, 100% = one core | 2.12% | 2.14% |
-| Parallel native CPU | 3.08% | 2.97% |
-| Sampled whole-device VRAM | 16,914 MiB | 16,914 MiB |
-
-All 128 measured output rows matched their same-mode baseline token IDs, as did
-the separate traced outputs. Four real-model regression tests passed, covering
-session reuse, mode/state isolation and BF16/K8V4 KV. The local CPU suite passed
-315 tests with 56 hardware/environment skips. Small
-timing differences are not a demonstrated speedup or regression: temperatures
-and clocks drifted during the session, and the unchanged parallel route also
-varied. GPU busy stayed around 99%; power, clocks, temperatures and raw samples
-are retained alongside the timings. Hardware-counter access remained restricted
-(`RmProfilingAdminOnly: 1`); no achieved occupancy, DRAM GB/s, cache/stall or
-compute-utilization conclusion follows. The candidate is **not promoted**.
-
-Reproduce the isolated experiment only on a CUDA host with the explicitly
-selected compatible external source/build (the source patch is hash-guarded):
-
-```bash
-python tools/projection/build_candidates.py --source /absolute/path/to/ninfer \
-  --build /absolute/path/to/ninfer/build --output /new/experiment \
-  --candidate g8w4s3
-python tools/projection/evaluate_candidate.py --manifest /new/experiment/builds.json \
-  --candidate g8w4s3 --output /new/qualification
-python tools/build_qwen_runner.py --source /absolute/path/to/ninfer \
-  --build /absolute/path/to/ninfer/build --output /new/candidate-runner \
-  --ops-object /new/experiment/g8w4s3/q4_linear_swiglu_gemv.cu.o
-```
-
-Keep the ordinary runner as the baseline; use `tools/benchmark_qwen_gpu.py`
-against both in baseline/candidate/candidate/baseline order with fresh output
-directories. Raw results and build identities are in
-[`benchmarks/qwen/projection`](benchmarks/qwen/projection/). A nominal occupancy
-increase alone does not justify a dispatch change. The next distinct target is
-the residual/down Q4 row-split GEMV, not further blind occupancy tuning.
-
-### Small Q4 residual/down projection test
-
-A follow-up tested three T=1 alternatives through the public fused `LinearAdd`
-Op at `[N,K]=[5120,6144]` and `[5120,17408]`. Two schedules redistribute scalar
-byte decoding over two rows/four warps or four rows/two warps. The best applies
-the existing packed-word decoding strategy with **four rows/block and one
-warp/row**, instead of one row/block and eight warps/row. The stored Q4 weights,
-BF16 activation/output precision and residual-add formula are unchanged, but
-the floating-point reduction order is different.
-
-The read-heavy, larger-than-L2 public-Op screen measured the down projection at
-about **59.9 to 52.2 us (13% lower kernel time)**; the K=6144 projection was
-essentially unchanged. Both scalar multi-row alternatives made K=6144 slower.
-All schedules passed the independent FP64 oracle with the existing A16 error
-criterion, full-output checks at T=1/2 with two seeds, guarded buffers, input and
-weight preservation, zero/restored-input graph replay, and unaffected-route
-regression checks. The original archive was also timed without an override.
-
-The same matched full-model ABBA workload described above then measured:
-
-| Unprofiled measurement | Original | Packed-word candidate |
-|---|---:|---:|
-| Single total output tokens/s, including prefill | 46.221 | 46.960 |
-| Single median 63-token decode time | 1.1232 s | 1.1013 s |
-| Parallel total output tokens/s | 114.657 | 114.901 |
-| Single native CPU, 100% = one core | 2.19% | 2.16% |
-| Single sampled GPU busy | 98.8% | 99.0% |
-| Whole-device VRAM | 16,914 MiB | 16,914 MiB |
-
-This is an observed **1.60% single-request total-throughput improvement** in a
-small short-context test, not a universal performance guarantee. The parallel
-difference is too small to claim a benefit. Single-mode sampled power averaged
-about 418/398 W; these coarse whole-device samples do not establish causal
-energy savings. Achieved occupancy and DRAM/cache/stall counters remain blocked.
-Separate node tracing confirmed the changed kernel and lower target duration;
-its timing is not substituted for unprofiled throughput.
-
-**The candidate is not promoted.** One of eight serial prompts changed its
-greedy continuation at generated token 24, consistently across repetitions.
-The wording differs slightly; this was not a measured logit-margin or broad
-accuracy evaluation. Parallel outputs matched the same-mode baseline, and
-each mode remained repeatable within each candidate session. Four real-model
-regression tests passed, including state reuse and BF16/K8V4 mode switching;
-the local CPU suite passed 317 tests with 56 environment/hardware skips.
-Passing an Op error criterion does not guarantee identical autoregressive text.
-Broader quality checks are needed before enabling this non-bit-identical route.
-
-Run `tools/projection/test_rowsplit.py --source /absolute/path/to/ninfer
---build /absolute/path/to/ninfer/build --output /new/rowsplit-experiment` on the
-CUDA server to reproduce the isolated source-hash-guarded build, independent
-oracle checks and finite synthetic screen. The experimental runner uses the
-existing explicit `--ops-object` build option and can be selected with
-`--runner`; the default runner and all external archives remain unchanged.
-Results, counterexamples, build commands and GPU samples are retained in
-[`benchmarks/qwen/rowsplit-small`](benchmarks/qwen/rowsplit-small/).
-
-### Controlled block-size ablation
-
-For the experimental vectorized Q4 `LinearAdd` kernel, a separate ablation
-changed **only rows/block: 2, 4, or 8**, giving 64, 128, or 256 threads/block.
-Each row retained one warp, the same packed-word decode, pipeline, cache policy,
-lane ownership and reduction order. This is not a comparison against the older
-scalar kernel and does not select a global block size for other Ops.
-
-| Threads/block | K=6144 kernel us | K=17408 kernel us | Single total tokens/s | Parallel total tokens/s |
-|---|---:|---:|---:|---:|
-| 64 | 19.568 | 52.216 | 46.932 | 114.728 |
-| **128** | **19.487** | **52.176** | **46.960** | **114.817** |
-| 256 | 19.504 | 52.320 | 46.869 | 114.455 |
-
-Kernel columns are medians of unprofiled synthetic run medians. Full-model
-columns use the same short-context workload above, two warmed sessions per
-size, ordered **128/64/256/256/64/128**. The single-request differences versus
-128 are only -0.06% and -0.20%; clocks and temperature drifted. These observations
-support **retaining 128 as a reasonable experimental setting**, not a claim of
-a statistically established or universal optimum.
-
-All three passed the independent FP64 oracle/guard/replay checks. Supplemental
-full-output snapshots matched bit-for-bit across both K values and two seeds;
-all **192 measured generation rows** matched the same-mode 128-thread reference.
-The CPU suite passed 320 tests with 56 environment/hardware skips. Native CPU
-stayed around 2.1-2.2% of one core in single mode; sampled GPU busy stayed around
-99% and whole-device VRAM at 16,914 MiB. Raw CPU, power, clocks and temperatures
-are retained with each run; small telemetry differences are not causal energy
-or CPU-efficiency claims.
-
-Separate public-Op node traces verified 2,560/1,280/640 grid blocks, 40 registers
-per thread, and 1,088/2,176/4,352 shared bytes/block. Resource-only resident-block
-ceilings are 24/12/6 per SM, giving the same 100% resource-only thread ceiling.
-The finite grid supplies another theoretical whole-device ceiling of about
-93.6%. **Neither ceiling is achieved occupancy**, which remains unavailable
-under the existing counter-access restriction. Traced timings are not model TPS.
-
-Reproduce with `tools/projection/test_rowsplit.py --suite block-size` and the
-same explicit source/build/output arguments above. The previous vectorized
-candidate's greedy divergence from the original scalar implementation remains;
-this ablation adds no observed output differences but does not resolve that
-quality question. Production is unchanged. Evidence is in
-[`benchmarks/qwen/rowsplit-blocks`](benchmarks/qwen/rowsplit-blocks/).
-
-### Prefill GEMM tile/pipeline experiment
-
-The next experiment targeted the Q4 fused `LinearAdd` GEMM responsible for about
-34.1% of the original 509-token prefill trace. It compared the existing 64x128
-tile against a different warp mapping, a 64x64 tile with two stages, and that
-smaller tile with three stages. No weights, activation precision, KV precision,
-decode kernels, or prefill chunk size were changed.
-
-The result was **shape-dependent**. At T=509 the two-stage 64x64 tile reduced
-synthetic Op time by about 14%, but at full T=512 it was about 13% slower. The
-other warp mapping and deeper pipeline did not provide a general improvement.
-Follow-up tests also found regressions at aligned T=320/384/448; nearby partial
-tiles improved. A selective experimental dispatch therefore uses the smaller
-tile only for **192<T<512 and (T<=256 or T%64!=0)**, preserving the existing
-routes otherwise. This is an Op-local scheduling choice, not a model-specific
-math or precision change.
-
-A matched original/selective/selective/original comparison measured:
-
-| Raw prompt tokens | Original median prefill | Selective median prefill | Observed reduction |
-|---|---:|---:|---:|
-| 128 | 79.6 ms | 79.6 ms | Unchanged |
-| 509 | 258.4 ms | 249.6 ms | **3.4%** |
-| 1,021 | 510.9 ms | 504.0 ms | **1.4%** |
-| 2,048 | 1,017.9 ms | 1,018.2 ms | Unchanged |
-| 8,192 | 4,158.4 ms | 4,161.0 ms | Unchanged |
-
-Each resident session warmed all lengths, then measured three repetitions with
-ascending/descending/ascending length order, 16 fixed output tokens, C=1,
-context capacity 16,384, BF16 KV, chunk 512, CUDA graphs, blocking CPU waits,
-and no speculation or prefix reuse. Prefill and internal native first-token
-timestamps exclude loading/tokenization/warmup; the synchronous RPC does not
-measure streamed client time-to-first-byte. Long prompts made of full chunks
-showed no meaningful benefit, and small control differences are not regressions.
-
-All initial variants and the selective route passed the unchanged fused A16
-FP64 criterion: independent packed decode, a full-output dense oracle at T=193,
-two seeds across full/sampled cases, full/tail and selector-boundary probes,
-guarded buffers, input/weight preservation and zero/restored-input graph replay.
-All **60 measured continuations matched the original runner**, with repeatable
-state reuse. This is limited deterministic evidence, not a broad quality claim.
-
-Separate public-Op node traces confirmed the partial route's registers fell
-from 154 to 96/thread and shared memory from 45,568 to 29,184 bytes/block.
-The resource-only occupancy ceiling rose from 16.7% to 25%; **achieved occupancy
-is still unavailable** under the existing counter restriction. Full T=512
-retained the original 147-register/45,568-byte kernel. These instrumented traces
-are not used as model speed measurements. Whole-device GPU busy was about 99%,
-VRAM 16,964 MiB in both cases, and native CPU about 3.4% of one core across the
-mixed-length measured generation phase. Power/clocks/temperature samples are
-retained; they do not establish causal energy savings.
-
-Reproduce isolated operator tests with `tools/projection/test_rowsplit.py
---suite prefill` or `--suite prefill-selective` and explicit source/build/new
-output paths. `tools/benchmark_qwen_prefill.py CHECKPOINT --runner RUNNER
---output-directory NEW_DIRECTORY` runs the end-to-end latency workload.
-**Production remains unchanged**; the selective runner is a tested experiment
-and is not combined with the earlier non-bit-identical decode candidate.
-Evidence and commands are in
-[`benchmarks/qwen/prefill-tiles`](benchmarks/qwen/prefill-tiles/).
-
-### Full-chunk GEMM ablation: retain the original tile
-
-A separate 4090D experiment tested a **128-output-channel x 64-token** tile
-against the existing **64 x 128** tile for the same fused Q4 LinearAdd Op.
-Two warp layouts used 256 or 128 threads per block, respectively. The wide-T
-schedule alone changed; decode, packed weights, activation/KV precision,
-residual mathematics and external archives were unchanged.
-
-Both new layouts passed independent FP64 qualification: dense full-output
-T=512 at K=6144/17408, additional sampled tile/route boundaries through T=1024,
-guard/input/weight checks and zero/restored-input graph replay. Neither was
-faster. The unprofiled public-Op screen at T=512 measured:
-
-| Projection | Original 64 x 128 | 128 x 64, 256 threads | 128 x 64, 128 threads |
-|---|---:|---:|---:|
-| K=6144 | 326.1 us | 373.4 us | 382.7 us |
-| K=17408 | 902.8 us | 1040.9 us | 1063.3 us |
-
-The better full-chunk candidate (256 threads) was also compared against the
-ordinary production runner in baseline/candidate/candidate/baseline order.
-Each resident session warmed all six exact token-ID prompt lengths, then ran
-three repetitions per length, with 16 generated tokens and EOS ignored.
-C1, context/KV capacity 16384, BF16 KV, chunk 512, CUDA graphs, blocking CPU
-wait, and no speculation or prefix reuse were fixed. Loading and warmup were
-excluded. Median **native prefill**, not streamed client TTFB, was:
-
-| Prompt tokens | Original | Candidate | Latency increase |
-|---|---:|---:|---:|
-| 128 (unchanged-route control) | 79.55 ms | 79.48 ms | approximately unchanged |
-| 509 | 257.87 ms | 283.39 ms | 9.90% |
-| 512 | 252.97 ms | 263.53 ms | 4.17% |
-| 1021 | 510.80 ms | 546.26 ms | 6.94% |
-| 2048 | 1016.36 ms | 1060.91 ms | 4.38% |
-| 8192 | 4152.67 ms | 4333.87 ms | 4.36% |
-
-All 72 measured continuations matched their same-length original token IDs;
-state replay matched each session's warmup. This small fixture set is not broad
-quality validation. Separate public-Op node traces confirmed 147 to 84
-registers/thread and 45,568 to 41,984 shared bytes/block for the 256-thread
-layout. Its resource-only thread occupancy ceiling increased from 16.7% to
-33.3%, **yet execution became slower**. Those ceilings are not achieved
-occupancy. The larger row tile also changes weight-staging/dequantization
-reuse; hardware counters remain restricted, so a precise stall/bandwidth cause
-is not established.
-
-Across the mixed-length measured prefill-plus-decode phases, whole-device GPU
-busy averaged 97.6/97.9%, VRAM was 16,964 MiB for both, sampled power averaged
-416.4/415.8 W, SM clocks 2740.7/2740.0 MHz, and temperatures 60.9/61.4 C.
-Native CPU averaged 3.43/3.57% (100% means one core).
-Raw CPU time, client wall, native prefill throughput and telemetry are retained
-separately. These samples do not establish energy savings. Achieved occupancy,
-DRAM bandwidth and compute/cache/stall counters remain unavailable under
-`RmProfilingAdminOnly: 1`; no privileges or clocks were changed.
-
-**Both new schedules are rejected; production and the earlier selective
-candidate remain unchanged.** Reproduce the operator ablation with
-`tools/projection/test_rowsplit.py --suite prefill-full` and explicit
-source/build/new output paths on the CUDA host. Commands, raw results,
-qualification logs and the aggregate are in
-[`benchmarks/qwen/prefill-full`](benchmarks/qwen/prefill-full/).
-
-### Long-context KV retrieval screen
-
-The same quantized Qwen checkpoint completed **near-256K prompts on the 4090D**
-using the existing native K8V4 route, without weight changes, CPU KV offload,
-speculative decoding, or prefix reuse. Two seeded synthetic registries per
-length contain three exact tags around 5%, 50%, and 95% of the input, plus a
-requested project absent from the registry. An independent string oracle grades
-the returned JSON. This is a small retrieval screen, not a broad quality claim.
-
-| Context capacity | K8V4 KV payload | Mean observed prefill | Observed decode | Checks passed |
-|---|---:|---:|---:|---:|
-| 2,048 | 0.049 GiB | 0.94 s | 57.1 tokens/s | 8/8 |
-| 16,384 | 0.393 GiB | 8.33 s | 55.3 tokens/s | 8/8 |
-| 65,536 | 1.570 GiB | 39.05 s | 51.5 tokens/s | 8/8 |
-| 131,072 | 3.141 GiB | 92.16 s | 47.0 tokens/s | 8/8 |
-| 262,144 | 6.281 GiB | 240.79 s | 40.1 tokens/s | 8/8 |
-
-Each row has six exact-tag checks and two missing-key checks across two
-documents, not eight independently generated documents. Actual prompts at the
-largest capacity contained **261,892 and 261,885 tokens**, including the chat
-template; output is part of the same 262,144-token context budget. Sampled
-whole-device peak VRAM was **21.85 GiB**, including desktop/context allocations.
-The 256K configuration therefore fits this workload, but initially reading the
-document takes about **four minutes**. Decode speed excludes that initial wait.
-
-BF16 KV was also tested at 2K/16K/64K. All six paired documents produced identical
-greedy token sequences and passed their exact-answer checks. At 64K, BF16 KV
-reserved 4 GiB versus 1.57 GiB for K8V4. There is **no BF16 reference at 128K or
-256K**. These results do not prove unchanged general long-context reasoning,
-coding, or factual quality, and do not invalidate the earlier prose divergence.
-The K8V4 route can change attention arithmetic as well as cache storage.
-
-One short warmup precedes each engine's two different long documents; reported
-latencies can include lazy graph capture and are not a steady-state throughput
-benchmark. Prefix reuse is disabled, so each document is fully recomputed.
-No runtime defaults or CUDA kernels were changed for this screen.
-
-Reproduce on the CUDA host with an existing checkpoint and native runner:
-
-```bash
-PYTHONPATH=src python tools/validate_qwen_long_context.py /absolute/path/to/model.ninfer \
-  --runner /absolute/path/to/venturi-qwen-runner \
-  --output-dir /absolute/path/to/new-long-context-results
-```
-
-For application use, configure `QwenNativeSession` with `max_context=262144`,
-`kv_dtype="k8v4"`, `prefill_chunk=512`, and a suitable request timeout (the screen
-uses 1,800 seconds). Read large document text from a file in Python; avoid passing
-megabyte-sized prompts as shell arguments. Keep prompt, chat-template, and output
-tokens within the context limit. Full generated documents remain on the GPU host;
-the generator, expected answers, token offsets, hashes, raw responses, and compact
-memory/timing evidence are retained in `benchmarks/qwen/long-context/`.
+The library must be built and qualified separately for the target architecture.
+NInfer here is an **artifact format**, not a linked external model engine. This
+command does not make unsupported model families or checkpoint layouts runnable.
+It preserves explicit residency, precision, state and capacity requirements.
+See [the architecture contract](docs/architecture.md) and the retained native Q8
+milestones below. No production service was switched by this repository change.
 
 ## Text generation: first complete model adapter
 
@@ -3555,3 +2654,11 @@ original production service was restored, not replaced with this prototype.
 
 See the [configuration and limitations guide](docs/vram-first-kv.md) and the
 [correctness, timing and GPU evidence](benchmarks/v100-vram-first-kv/README.md).
+
+### Experimental native continuous scheduling
+
+An opt-in decode-step owner supports immediate request completion/slot reuse and
+bounded chunked prefill on the qualified native Qwen Q8 path. The measured path
+uses explicit immutable loaded metadata (`metadata_mode="sealed"`); existing
+scalar/cohort/MTP defaults and production routing remain unchanged. See
+[continuous batching, qualification results and limits](docs/continuous-batching.md).

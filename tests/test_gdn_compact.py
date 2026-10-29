@@ -183,8 +183,8 @@ def test_explicit_backend_and_missing_export_preflight():
     with pytest.raises(ValueError, match="explicit native"):
         prepare_gdn_compact(TorchBackend(), tokens=1, qk_heads=2, value_heads=4)
     b = SimpleNamespace(
-        name="venturi-blocks-cuda",
-        _device=lambda *a: torch.device("cuda:0"),
+        execution_kind="native-cuda",
+        validate_device=lambda *a: torch.device("cuda:0"),
         _native=SimpleNamespace(),
     )
     with pytest.raises(RuntimeError, match="export absent"):

@@ -5,7 +5,8 @@ from dataclasses import asdict
 import json
 from pathlib import Path
 
-from .generation import LocalTokenizer, generate_text, generate_tokens
+from .generation import generate_text, generate_tokens
+from .text import LocalTokenizer
 from .loader import load_checkpoint
 from .models.llama import LlamaWeights
 from .ops import CudaBackend, TorchBackend

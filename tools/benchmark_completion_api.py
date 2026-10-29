@@ -38,11 +38,17 @@ def summarize(waves):
         row = dict(request_count=count,trials=len(rows),mean_cohort_wall_seconds=wall,aggregate_complete_request_output_tps=next(iter(emitted))/wall,mean_server_cpu_core_seconds=statistics.mean(w["server_cpu_core_seconds"] for w in rows),mean_client_completion_seconds=statistics.mean(q["client_completion_seconds"] for w in rows for q in w["requests"]),max_client_completion_seconds=max(q["client_completion_seconds"] for w in rows for q in w["requests"]))
         if count == 1:
             responses = [w["requests"][0]["response"] for w in rows]
-            if all("native_timings" in r for r in responses):
+            if all(isinstance(r.get("native_timings"), dict) for r in responses):
                 times = [r["native_timings"] for r in responses]
                 row["native_single_post_first_tps"] = (next(iter(emitted))-1)/statistics.mean(t["native_generation_seconds"]-t["native_time_to_first_token_seconds"] for t in times)
             # llama.cpp timings follow its own accounting, not a client TTFT.
             row["engine_reported_timings"] = [r.get("timings", r.get("native_timings")) for r in responses]
+        responses = [q["response"] for w in rows for q in w["requests"]]
+        if all(isinstance(r.get("scheduler_timings"), dict) for r in responses):
+            times = [r["scheduler_timings"] for r in responses]
+            row["mean_scheduler_token_availability_ttft_seconds"] = statistics.mean(t["time_to_first_token_seconds"] for t in times)
+            row["max_scheduler_inter_token_seconds"] = max(t["max_inter_token_seconds"] for t in times)
+            row["scheduler_timing_scope"] = "Per-request submission to native token availability; includes queue/scheduling, not HTTP streaming/native-only timing"
         output.append(row)
     return output
 

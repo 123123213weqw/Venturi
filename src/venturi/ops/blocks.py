@@ -18,6 +18,7 @@ import torch
 from torch.nn import functional as F
 
 from .ada import _overlaps
+from .backend import Backend, BackendCapabilities, OperatorSupport
 from .weights import DenseWeight, Q4RowSplitWeight, Q8RowSplitWeight
 
 
@@ -97,8 +98,8 @@ class ResidentLinear:
 
     def prepare(self, *, tokens):
         _shape(tokens, self.in_features)
-        self._backend._device(self.dtype, self.device)
-        return self._backend._bind_linear(self, tokens)
+        self._backend.validate_device(self.dtype, self.device)
+        return self._backend.bind_linear(self, tokens=tokens)
 
 
 def _upload_fp32_linear(backend, weight, *, dtype, device):
@@ -111,13 +112,13 @@ def _upload_fp32_linear(backend, weight, *, dtype, device):
         raise ValueError(
             "FP32-parameter Linear requires explicit FP16/BF16 activations"
         )
-    target = backend._device(dtype, device)
+    target = backend.validate_device(dtype, device)
     owned = weight.data.detach().to(target, copy=True)
     if not bool(torch.isfinite(owned).all()):
         raise ValueError("FP32 Linear weights must be finite")
     if target.type == "cuda":
         torch.cuda.current_stream(target).synchronize()
-    payload = (owned, False) if backend.name == "torch-reference" else owned
+    payload = (owned, False) if backend.execution_kind == "torch" else owned
     return ResidentLinear(
         backend,
         payload,
@@ -156,14 +157,179 @@ class ResidentRMSNorm:
 
     def prepare(self, *, tokens):
         _shape(tokens, self.features)
-        self._backend._device(self.dtype, self.device)
-        return self._backend._bind_rmsnorm(self, tokens)
+        self._backend.validate_device(self.dtype, self.device)
+        return self._backend.bind_rmsnorm(self, tokens=tokens)
 
 
-class CudaBackend:
+def _block_capabilities(*, reference, architecture=None, q4=False):
+    devices = frozenset(("cpu", "cuda") if reference else ("cuda",))
+    dtypes = frozenset(
+        (torch.float16, torch.bfloat16, torch.float32, torch.float64)
+        if reference
+        else (
+            (torch.float16, torch.float32)
+            if architecture == 70
+            else (torch.float16, torch.bfloat16, torch.float32)
+        )
+    )
+    operators = [
+        OperatorSupport(op, devices, dtypes)
+        for op in ("rmsnorm", "swiglu", "add", "rope", "attention")
+    ]
+    operators.append(OperatorSupport("linear", devices, dtypes, "dense"))
+    operators.append(OperatorSupport("embedding", devices, dtypes, "dense"))
+    quant_dtypes = dtypes if reference else dtypes & {torch.float16, torch.bfloat16}
+    operators.append(
+        OperatorSupport(
+            "linear",
+            devices,
+            quant_dtypes,
+            "q8_g32_fp16",
+            "row_split_k128_v1",
+            materializes_weights=reference,
+        )
+    )
+    operators.append(
+        OperatorSupport(
+            "embedding",
+            devices,
+            quant_dtypes,
+            "q8_g32_fp16",
+            "row_split_k128_v1",
+            materializes_weights=reference,
+        )
+    )
+    if reference or (q4 and architecture == 89):
+        operators.append(
+            OperatorSupport(
+                "linear",
+                devices,
+                quant_dtypes,
+                "q4_g64_fp16",
+                "row_split_k128_v1",
+                materializes_weights=reference,
+            )
+        )
+    return BackendCapabilities(
+        "torch-reference" if reference else f"venturi-blocks-sm{architecture}",
+        tuple(operators),
+        reference=reference,
+        cuda_graphs=not reference,
+    )
+
+
+class _SharedPreparedBackend(Backend):
+    """Existing Torch/CUDA adapters only; new backends implement Backend directly.
+
+    Common setup and extension entry points live here, not in model adapters.
+    Legacy private aliases remain for callers outside this module.
+    """
+
+    def _device(self, dtype, device):
+        return self.validate_device(dtype, device)
+
+    def _bind_linear(self, resident, tokens):
+        return self.bind_linear(resident, tokens=tokens)
+
+    def _bind_rmsnorm(self, resident, tokens):
+        return self.bind_rmsnorm(resident, tokens=tokens)
+
+    def empty(self, shape, *, dtype, device):
+        if not isinstance(shape, (list, tuple)) or any(
+            type(d) is not int or not 0 <= d < 2**31 for d in shape
+        ):
+            raise ValueError("Allocation shape must contain nonnegative int32 extents")
+        if not isinstance(dtype, torch.dtype):
+            raise TypeError("Allocation requires an explicit torch.dtype")
+        if dtype.is_complex:
+            raise ValueError("Backend buffers do not support complex dtypes")
+        target = (
+            self.validate_device(dtype, device)
+            if dtype.is_floating_point
+            else self.resolve_device(device)
+        )
+        return torch.empty(tuple(shape), dtype=dtype, device=target)
+
+    def synchronize(self, device):
+        target = self.resolve_device(device)
+        if target.type == "cuda":
+            torch.cuda.synchronize(target)
+
+    def upload_fp32_linear(self, weight, *, dtype, device):
+        """Explicit FP32 parameter / FP16 or BF16 activation path, no weight cast."""
+        return _upload_fp32_linear(self, weight, dtype=dtype, device=device)
+
+    def prepare_linear(self, weight, *, tokens, dtype, device):
+        _shape(tokens, 1)
+        return self.upload_linear(weight, dtype=dtype, device=device).prepare(
+            tokens=tokens
+        )
+
+    def prepare_rmsnorm(self, weight, *, tokens, dtype, device, epsilon):
+        _shape(tokens, 1)
+        return self.upload_rmsnorm(
+            weight, dtype=dtype, device=device, epsilon=epsilon
+        ).prepare(tokens=tokens)
+
+    def upload_causal_conv(self, weight, **configuration):
+        from .state_space import upload_causal_conv
+
+        return upload_causal_conv(self, weight, **configuration)
+
+    def upload_gdn_gates(self, a_log, dt_bias, **configuration):
+        from .state_space import upload_gdn_gates
+
+        return upload_gdn_gates(self, a_log, dt_bias, **configuration)
+
+    def upload_gated_rmsnorm(self, weight, **configuration):
+        from .state_space import upload_gated_rmsnorm
+
+        return upload_gated_rmsnorm(self, weight, **configuration)
+
+    def upload_zero_centered_rmsnorm(self, weight, **configuration):
+        from .state_space import upload_zero_centered_rmsnorm
+
+        return upload_zero_centered_rmsnorm(self, weight, **configuration)
+
+    def prepare_gdn(self, **configuration):
+        from .gdn import prepare_gdn
+
+        return prepare_gdn(self, **configuration)
+
+    def upload_qwen_qk_norm(self, query_weight, key_weight, **configuration):
+        from .qwen_attention import upload_qwen_qk_norm
+
+        return upload_qwen_qk_norm(self, query_weight, key_weight, **configuration)
+
+    def prepare_qwen_output_gate(self, **configuration):
+        from .qwen_attention import prepare_qwen_output_gate
+
+        return prepare_qwen_output_gate(self, **configuration)
+
+    def prepare_rope(self, **configuration):
+        from .attention import prepare_rope
+
+        return prepare_rope(self, **configuration)
+
+    def prepare_attention(self, **configuration):
+        from .attention import prepare_attention
+
+        return prepare_attention(self, **configuration)
+
+
+class CudaBackend(_SharedPreparedBackend):
     """Explicit architecture-tagged native library; loading never builds a model."""
 
     name = "venturi-blocks-cuda"
+    execution_kind = "native-cuda"
+
+    @property
+    def capabilities(self):
+        return _block_capabilities(
+            reference=False,
+            architecture=self.architecture,
+            q4=self.q4_backend is not None,
+        )
 
     def __init__(self, library, *, q4_backend=None):
         self.library = Path(library).expanduser().resolve(strict=True)
@@ -275,9 +441,15 @@ class CudaBackend:
                 self._native.venturi_blocks_error().decode("utf-8", "replace")
             )
 
-    def _device(self, dtype, device):
+    def validate_device(self, dtype, device):
         if dtype not in _DTYPES:
             raise ValueError("Native blocks require FP16, BF16 or FP32")
+        target = self.resolve_device(device)
+        if self.architecture == 70 and dtype == torch.bfloat16:
+            raise ValueError("SM70 requires FP16 or FP32, not native BF16")
+        return target
+
+    def resolve_device(self, device):
         target = torch.device(device)
         if target.type != "cuda":
             raise ValueError("CudaBackend requires an explicit CUDA device")
@@ -290,13 +462,7 @@ class CudaBackend:
                 raise ValueError(
                     f"Blocks library requires SM{self.architecture}; select a matching explicit build"
                 )
-            if self.architecture == 70 and dtype == torch.bfloat16:
-                raise ValueError("SM70 requires FP16 or FP32, not native BF16")
         return target
-
-    def upload_fp32_linear(self, weight, *, dtype, device):
-        """Explicit FP32 parameter / FP16 or BF16 activation path, no weight cast."""
-        return _upload_fp32_linear(self, weight, dtype=dtype, device=device)
 
     def upload_linear(self, weight, *, dtype, device):
         if not isinstance(weight, (DenseWeight, Q4RowSplitWeight, Q8RowSplitWeight)):
@@ -304,7 +470,7 @@ class CudaBackend:
                 "Linear requires explicit DenseWeight, Q4RowSplitWeight or Q8RowSplitWeight"
             )
         weight.validate()
-        target = self._device(dtype, device)
+        target = self.validate_device(dtype, device)
         if isinstance(weight, Q8RowSplitWeight):
             from .vocabulary import Q8VocabularyWeights
 
@@ -356,7 +522,10 @@ class CudaBackend:
             weight.out_features,
         )
 
-    def _bind_linear(self, resident, tokens):
+    def bind_linear(self, resident, *, tokens):
+        _shape(tokens, 1)
+        if resident._backend is not self:
+            raise ValueError("Resident weight belongs to a different backend instance")
         from .vocabulary import ResidentQ8Vocabulary
 
         if isinstance(resident._payload, ResidentQ8Vocabulary):
@@ -378,12 +547,6 @@ class CudaBackend:
                 self._check(-1)
         return _DenseLinear(self, resident._payload, tokens, handle)
 
-    def prepare_linear(self, weight, *, tokens, dtype, device):
-        _shape(tokens, 1)
-        return self.upload_linear(weight, dtype=dtype, device=device).prepare(
-            tokens=tokens
-        )
-
     def upload_rmsnorm(self, weight, *, dtype, device, epsilon):
         if (
             not isinstance(weight, torch.Tensor)
@@ -393,7 +556,7 @@ class CudaBackend:
             raise ValueError("RMSNorm weight must be a floating-point vector")
         _shape(1, weight.numel())
         epsilon = _epsilon(epsilon)
-        target = self._device(dtype, device)
+        target = self.validate_device(dtype, device)
         with torch.cuda.device(target):
             owned = (
                 weight.detach()
@@ -405,70 +568,30 @@ class CudaBackend:
             torch.cuda.current_stream(target).synchronize()
         return ResidentRMSNorm(self, owned, dtype, epsilon)
 
-    def _bind_rmsnorm(self, resident, tokens):
+    def bind_rmsnorm(self, resident, *, tokens):
+        _shape(tokens, 1)
+        if resident._backend is not self:
+            raise ValueError("Resident weight belongs to a different backend instance")
         return _RMSNorm(
             self, resident._weight, tokens, resident.dtype, resident.epsilon
         )
 
-    def prepare_rmsnorm(self, weight, *, tokens, dtype, device, epsilon):
-        _shape(tokens, 1)
-        return self.upload_rmsnorm(
-            weight, dtype=dtype, device=device, epsilon=epsilon
-        ).prepare(tokens=tokens)
-
-    def upload_causal_conv(self, weight, **configuration):
-        from .state_space import upload_causal_conv
-
-        return upload_causal_conv(self, weight, **configuration)
-
-    def upload_gdn_gates(self, a_log, dt_bias, **configuration):
-        from .state_space import upload_gdn_gates
-
-        return upload_gdn_gates(self, a_log, dt_bias, **configuration)
-
-    def upload_gated_rmsnorm(self, weight, **configuration):
-        from .state_space import upload_gated_rmsnorm
-
-        return upload_gated_rmsnorm(self, weight, **configuration)
-
-    def upload_zero_centered_rmsnorm(self, weight, **configuration):
-        from .state_space import upload_zero_centered_rmsnorm
-
-        return upload_zero_centered_rmsnorm(self, weight, **configuration)
-
-    def prepare_gdn(self, **configuration):
-        from .gdn import prepare_gdn
-
-        return prepare_gdn(self, **configuration)
-
-    def upload_qwen_qk_norm(self, query_weight, key_weight, **configuration):
-        from .qwen_attention import upload_qwen_qk_norm
-
-        return upload_qwen_qk_norm(self, query_weight, key_weight, **configuration)
-
-    def prepare_qwen_output_gate(self, **configuration):
-        from .qwen_attention import prepare_qwen_output_gate
-
-        return prepare_qwen_output_gate(self, **configuration)
-
-    def prepare_rope(self, **configuration):
-        from .attention import prepare_rope
-
-        return prepare_rope(self, **configuration)
-
-    def prepare_attention(self, **configuration):
-        from .attention import prepare_attention
-
-        return prepare_attention(self, **configuration)
-
     def prepare_swiglu(self, *, tokens, features, dtype, device):
         return _Elementwise(
-            self, _shape(tokens, features), dtype, self._device(dtype, device), True
+            self,
+            _shape(tokens, features),
+            dtype,
+            self.validate_device(dtype, device),
+            True,
         )
 
     def prepare_add(self, *, tokens, features, dtype, device):
         return _Elementwise(
-            self, _shape(tokens, features), dtype, self._device(dtype, device), False
+            self,
+            _shape(tokens, features),
+            dtype,
+            self.validate_device(dtype, device),
+            False,
         )
 
 
@@ -488,7 +611,7 @@ class _FP32WeightLinear:
     def route(self):
         return (
             "torch-fp32-weight-reference"
-            if self.resident._backend.name == "torch-reference"
+            if self.resident._backend.execution_kind == "torch"
             else "venturi-fp32-weight-direct"
         )
 
@@ -528,7 +651,7 @@ class _FP32WeightLinear:
         _tensor(x, (self.tokens, r.in_features), r.dtype, r.device, "x")
         _tensor(out, (self.tokens, r.out_features), r.dtype, r.device, "out")
         _no_overlap(out, (x, weight))
-        if r._backend.name == "torch-reference":
+        if r._backend.execution_kind == "torch":
             out.copy_((x.float() @ weight.T).to(r.dtype))
         else:
             with torch.cuda.device(r.device):
@@ -748,17 +871,25 @@ class _Elementwise:
         return out
 
 
-class TorchBackend:
+class TorchBackend(_SharedPreparedBackend):
     """Explicit CPU/CUDA reference. Uses PyTorch and allocates intermediates."""
 
     name = "torch-reference"
+    execution_kind = "torch"
+    capabilities = _block_capabilities(reference=True)
 
-    def _device(self, dtype, device):
+    def validate_device(self, dtype, device):
         if dtype not in (*_DTYPES, torch.float64):
             raise ValueError("Reference operators require floating-point activations")
+        return self.resolve_device(device)
+
+    def resolve_device(self, device):
         target = torch.device(device)
         if target.type not in ("cpu", "cuda"):
             raise ValueError("Reference operators require CPU/CUDA")
+        if target.type == "cpu":
+            # PyTorch CPU tensors do not retain a parsed cpu:N index.
+            return torch.device("cpu")
         if target.type == "cuda":
             with torch.cuda.device(target):
                 if torch.cuda.is_current_stream_capturing():
@@ -768,17 +899,13 @@ class TorchBackend:
                 target = torch.device("cuda", torch.cuda.current_device())
         return target
 
-    def upload_fp32_linear(self, weight, *, dtype, device):
-        """Explicit FP32 parameter / FP16 or BF16 activation path, no weight cast."""
-        return _upload_fp32_linear(self, weight, dtype=dtype, device=device)
-
     def upload_linear(self, weight, *, dtype, device):
         if not isinstance(weight, (DenseWeight, Q4RowSplitWeight, Q8RowSplitWeight)):
             raise TypeError(
                 "Linear requires explicit DenseWeight, Q4RowSplitWeight or Q8RowSplitWeight"
             )
         weight.validate()
-        device = self._device(dtype, device)
+        device = self.validate_device(dtype, device)
         if isinstance(weight, DenseWeight):
             if dtype != weight.data.dtype:
                 raise ValueError(
@@ -812,7 +939,10 @@ class TorchBackend:
             weight.out_features,
         )
 
-    def _bind_linear(self, resident, tokens):
+    def bind_linear(self, resident, *, tokens):
+        _shape(tokens, 1)
+        if resident._backend is not self:
+            raise ValueError("Resident weight belongs to a different backend instance")
         data, quantized = resident._payload
         if not quantized and data.dtype != resident.dtype:
             return _FP32WeightLinear(resident, tokens)
@@ -820,12 +950,6 @@ class TorchBackend:
             _TorchQuantizedLinear(data, tokens, resident.dtype, quantized)
             if quantized
             else _TorchLinear(data, tokens)
-        )
-
-    def prepare_linear(self, weight, *, tokens, dtype, device):
-        _shape(tokens, 1)
-        return self.upload_linear(weight, dtype=dtype, device=device).prepare(
-            tokens=tokens
         )
 
     def upload_rmsnorm(self, weight, *, dtype, device, epsilon):
@@ -836,7 +960,7 @@ class TorchBackend:
         ):
             raise ValueError("RMSNorm weight must be a floating-point vector")
         _shape(1, weight.numel())
-        device = self._device(dtype, device)
+        device = self.validate_device(dtype, device)
         # Match native norm storage precision; FP64 is an explicit reference mode.
         work_dtype = torch.float64 if dtype == torch.float64 else torch.float32
         owned = (
@@ -848,68 +972,20 @@ class TorchBackend:
             torch.cuda.current_stream(device).synchronize()
         return ResidentRMSNorm(self, owned, dtype, _epsilon(epsilon))
 
-    def _bind_rmsnorm(self, resident, tokens):
-        return _TorchRMS(resident._weight, tokens, resident.dtype, resident.epsilon)
-
-    def prepare_rmsnorm(self, weight, *, tokens, dtype, device, epsilon):
+    def bind_rmsnorm(self, resident, *, tokens):
         _shape(tokens, 1)
-        return self.upload_rmsnorm(
-            weight, dtype=dtype, device=device, epsilon=epsilon
-        ).prepare(tokens=tokens)
-
-    def upload_causal_conv(self, weight, **configuration):
-        from .state_space import upload_causal_conv
-
-        return upload_causal_conv(self, weight, **configuration)
-
-    def upload_gdn_gates(self, a_log, dt_bias, **configuration):
-        from .state_space import upload_gdn_gates
-
-        return upload_gdn_gates(self, a_log, dt_bias, **configuration)
-
-    def upload_gated_rmsnorm(self, weight, **configuration):
-        from .state_space import upload_gated_rmsnorm
-
-        return upload_gated_rmsnorm(self, weight, **configuration)
-
-    def upload_zero_centered_rmsnorm(self, weight, **configuration):
-        from .state_space import upload_zero_centered_rmsnorm
-
-        return upload_zero_centered_rmsnorm(self, weight, **configuration)
-
-    def prepare_gdn(self, **configuration):
-        from .gdn import prepare_gdn
-
-        return prepare_gdn(self, **configuration)
-
-    def upload_qwen_qk_norm(self, query_weight, key_weight, **configuration):
-        from .qwen_attention import upload_qwen_qk_norm
-
-        return upload_qwen_qk_norm(self, query_weight, key_weight, **configuration)
-
-    def prepare_qwen_output_gate(self, **configuration):
-        from .qwen_attention import prepare_qwen_output_gate
-
-        return prepare_qwen_output_gate(self, **configuration)
-
-    def prepare_rope(self, **configuration):
-        from .attention import prepare_rope
-
-        return prepare_rope(self, **configuration)
-
-    def prepare_attention(self, **configuration):
-        from .attention import prepare_attention
-
-        return prepare_attention(self, **configuration)
+        if resident._backend is not self:
+            raise ValueError("Resident weight belongs to a different backend instance")
+        return _TorchRMS(resident._weight, tokens, resident.dtype, resident.epsilon)
 
     def prepare_swiglu(self, *, tokens, features, dtype, device):
         return _TorchElementwise(
-            _shape(tokens, features), dtype, self._device(dtype, device), True
+            _shape(tokens, features), dtype, self.validate_device(dtype, device), True
         )
 
     def prepare_add(self, *, tokens, features, dtype, device):
         return _TorchElementwise(
-            _shape(tokens, features), dtype, self._device(dtype, device), False
+            _shape(tokens, features), dtype, self.validate_device(dtype, device), False
         )
 
 

@@ -12,10 +12,10 @@ import subprocess
 
 import torch
 
-from benchmark_qwen_gpu import FIELDS, telemetry
+from gpu_telemetry import FIELDS, telemetry
 from qualify_checkpoint_gdn import timed_pair, comparison, write, bf16_check
 from qualify_native_q8_bootstrap import capture
-from run_qwen_validation import idle_gpu
+from gpu_telemetry import idle_gpu
 from venturi.models import QwenTextRoPE
 from venturi.ops import CudaBackend, TorchBackend
 

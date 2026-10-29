@@ -183,6 +183,40 @@ extern "C" int venturi_qwen_batch_generate(void* h,const int* slots,int count,co
     try {vr::require(h,"null batch generation");auto& b=*static_cast<vr::Batch*>(h);std::lock_guard<std::mutex> a(b.mutex),lock(b.model->mutex);vr::Device device(b.model->c.device);b.generate(b.slots(slots,count),tokens,offsets,maximum,eos,eos_offsets,out,stride,counts);return 0;}
     catch(const std::exception& e){error_text=e.what();return -1;}
 }
+// Additive entry point: one bounded mixed iteration, no new kernel arithmetic or
+// implicit request admission. Preserve the existing cohort ABI and generation.
+extern "C" int venturi_qwen_batch_step(void* h,const int* slots,int count,const std::int64_t* tokens,const int* offsets,const int* sample_slots,int sample_count,const int* decode_slots,int decode_count,std::int64_t* out,std::uint64_t elements) {
+    try {
+        vr::require(h && sample_count>=0 && decode_count>=0,"invalid native step arguments");
+        auto& b=*static_cast<vr::Batch*>(h);
+        std::lock_guard<std::mutex> a(b.mutex),lock(b.model->mutex);
+        vr::Device device(b.model->c.device);
+        auto ids=b.slots(slots,count);
+        vr::require(sample_count<=count && decode_count<=count && elements==static_cast<std::uint64_t>(sample_count) && (!sample_count || out),"invalid native step output extent");
+        auto samples=sample_count?b.slots(sample_slots,sample_count):std::vector<int>{};
+        auto decodes=decode_count?b.slots(decode_slots,decode_count):std::vector<int>{};
+        std::set<int> selected(ids.begin(),ids.end()),decode_set(decodes.begin(),decodes.end());
+        for(auto slot:samples)vr::require(selected.count(slot),"sample slot is outside this iteration");
+        for(auto slot:decodes)vr::require(selected.count(slot),"decode slot is outside this iteration");
+        b.model->source();b.input(ids,tokens,offsets);
+        vr::require(offsets[count]<=b.model->c.max_tokens,"step exceeds prepared token rows");
+        std::vector<vr::BatchSegment> segments;segments.reserve(ids.size());
+        for(int j=0;j<count;++j) {
+            const int length=offsets[j+1]-offsets[j];
+            vr::require(!decode_set.count(ids[j]) || length==1,"decode slot requires one token");
+            segments.push_back({ids[j],offsets[j],length});
+        }
+        std::vector<std::int64_t> packed(tokens,tokens+offsets[count]);
+        try {
+            b.group(segments,packed,decode_count==count);
+            if(sample_count) {
+                std::vector<std::int64_t> chosen;b.head(samples,&chosen,nullptr);
+                for(int j=0;j<sample_count;++j)out[j]=chosen[2*j];
+            }
+        }catch(...){b.poison(ids);throw;}
+        return 0;
+    }catch(const std::exception& e){error_text=e.what();return -1;}
+}
 extern "C" int venturi_qwen_batch_reset(void* h,const int* slots,int count) {
     try {vr::require(h,"null batch reset");auto& b=*static_cast<vr::Batch*>(h);std::lock_guard<std::mutex> a(b.mutex),lock(b.model->mutex);vr::Device device(b.model->c.device);auto ids=b.slots(slots,count);b.model->source();for(auto i:ids){b.requests[i]->reset();b.requests[i]->first_token_seconds=b.requests[i]->generation_seconds=0;}return 0;}
     catch(const std::exception& e){error_text=e.what();return -1;}

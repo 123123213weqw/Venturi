@@ -26,7 +26,9 @@ struct HeadGDNWork {
 inline std::vector<int> head_gdn_rows(const VRConfig& c,int rank) {
     require(rank==0 || rank==1,"invalid GDN head rank");
     const int q=c.gqk*c.gkd,v=c.gvh*c.gvd;std::vector<int> rows;rows.reserve(q+v/2);
-    for(auto part:{std::pair<int,int>{rank*q/2,(rank+1)*q/2},{q+rank*q/2,q+(rank+1)*q/2},{2*q+rank*v/2,2*q+(rank+1)*v/2}})
+    const std::array<std::pair<int,int>,3> parts{{{rank*q/2,(rank+1)*q/2},
+        {q+rank*q/2,q+(rank+1)*q/2},{2*q+rank*v/2,2*q+(rank+1)*v/2}}};
+    for(auto part:parts)
         for(int i=part.first;i<part.second;++i)rows.push_back(i);
     return rows;
 }

@@ -1,6 +1,11 @@
 """Byte-aligned safetensors storage types. Packed INT4 uses integer containers."""
 
-import torch
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import torch
 
 # Native sub-byte float formats need a different storage/shape contract; reject
 # them rather than treating one logical value as one byte. No dtype is cast.
@@ -28,6 +33,8 @@ DTYPE_INFO = {
 
 
 def torch_dtype(code: str) -> torch.dtype:
+    import torch
+
     name = DTYPE_INFO[code][0]
     dtype = getattr(torch, name, None)
     if dtype is None:

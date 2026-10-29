@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "tools"))
-from benchmark_qwen_gpu import telemetry  # noqa: E402
+from gpu_telemetry import telemetry  # noqa: E402
 
 
 def test_wave_filter_excludes_boundary_averaging_and_preserves_metric_names(tmp_path):

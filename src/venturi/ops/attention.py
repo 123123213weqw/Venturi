@@ -38,7 +38,7 @@ def prepare_rope(
         raise ValueError("rotary_dim must be even and at most head_dim")
     if layout not in ("split_half", "interleaved"):
         raise ValueError("layout must be split_half or interleaved")
-    target = backend._device(dtype, device)
+    target = backend.validate_device(dtype, device)
     return PreparedRoPE(
         backend, tokens, heads, head_dim, rotary_dim, layout, dtype, target
     )
@@ -85,7 +85,7 @@ def prepare_attention(
         kv_heads,
         head_dim,
         dtype,
-        backend._device(dtype, device),
+        backend.validate_device(dtype, device),
         float(scale),
     )
 
@@ -118,7 +118,7 @@ class PreparedRoPE:
             _tensor(tensor, table_shape, torch.float32, self.device, name)
         _no_overlap(out, (x,), allow_inplace=True)
         _no_overlap(out, (cos, sin))
-        if self._backend.name == "torch-reference":
+        if self._backend.execution_kind == "torch":
             work = torch.float64 if self.dtype == torch.float64 else torch.float32
             data = x.to(work)
             half = self.rotary_dim // 2
@@ -192,7 +192,7 @@ class PreparedCausalAttention:
         ):
             _tensor(tensor, shape, self.dtype, self.device, name)
         _no_overlap(out, (q, k, v))
-        if self._backend.name == "torch-reference":
+        if self._backend.execution_kind == "torch":
             work = torch.float64 if self.dtype == torch.float64 else torch.float32
             query = q.to(work).transpose(0, 1)
             repeats = self.query_heads // self.kv_heads

@@ -25,7 +25,7 @@ from .decoder_layer import (
     _unique_bytes,
 )
 from .gated_mlp import GatedMLPWeights
-from .gpt_neox import validate_token_ids
+from ..text.tokens import validate_token_ids
 
 
 @dataclass(frozen=True)
@@ -244,9 +244,22 @@ class LlamaModel:
             raise TypeError("Bind the checkpoint with LlamaWeights.bind first")
         self.config = c = weights.config
         self.dtype = weights.embedding.data.dtype
-        self.device = backend._device(self.dtype, device)
-        if self.dtype == torch.float64 and backend.name != "torch-reference":
+        self.device = backend.validate_device(self.dtype, device)
+        if self.dtype == torch.float64 and not backend.capabilities.reference:
             raise ValueError("FP64 Llama weights are reference-only")
+        # Capability checks cover the entire adapter before the first upload.
+        # Concrete operators still validate geometry, storage and hardware.
+        for weight in (weights.embedding, weights.head):
+            backend.require_linear(weight, dtype=self.dtype, device=self.device)
+        backend.require(
+            "embedding", dtype=self.dtype, device=self.device,
+            weight_format=weights.embedding.format,
+        )
+        backend.require("rmsnorm", dtype=self.dtype, device=self.device)
+        for layer in weights.layers:
+            layer.validate_backend(
+                backend, dimensions=c.dimensions, dtype=self.dtype, device=self.device
+            )
         self.backend = backend
         self.bound_names = weights.bound_names
         self.embedding = backend.upload_linear(

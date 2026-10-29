@@ -6,10 +6,12 @@ fusion, bias, attention, KV state or architecture detection is performed.
 Qwen and Llama-style adapters may compose this same mathematical sublayer.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Callable
 
 import torch
 
+from ..ops.backend import OperatorBackend
 from ..ops.blocks import _no_overlap, _shape, _tensor
 from ..ops.weights import DenseWeight, Q4RowSplitWeight, Q8RowSplitWeight
 
@@ -44,8 +46,16 @@ class GatedMLPWeights:
         ):
             raise ValueError("norm must be a floating-point [hidden] vector")
 
-    def upload(self, backend, *, dtype, device, epsilon=1e-6):
+    def validate_backend(self, backend: OperatorBackend, *, dtype, device):
+        """Allocation-free core capability preflight, not a device/shape probe."""
+        for operation in ("rmsnorm", "swiglu", "add"):
+            backend.require(operation, dtype=dtype, device=device)
+        for weight in (self.gate, self.up, self.down):
+            backend.require_linear(weight, dtype=dtype, device=device)
+
+    def upload(self, backend: OperatorBackend, *, dtype, device, epsilon=1e-6):
         """Own one weight copy. Bind decode/prefill shapes without another upload."""
+        self.validate_backend(backend, dtype=dtype, device=device)
         return ResidentGatedMLP(
             backend,
             backend.upload_rmsnorm(
@@ -107,6 +117,7 @@ class ResidentGatedMLP:
             self.down.prepare(tokens=tokens),
             swiglu,
             add,
+            _empty=self._backend.empty,
         )
 
 
@@ -136,6 +147,9 @@ class PreparedGatedMLP:
     down: object
     swiglu: object
     add: object
+    # Preserve the original six-argument plan constructor. Normal preparation
+    # injects the selected backend allocator; explicit legacy plans keep Torch.
+    _empty: Callable = field(default=torch.empty, repr=False, compare=False)
 
     @property
     def dtype(self):
@@ -179,11 +193,11 @@ class PreparedGatedMLP:
                     )
         options = dict(dtype=self.dtype, device=self.device)
         return GatedMLPWorkspace(
-            torch.empty((self.tokens, self.hidden_size), **options),
-            torch.empty((self.tokens, self.intermediate_size), **options),
-            torch.empty((self.tokens, self.intermediate_size), **options),
-            torch.empty(
-                self.linear_workspace_bytes, dtype=torch.uint8, device=self.device
+            self._empty((self.tokens, self.hidden_size), **options),
+            self._empty((self.tokens, self.intermediate_size), **options),
+            self._empty((self.tokens, self.intermediate_size), **options),
+            self._empty(
+                (self.linear_workspace_bytes,), dtype=torch.uint8, device=self.device
             )
             if self.linear_workspace_bytes
             else None,

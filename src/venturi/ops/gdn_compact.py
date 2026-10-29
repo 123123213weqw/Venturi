@@ -5,7 +5,7 @@ from .gdn import prepare_gdn
 
 
 def prepare_gdn_compact(backend, **configuration):
-    if backend.name != "venturi-blocks-cuda":
+    if backend.execution_kind != "native-cuda":
         raise ValueError("Compact GDN requires an explicit native CUDA backend")
     plan = prepare_gdn(backend, **configuration)
     try:
