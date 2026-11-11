@@ -27,10 +27,15 @@ def test_initial_and_cached_conv_history_is_compact_owned_chronological(dtype):
     x = torch.randn(2, 7, 8, dtype=dtype)
     _, first = m(x[:, :2])
     raw = m.in_proj_qkv(x).transpose(1, 2)
-    torch.testing.assert_close(first.conv, F.pad(raw[..., :2], (2, 0)), rtol=0, atol=0)
+    # The prefix path and the full-sequence slice reduce over different conv
+    # windows; bitwise equality is a single-backend accident, not the
+    # invariant under test (compact/owned/chronological history). Compare at
+    # dtype scale instead of rtol=0/atol=0 across torch CPU backends.
+    tol = 1e-6 if dtype == torch.float32 else 2e-2
+    torch.testing.assert_close(first.conv, F.pad(raw[..., :2], (2, 0)), rtol=tol, atol=tol)
     retained = first.snapshot()
     _, final = m(x[:, 2:], past=first)
-    torch.testing.assert_close(final.conv, raw[..., -4:], rtol=0, atol=0)
+    torch.testing.assert_close(final.conv, raw[..., -4:], rtol=tol, atol=tol)
     assert torch.equal(first.conv, retained.conv) and torch.equal(first.recurrent, retained.recurrent)
     assert final.conv.untyped_storage().nbytes() == final.conv.numel() * final.conv.element_size()
     assert first.tokens_seen == 2 and final.tokens_seen == 7
