@@ -6,12 +6,12 @@ remain raw zero-centered parameters; convolution alone is transposed from
 interleaved, and Q/K/V or gate/up projections are not silently fused/reordered.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import copy
 import math
 
 from ..checkpoint import Checkpoint, CheckpointError
-from ..ninfer import row_geometry
+from ..ninfer import ROW_FORMATS, row_geometry
 
 
 @dataclass(frozen=True)
@@ -25,9 +25,9 @@ class QwenSourceBinding:
 
     @property
     def nbytes(self):
-        if self.format == "q8_g32_fp16":
+        if self.format in ROW_FORMATS:
             return row_geometry(self.shape, self.format)[-1]
-        return math.prod(self.shape) * (4 if self.format == "fp32" else 2)
+        return math.prod(self.shape) * (4 if self.format in ("fp32", "int32") else 2)
 
     @property
     def source_dtypes(self):
@@ -45,7 +45,7 @@ class QwenSourcePlan:
     tied_embeddings: bool
 
     @classmethod
-    def from_config(cls, raw):
+    def from_config(cls, raw, *, matrix_format="q8_g32_fp16"):
         if not isinstance(raw, dict) or raw.get("quantization_config") is not None:
             raise ValueError("Expected original floating Qwen3.5 source config")
         if raw.get("model_type") == "qwen3_5":
@@ -125,11 +125,13 @@ class QwenSourcePlan:
             source,
             target,
             shape,
-            format="q8_g32_fp16",
+            format=None,
             *,
             transform="identity",
             source_shape=None,
         ):
+            if format is None:
+                format = matrix_format
             if any(
                 type(d) is not int or not 0 < d < 2**31
                 for d in (*shape, *(source_shape or shape))
@@ -211,6 +213,15 @@ class QwenSourcePlan:
                         (d,),
                         "bf16",
                     )
+        # Isolated GGUF importer contract: already-offset gamma, positive decay
+        # rates, and exact FP32 small tensors. Never apply this to HF artifacts.
+        # Floating small roles widen to exact FP32; quantized matrix roles keep
+        # the declared codec (q8 today, any registered row codec generally).
+        marker = cfg.get("venturi_gguf_q8_0")
+        if marker is not None:
+            if marker != "direct-gamma-rate-grouped-v1":
+                raise ValueError("Unsupported GGUF semantic contract")
+            specs = [replace(s, format="fp32") if s.format not in ROW_FORMATS else s for s in specs]
         return cls(cfg, tuple(specs), prefix, tied)
 
     def ignored_names(self, names):

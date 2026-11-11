@@ -20,6 +20,7 @@
 struct VRConfig {
     int device, dtype, layers, hidden, intermediate, vocab, hq, hkv, dim, rotary;
     int gqk, gvh, gkd, gvd, convolution, max_tokens, max_position, resident;
+    int weight_bits, weight_group;
     float epsilon, gdn_scale, attention_scale;
     int second_device,peer_transport;
     std::uint64_t reserve;
@@ -96,35 +97,26 @@ struct Dense {
     ~Dense() { if (ptr) { int old=0;(void)cudaGetDevice(&old);(void)cudaSetDevice(device);venturi_dense_destroy(ptr);(void)cudaSetDevice(old); } }
 };
 #include "qwen_kv_tier.cuh"
+#include "weight_source.cuh"
 
-struct Mapping {
-    std::string path; struct stat stamp{}; int fd=-1; void* ptr=MAP_FAILED;
-    std::uint64_t logical,begin,bytes;
-    explicit Mapping(const VRSpan& s):path(s.path?s.path:""),logical(s.logical),begin(s.file_offset),bytes(s.bytes) {
-        require(!path.empty() && bytes && add(begin,bytes)==s.file_bytes,"invalid native Qwen file span");
-        fd=::open(path.c_str(),O_RDONLY|O_CLOEXEC);
-        if (fd<0) throw std::runtime_error("native Qwen cannot open source file");
-        if (::fstat(fd,&stamp) || !S_ISREG(stamp.st_mode) || static_cast<std::uint64_t>(stamp.st_size)!=s.file_bytes) {
-            ::close(fd);fd=-1;throw std::runtime_error("native Qwen source size/type changed");
-        }
-        ptr=::mmap(nullptr,stamp.st_size,PROT_READ,MAP_PRIVATE,fd,0);
-        if (ptr==MAP_FAILED) { ::close(fd);fd=-1;throw std::runtime_error("native Qwen mmap failed"); }
-    }
-    bool same(const struct stat& s) const {
-        return s.st_dev==stamp.st_dev && s.st_ino==stamp.st_ino && s.st_size==stamp.st_size &&
-            s.st_mtim.tv_sec==stamp.st_mtim.tv_sec && s.st_mtim.tv_nsec==stamp.st_mtim.tv_nsec &&
-            s.st_ctim.tv_sec==stamp.st_ctim.tv_sec && s.st_ctim.tv_nsec==stamp.st_ctim.tv_nsec;
-    }
-    void verify() const {
-        struct stat a{},b{};
-        if (::fstat(fd,&a) || ::stat(path.c_str(),&b) || !same(a) || !same(b))
-            throw std::runtime_error("native Qwen source changed; recreate and verify model");
-    }
-    ~Mapping() { if (ptr!=MAP_FAILED) ::munmap(ptr,stamp.st_size);if (fd>=0) ::close(fd); }
-};
 inline int padded(const VRMatrix& m) { return ((m.k+127)/128)*128; }
+// Legacy q8 geometry (group32, one int8 code per weight): the fused q8 kernel
+// family and the SM70 head-GDN profile are qualified on exactly this layout.
 inline std::uint64_t codes(const VRMatrix& m) { return mul(m.n,padded(m)); }
 inline std::uint64_t scales(const VRMatrix& m) { return mul(m.n,padded(m)/32*2); }
+// Codec-parameterized geometry for the generic (upload/validate/budget) paths.
+inline std::uint64_t codes_bytes(const VRMatrix& m,int bits) { return mul(m.n,mul(padded(m),bits)/8); }
+inline std::uint64_t scales_bytes(const VRMatrix& m,int group) { return mul(m.n,mul(padded(m)/group,2)); }
+#include "staged_uploader.cuh"
+#include "weight_validate.cuh"
+#include "weight_dequant.cuh"
+
+// q4 dequant entry points are defined in the export section below; declared
+// here so Model methods can call them (C linkage, no namespace).
+extern "C" {
+int venturi_q4_dequant_rows(const void* codes,const void* scales,void* out,int row,int rows,int k,int padded,void* stream);
+int venturi_q4_dequant_indexed(const void* codes,const void* scales,const std::int64_t* ids,void* out,int count,int k,int padded,void* stream);
+}
 
 template<class T> __global__ void tables(const float* inv,float* cos,float* sin,int half,int count) {
     for (int i=blockIdx.x*blockDim.x+threadIdx.x;i<count;i+=gridDim.x*blockDim.x) {
@@ -143,7 +135,18 @@ struct Model {
     VRConfig c; std::vector<VRLayer> layers; VRMatrix embedding,head;
     int begin=0,end=0;bool stage=false;
     bool owns(int layer) const { return begin<=layer && layer<end; }
-    std::vector<std::unique_ptr<Mapping>> files;
+    // Load mechanisms, decoupled: WeightSource owns the read-only payload
+    // mappings; StagedUploader owns the bounded pinned staging buffer and the
+    // serial chunked H2D loops. The facade references below keep the
+    // historical member names visible to the head-GDN template, pipeline
+    // accounting, Session streaming and column packing, unchanged.
+    WeightSource src;
+    StagedUploader uploader;
+    std::vector<std::unique_ptr<Mapping>>& files=src.files;
+    Pinned& staging=uploader.staging;
+    std::uint64_t& payload=src.payload;
+    std::uint64_t& uploaded=uploader.uploaded;
+    std::uint64_t& stage_bytes=uploader.stage_bytes;
     std::vector<std::unique_ptr<Buffer>> constants;
     std::map<std::uint64_t,VRMatrix> matrices;
     std::map<std::uint64_t,std::unique_ptr<Buffer>> resident_weights;
@@ -165,21 +168,20 @@ struct Model {
     Buffer column_local,column_remote,column_peer,column_gu,column_activation;
     Pinned column_host;
     Buffer first_quant,second_quant;
+    // q4 dense-qualification path: bounded dequant chunks (rows fixed, K-dependent
+    // sizing at construction), the chunked GEMM output tile, and the embedding rows.
+    Buffer dequant,q4_chunk,q4_embed;int q4_rows=8192;
     Stream stream;
     Stream second_stream;
     Event first_ready,second_ready;
     Dense dense;
     const float* norm=nullptr;
-    Pinned staging,host_input,host_output;
+    Pinned host_input,host_output;
     std::unique_ptr<KVTier> kv_tier;bool session_created=false;
-    std::uint64_t payload=0,device_bytes=0,uploaded=0,embedding_uploaded=0;
+    std::uint64_t device_bytes=0,embedding_uploaded=0;
     std::uint64_t second_device_bytes=0,peer_input_bytes=0,peer_output_bytes=0;
-    std::uint64_t stage_bytes=8*1024*1024;
     std::mutex mutex;
-    void sync() {
-        check(cudaStreamSynchronize(stream.ptr));
-        if (second_stream.ptr) { Device d(c.second_device);check(cudaStreamSynchronize(second_stream.ptr)); }
-    }
+    void sync() { uploader.sync(); }
     bool parallel() const { return c.second_device>=0; }
     int first_rows(const VRMatrix& m) const { return parallel() && m.offset!=embedding.offset ? 1+(m.n-1)/2 : m.n; }
     int second_rows(const VRMatrix& m) const {
@@ -187,6 +189,12 @@ struct Model {
     }
     std::uint64_t plane(const VRMatrix& m,int rows) const { return mul(rows,padded(m)); }
     std::uint64_t encoded(const VRMatrix& m,int rows) const { return add(plane(m,rows),mul(rows,padded(m)/32*2)); }
+    // Codec-aware geometry for generic paths (q8: identical to the two above).
+    std::uint64_t plane_of(const VRMatrix& m,int rows) const { return mul(rows,mul(padded(m),c.weight_bits)/8); }
+    std::uint64_t codes_of(const VRMatrix& m) const { return codes_bytes(m,c.weight_bits); }
+    std::uint64_t scales_of(const VRMatrix& m) const { return scales_bytes(m,c.weight_group); }
+    std::uint64_t encoded_of(const VRMatrix& m,int rows) const { return add(plane_of(m,rows),mul(rows,mul(padded(m)/c.weight_group,2))); }
+    bool q4() const { return c.weight_bits==4; }
     void probe_peer() {
         Buffer first,second;
         const std::uint64_t limit=128*1024;
@@ -209,40 +217,15 @@ struct Model {
             require(std::equal(expected.begin(),expected.begin()+n,actual.begin()),"CUDA peer-to-primary byte probe failed; select explicit host transport");
         }
     }
-    void source() { for (const auto& f:files) f->verify(); }
+    void source() { src.source(); }
+    void read_bytes(void* target,std::uint64_t offset,std::uint64_t bytes) const { src.read_bytes(target,offset,bytes); }
     void guard(std::uint64_t n) {
         std::size_t free=0,total=0;check(cudaMemGetInfo(&free,&total));
         if (add(n,c.reserve)>free) throw std::runtime_error("native Qwen memory admission failed; no implicit offload/precision fallback");
     }
-    void read_bytes(void* target,std::uint64_t offset,std::uint64_t bytes) const {
-        require(offset<=payload && bytes<=payload-offset,"native Qwen read exceeds mapped payload");
-        auto* out=static_cast<char*>(target);
-        for (const auto& f:files) {
-            const auto first=std::max(offset,f->logical),last=std::min(add(offset,bytes),add(f->logical,f->bytes));
-            if (first<last) std::memcpy(out+first-offset,static_cast<const char*>(f->ptr)+f->begin+first-f->logical,last-first);
-        }
-    }
-    void upload(void* target,std::uint64_t offset,std::uint64_t bytes) {
-        for (std::uint64_t start=0;start<bytes;) {
-            const auto n=std::min(stage_bytes,bytes-start);
-            read_bytes(staging.ptr,offset+start,n);
-            check(cudaMemcpyAsync(static_cast<char*>(target)+start,staging.ptr,n,cudaMemcpyHostToDevice,stream.ptr));
-            sync();start+=n;
-        }
-        uploaded=add(uploaded,bytes);
-    }
-    void upload_other(void* target,std::uint64_t offset,std::uint64_t bytes) {
-        Device d(c.second_device);
-        for (std::uint64_t start=0;start<bytes;) {
-            const auto n=std::min(stage_bytes,bytes-start);read_bytes(staging.ptr,offset+start,n);
-            check(cudaMemcpyAsync(static_cast<char*>(target)+start,staging.ptr,n,cudaMemcpyHostToDevice,second_stream.ptr));
-            check(cudaStreamSynchronize(second_stream.ptr));start+=n;
-        }
-        uploaded=add(uploaded,bytes);
-    }
     void validate_matrix(const VRMatrix& m,int n,int k) {
         require(m.n==n && m.k==k && n>0 && k>0 && k<=INT32_MAX-127,"native Qwen matrix geometry mismatch");
-        const auto a=codes(m),b=scales(m);
+        const auto a=codes_of(m),b=scales_of(m);
         require(m.offset<=payload && a<=payload-m.offset && m.scales<=payload && b<=payload-m.scales &&
             m.scales>=add(m.offset,a),"native Qwen matrix planes out of bounds");
         auto found=matrices.find(m.offset);
@@ -251,19 +234,7 @@ struct Model {
     }
     void validate_codes(const VRMatrix& m) {
         // One bounded CPU validation at load, not a repeated per-token scan.
-        for (std::uint64_t start=0;start<codes(m);) {
-            auto n=std::min(stage_bytes,codes(m)-start);read_bytes(staging.ptr,m.offset+start,n);
-            for (std::uint64_t i=0;i<n;++i) if (static_cast<const unsigned char*>(staging.ptr)[i]==128)
-                throw std::runtime_error("native Qwen forbidden Q8 code -128");
-            start+=n;
-        }
-        for (std::uint64_t start=0;start<scales(m);) {
-            auto n=std::min(stage_bytes,scales(m)-start);read_bytes(staging.ptr,m.scales+start,n);
-            const auto* p=static_cast<const std::uint16_t*>(staging.ptr);
-            for (std::uint64_t i=0;i<n/2;++i) if ((p[i]&0x7c00)==0x7c00 || ((p[i]&0x8000) && (p[i]&0x7fff)))
-                throw std::runtime_error("native Qwen invalid Q8 scale");
-            start+=n;
-        }
+        validate_codes_source(src,staging.ptr,stage_bytes,m,c.weight_bits,c.weight_group);
     }
     const void* copy_constant(const void* p,std::uint64_t bytes) {
         require(p && bytes,"null native Qwen constant");cudaPointerAttributes attr{};check(cudaPointerGetAttributes(&attr,p));
@@ -276,10 +247,27 @@ struct Model {
         require(!column_weight(m.offset) && !semantic_qkv.count(m.offset),"special-packed weight requires its explicit MLP/GDN path");
         source();const Buffer* b=nullptr;
         if (c.resident) b=resident_weights.at(m.offset).get();
-        else { upload(arena.ptr,m.offset,codes(m));upload(arena.at(codes(m)),m.scales,scales(m));b=&arena; }
-        return {static_cast<const std::int8_t*>(b->ptr),reinterpret_cast<const __half*>(b->at(c.resident?plane(m,first_rows(m)):codes(m)))};
+        else { uploader.upload(arena.ptr,m.offset,codes_of(m));uploader.upload(arena.at(codes_of(m)),m.scales,scales_of(m));b=&arena; }
+        return {static_cast<const std::int8_t*>(b->ptr),reinterpret_cast<const __half*>(b->at(c.resident?plane_of(m,first_rows(m)):codes_of(m)))};
+    }
+    // q4 qualification path: bounded row-chunk dequantization into FP16, then
+    // the existing tensor-core GEMM. Re-dequantized per call; correctness first.
+    void q4_dense_project(const VRMatrix& m,const void* x,const std::int8_t* codes,const __half* scales,void* out,int t,int n_rows) {
+        auto* plan=static_cast<Linear*>(dense.ptr);
+        const int chunk=q4_rows;
+        for (int begin=0;begin<n_rows;begin+=chunk) {
+            const int rows=std::min(chunk,n_rows-begin);
+            op(venturi_q4_dequant_rows(codes,scales,dequant.ptr,begin,rows,m.k,padded(m),stream.ptr));
+            plan->tokens=t;plan->n=rows;plan->k=m.k;
+            op(venturi_dense_run(dense.ptr,x,dequant.ptr,q4_chunk.ptr,blas_workspace.ptr,blas_workspace.bytes,stream.ptr));
+            for (int tok=0;tok<t;++tok)
+                check(cudaMemcpyAsync(static_cast<char*>(out)+mul(add(mul(tok,n_rows),begin),2),
+                    static_cast<const char*>(q4_chunk.ptr)+mul(mul(tok,rows),2),mul(rows,2),
+                    cudaMemcpyDeviceToDevice,stream.ptr));
+        }
     }
     void project(const VRMatrix& m,const void* x,const std::int8_t* codes,const __half* scales,void* out,int t,int rows,Buffer& quant,cudaStream_t s,bool packed=false) {
+        if (q4()) { q4_dense_project(m,x,codes,scales,out,t,rows);return; }
         if(!activation_passes) {op(venturi_q8_head_run(x,codes,scales,out,t,rows,m.k,padded(m),c.dtype,s));return;}
         if(!packed)op(venturi_q8_dp4a_quantize(x,quant.ptr,quant.bytes,t,m.k,activation_passes,s));
 #if VENTURI_BLOCKS_ARCH == 70
@@ -503,6 +491,16 @@ struct Model {
         require(profile==0 || (profile==2 && c.dtype==0 && c.resident==1 && !stage &&
             (!mtp_input || (VENTURI_BLOCKS_ARCH==70 && c.layers==1 && c.second_device==-1))),"residual activation profile requires an explicit complete resident FP16 target or SM70 single-device MTP body");
         require(c.dtype==0 || c.dtype==1,"native Qwen needs explicit FP16/BF16");(void)data_type(c.dtype);
+        // Weight codec admission: the fused q8 paths are qualified on q8_g32_fp16;
+        // the q4 dense-qualification path additionally requires a plain
+        // single-device resident FP16 model (no TP/profile/stage variants).
+        if (c.weight_bits==4) require(c.weight_group==64 && c.resident==1 && c.second_device==-1 &&
+            c.dtype==0 && !columns && !head_gdn && profile==0 && !stage && !mtp_input,
+            "q4 execution requires the explicit single-device resident FP16 plain profile");
+        else require((c.weight_bits==8 && c.weight_group==32) || (!c.weight_bits && !c.weight_group),
+            "native Qwen requires the qualified q8_g32_fp16 weight codec");
+        if (!c.weight_bits) c.weight_bits=8;
+        if (!c.weight_group) c.weight_group=32;
         require(c.second_device>=-1 && c.second_device!=c.device,"invalid native Qwen peer device");
         require(c.peer_transport==0 || c.peer_transport==1,"invalid native Qwen peer transport");
         require(!columns || (VENTURI_BLOCKS_ARCH==70 && profile==2 && parallel() && c.peer_transport==1 && c.intermediate>0 && c.intermediate%64==0 && mul(c.max_tokens,c.hidden)<INT32_MAX-256),"column MLP requires resident SM70 FP16 residual host TP and group-aligned halves");
@@ -527,7 +525,7 @@ struct Model {
         const auto packed=add(mul(2,mul(c.gqk,c.gkd)),mul(c.gvh,c.gvd));
         require(mul(c.max_tokens,std::max({static_cast<std::uint64_t>(c.vocab),packed,mul(2,mul(c.hq,c.dim)),static_cast<std::uint64_t>(c.intermediate)}))<INT32_MAX &&
             mul(c.gvh,c.gvd)<INT32_MAX,"native Qwen launch geometry exceeds int32");
-        for (int i=0;i<count;++i) { require(spans[i].logical==payload,"noncontiguous native Qwen file spans");files.push_back(std::make_unique<Mapping>(spans[i]));payload=add(payload,spans[i].bytes); }
+        src.open(spans,count);
         if (mtp_input) {
             require(!stage && !parallel() && c.layers==1 && c.resident==1,"MTP base requires one resident unsharded layer");
             validate_matrix(*mtp_input,c.hidden,2*c.hidden);
@@ -580,13 +578,13 @@ struct Model {
             for (auto it=matrices.begin();it!=matrices.end();)
                 if (!used.count(it->first)) it=matrices.erase(it);else ++it;
         }
-        std::uint64_t all=0,other=0,maxk=0,maxn=0,peak=mul(c.max_tokens,add(padded(embedding),padded(embedding)/32*2));
+        std::uint64_t all=0,other=0,maxk=0,maxn=0,peak=mul(c.max_tokens,add(padded(embedding),padded(embedding)/c.weight_group*2));
         for (const auto& [_,m]:matrices) {
             if(column_weight(m.offset)) {
                 const auto local=column_descriptor(m);all=add(all,encoded(local,local.n));other=add(other,encoded(local,local.n));
-            } else {all=add(all,encoded(m,first_rows(m)));other=add(other,encoded(m,second_rows(m)));}
+            } else {all=add(all,encoded_of(m,first_rows(m)));other=add(other,encoded_of(m,second_rows(m)));}
             maxk=std::max(maxk,static_cast<std::uint64_t>(m.k));maxn=std::max(maxn,static_cast<std::uint64_t>(1+(m.n-1)/2));
-            peak=std::max(peak,add(codes(m),scales(m)));
+            peak=std::max(peak,add(codes_of(m),scales_of(m)));
         }
 #if VENTURI_BLOCKS_ARCH == 70 && VENTURI_Q8_GROUP_MODE != 0
         if(parallel() && activation_passes==2 && c.peer_transport==1) {
@@ -620,6 +618,16 @@ struct Model {
             if(columns) {column_peer.allocate(column_partial);column_gu.allocate(column_gu_bytes);column_activation.allocate(column_activation_bytes);second_device_bytes=add(second_device_bytes,add(column_partial,add(column_gu_bytes,column_activation_bytes)));}
         }
         if(quant){first_quant.allocate(quant);device_bytes=add(device_bytes,quant);}
+        if (q4()) {
+            // Dense-qualification scratch: one row-chunk of FP16 weights (rows
+            // fixed, K-dependent), the chunked GEMM output tile, and embedding rows.
+            const auto dequant_bytes=mul(mul(q4_rows,maxk),2);
+            guard(add(dequant_bytes,mul(mul(c.max_tokens,add(q4_rows,c.hidden)),2)));
+            dequant.allocate(dequant_bytes);
+            q4_chunk.allocate(mul(mul(c.max_tokens,q4_rows),2));
+            q4_embed.allocate(mul(mul(c.max_tokens,c.hidden),2));
+            device_bytes=add(device_bytes,add(dequant.bytes,add(q4_chunk.bytes,q4_embed.bytes)));
+        }
         if (parallel()) {
             if (c.peer_transport==0) {
                 auto status=cudaDeviceEnablePeerAccess(c.second_device,0);
@@ -629,7 +637,7 @@ struct Model {
             if (c.peer_transport==1) { host_input.allocate(second_input.bytes);host_output.allocate(scratch); }
         }
         if(columns) {column_local.allocate(column_partial);column_remote.allocate(column_partial);column_host.allocate(column_partial);device_bytes=add(device_bytes,mul(column_partial,2));}
-        stream.create();staging.allocate(stage_bytes);
+        stream.create();uploader.attach(src,stream,second_stream,c.second_device);
         if(head_gdn){head_work[0].allocate(c);device_bytes=add(device_bytes,head_work[0].bytes);{Device d(c.second_device);head_work[1].allocate(c);second_device_bytes=add(second_device_bytes,head_work[1].bytes);}}
         if (parallel() && c.peer_transport==0) probe_peer();
         // No large CPU expansion: validation walks the mapped encoded planes.
@@ -642,16 +650,16 @@ struct Model {
                     {Device d(c.second_device);b=std::make_unique<Buffer>();b->allocate(encoded(local,local.n));}
                     upload_columns(*b,m,1);second_device_bytes=add(second_device_bytes,b->bytes);second_weights.emplace(offset,std::move(b));continue;
                 }
-                const int nf=first_rows(m),ns=second_rows(m);auto b=std::make_unique<Buffer>();b->allocate(encoded(m,nf));
+                const int nf=first_rows(m),ns=second_rows(m);auto b=std::make_unique<Buffer>();b->allocate(encoded_of(m,nf));
                 if(semantic_qkv.count(offset))head_gdn_upload_rows(*this,*b,m,0);
-                else {upload(b->ptr,m.offset,plane(m,nf));upload(b->at(plane(m,nf)),m.scales,mul(nf,padded(m)/32*2));}
+                else {uploader.upload(b->ptr,m.offset,plane_of(m,nf));uploader.upload(b->at(plane_of(m,nf)),m.scales,mul(nf,mul(padded(m)/c.weight_group,2)));}
                 device_bytes=add(device_bytes,b->bytes);resident_weights.emplace(offset,std::move(b));
                 if (ns) {
                     { Device d(c.second_device);b=std::make_unique<Buffer>();b->allocate(encoded(m,ns)); }
                     const auto skip=static_cast<std::uint64_t>(m.n-ns);
                     if(semantic_qkv.count(offset))head_gdn_upload_rows(*this,*b,m,1);
-                    else {upload_other(b->ptr,add(m.offset,mul(skip,padded(m))),plane(m,ns));
-                        upload_other(b->at(plane(m,ns)),add(m.scales,mul(skip,padded(m)/32*2)),mul(ns,padded(m)/32*2));}
+                    else {uploader.upload_other(b->ptr,add(m.offset,mul(skip,padded(m))),plane(m,ns));
+                        uploader.upload_other(b->at(plane(m,ns)),add(m.scales,mul(skip,padded(m)/32*2)),mul(ns,padded(m)/32*2));}
                     second_device_bytes=add(second_device_bytes,b->bytes);second_weights.emplace(offset,std::move(b));
                 }
             }
@@ -711,6 +719,7 @@ struct Session {
         std::uint64_t n=add(mul(mul(widths,t),2),m.head_gdn_enabled?0:mul(mul(t,c.gvh),8));
         n=add(n,add(mul(mul(t,c.vocab),2),mul(t,8)));
         n=add(n,add(mul(mul(capacity,c.rotary/2),8),16+min_tiles(c.vocab)*16));
+        if (m.q4()) n=add(n,add(mul(t,8),mul(mul(t,c.hidden),2)));  // ids2 + dequantized embedding rows
         for (int i=m.begin;caches && i<m.end;++i) {const auto& l=m.layers[i];n=add(n,l.kind==0 ? (add(mul(mul(c.convolution-1,packed),2),mul(mul(c.gvh*c.gvd,c.gkd),4))/(m.head_gdn_enabled?2:1)) : (m.kv_tier?0:mul(mul(capacity,kw),4)));}
         return n;
     }
@@ -733,6 +742,7 @@ struct Session {
         for (auto name: {"mlp_gate","mlp_up"}) alloc(name,mul(mul(t,c.intermediate),2));
         alloc("qg",mul(mul(t,qw),4));alloc("query",mul(mul(t,qw),2));alloc("attended",mul(mul(t,qw),2));alloc("key",mul(mul(t,kw),2));
         alloc("logits",mul(mul(t,c.vocab),2));alloc("ids",mul(t,8));alloc("selection",16);alloc("select_scratch",min_tiles(c.vocab)*16);
+        if (md.q4()) { alloc("ids2",mul(t,8));alloc("q4_rows_out",mul(mul(t,c.hidden),2)); }
         alloc("cos",mul(mul(cap,c.rotary/2),4));alloc("sin",mul(mul(cap,c.rotary/2),4));
         tiered_kv.resize(c.layers);history.resize(c.layers);state.resize(c.layers);keys.resize(c.layers);values.resize(c.layers);peer_history.resize(c.layers);peer_state.resize(c.layers);
         auto statebuf=[&](std::unique_ptr<Buffer>& dst,std::uint64_t bytes,bool zero) { dst=std::make_unique<Buffer>();dst->allocate(bytes);device_bytes=add(device_bytes,bytes);if (zero && bytes) check(cudaMemsetAsync(dst->ptr,0,bytes,md.stream.ptr)); };
@@ -743,6 +753,7 @@ struct Session {
                 if(md.head_gdn_enabled){Device d(c.second_device);
                     const std::array<std::pair<std::unique_ptr<Buffer>*,std::uint64_t>,2> planes{{{&peer_history[i],hb},{&peer_state[i],sb}}};
                     for(auto pair:planes){auto b=std::make_unique<Buffer>();b->allocate(pair.second);check(cudaMemsetAsync(b->ptr,0,b->bytes,md.second_stream.ptr));peer_device_bytes=add(peer_device_bytes,b->bytes);*pair.first=std::move(b);}}
+
             }
             else if(md.kv_tier)tiered_kv[i]=md.kv_tier->create(mul(mul(cap,kw),2),mul(kw,2));
             else { statebuf(keys[i],mul(mul(cap,kw),2),false);statebuf(values[i],mul(mul(cap,kw),2),false); }
@@ -789,6 +800,16 @@ struct Session {
         auto& m=*model;const auto& c=m.c;const auto& e=m.embedding;
         if (c.resident) {
             auto w=m.weight(e);check(cudaMemcpyAsync(p("ids"),tokens,t*8,cudaMemcpyHostToDevice,m.stream.ptr));
+            if (m.q4()) {
+                // Indexed q4 row dequant into contiguous FP16 rows, then the
+                // existing dense FP16 embedding gather (ids rebased to 0..t-1).
+                auto& ids_local=ids;
+                for (int i=0;i<t;++i) ids_local[i]=i;
+                check(cudaMemcpyAsync(p("ids2"),ids_local.data(),t*8,cudaMemcpyHostToDevice,m.stream.ptr));
+                op(venturi_q4_dequant_indexed(w.first,w.second,static_cast<const std::int64_t*>(p("ids")),
+                    static_cast<__half*>(p("q4_rows_out")),t,c.hidden,padded(e),m.stream.ptr));
+                op(venturi_embedding_run(p("q4_rows_out"),static_cast<const std::int64_t*>(p("ids2")),out,t,t,c.hidden,c.dtype,m.stream.ptr));
+            } else
             op(venturi_q8_embedding_run(w.first,w.second,static_cast<const std::int64_t*>(p("ids")),out,t,c.vocab,c.hidden,padded(e),c.dtype,m.stream.ptr));
         } else {
             m.source();const auto a=mul(t,padded(e)),b=mul(t,padded(e)/32*2);
@@ -894,6 +915,25 @@ using Handle=std::shared_ptr<Model>;
 
 extern "C" int venturi_qwen_sizes(std::uint64_t* out) {
     if (!out) return -1;out[0]=sizeof(VRConfig);out[1]=sizeof(VRSpan);out[2]=sizeof(VRMatrix);out[3]=sizeof(VRLayer);return 0;
+}
+// q4_g64_fp16 dequantification entry points (qualification path; testable).
+extern "C" int venturi_q4_dequant_rows(const void* codes,const void* scales,void* out,int row,int rows,int k,int padded,void* stream) {
+    try { vr::require(codes && scales && out && rows>0 && k>0 && row>=0 && padded>=k && padded%128==0,"invalid q4 dequant geometry");
+        const int groups=padded>>6;const dim3 grid((groups+255)/256,rows);
+        vr::q4_dequant_rows_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
+            static_cast<const unsigned char*>(codes),static_cast<const __half*>(scales),
+            static_cast<__half*>(out),row,rows,k,padded);
+        check(cudaGetLastError());return 0;
+    } catch (const std::exception& e) { error_text=e.what();return -1; }
+}
+extern "C" int venturi_q4_dequant_indexed(const void* codes,const void* scales,const std::int64_t* ids,void* out,int count,int k,int padded,void* stream) {
+    try { vr::require(codes && scales && ids && out && count>0 && k>0 && padded>=k && padded%128==0,"invalid q4 dequant geometry");
+        const int groups=padded>>6;const dim3 grid((groups+255)/256,count);
+        vr::q4_dequant_indexed_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
+            static_cast<const unsigned char*>(codes),static_cast<const __half*>(scales),
+            ids,static_cast<__half*>(out),count,k,padded);
+        check(cudaGetLastError());return 0;
+    } catch (const std::exception& e) { error_text=e.what();return -1; }
 }
 extern "C" void* venturi_qwen_create(const VRConfig* c,const VRSpan* spans,int count,const VRLayer* layers,const VRMatrix* embedding,const VRMatrix* head,const void* norm,const float* inverse) {
     try { vr::require(c && embedding && head,"null native Qwen model descriptor");vr::Device d(c->device);

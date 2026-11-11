@@ -9,6 +9,7 @@ from dataclasses import dataclass
 
 import torch
 
+from ..codecs import codec_for, dequant_q4_reference
 from ..ninfer import NInferArtifact
 from ..ops import DenseWeight, Q8RowSplitWeight, Q8VocabularyWeights
 from .qwen_source import QwenSourcePlan
@@ -20,11 +21,12 @@ class QwenQ8Weights:
     plan: QwenSourcePlan
 
     @classmethod
-    def from_ninfer(cls, artifact):
+    def from_ninfer(cls, artifact, *, matrix_format="q8_g32_fp16"):
         if not isinstance(artifact, NInferArtifact):
             raise TypeError("Expected validated NInferArtifact")
         plan = QwenSourcePlan.from_config(
-            artifact.manifest["components"]["text"]["config"]
+            artifact.manifest["components"]["text"]["config"],
+            matrix_format=matrix_format,
         )
         expected = {s.binding: s for s in plan.bindings}
         if plan.tied_embeddings:
@@ -41,18 +43,14 @@ class QwenQ8Weights:
             if binding.keys() != {"object"}:
                 raise ValueError(f"Qwen Q8 role requires a direct object: {name}")
             obj = artifact.objects[binding["object"]]
-            layout = (
-                "row_split_k128_v1"
-                if spec.format == "q8_g32_fp16"
-                else "contiguous_le_v1"
-            )
+            layout = codec_for(spec.format).layout
             if (
                 obj["shape"] != list(spec.shape)
                 or obj.get("format") != spec.format
                 or obj.get("layout") != layout
             ):
                 raise ValueError(f"Qwen Q8 role shape/format/layout mismatch: {name}")
-            if spec.format != "q8_g32_fp16" and obj["bytes"] > 8 * 2**20:
+            if layout == "contiguous_le_v1" and len(spec.shape) != 2 and obj["bytes"] > 8 * 2**20:
                 raise ValueError(f"Floating Qwen role exceeds the read bound: {name}")
             previous = seen.get(obj["id"])
             if previous is not None and not (
@@ -85,10 +83,14 @@ class QwenQ8Weights:
     def read_float(self, binding):
         """Own one bounded parameter; raw norm gamma is NOT offset here."""
         obj = self._object(binding)
-        if obj["format"] not in ("bf16", "fp32") or obj["layout"] != "contiguous_le_v1":
+        if obj["format"] not in ("fp16", "bf16", "fp32") or obj["layout"] != "contiguous_le_v1":
             raise ValueError("Floating role access never silently dequantizes Q8")
         raw = bytearray(self.artifact.read_object(obj["id"], max_bytes=8 * 2**20))
-        dtype = torch.bfloat16 if obj["format"] == "bf16" else torch.float32
+        dtype = {
+            "fp16": torch.float16,
+            "bf16": torch.bfloat16,
+            "fp32": torch.float32,
+        }[obj["format"]]
         value = torch.frombuffer(raw, dtype=dtype).reshape(obj["shape"])
         if not bool(torch.isfinite(value).all()):
             raise ValueError(f"Nonfinite Qwen parameter: {binding}")
@@ -102,4 +104,33 @@ class QwenQ8Weights:
         if obj["format"] == "q8_g32_fp16":
             weight = Q8VocabularyWeights.from_ninfer(self.artifact, binding)
             return Q8RowSplitWeight(weight.codes, weight.scales, weight.hidden_size)
-        return DenseWeight(self.read_float(binding))
+        if obj["format"] == "q4_g64_fp16":
+            # Explicit reference dequantization (decode_row contract, vectorized);
+            # used by reference/qualification paths, never silently substituted
+            # for native execution.
+            return DenseWeight(dequant_q4_reference(self.artifact, obj))
+        if obj["layout"] == "row_split_k128_v1":
+            raise ValueError(
+                f"Codec {obj['format']} loads and storage-verifies; "
+                "native execution qualification pending"
+            )
+        # bf16 roles (including the preserved a/b projections) and fp32 smalls
+        # keep the historical bounded read_float path; dense declared matrices
+        # read their full admitted size.
+        small_role = obj["format"] == "bf16" or (
+            obj["format"] == "fp32" and len(obj["shape"]) != 2
+        )
+        if small_role:
+            return DenseWeight(self.read_float(binding))
+        raw = bytearray(
+            self.artifact.read_object(obj["id"], max_bytes=obj["bytes"])
+        )
+        dtype = {
+            "fp16": torch.float16,
+            "bf16": torch.bfloat16,
+            "fp32": torch.float32,
+        }[obj["format"]]
+        value = torch.frombuffer(raw, dtype=dtype).reshape(obj["shape"])
+        if not bool(torch.isfinite(value).all()):
+            raise ValueError(f"Nonfinite Qwen parameter: {binding}")
+        return DenseWeight(value)

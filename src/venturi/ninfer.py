@@ -199,8 +199,15 @@ class NInferArtifact:
                     math.prod(shape), "tensor element count", positive=True
                 )
                 format, layout = _identifier(obj["format"]), _identifier(obj["layout"])
-                if layout == "contiguous_le_v1" and format in ("bf16", "fp32", "int32"):
-                    expected = elements * (2 if format == "bf16" else 4)
+                if layout == "contiguous_le_v1" and format in (
+                    "fp16",
+                    "bf16",
+                    "fp32",
+                    "int32",
+                ):
+                    expected = elements * (
+                        4 if format in ("fp32", "int32") else 2
+                    )
                 elif (
                     layout == "row_split_k128_v1"
                     and format in ROW_FORMATS
