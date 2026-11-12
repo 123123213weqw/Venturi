@@ -20,7 +20,7 @@
 struct VRConfig {
     int device, dtype, layers, hidden, intermediate, vocab, hq, hkv, dim, rotary;
     int gqk, gvh, gkd, gvd, convolution, max_tokens, max_position, resident;
-    int weight_bits, weight_group;
+    int weight_bits, weight_group, dequant_resident;
     float epsilon, gdn_scale, attention_scale;
     int second_device,peer_transport;
     std::uint64_t reserve;
@@ -29,7 +29,7 @@ struct VRSpan {
     const char* path;
     std::uint64_t logical, file_offset, bytes, file_bytes;
 };
-struct VRMatrix { std::uint64_t offset, scales; int n, k; };
+struct VRMatrix { std::uint64_t offset, high, scales; int n, k; };
 struct VRLayer {
     int kind, conv_fp32, gamma_fp32, ab_fp32;
     // GDN: QKV,z,output,unused. Attention: Q/gate,K,V,O. Then MLP gate/up/down.
@@ -105,17 +105,24 @@ inline int padded(const VRMatrix& m) { return ((m.k+127)/128)*128; }
 inline std::uint64_t codes(const VRMatrix& m) { return mul(m.n,padded(m)); }
 inline std::uint64_t scales(const VRMatrix& m) { return mul(m.n,padded(m)/32*2); }
 // Codec-parameterized geometry for the generic (upload/validate/budget) paths.
-inline std::uint64_t codes_bytes(const VRMatrix& m,int bits) { return mul(m.n,mul(padded(m),bits)/8); }
+inline std::uint64_t codes_bytes(const VRMatrix& m,int bits,int group) {
+    // Base plane is always 32 bytes per group of packed nibbles (or 1 byte
+    // per weight for q8): q8 groups=padded/32, row codecs groups=padded/64.
+    return mul(m.n,mul(padded(m)/group,32));
+}
 inline std::uint64_t scales_bytes(const VRMatrix& m,int group) { return mul(m.n,mul(padded(m)/group,2)); }
 #include "staged_uploader.cuh"
 #include "weight_validate.cuh"
 #include "weight_dequant.cuh"
+#include "q4_fused.cuh"
 
-// q4 dequant entry points are defined in the export section below; declared
-// here so Model methods can call them (C linkage, no namespace).
+// Row-codec dequant entry points (q4/q5/q6; high plane null for q4) are
+// defined in the export section below; declared here so Model methods can
+// call them (C linkage, no namespace).
 extern "C" {
-int venturi_q4_dequant_rows(const void* codes,const void* scales,void* out,int row,int rows,int k,int padded,void* stream);
-int venturi_q4_dequant_indexed(const void* codes,const void* scales,const std::int64_t* ids,void* out,int count,int k,int padded,void* stream);
+int venturi_q4_fused_run(const void* x,const void* codes,const void* scales,void* out,int t,int rows,int k,int padded,int dtype,void* stream);
+int venturi_row_dequant_rows(const void* codes,const void* high,const void* scales,void* out,int row,int rows,int k,int padded,int bits,void* stream);
+int venturi_row_dequant_indexed(const void* codes,const void* high,const void* scales,const std::int64_t* ids,void* out,int count,int k,int padded,int bits,void* stream);
 }
 
 template<class T> __global__ void tables(const float* inv,float* cos,float* sin,int half,int count) {
@@ -190,11 +197,22 @@ struct Model {
     std::uint64_t plane(const VRMatrix& m,int rows) const { return mul(rows,padded(m)); }
     std::uint64_t encoded(const VRMatrix& m,int rows) const { return add(plane(m,rows),mul(rows,padded(m)/32*2)); }
     // Codec-aware geometry for generic paths (q8: identical to the two above).
-    std::uint64_t plane_of(const VRMatrix& m,int rows) const { return mul(rows,mul(padded(m),c.weight_bits)/8); }
-    std::uint64_t codes_of(const VRMatrix& m) const { return codes_bytes(m,c.weight_bits); }
+    // Plane order follows row_geometry: codes | 256-align | high(q5/q6) | 256-align | scales.
+    std::uint64_t codes_stride(const VRMatrix& m) const { return mul(padded(m)/c.weight_group,32); }
+    std::uint64_t plane_of(const VRMatrix& m,int rows) const { return mul(rows,codes_stride(m)); }
+    std::uint64_t codes_of(const VRMatrix& m) const { return codes_bytes(m,c.weight_bits,c.weight_group); }
     std::uint64_t scales_of(const VRMatrix& m) const { return scales_bytes(m,c.weight_group); }
-    std::uint64_t encoded_of(const VRMatrix& m,int rows) const { return add(plane_of(m,rows),mul(rows,mul(padded(m)/c.weight_group,2))); }
+    static std::uint64_t align256(std::uint64_t n) { return (n+255)/256*256; }
+    std::uint64_t high_stride(const VRMatrix& m) const { return c.weight_bits>=5 && c.weight_bits<=6 ? mul(padded(m)/64,(c.weight_bits-4)*8) : 0; } // per row
+    std::uint64_t high_offset(const VRMatrix& m) const { return c.weight_bits>=5 && c.weight_bits<=6 ? align256(codes_of(m)) : 0; } // from m.offset
+    std::uint64_t high_bytes(const VRMatrix& m) const { return mul(m.n,high_stride(m)); }
+    std::uint64_t scales_abs(const VRMatrix& m) const { return m.scales; }
+    std::uint64_t encoded_of(const VRMatrix& m,int rows) const {
+        const auto hp=(c.weight_bits>=5 && c.weight_bits<=6)?mul(rows,high_stride(m)):0;
+        return add(add(plane_of(m,rows),hp),mul(rows,mul(padded(m)/c.weight_group,2)));
+    }
     bool q4() const { return c.weight_bits==4; }
+    bool row_codec() const { return c.weight_bits>=4 && c.weight_bits<=6; }
     void probe_peer() {
         Buffer first,second;
         const std::uint64_t limit=128*1024;
@@ -226,8 +244,14 @@ struct Model {
     void validate_matrix(const VRMatrix& m,int n,int k) {
         require(m.n==n && m.k==k && n>0 && k>0 && k<=INT32_MAX-127,"native Qwen matrix geometry mismatch");
         const auto a=codes_of(m),b=scales_of(m);
+        const auto hoff=c.weight_bits>=5 && c.weight_bits<=6 ? add(m.offset,align256(a)) : 0, hb=high_bytes(m);
         require(m.offset<=payload && a<=payload-m.offset && m.scales<=payload && b<=payload-m.scales &&
             m.scales>=add(m.offset,a),"native Qwen matrix planes out of bounds");
+        if (c.weight_bits>=5 && c.weight_bits<=6)
+            require(hoff<=payload && hb<=payload-hoff && m.scales>=add(hoff,hb),
+                "native Qwen high plane out of bounds");
+        if (c.weight_bits>=5 && c.weight_bits<=6 && m.high!=hoff)
+            require(false,"native Qwen high plane offset mismatch with stored geometry");
         auto found=matrices.find(m.offset);
         if (found!=matrices.end()) require(found->second.n==m.n && found->second.k==m.k && found->second.scales==m.scales,"inconsistent native Qwen tying");
         else matrices.emplace(m.offset,m);
@@ -243,21 +267,69 @@ struct Model {
         check(cudaMemcpyAsync(out->ptr,p,bytes,cudaMemcpyDeviceToDevice,stream.ptr));
         auto result=out->ptr;device_bytes=add(device_bytes,bytes);constants.push_back(std::move(out));return result;
     }
+    // High-plane pointer for row codecs (nullptr for q4/q8 and shadows).
+    const unsigned char* high_ptr(const VRMatrix& m) const {
+        if (c.dequant_resident || !(c.weight_bits>=5 && c.weight_bits<=6)) return nullptr;
+        const Buffer* b=resident_weights.at(m.offset).get();
+        return reinterpret_cast<const unsigned char*>(b->at(plane_of(m,first_rows(m))));
+    }
     std::pair<const std::int8_t*,const __half*> weight(const VRMatrix& m) {
         require(!column_weight(m.offset) && !semantic_qkv.count(m.offset),"special-packed weight requires its explicit MLP/GDN path");
         source();const Buffer* b=nullptr;
         if (c.resident) b=resident_weights.at(m.offset).get();
         else { uploader.upload(arena.ptr,m.offset,codes_of(m));uploader.upload(arena.at(codes_of(m)),m.scales,scales_of(m));b=&arena; }
-        return {static_cast<const std::int8_t*>(b->ptr),reinterpret_cast<const __half*>(b->at(c.resident?plane_of(m,first_rows(m)):codes_of(m)))};
+        if (c.dequant_resident)
+            return {static_cast<const std::int8_t*>(b->ptr),nullptr};  // b is the FP16 shadow
+        const auto cp=c.resident?plane_of(m,first_rows(m)):codes_of(m);
+        const auto hp=(c.weight_bits>=5&&c.weight_bits<=6)?high_bytes(m):0;
+        return {static_cast<const std::int8_t*>(b->ptr),reinterpret_cast<const __half*>(b->at(add(cp,hp)))};
     }
-    // q4 qualification path: bounded row-chunk dequantization into FP16, then
-    // the existing tensor-core GEMM. Re-dequantized per call; correctness first.
-    void q4_dense_project(const VRMatrix& m,const void* x,const std::int8_t* codes,const __half* scales,void* out,int t,int n_rows) {
+    // --- Row-codec helpers (q4/q5/q6, on-demand and shadow modes) ---
+    std::uint64_t high_offset_from(const VRMatrix& m) const { return high_offset(m); }  // from m.offset
+    std::uint64_t encoded_total(const VRMatrix& m,int rows) const {
+        // codes | 256-align | high | 256-align | scales (row_geometry layout)
+        const auto cp=mul(rows,codes_stride(m));
+        if (c.weight_bits<=4) return align256(cp)+mul(rows,mul(padded(m)/c.weight_group,2));
+        const auto hp=mul(rows,high_stride(m));
+        return align256(align256(cp)+hp)+mul(rows,mul(padded(m)/c.weight_group,2));
+    }
+    void upload_planes(Buffer& temp,const VRMatrix& m,int nf) {
+        const auto cp=mul(nf,codes_stride(m));
+        uploader.upload(temp.ptr,m.offset,cp);
+        if (c.weight_bits>=5 && c.weight_bits<=6) {
+            const auto ho=add(m.offset,align256(codes_of(m)));
+            uploader.upload(temp.at(align256(cp)),ho,mul(nf,high_stride(m)));
+            uploader.upload(temp.at(align256(align256(cp)+mul(nf,high_stride(m)))),m.scales,mul(nf,mul(padded(m)/c.weight_group,2)));
+        } else {
+            uploader.upload(temp.at(align256(cp)),m.scales,mul(nf,mul(padded(m)/c.weight_group,2)));
+        }
+    }
+    void shadow_dequant(const VRMatrix& m,Buffer& shadow,Buffer& temp,int nf) {
+        const auto* codes=static_cast<const unsigned char*>(temp.ptr);
+        const auto cp=mul(nf,codes_stride(m));
+        const unsigned char* high=c.weight_bits>=5 && c.weight_bits<=6 ? codes+align256(codes_of(m)) : nullptr;
+        const auto* scales=reinterpret_cast<const __half*>(static_cast<const char*>(temp.ptr)+align256(c.weight_bits>=5 && c.weight_bits<=6?align256(cp)+mul(nf,high_stride(m)):cp));
+        const int chunk=q4_rows;
+        for (int begin=0;begin<nf;begin+=chunk) {
+            const int rows=std::min(chunk,nf-begin);
+            op(venturi_row_dequant_rows(codes,high,scales,static_cast<__half*>(shadow.ptr),begin,rows,m.k,padded(m),c.weight_bits,stream.ptr));
+        }
+        sync();
+    }
+    // Row-codec dense path: on-demand chunks (16GB-class cards) or a single
+    // dense_run against the dequantized FP16 shadow (dequant_resident).
+    void row_dense_project(const VRMatrix& m,const void* x,const std::int8_t* codes,const unsigned char* high,const __half* scales,void* out,int t,int n_rows) {
         auto* plan=static_cast<Linear*>(dense.ptr);
+        if (c.dequant_resident) {
+            // codes pointer is the full FP16 shadow [n_rows, k]; one GEMM.
+            plan->tokens=t;plan->n=n_rows;plan->k=m.k;
+            op(venturi_dense_run(dense.ptr,x,codes,out,blas_workspace.ptr,blas_workspace.bytes,stream.ptr));
+            return;
+        }
         const int chunk=q4_rows;
         for (int begin=0;begin<n_rows;begin+=chunk) {
             const int rows=std::min(chunk,n_rows-begin);
-            op(venturi_q4_dequant_rows(codes,scales,dequant.ptr,begin,rows,m.k,padded(m),stream.ptr));
+            op(venturi_row_dequant_rows(codes,high,scales,dequant.ptr,begin,rows,m.k,padded(m),c.weight_bits,stream.ptr));
             plan->tokens=t;plan->n=rows;plan->k=m.k;
             op(venturi_dense_run(dense.ptr,x,dequant.ptr,q4_chunk.ptr,blas_workspace.ptr,blas_workspace.bytes,stream.ptr));
             for (int tok=0;tok<t;++tok)
@@ -267,7 +339,13 @@ struct Model {
         }
     }
     void project(const VRMatrix& m,const void* x,const std::int8_t* codes,const __half* scales,void* out,int t,int rows,Buffer& quant,cudaStream_t s,bool packed=false) {
-        if (q4()) { q4_dense_project(m,x,codes,scales,out,t,rows);return; }
+        if (row_codec() && c.weight_bits == 4 && !c.dequant_resident) {
+            // Fused q4 GEMM: read compressed nibbles directly, compute in
+            // registers, never materialize FP16 weights.
+            op(venturi_q4_fused_run(x,codes,scales,out,t,rows,m.k,padded(m),c.dtype,s));
+            return;
+        }
+        if (row_codec()) { row_dense_project(m,x,codes,static_cast<const unsigned char*>(high_ptr(m)),scales,out,t,rows);return; }
         if(!activation_passes) {op(venturi_q8_head_run(x,codes,scales,out,t,rows,m.k,padded(m),c.dtype,s));return;}
         if(!packed)op(venturi_q8_dp4a_quantize(x,quant.ptr,quant.bytes,t,m.k,activation_passes,s));
 #if VENTURI_BLOCKS_ARCH == 70
@@ -399,7 +477,7 @@ struct Model {
     }
     VRMatrix column_descriptor(const VRMatrix& m) const {
         require(column_mlp_enabled && column_weight(m.offset),"matrix is not an explicit column-packed projection");
-        return VRMatrix{m.offset,m.scales,m.n,m.k/2};
+        return VRMatrix{m.offset,m.high,m.scales,m.n,m.k/2};
     }
     void upload_columns(Buffer& target,const VRMatrix& m,int rank) {
         source();const auto local=column_descriptor(m);
@@ -492,15 +570,19 @@ struct Model {
             (!mtp_input || (VENTURI_BLOCKS_ARCH==70 && c.layers==1 && c.second_device==-1))),"residual activation profile requires an explicit complete resident FP16 target or SM70 single-device MTP body");
         require(c.dtype==0 || c.dtype==1,"native Qwen needs explicit FP16/BF16");(void)data_type(c.dtype);
         // Weight codec admission: the fused q8 paths are qualified on q8_g32_fp16;
-        // the q4 dense-qualification path additionally requires a plain
-        // single-device resident FP16 model (no TP/profile/stage variants).
-        if (c.weight_bits==4) require(c.weight_group==64 && c.resident==1 && c.second_device==-1 &&
+        // the q4/q5/q6 dense paths additionally require a plain single-device
+        // resident FP16 model (no TP/profile/stage variants). dequant_resident
+        // trades VRAM for speed: weights dequantize once at load into FP16
+        // shadows; never implicit, never combined with TP/profiles.
+        if (c.weight_bits>=4 && c.weight_bits<=6) require(c.weight_group==64 && c.resident==1 && c.second_device==-1 &&
             c.dtype==0 && !columns && !head_gdn && profile==0 && !stage && !mtp_input,
-            "q4 execution requires the explicit single-device resident FP16 plain profile");
+            "row-codec execution requires the explicit single-device resident FP16 plain profile");
         else require((c.weight_bits==8 && c.weight_group==32) || (!c.weight_bits && !c.weight_group),
             "native Qwen requires the qualified q8_g32_fp16 weight codec");
         if (!c.weight_bits) c.weight_bits=8;
         if (!c.weight_group) c.weight_group=32;
+        if (c.dequant_resident) require(c.weight_bits>=4 && c.weight_bits<=6 && c.resident==1 && c.second_device==-1 && profile==0,
+            "dequant_resident requires an explicit single-device resident row-codec plain profile");
         require(c.second_device>=-1 && c.second_device!=c.device,"invalid native Qwen peer device");
         require(c.peer_transport==0 || c.peer_transport==1,"invalid native Qwen peer transport");
         require(!columns || (VENTURI_BLOCKS_ARCH==70 && profile==2 && parallel() && c.peer_transport==1 && c.intermediate>0 && c.intermediate%64==0 && mul(c.max_tokens,c.hidden)<INT32_MAX-256),"column MLP requires resident SM70 FP16 residual host TP and group-aligned halves");
@@ -618,7 +700,7 @@ struct Model {
             if(columns) {column_peer.allocate(column_partial);column_gu.allocate(column_gu_bytes);column_activation.allocate(column_activation_bytes);second_device_bytes=add(second_device_bytes,add(column_partial,add(column_gu_bytes,column_activation_bytes)));}
         }
         if(quant){first_quant.allocate(quant);device_bytes=add(device_bytes,quant);}
-        if (q4()) {
+        if (row_codec() && !c.dequant_resident) {
             // Dense-qualification scratch: one row-chunk of FP16 weights (rows
             // fixed, K-dependent), the chunked GEMM output tile, and embedding rows.
             const auto dequant_bytes=mul(mul(q4_rows,maxk),2);
@@ -650,9 +732,29 @@ struct Model {
                     {Device d(c.second_device);b=std::make_unique<Buffer>();b->allocate(encoded(local,local.n));}
                     upload_columns(*b,m,1);second_device_bytes=add(second_device_bytes,b->bytes);second_weights.emplace(offset,std::move(b));continue;
                 }
-                const int nf=first_rows(m),ns=second_rows(m);auto b=std::make_unique<Buffer>();b->allocate(encoded_of(m,nf));
-                if(semantic_qkv.count(offset))head_gdn_upload_rows(*this,*b,m,0);
-                else {uploader.upload(b->ptr,m.offset,plane_of(m,nf));uploader.upload(b->at(plane_of(m,nf)),m.scales,mul(nf,mul(padded(m)/c.weight_group,2)));}
+                const int nf=first_rows(m),ns=second_rows(m);auto b=std::make_unique<Buffer>();
+                if(semantic_qkv.count(offset)) { b->allocate(encoded_of(m,nf)); head_gdn_upload_rows(*this,*b,m,0); }
+                else if (c.dequant_resident) {
+                    // Shadow: upload encoded planes to a temp buffer, dequantize
+                    // once into a full FP16 [nf, k] resident buffer, drop the temp.
+                    const auto enc=encoded_total(m,nf);
+                    b->allocate(mul(mul(nf,m.k),2));  // FP16 shadow
+                    Buffer temp;temp.allocate(enc);
+                    upload_planes(temp,m,nf);
+                    shadow_dequant(m,*b,temp,nf);
+                    device_bytes=add(device_bytes,b->bytes);
+                    resident_weights.emplace(offset,std::move(b));
+                    continue;
+                }
+                else {
+                    b->allocate(encoded_of(m,nf));
+                    uploader.upload(b->ptr,m.offset,plane_of(m,nf));
+                    if (c.weight_bits>=5 && c.weight_bits<=6) {
+                        const auto ho=add(m.offset,high_offset_from(m));
+                        uploader.upload(b->at(plane_of(m,nf)),ho,high_bytes(m));
+                    }
+                    uploader.upload(b->at(add(plane_of(m,nf),high_bytes(m))),m.scales,mul(nf,mul(padded(m)/c.weight_group,2)));
+                }
                 device_bytes=add(device_bytes,b->bytes);resident_weights.emplace(offset,std::move(b));
                 if (ns) {
                     { Device d(c.second_device);b=std::make_unique<Buffer>();b->allocate(encoded(m,ns)); }
@@ -719,7 +821,7 @@ struct Session {
         std::uint64_t n=add(mul(mul(widths,t),2),m.head_gdn_enabled?0:mul(mul(t,c.gvh),8));
         n=add(n,add(mul(mul(t,c.vocab),2),mul(t,8)));
         n=add(n,add(mul(mul(capacity,c.rotary/2),8),16+min_tiles(c.vocab)*16));
-        if (m.q4()) n=add(n,add(mul(t,8),mul(mul(t,c.hidden),2)));  // ids2 + dequantized embedding rows
+        if (m.row_codec() && !m.c.dequant_resident) n=add(n,add(mul(t,8),mul(mul(t,c.hidden),2)));  // ids2 + dequantized embedding rows
         for (int i=m.begin;caches && i<m.end;++i) {const auto& l=m.layers[i];n=add(n,l.kind==0 ? (add(mul(mul(c.convolution-1,packed),2),mul(mul(c.gvh*c.gvd,c.gkd),4))/(m.head_gdn_enabled?2:1)) : (m.kv_tier?0:mul(mul(capacity,kw),4)));}
         return n;
     }
@@ -742,7 +844,7 @@ struct Session {
         for (auto name: {"mlp_gate","mlp_up"}) alloc(name,mul(mul(t,c.intermediate),2));
         alloc("qg",mul(mul(t,qw),4));alloc("query",mul(mul(t,qw),2));alloc("attended",mul(mul(t,qw),2));alloc("key",mul(mul(t,kw),2));
         alloc("logits",mul(mul(t,c.vocab),2));alloc("ids",mul(t,8));alloc("selection",16);alloc("select_scratch",min_tiles(c.vocab)*16);
-        if (md.q4()) { alloc("ids2",mul(t,8));alloc("q4_rows_out",mul(mul(t,c.hidden),2)); }
+        if (md.row_codec() && !md.c.dequant_resident) { alloc("ids2",mul(t,8));alloc("q4_rows_out",mul(mul(t,c.hidden),2)); }
         alloc("cos",mul(mul(cap,c.rotary/2),4));alloc("sin",mul(mul(cap,c.rotary/2),4));
         tiered_kv.resize(c.layers);history.resize(c.layers);state.resize(c.layers);keys.resize(c.layers);values.resize(c.layers);peer_history.resize(c.layers);peer_state.resize(c.layers);
         auto statebuf=[&](std::unique_ptr<Buffer>& dst,std::uint64_t bytes,bool zero) { dst=std::make_unique<Buffer>();dst->allocate(bytes);device_bytes=add(device_bytes,bytes);if (zero && bytes) check(cudaMemsetAsync(dst->ptr,0,bytes,md.stream.ptr)); };
@@ -753,7 +855,7 @@ struct Session {
                 if(md.head_gdn_enabled){Device d(c.second_device);
                     const std::array<std::pair<std::unique_ptr<Buffer>*,std::uint64_t>,2> planes{{{&peer_history[i],hb},{&peer_state[i],sb}}};
                     for(auto pair:planes){auto b=std::make_unique<Buffer>();b->allocate(pair.second);check(cudaMemsetAsync(b->ptr,0,b->bytes,md.second_stream.ptr));peer_device_bytes=add(peer_device_bytes,b->bytes);*pair.first=std::move(b);}}
-
+            
             }
             else if(md.kv_tier)tiered_kv[i]=md.kv_tier->create(mul(mul(cap,kw),2),mul(kw,2));
             else { statebuf(keys[i],mul(mul(cap,kw),2),false);statebuf(values[i],mul(mul(cap,kw),2),false); }
@@ -800,14 +902,17 @@ struct Session {
         auto& m=*model;const auto& c=m.c;const auto& e=m.embedding;
         if (c.resident) {
             auto w=m.weight(e);check(cudaMemcpyAsync(p("ids"),tokens,t*8,cudaMemcpyHostToDevice,m.stream.ptr));
-            if (m.q4()) {
-                // Indexed q4 row dequant into contiguous FP16 rows, then the
+            if (m.row_codec() && m.c.dequant_resident) {
+                // Shadow holds the full FP16 embedding matrix; direct gather.
+                op(venturi_embedding_run(w.first,static_cast<const std::int64_t*>(p("ids")),out,t,c.vocab,c.hidden,c.dtype,m.stream.ptr));
+            } else if (m.row_codec()) {
+                // Indexed row-codec dequant into contiguous FP16 rows, then the
                 // existing dense FP16 embedding gather (ids rebased to 0..t-1).
                 auto& ids_local=ids;
                 for (int i=0;i<t;++i) ids_local[i]=i;
                 check(cudaMemcpyAsync(p("ids2"),ids_local.data(),t*8,cudaMemcpyHostToDevice,m.stream.ptr));
-                op(venturi_q4_dequant_indexed(w.first,w.second,static_cast<const std::int64_t*>(p("ids")),
-                    static_cast<__half*>(p("q4_rows_out")),t,c.hidden,padded(e),m.stream.ptr));
+                op(venturi_row_dequant_indexed(w.first,m.high_ptr(e),w.second,static_cast<const std::int64_t*>(p("ids")),
+                    static_cast<__half*>(p("q4_rows_out")),t,c.hidden,padded(e),m.c.weight_bits,m.stream.ptr));
                 op(venturi_embedding_run(p("q4_rows_out"),static_cast<const std::int64_t*>(p("ids2")),out,t,t,c.hidden,c.dtype,m.stream.ptr));
             } else
             op(venturi_q8_embedding_run(w.first,w.second,static_cast<const std::int64_t*>(p("ids")),out,t,c.vocab,c.hidden,padded(e),c.dtype,m.stream.ptr));
@@ -916,22 +1021,32 @@ using Handle=std::shared_ptr<Model>;
 extern "C" int venturi_qwen_sizes(std::uint64_t* out) {
     if (!out) return -1;out[0]=sizeof(VRConfig);out[1]=sizeof(VRSpan);out[2]=sizeof(VRMatrix);out[3]=sizeof(VRLayer);return 0;
 }
-// q4_g64_fp16 dequantification entry points (qualification path; testable).
-extern "C" int venturi_q4_dequant_rows(const void* codes,const void* scales,void* out,int row,int rows,int k,int padded,void* stream) {
-    try { vr::require(codes && scales && out && rows>0 && k>0 && row>=0 && padded>=k && padded%128==0,"invalid q4 dequant geometry");
-        const int groups=padded>>6;const dim3 grid((groups+255)/256,rows);
-        vr::q4_dequant_rows_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
-            static_cast<const unsigned char*>(codes),static_cast<const __half*>(scales),
-            static_cast<__half*>(out),row,rows,k,padded);
+// q4 fused GEMM: reads compressed nibble codes directly, no FP16 materialization.
+extern "C" int venturi_q4_fused_run(const void* x,const void* codes,const void* scales,void* out,int t,int rows,int k,int padded,int dtype,void* stream) {
+    try { vr::require(x && codes && scales && out && t>0 && rows>0 && k>0 && padded>=k && padded%128==0 && dtype==0,"invalid q4 fused GEMM geometry");
+        const dim3 grid((rows+7)/8,t);  // 256 threads = 8 warps, one row per warp
+        vr::q4_fused_run_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
+            static_cast<const __half*>(x),static_cast<const unsigned char*>(codes),
+            static_cast<const __half*>(scales),static_cast<__half*>(out),t,rows,k,padded);
         check(cudaGetLastError());return 0;
     } catch (const std::exception& e) { error_text=e.what();return -1; }
 }
-extern "C" int venturi_q4_dequant_indexed(const void* codes,const void* scales,const std::int64_t* ids,void* out,int count,int k,int padded,void* stream) {
-    try { vr::require(codes && scales && ids && out && count>0 && k>0 && padded>=k && padded%128==0,"invalid q4 dequant geometry");
+// Row-codec dequantification entry points (q4/q5/q6; high plane null for q4).
+extern "C" int venturi_row_dequant_rows(const void* codes,const void* high,const void* scales,void* out,int row,int rows,int k,int padded,int bits,void* stream) {
+    try { vr::require(codes && scales && out && rows>0 && k>0 && row>=0 && padded>=k && padded%128==0 && bits>=4 && bits<=6,"invalid row-codec dequant geometry");
+        const int groups=padded>>6;const dim3 grid((groups+255)/256,rows);
+        vr::row_dequant_rows_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
+            static_cast<const unsigned char*>(codes),static_cast<const unsigned char*>(high),
+            static_cast<const __half*>(scales),static_cast<__half*>(out),row,rows,k,padded,bits);
+        check(cudaGetLastError());return 0;
+    } catch (const std::exception& e) { error_text=e.what();return -1; }
+}
+extern "C" int venturi_row_dequant_indexed(const void* codes,const void* high,const void* scales,const std::int64_t* ids,void* out,int count,int k,int padded,int bits,void* stream) {
+    try { vr::require(codes && scales && ids && out && count>0 && k>0 && padded>=k && padded%128==0 && bits>=4 && bits<=6,"invalid row-codec dequant geometry");
         const int groups=padded>>6;const dim3 grid((groups+255)/256,count);
-        vr::q4_dequant_indexed_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
-            static_cast<const unsigned char*>(codes),static_cast<const __half*>(scales),
-            ids,static_cast<__half*>(out),count,k,padded);
+        vr::row_dequant_indexed_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
+            static_cast<const unsigned char*>(codes),static_cast<const unsigned char*>(high),
+            static_cast<const __half*>(scales),ids,static_cast<__half*>(out),count,k,padded,bits);
         check(cudaGetLastError());return 0;
     } catch (const std::exception& e) { error_text=e.what();return -1; }
 }

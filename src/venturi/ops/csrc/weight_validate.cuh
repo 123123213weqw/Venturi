@@ -6,7 +6,7 @@
 #pragma once
 
 inline void validate_codes_source(const WeightSource& source,void* staging,std::uint64_t stage_bytes,const VRMatrix& m,int bits,int group) {
-    const std::uint64_t code_bytes=codes_bytes(m,bits),scale_bytes=scales_bytes(m,group);
+    const std::uint64_t code_bytes=codes_bytes(m,bits,group),scale_bytes=scales_bytes(m,group);
     // One bounded CPU validation at load, not a repeated per-token scan.
     for (std::uint64_t start=0;start<code_bytes;) {
         auto n=std::min(stage_bytes,code_bytes-start);source.read_bytes(staging,m.offset+start,n);

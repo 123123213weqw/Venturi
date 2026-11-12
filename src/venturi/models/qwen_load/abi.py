@@ -35,6 +35,7 @@ class Config(C.Structure):
                 "resident",
                 "weight_bits",
                 "weight_group",
+                "dequant_resident",
             )
         ]
         + [(k, C.c_float) for k in ("epsilon", "gdn_scale", "attention_scale")]
@@ -55,6 +56,7 @@ class Span(C.Structure):
 class Matrix(C.Structure):
     _fields_ = [
         ("offset", C.c_uint64),
+        ("high", C.c_uint64),
         ("scales", C.c_uint64),
         ("n", C.c_int),
         ("k", C.c_int),

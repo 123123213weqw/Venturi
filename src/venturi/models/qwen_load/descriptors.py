@@ -82,8 +82,9 @@ def build_descriptors(spec, owned, cfg, budget):
                     f"codec on this architecture, got {obj['format']!r}; "
                     f"qualified here: {sorted(allowed)}"
                 )
-        *_, offset, _ = row_geometry(obj["shape"], obj["format"])
-        return Matrix(obj["offset"], obj["offset"] + offset, *obj["shape"])
+        bits, group, groups, high_offset, scales_offset, _ = row_geometry(obj["shape"], obj["format"])
+        high_abs = obj["offset"] + high_offset if bits > 4 else 0
+        return Matrix(obj["offset"], high_abs, obj["offset"] + scales_offset, *obj["shape"])
 
     layers = (Layer * cfg["num_hidden_layers"])()
     for i, kind in enumerate(cfg["layer_types"]):
@@ -169,6 +170,7 @@ def build_descriptors(spec, owned, cfg, budget):
         int(spec.weight_mode == "resident"),
         matrix_codec.bits,
         matrix_codec.group,
+        int(spec.dequant_resident),
         cfg["rms_norm_eps"],
         cfg["linear_key_head_dim"] ** -0.5,
         cfg["head_dim"] ** -0.5,

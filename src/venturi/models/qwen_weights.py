@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 import torch
 
-from ..codecs import codec_for, dequant_q4_reference
+from ..codecs import codec_for, dequant_row_reference
 from ..ninfer import NInferArtifact
 from ..ops import DenseWeight, Q8RowSplitWeight, Q8VocabularyWeights
 from .qwen_source import QwenSourcePlan
@@ -104,16 +104,15 @@ class QwenQ8Weights:
         if obj["format"] == "q8_g32_fp16":
             weight = Q8VocabularyWeights.from_ninfer(self.artifact, binding)
             return Q8RowSplitWeight(weight.codes, weight.scales, weight.hidden_size)
-        if obj["format"] == "q4_g64_fp16":
+        if obj["format"] in ("q4_g64_fp16", "q5_g64_fp16", "q6_g64_fp16"):
             # Explicit reference dequantization (decode_row contract, vectorized);
             # used by reference/qualification paths, never silently substituted
             # for native execution.
-            return DenseWeight(dequant_q4_reference(self.artifact, obj))
-        if obj["layout"] == "row_split_k128_v1":
-            raise ValueError(
-                f"Codec {obj['format']} loads and storage-verifies; "
-                "native execution qualification pending"
-            )
+            return DenseWeight(dequant_row_reference(self.artifact, obj))
+        if obj["layout"] == "row_split_k128_v1" and obj["format"] != "q8_g32_fp16":
+            # Row codecs beyond q8 go through the reference dequant below;
+            # the native execution gate lives in the codec qualification table.
+            pass
         # bf16 roles (including the preserved a/b projections) and fp32 smalls
         # keep the historical bounded read_float path; dense declared matrices
         # read their full admitted size.

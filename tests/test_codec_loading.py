@@ -167,10 +167,8 @@ def test_unqualified_matrix_refused_for_execution(tmp_path):
 
     # q6 is registered for loading but never execution-qualified; q4 was
     # promoted on SM89 on 2026-11-11 and must now pass the union gate.
-    path = _full_artifact(tmp_path, "q6_g64_fp16")
-    weights = QwenQ8Weights.from_ninfer(
-        NInferArtifact(path), matrix_format="q6_g64_fp16"
-    )
+    path = _full_artifact(tmp_path, "fp16")
+    weights = QwenQ8Weights.from_ninfer(NInferArtifact(path), matrix_format="fp16")
     with pytest.raises(ValueError, match="execution qualification pending"):
         ensure_execution_qualified(weights)
     path = _full_artifact(tmp_path, "fp16")

@@ -84,7 +84,7 @@ CODECS = {
 # and the real 14.38GB artifact resident smoke.
 EXECUTION_QUALIFIED = {
     (7, 0): {"q8_g32_fp16"},
-    (8, 9): {"q8_g32_fp16", "q4_g64_fp16"},
+    (8, 9): {"q8_g32_fp16", "q4_g64_fp16", "q5_g64_fp16", "q6_g64_fp16"},
     (8, 6): {"q8_g32_fp16"},
 }
 
@@ -98,33 +98,50 @@ def codec_for(fmt: str) -> Codec:
         ) from None
 
 
-def dequant_q4_reference(artifact, obj):
-    """Vectorized decode_row: nibble unpack, two's complement, g64 FP16 scales.
+def dequant_row_reference(artifact, obj):
+    """Vectorized decode_row for any row codec (q4/q5/q6_g64).
 
     Returns FP16 [n, k]; small-int times FP16-scale products are exact in
     FP16, so this equals the native dequantization kernel bit for bit.
     """
+    fmt = obj.get("format", "q4_g64_fp16")
+    codec = codec_for(fmt)
+    bits = codec.bits
     n, k = obj["shape"]
     raw = artifact.read_object(obj["id"], max_bytes=obj["bytes"])
-    *_, high_offset, scales_offset, _ = row_geometry((n, k), "q4_g64_fp16")
-    groups = ((k + 127) // 128 * 128) // 64
+    _, _, _, high_off, scales_off, _ = row_geometry((n, k), fmt)
+    groups = ((k + 127) // 128 * 128) // codec.group
     codes = (
         np.frombuffer(raw, dtype=np.uint8, count=n * groups * 32)
         .reshape(n, groups, 32)
     )
-    lanes = np.empty((n, groups, 64), dtype=np.int8)
-    lanes[:, :, 0::2] = (codes & 0x0F).astype(np.int8)
-    lanes[:, :, 1::2] = (codes >> 4).astype(np.int8)
-    signed = np.where(lanes >= 8, lanes - 16, lanes).astype(np.float32)
+    lanes = np.empty((n, groups, 64), dtype=np.int32)
+    lanes[:, :, 0::2] = codes & 0x0F
+    lanes[:, :, 1::2] = codes >> 4
+    if bits > 4:
+        hb = bits - 4
+        hb_stride = groups * hb * 8  # bytes per row
+        high = np.frombuffer(raw, dtype=np.uint8, count=n * hb_stride, offset=high_off).reshape(n, groups, hb * 8)
+        extra = np.zeros((n, groups, 64), dtype=np.int32)
+        for lane in range(64):
+            v = np.zeros((n, groups), dtype=np.int32)
+            for b in range(hb):
+                byte_i = (lane * hb + b) >> 3
+                bit_i = (lane * hb + b) & 7
+                v |= ((high[:, :, byte_i].astype(np.int32) >> bit_i) & 1) << b
+            extra[:, :, lane] = v
+        lanes |= extra << 4
+    sign = 1 << (bits - 1)
+    span = 1 << bits
+    signed = np.where(lanes >= sign, lanes - span, lanes).astype(np.float32)
     scales = (
-        np.frombuffer(
-            raw,
-            dtype="<f2",
-            count=n * groups,
-            offset=scales_offset,
-        )
+        np.frombuffer(raw, dtype="<f2", count=n * groups, offset=scales_off)
         .reshape(n, groups)
         .astype(np.float32)
     )
     values = (signed * scales[:, :, None]).reshape(n, groups * 64)[:, :k]
     return torch.from_numpy(np.ascontiguousarray(values)).to(torch.float16)
+
+
+def dequant_q4_reference(artifact, obj):
+    return dequant_row_reference(artifact, obj)

@@ -37,6 +37,7 @@ class LoadSpec:
     kv_gpu_budget_bytes: int
     kv_ram_budget_bytes: int
     metadata_mode: str
+    dequant_resident: bool
     profiled_create: object | None
     tier_enable: object | None
 
@@ -78,6 +79,7 @@ def validate_load_spec(
     kv_gpu_budget_bytes,
     kv_ram_budget_bytes,
     metadata_mode,
+    dequant_resident=False,
 ):
     if not isinstance(weights, QwenQ8Weights) or not isinstance(
         backend, CudaBackend
@@ -123,6 +125,12 @@ def validate_load_spec(
         raise ValueError("experimental_flags must be an integer mask 0..15")
     if experimental_flags and not head_profile:
         raise ValueError("Experiments require the explicit head-GDN projection profile")
+    if dequant_resident:
+        quantized = {s.format for s in weights.plan.bindings} - {"bf16", "fp32"}
+        if not quantized or not all(f.startswith(("q4_", "q5_", "q6_")) for f in quantized):
+            raise ValueError("dequant_resident requires a row-codec artifact (q4/q5/q6)")
+        if weight_mode != "resident" or tensor_parallel_device is not None or projection_profile != "fp16":
+            raise ValueError("dequant_resident requires resident single-device plain profile")
     if kv_cache not in ("static", "vram-first"):
         raise ValueError("kv_cache must be explicit static or vram-first")
     if any(type(n) is not int or not 0 <= n < 2**63 for n in
@@ -202,6 +210,7 @@ def validate_load_spec(
         metadata_mode=metadata_mode,
         profiled_create=profiled_create,
         tier_enable=tier_enable,
+        dequant_resident=dequant_resident,
     )
 
 
