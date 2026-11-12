@@ -19,12 +19,12 @@ def test_native_descriptor_layout_and_explicit_backend():
     assert [ctypes.sizeof(t) for t in (Config, Span, Matrix, Layer)] == [
         112,
         40,
-        24,
-        264,
+        32,
+        320,
     ]
     assert (
-        Config.second_device.offset == 92
-        and Config.peer_transport.offset == 96
+        Config.second_device.offset == 96
+        and Config.peer_transport.offset == 100
         and Config.reserve.offset == 104
     )
     with pytest.raises(TypeError, match="explicit CudaBackend"):
