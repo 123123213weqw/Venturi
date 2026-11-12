@@ -115,6 +115,7 @@ inline std::uint64_t scales_bytes(const VRMatrix& m,int group) { return mul(m.n,
 #include "weight_validate.cuh"
 #include "weight_dequant.cuh"
 #include "q4_fused.cuh"
+#include "gemm_dispatch.cuh"
 
 // Row-codec dequant entry points (q4/q5/q6; high plane null for q4) are
 // defined in the export section below; declared here so Model methods can
@@ -339,13 +340,19 @@ struct Model {
         }
     }
     void project(const VRMatrix& m,const void* x,const std::int8_t* codes,const __half* scales,void* out,int t,int rows,Buffer& quant,cudaStream_t s,bool packed=false) {
-        if (row_codec() && c.weight_bits == 4 && !c.dequant_resident) {
-            // Fused q4 GEMM: read compressed nibbles directly, compute in
-            // registers, never materialize FP16 weights.
-            op(venturi_q4_fused_run(x,codes,scales,out,t,rows,m.k,padded(m),c.dtype,s));
-            return;
+        if (row_codec()) {
+            // Engine-level dispatch: architecture-neutral, reusable by any adapter.
+            VRGemm gctx;
+            gctx.dense=dense.ptr;
+            gctx.blas_workspace=blas_workspace.ptr;gctx.blas_bytes=blas_workspace.bytes;
+            gctx.dequant_scratch=dequant.ptr;gctx.chunk_scratch=q4_chunk.ptr;gctx.chunk_rows=q4_rows;
+            gctx.weight_bits=c.weight_bits;gctx.dtype=c.dtype;gctx.shadow=c.dequant_resident;
+            const int rc=gemm_project(gctx,x,codes,
+                static_cast<const void*>(high_ptr(m)),scales,out,t,rows,m.k,padded(m),s);
+            if (rc==0) return;
+            if (rc<0) { op(rc); return; }
+            throw std::runtime_error("engine gemm dispatch failed for row codec");
         }
-        if (row_codec()) { row_dense_project(m,x,codes,static_cast<const unsigned char*>(high_ptr(m)),scales,out,t,rows);return; }
         if(!activation_passes) {op(venturi_q8_head_run(x,codes,scales,out,t,rows,m.k,padded(m),c.dtype,s));return;}
         if(!packed)op(venturi_q8_dp4a_quantize(x,quant.ptr,quant.bytes,t,m.k,activation_passes,s));
 #if VENTURI_BLOCKS_ARCH == 70
