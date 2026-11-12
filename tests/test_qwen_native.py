@@ -17,15 +17,15 @@ from venturi.ops import TorchBackend
 
 def test_native_descriptor_layout_and_explicit_backend():
     assert [ctypes.sizeof(t) for t in (Config, Span, Matrix, Layer)] == [
-        104,
+        112,
         40,
-        24,
-        264,
+        32,
+        320,
     ]
     assert (
-        Config.second_device.offset == 84
-        and Config.peer_transport.offset == 88
-        and Config.reserve.offset == 96
+        Config.second_device.offset == 96
+        and Config.peer_transport.offset == 100
+        and Config.reserve.offset == 104
     )
     with pytest.raises(TypeError, match="explicit CudaBackend"):
         NativeQwenModel.from_q8(None, TorchBackend(), weight_mode="streaming")
