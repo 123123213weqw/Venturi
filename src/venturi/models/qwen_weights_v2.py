@@ -10,7 +10,7 @@ from dataclasses import dataclass
 import torch
 
 from ..container.base import WeightContainer, TensorInfo
-from ..container import SafetensorsContainer, NInferContainer, open_container
+from ..container import SafetensorsContainer, open_container
 from ..codecs import codec_for, dequant_row_reference, CODECS
 from .qwen_source import QwenSourcePlan, QwenSourceBinding
 
@@ -25,7 +25,7 @@ class QwenQ8Weights:
     def from_container(cls, container, *, matrix_format="q8_g32_fp16"):
         """Format-agnostic admission entry point.
 
-        Accepts any WeightContainer (SafetensorsContainer, NInferContainer,
+        Accepts any WeightContainer (SafetensorsContainer,
         GGUFContainer). Validates every tensor the model needs exists with
         the correct shape, then returns admitted weights for lazy reading.
         """
@@ -84,12 +84,6 @@ class QwenQ8Weights:
                 )
 
         return cls(container, plan)
-
-    @classmethod
-    def from_ninfer(cls, artifact, *, matrix_format="q8_g32_fp16"):
-        """Legacy convenience: wraps a NInferArtifact, delegates to from_container."""
-        container = NInferContainer(artifact.path)
-        return cls.from_container(container, matrix_format=matrix_format)
 
     @classmethod
     def from_safetensors(cls, path, *, matrix_format="q8_g32_fp16"):
