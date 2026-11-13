@@ -7,7 +7,7 @@ re-exports every name here, so historical import sites are unchanged.
 
 import ctypes as C
 
-from ..qwen_metadata import source_digest
+from venturi.models.qwen.qwen_metadata import source_digest
 
 
 class Config(C.Structure):

@@ -15,16 +15,25 @@ from pathlib import Path
 METADATA = frozenset(
     {
         "venturi.checkpoint",
+        "venturi.container.checkpoint",
         "venturi.dtypes",
         "venturi.model_assets",
+        "venturi.container.assets",
         "venturi.model_config",
+        "venturi.container.config",
         "venturi.tokenizer_assets",
+        "venturi.container.tokenizer",
         "venturi.ninfer",
         "venturi.gguf_inventory",
+        "venturi.container.gguf.inventory",
         "venturi.gguf_metadata",
+        "venturi.container.gguf.metadata",
         "venturi.flash_next",
+        "venturi.models.flash_next.model",
         "venturi.adaptive_mtp",
+        "venturi.models.qwen.adaptive_mtp",
         "venturi.staging",
+        "venturi.container.staging",
     }
 )
 

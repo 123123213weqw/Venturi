@@ -12,7 +12,7 @@ import hashlib
 import json
 import random
 
-from .codecs import codec_for
+from venturi.models.qwen_load.codecs import codec_for
 
 
 def _sample_planes(artifact, obj, codec, rng):
@@ -169,7 +169,7 @@ def verify_artifact(artifact, *, sample_objects=7, seed=20261111):
 
 
 def _known_formats():
-    from .codecs import CODECS
+    from venturi.models.qwen_load.codecs import CODECS
 
     return set(CODECS)
 

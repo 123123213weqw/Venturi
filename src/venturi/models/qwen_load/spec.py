@@ -13,7 +13,7 @@ import torch
 
 from ... import codecs
 from ...ops import CudaBackend
-from ..qwen_weights import QwenQ8Weights
+from venturi.models.qwen.qwen_weights import QwenQ8Weights
 
 
 @dataclass(frozen=True)
@@ -215,6 +215,6 @@ def validate_load_spec(
 
 
 def _outside_capture_guard(target):
-    from ..decoder_layer import _outside_capture
+    from venturi.models.decoder_layer import _outside_capture
 
     _outside_capture(target)
