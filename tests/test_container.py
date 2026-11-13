@@ -1,4 +1,4 @@
-"""Container layer tests: SafetensorsContainer + NInferContainer equivalence."""
+"""Container layer tests: SafetensorsContainer."""
 import json
 import struct
 import tempfile
