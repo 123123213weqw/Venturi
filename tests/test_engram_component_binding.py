@@ -7,9 +7,9 @@ import struct
 import pytest
 import torch
 
-from venturi.model_assets import ModelAsset, ModelBundle
-from venturi.models.engram_bindings import load_deepseek41_engram_hash
-from venturi.models.engram_hash import EngramHashState
+from venturi.container.model_assets import ModelAsset, ModelBundle
+from venturi.models.deepseek.engram_bindings import load_deepseek41_engram_hash
+from venturi.models.deepseek.engram_hash import EngramHashState
 from test_gguf_metadata import write_gguf
 from test_tokenizer_assets import MAP, tokenizer_json
 

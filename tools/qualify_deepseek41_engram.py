@@ -13,7 +13,7 @@ from types import SimpleNamespace
 
 import torch
 
-from venturi.models.engram_residual import reference_engram_residual
+from venturi.models.deepseek.engram_residual import reference_engram_residual
 
 
 def qualify(source):

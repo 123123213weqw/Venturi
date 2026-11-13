@@ -13,16 +13,16 @@ from torch.nn.attention import sdpa_kernel,SDPBackend
 from safetensors.torch import save_file,load_file
 from benchmark_flash_next_full import checked_payloads,process_memory
 from flash_next_hybrid_metrics import difference,state_to_cpu,compare_state
-from venturi.checkpoint import inspect_checkpoint
-from venturi.flash_next_generation import generate_flash_next_text,generate_flash_next_tokens,resolve_flash_next_eos
-from venturi.generation import LocalTokenizer
-from venturi.models.flash_next_loader import load_weight_decoded_fp8_text,load_weight_decoded_q4_text
-from venturi.models.flash_next_expert_policy import bind_fp8_expert_policy
-from venturi.models.flash_next_moe import MoEGeometry
-from venturi.models.flash_next_ngram import PreparedNGramTable
-from venturi.models.flash_next_q4 import LazyQ4ExpertArchive,PackedQ4Dispatch
-from venturi.models.flash_next_q4_bundle import bundle_manifest
-from venturi.models.flash_next_request import FlashNextRequest
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_generation import generate_flash_next_text, generate_flash_next_tokens, resolve_flash_next_eos
+from venturi.engine.generation import LocalTokenizer
+from venturi.models.flash_next.flash_next_loader import load_weight_decoded_fp8_text, load_weight_decoded_q4_text
+from venturi.models.flash_next.flash_next_expert_policy import bind_fp8_expert_policy
+from venturi.models.flash_next.flash_next_moe import MoEGeometry
+from venturi.models.flash_next.flash_next_ngram import PreparedNGramTable
+from venturi.models.flash_next.flash_next_q4 import LazyQ4ExpertArchive, PackedQ4Dispatch
+from venturi.models.flash_next.flash_next_q4_bundle import bundle_manifest
+from venturi.models.flash_next.flash_next_request import FlashNextRequest
 from venturi.ops.flash_next_q4 import NativeQ4
 
 

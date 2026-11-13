@@ -9,9 +9,9 @@ from torch.nn.attention import SDPBackend, sdpa_kernel
 
 from test_flash_next_fp8_loader import fixture
 from test_flash_next_loader import OPTIONS
-from venturi.models.flash_next_expert_policy import bind_fp8_expert_policy
-from venturi.models.flash_next_loader import load_weight_decoded_fp8_text
-from venturi.models.flash_next_request import FlashNextRequest
+from venturi.models.flash_next.flash_next_expert_policy import bind_fp8_expert_policy
+from venturi.models.flash_next.flash_next_loader import load_weight_decoded_fp8_text
+from venturi.models.flash_next.flash_next_request import FlashNextRequest
 
 
 def test_cpu_policy_cache_preserves_predictions_and_device(tmp_path):

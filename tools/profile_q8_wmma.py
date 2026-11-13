@@ -7,8 +7,8 @@ from pathlib import Path
 
 import torch
 
-from venturi.models import QwenQ8Weights
-from venturi.ninfer import NInferArtifact
+from venturi.models import QwenWeights
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend, Q8RowSplitWeight, prepare_q8_dp4a, prepare_q8_wmma
 
 
@@ -20,7 +20,7 @@ def main():
     p.add_argument("--output", required=True)
     a = p.parse_args()
     torch.set_num_threads(4)
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
+    weights = QwenWeights.open(a.artifact)
     spec = next(
         s
         for s in weights.plan.bindings
@@ -81,10 +81,15 @@ def main():
         ]
 
         def call(i):
-            plans[i].run(x, out=outputs[i], workspace=scratch[i]) if i in (
-                1,
-                2,
-            ) else plans[i].run(x, out=outputs[i])
+            (
+                plans[i].run(x, out=outputs[i], workspace=scratch[i])
+                if i
+                in (
+                    1,
+                    2,
+                )
+                else plans[i].run(x, out=outputs[i])
+            )
 
         for i in range(len(plans)):
             call(i)

@@ -6,7 +6,7 @@ import pytest
 
 from test_qwen_model import hybrid_fixture
 from venturi import cli
-from venturi import qwen_native_cli as native
+from venturi.models.qwen import qwen_native_cli as native
 
 
 def test_native_metadata_inspect_no_gpu_or_payload_promise(
@@ -17,11 +17,13 @@ def test_native_metadata_inspect_no_gpu_or_payload_promise(
     def forbidden(*a, **k):
         raise AssertionError("Metadata inspection must not create a GPU runtime")
 
+    monkeypatch.setattr(native, "QwenRuntime", lambda library, operators: operators)
+
     monkeypatch.setattr(native, "CudaBackend", forbidden)
-    assert cli.main(["qwen-native", "inspect", str(w.artifact.path)]) == 0
+    assert cli.main(["qwen-native", "inspect", str(w.source.path)]) == 0
     out = json.loads(capsys.readouterr().out)
     assert (
-        out["artifact_id"] == w.artifact.artifact_id
+        out["header_sha256"] == w.source.header_sha256
         and out["formats"]["q8_g32_fp16"] > 0
     )
     assert out["verified_single_file_sha256"] is None and "not payload" in out["scope"]
@@ -30,7 +32,7 @@ def test_native_metadata_inspect_no_gpu_or_payload_promise(
             [
                 "qwen-native",
                 "inspect",
-                str(w.artifact.path),
+                str(w.source.path),
                 "--expected-sha256",
                 "0" * 64,
             ]
@@ -46,10 +48,12 @@ def test_native_generate_requires_explicit_residency_and_does_not_fallback(
     def forbidden(*a, **k):
         raise AssertionError("No backend before complete explicit options")
 
+    monkeypatch.setattr(native, "QwenRuntime", lambda library, operators: operators)
+
     monkeypatch.setattr(native, "CudaBackend", forbidden)
     with pytest.raises(SystemExit) as exc:
         cli.main(
-            ["qwen-native", "generate", str(w.artifact.path), "--token-ids", "1,2,3"]
+            ["qwen-native", "generate", str(w.source.path), "--token-ids", "1,2,3"]
         )
     assert exc.value.code == 1 and "--weight-mode" in capsys.readouterr().err
 
@@ -95,16 +99,19 @@ def test_native_cli_ids_one_generate_call_and_cleanup(
 
     monkeypatch.setattr(native, "NativeQwenModel", Model)
     monkeypatch.setattr(native, "NativeQwenPipelineModel", Model)
+    monkeypatch.setattr(native, "QwenRuntime", lambda library, operators: operators)
     monkeypatch.setattr(native, "CudaBackend", lambda library: library)
     monkeypatch.setattr(native, "LocalTokenizer", no_tokenizer)
     args = [
         "qwen-native",
         "generate",
-        str(w.artifact.path),
+        str(w.source.path),
         "--token-ids",
         "1,4,3",
-        "--blocks-library",
+        "--ops-library",
         "explicit.so",
+        "--qwen-library",
+        "not-loaded-qwen.so",
         "--weight-mode",
         "resident" if parallel else "streaming",
         "--dtype",
@@ -181,17 +188,21 @@ def test_column_mlp_cli_rejects_missing_host_tp_before_backend(
     def forbidden(*a, **kw):
         raise AssertionError("Invalid profile options initialized a backend")
 
+    monkeypatch.setattr(native, "QwenRuntime", lambda library, operators: operators)
+
     monkeypatch.setattr(native, "CudaBackend", forbidden)
     with pytest.raises(SystemExit) as exc:
         cli.main(
             [
                 "qwen-native",
                 "generate",
-                str(w.artifact.path),
+                str(w.source.path),
                 "--token-ids",
                 "1,2,3",
-                "--blocks-library",
+                "--ops-library",
                 "unused.so",
+                "--qwen-library",
+                "not-loaded-qwen.so",
                 "--weight-mode",
                 "resident",
                 "--dtype",

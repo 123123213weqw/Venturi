@@ -3,7 +3,7 @@ import math
 import pytest
 import torch
 
-from venturi.models.engram_residual import reference_engram_residual
+from venturi.models.deepseek.engram_residual import reference_engram_residual
 
 
 def data(dtype=torch.float32):

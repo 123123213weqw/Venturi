@@ -14,7 +14,7 @@ from venturi.ops import CudaBackend, TorchBackend
 def backend(request):
     if request.param == "reference":
         return TorchBackend(), "cpu"
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native library required")
     return CudaBackend(library), "cuda:0"
@@ -187,7 +187,7 @@ def test_rope_wrong_tables_and_partial_alias_rejected():
 
 @pytest.mark.cuda
 def test_attention_rope_native_graph_stream_without_tensor_fallback(monkeypatch):
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native library required")
     engine, device = CudaBackend(library), "cuda:0"

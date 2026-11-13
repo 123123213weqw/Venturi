@@ -9,8 +9,8 @@ from safetensors.torch import save_file
 import torch
 from torch.nn import functional as F
 
-from venturi.checkpoint import inspect_checkpoint
-from venturi.models.flash_next_residual import FlashNextGatedResidual, GroupedZeroCenteredRMSNorm
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_residual import FlashNextGatedResidual, GroupedZeroCenteredRMSNorm
 
 
 def make_module(dtype, combine=True):

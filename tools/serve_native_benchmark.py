@@ -5,6 +5,7 @@ Python owns HTTP and admission only; native generate (cohorts) or native step
 streaming. Continuous token-availability timings are not HTTP streaming TTFT.
 """
 
+
 import argparse
 from concurrent.futures import Future
 from queue import Queue, Empty
@@ -197,15 +198,26 @@ class ContinuousCompletionBatcher:
     HTTP JSON work stays on request threads. No device introspection per response.
     """
 
-    def __init__(self, batch, *, token_budget, prefill_chunk_size, max_pending,
-                 prefill_policy="round-robin"):
+    def __init__(
+        self,
+        batch,
+        *,
+        token_budget,
+        prefill_chunk_size,
+        max_pending,
+        prefill_policy="round-robin",
+    ):
         from venturi.runtime import ContinuousScheduler, ContinuousWorker
 
-        self.worker = ContinuousWorker(ContinuousScheduler(
-            batch, token_budget=token_budget,
-            prefill_chunk_size=prefill_chunk_size, max_pending=max_pending,
-            prefill_policy=prefill_policy,
-        )).start()
+        self.worker = ContinuousWorker(
+            ContinuousScheduler(
+                batch,
+                token_budget=token_budget,
+                prefill_chunk_size=prefill_chunk_size,
+                max_pending=max_pending,
+                prefill_policy=prefill_policy,
+            )
+        ).start()
 
     def submit(self, slot, prompt, maximum):
         prompt_tokens = len(prompt)
@@ -225,23 +237,29 @@ class ContinuousCompletionBatcher:
                 return
             try:
                 value = source.result()
-                response.set_result(dict(
-                    tokens=list(value.output_ids), tokens_predicted=len(value.output_ids),
-                    tokens_evaluated=prompt_tokens, tokens_cached=0, id_slot=slot,
-                    request_id=value.request_id, finish_reason=value.finish_reason,
-                    native_timings=None,
-                    scheduler_timings=dict(
-                        queue_seconds=value.queue_seconds,
-                        time_to_first_token_seconds=value.time_to_first_token_seconds,
-                        wall_seconds=value.wall_seconds,
-                        max_inter_token_seconds=value.max_inter_token_seconds,
-                    ),
-                    scheduler_timings_scope=(
-                        "Submission to this request's native token availability/completion; "
-                        "includes queue/scheduling, not native-only or HTTP streaming timing"
-                    ),
-                    id_slot_scope="HTTP client lane only; private native slot assigned dynamically",
-                ))
+                response.set_result(
+                    dict(
+                        tokens=list(value.output_ids),
+                        tokens_predicted=len(value.output_ids),
+                        tokens_evaluated=prompt_tokens,
+                        tokens_cached=0,
+                        id_slot=slot,
+                        request_id=value.request_id,
+                        finish_reason=value.finish_reason,
+                        native_timings=None,
+                        scheduler_timings=dict(
+                            queue_seconds=value.queue_seconds,
+                            time_to_first_token_seconds=value.time_to_first_token_seconds,
+                            wall_seconds=value.wall_seconds,
+                            max_inter_token_seconds=value.max_inter_token_seconds,
+                        ),
+                        scheduler_timings_scope=(
+                            "Submission to this request's native token availability/completion; "
+                            "includes queue/scheduling, not native-only or HTTP streaming timing"
+                        ),
+                        id_slot_scope="HTTP client lane only; private native slot assigned dynamically",
+                    )
+                )
             except BaseException as error:
                 response.set_exception(error)
 
@@ -265,7 +283,7 @@ def main():
         default=32,
         help="Internal projection workspace rows; not per-slot context capacity",
     )
-    p.add_argument("--mtp-artifact")
+    p.add_argument("--mtp-checkpoint")
     p.add_argument("--target-layer-graph", action="store_true")
     p.add_argument("--mtp-depth", type=int, choices=(1, 2), default=1)
     p.add_argument("--mtp-recovery", choices=("replay", "prefix"), default="replay")
@@ -275,14 +293,25 @@ def main():
     p.add_argument("--capacity", type=int, default=256)
     p.add_argument("--ready-file", required=True)
     p.add_argument("--batch-target", action="store_true")
-    p.add_argument("--continuous-target", action="store_true",
-                   help="Opt-in ordinary TP decode-step scheduling; no MTP/graphs/PP")
+    p.add_argument(
+        "--continuous-target",
+        action="store_true",
+        help="Opt-in ordinary TP decode-step scheduling; no MTP/graphs/PP",
+    )
     p.add_argument("--prefill-chunk-size", type=int, default=16)
-    p.add_argument("--prefill-policy", choices=("round-robin", "balanced", "balanced-short"), default="round-robin",
-                   help="Experimental balanced prefill sharing; continuous-target only")
+    p.add_argument(
+        "--prefill-policy",
+        choices=("round-robin", "balanced", "balanced-short"),
+        default="round-robin",
+        help="Experimental balanced prefill sharing; continuous-target only",
+    )
     p.add_argument("--max-pending", type=int, default=128)
-    p.add_argument("--metadata-mode", choices=("checked-json", "sealed"), default="checked-json",
-                   help="Experimental immutable loaded descriptors; does not disable source-file guards")
+    p.add_argument(
+        "--metadata-mode",
+        choices=("checked-json", "sealed"),
+        default="checked-json",
+        help="Experimental immutable loaded descriptors; does not disable source-file guards",
+    )
     p.add_argument(
         "--adaptive-mtp",
         action="store_true",
@@ -310,22 +339,32 @@ def main():
         choices=("fp16", "q8-residual"),
         default="fp16",
     )
+    p.add_argument("--qwen-library", required=True)
     args = p.parse_args()
     if args.prefill_policy != "round-robin" and not args.continuous_target:
         p.error("Balanced prefill requires an explicit continuous target")
     if args.metadata_mode == "sealed" and args.mode != "tp":
-        p.error("Sealed metadata benchmark mode currently requires an explicit TP target")
+        p.error(
+            "Sealed metadata benchmark mode currently requires an explicit TP target"
+        )
     if args.continuous_target and (
-        args.mode != "tp" or args.mtp_artifact or args.adaptive_mtp
-        or args.batch_target or args.batch_mtp or args.target_layer_graph
-        or args.mtp_depth != 1 or args.mtp_recovery != "replay"
+        args.mode != "tp"
+        or args.mtp_checkpoint
+        or args.adaptive_mtp
+        or args.batch_target
+        or args.batch_mtp
+        or args.target_layer_graph
+        or args.mtp_depth != 1
+        or args.mtp_recovery != "replay"
         or not 1 <= args.prefill_chunk_size <= args.projection_rows
         or not 1 <= args.max_pending <= 65536
     ):
-        p.error("Continuous target requires ordinary TP, bounded prefill/pending and no fixed/MTP/graph overrides")
+        p.error(
+            "Continuous target requires ordinary TP, bounded prefill/pending and no fixed/MTP/graph overrides"
+        )
     if args.adaptive_mtp and (
         args.mode != "tp"
-        or not args.mtp_artifact
+        or not args.mtp_checkpoint
         or args.batch_target
         or args.batch_mtp
         or args.target_layer_graph
@@ -337,14 +376,14 @@ def main():
             "Adaptive MTP requires TP, a draft artifact, nonnegative probe interval and no fixed-mode overrides"
         )
     if args.mtp_draft_projection_profile != "fp16" and (
-        not args.mtp_artifact or args.mode != "tp"
+        not args.mtp_checkpoint or args.mode != "tp"
     ):
         p.error(
             "Residual MTP draft requires an explicit draft artifact and non-PP target"
         )
     if args.target_layer_graph and (
         args.mode != "tp"
-        or not args.mtp_artifact
+        or not args.mtp_checkpoint
         or args.mtp_depth != 2
         or args.mtp_recovery != "prefix"
         or args.projection_profile != "q8-residual"
@@ -359,18 +398,20 @@ def main():
     if args.batch_mtp and (
         args.batch_target
         or args.mode != "tp"
-        or not args.mtp_artifact
+        or not args.mtp_checkpoint
         or args.mtp_depth != 1
         or args.mtp_recovery != "replay"
     ):
         p.error(
             "Batch MTP requires TP, an MTP artifact, depth one and no scalar recovery/batch-target override"
         )
-    if args.mtp_recovery != "replay" and (not args.mtp_artifact or args.mtp_depth != 2):
+    if args.mtp_recovery != "replay" and (
+        not args.mtp_checkpoint or args.mtp_depth != 2
+    ):
         p.error("Prefix recovery requires MTP depth two")
-    if args.mtp_depth != 1 and not args.mtp_artifact:
-        p.error("--mtp-depth requires --mtp-artifact")
-    if args.batch_target and (args.mode != "tp" or args.mtp_artifact):
+    if args.mtp_depth != 1 and not args.mtp_checkpoint:
+        p.error("--mtp-depth requires --mtp-checkpoint")
+    if args.batch_target and (args.mode != "tp" or args.mtp_checkpoint):
         p.error("Grouped target batching currently requires TP without MTP")
     if args.projection_profile != "fp16" and args.mode != "tp":
         p.error("Explicit residual profile currently supports TP, not PP")
@@ -381,14 +422,15 @@ def main():
         NativeQwenModel,
         NativeQwenPipelineModel,
         NativeQwenMTPModel,
-        QwenQ8Weights,
+        QwenWeights,
         QwenMTPWeights,
     )
-    from venturi.ninfer import NInferArtifact
+    from venturi.container.safetensors import SafetensorsContainer
     from venturi.ops import CudaBackend
+    from venturi.models.qwen.native_runtime import QwenRuntime
 
     torch.set_num_threads(4)
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(args.artifact))
+    weights = QwenWeights.open(args.artifact)
     backend = CudaBackend(args.library)
     kw = dict(
         weight_mode="resident",
@@ -399,7 +441,7 @@ def main():
     target = (
         NativeQwenModel.from_q8(
             weights,
-            backend,
+            QwenRuntime(args.qwen_library, backend),
             tensor_parallel_device="cuda:1",
             tensor_parallel_transport="host",
             projection_profile=args.projection_profile,
@@ -409,7 +451,7 @@ def main():
         if args.mode == "tp"
         else NativeQwenPipelineModel.from_q8(
             weights,
-            backend,
+            QwenRuntime(args.qwen_library, backend),
             pipeline_device="cuda:1",
             split_layer=32,
             transport="host",
@@ -420,15 +462,20 @@ def main():
     sessions = []
     batch = admission = None
     try:
-        if args.mtp_artifact:
+        if args.mtp_checkpoint:
             model = NativeQwenMTPModel.from_q8(
                 target,
-                QwenMTPWeights.from_ninfer(NInferArtifact(args.mtp_artifact)),
+                QwenMTPWeights.open(args.mtp_checkpoint),
                 draft_projection_profile=args.mtp_draft_projection_profile,
             )
-        if args.batch_target or args.batch_mtp or args.adaptive_mtp or args.continuous_target:
+        if (
+            args.batch_target
+            or args.batch_mtp
+            or args.adaptive_mtp
+            or args.continuous_target
+        ):
             if args.adaptive_mtp:
-                from venturi.adaptive_mtp import AdaptiveMTPPolicy
+                from venturi.models.qwen.adaptive_mtp import AdaptiveMTPPolicy
 
                 batch = model.create_adaptive_batch(
                     [args.capacity] * args.slots,
@@ -439,8 +486,10 @@ def main():
                 batch = model.create_batch([args.capacity] * args.slots)
             if args.continuous_target:
                 admission = ContinuousCompletionBatcher(
-                    batch, token_budget=args.projection_rows,
-                    prefill_chunk_size=args.prefill_chunk_size, max_pending=args.max_pending,
+                    batch,
+                    token_budget=args.projection_rows,
+                    prefill_chunk_size=args.prefill_chunk_size,
+                    max_pending=args.max_pending,
                     prefill_policy=args.prefill_policy,
                 )
             else:
@@ -449,7 +498,7 @@ def main():
                 )
         else:
             sessions = [model.create_session(args.capacity) for _ in range(args.slots)]
-        if args.mtp_artifact and args.mtp_recovery == "prefix":
+        if args.mtp_checkpoint and args.mtp_recovery == "prefix":
             for session in sessions:
                 session.prepare_prefix()
         if args.target_layer_graph:
@@ -465,33 +514,44 @@ def main():
             slots=args.slots,
             capacity=args.capacity,
             projection_rows=args.projection_rows,
-            mtp_depth="adaptive-0/1/scalar2"
-            if args.adaptive_mtp
-            else args.mtp_depth
-            if args.mtp_artifact
-            else 0,
-            mtp_recovery="request-prefix1-trace"
-            if args.batch_mtp
-            else args.mtp_recovery
-            if args.mtp_artifact
-            else None,
+            mtp_depth=(
+                "adaptive-0/1/scalar2"
+                if args.adaptive_mtp
+                else args.mtp_depth if args.mtp_checkpoint else 0
+            ),
+            mtp_recovery=(
+                "request-prefix1-trace"
+                if args.batch_mtp
+                else args.mtp_recovery if args.mtp_checkpoint else None
+            ),
             scope=__doc__,
             continuous_target=args.continuous_target,
-            prefill_chunk_size=args.prefill_chunk_size if args.continuous_target else None,
+            prefill_chunk_size=(
+                args.prefill_chunk_size if args.continuous_target else None
+            ),
             prefill_policy=args.prefill_policy if args.continuous_target else None,
             max_pending=args.max_pending if args.continuous_target else None,
-            batched_target=args.batch_target or args.batch_mtp or args.adaptive_mtp or args.continuous_target,
+            batched_target=args.batch_target
+            or args.batch_mtp
+            or args.adaptive_mtp
+            or args.continuous_target,
             batched_mtp=args.batch_mtp,
-            batch_window_ms=0 if args.continuous_target else args.batch_window_ms
-            if args.batch_target or args.batch_mtp or args.adaptive_mtp
-            else None,
+            batch_window_ms=(
+                0
+                if args.continuous_target
+                else (
+                    args.batch_window_ms
+                    if args.batch_target or args.batch_mtp or args.adaptive_mtp
+                    else None
+                )
+            ),
             projection_profile=args.projection_profile,
             metadata_mode=args.metadata_mode,
-            mtp_draft_projection_profile=model.projection_info[
-                "mtp_draft_projection_profile"
-            ]
-            if args.mtp_artifact
-            else None,
+            mtp_draft_projection_profile=(
+                model.projection_info["mtp_draft_projection_profile"]
+                if args.mtp_checkpoint
+                else None
+            ),
         )
 
         class Handler(BaseHTTPRequestHandler):
@@ -522,7 +582,9 @@ def main():
                         args.slots,
                         args.capacity,
                         weights.config["vocab_size"],
-                        max_prompt_tokens=args.capacity if args.continuous_target else 32,
+                        max_prompt_tokens=(
+                            args.capacity if args.continuous_target else 32
+                        ),
                     )
                     with locks[slot]:
                         if admission is not None:
@@ -544,7 +606,7 @@ def main():
                                         "draft_tokens": args.mtp_depth,
                                         "recovery": args.mtp_recovery,
                                     }
-                                    if args.mtp_artifact
+                                    if args.mtp_checkpoint
                                     else {}
                                 ),
                             )
@@ -556,9 +618,9 @@ def main():
                                 tokens_cached=0,
                                 id_slot=slot,
                                 native_timings=timings,
-                                mtp_stats=session.stats()
-                                if args.mtp_artifact
-                                else None,
+                                mtp_stats=(
+                                    session.stats() if args.mtp_checkpoint else None
+                                ),
                             )
                     self.reply(200, result)
                 except (ValueError, TypeError, json.JSONDecodeError) as error:

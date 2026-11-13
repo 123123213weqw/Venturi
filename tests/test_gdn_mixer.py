@@ -7,7 +7,7 @@ import pytest
 import torch
 
 from test_gdn import gdn_oracle
-from test_gdn_frontend import frontend_artifact
+from test_gdn_frontend import frontend_weights
 from test_state_space import conv_oracle, sample, silu64
 from venturi.models import GDNFrontendWeights
 from venturi.ops import CudaBackend, TorchBackend
@@ -17,7 +17,7 @@ from venturi.ops import CudaBackend, TorchBackend
 def mixer_backend(request):
     if request.param == "reference":
         return TorchBackend(), torch.float64, "cpu"
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native blocks library required")
     return CudaBackend(library), torch.bfloat16, "cuda:0"
@@ -42,8 +42,8 @@ def mixer_inputs(tokens, dtype, device):
 
 def test_staged_mixer_oracle_chunks_and_shared_constants(tmp_path, mixer_backend):
     backend, dtype, device = mixer_backend
-    artifact, _ = frontend_artifact(tmp_path)
-    weights = GDNFrontendWeights.from_ninfer(artifact, layer=0)
+    artifact, _ = frontend_weights(tmp_path)
+    weights = GDNFrontendWeights.from_weights(artifact, layer=0)
     resident = weights.upload(backend, dtype=dtype, device=device)
     pointers = [t.data_ptr() for t in resident.storage_tensors]
     plan = resident.prepare_mixer_core(tokens=9)
@@ -126,8 +126,8 @@ def test_staged_mixer_oracle_chunks_and_shared_constants(tmp_path, mixer_backend
 
 def test_mixer_preflights_every_buffer_before_state_mutation(tmp_path, mixer_backend):
     backend, dtype, device = mixer_backend
-    artifact, _ = frontend_artifact(tmp_path)
-    resident = GDNFrontendWeights.from_ninfer(artifact, layer=0).upload(
+    artifact, _ = frontend_weights(tmp_path)
+    resident = GDNFrontendWeights.from_weights(artifact, layer=0).upload(
         backend, dtype=dtype, device=device
     )
     plan = resident.prepare_mixer_core(tokens=3)
@@ -192,12 +192,12 @@ def test_mixer_preflights_every_buffer_before_state_mutation(tmp_path, mixer_bac
 
 @pytest.mark.cuda
 def test_native_composed_mixer_capture_and_no_fallback(tmp_path, monkeypatch):
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native blocks library required")
-    artifact, _ = frontend_artifact(tmp_path)
+    artifact, _ = frontend_weights(tmp_path)
     backend, dtype, device = CudaBackend(library), torch.bfloat16, "cuda:0"
-    resident = GDNFrontendWeights.from_ninfer(artifact, layer=0).upload(backend)
+    resident = GDNFrontendWeights.from_weights(artifact, layer=0).upload(backend)
     plan = resident.prepare_mixer_core(tokens=9)
     qkv, a, b, z, history, state = mixer_inputs(9, dtype, device)
     workspace, out = plan.empty_workspace(), torch.empty_like(z)
@@ -253,8 +253,8 @@ def test_native_composed_mixer_capture_and_no_fallback(tmp_path, monkeypatch):
 
 
 def test_mixer_prepare_rejects_inconsistent_residents(tmp_path):
-    artifact, _ = frontend_artifact(tmp_path)
-    resident = GDNFrontendWeights.from_ninfer(artifact, layer=0).upload(
+    artifact, _ = frontend_weights(tmp_path)
+    resident = GDNFrontendWeights.from_weights(artifact, layer=0).upload(
         TorchBackend(), dtype=torch.float64, device="cpu"
     )
     for bad in (
@@ -269,11 +269,11 @@ def test_mixer_prepare_rejects_inconsistent_residents(tmp_path):
 
 @pytest.mark.cuda
 def test_mixer_independent_streams_and_request_states(tmp_path):
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native blocks library required")
-    artifact, _ = frontend_artifact(tmp_path)
-    resident = GDNFrontendWeights.from_ninfer(artifact, layer=0).upload(
+    artifact, _ = frontend_weights(tmp_path)
+    resident = GDNFrontendWeights.from_weights(artifact, layer=0).upload(
         CudaBackend(library)
     )
     plan = resident.prepare_mixer_core(tokens=9)

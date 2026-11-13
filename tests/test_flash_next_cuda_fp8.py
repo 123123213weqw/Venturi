@@ -4,7 +4,7 @@ import pytest
 import torch
 
 from venturi.ops.flash_next_fp8 import NativeBlockFP8Decoder
-from venturi.models.flash_next_cuda_fp8 import CUDABlockFP8ExpertStore
+from venturi.models.flash_next.flash_next_cuda_fp8 import CUDABlockFP8ExpertStore
 
 
 def test_explicit_library_and_output_budget_required(tmp_path):

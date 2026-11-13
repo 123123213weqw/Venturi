@@ -13,7 +13,7 @@ from venturi.ops.blocks import _no_overlap, _shape, _tensor
 from venturi.ops.weights import DenseWeight
 from venturi.models.gated_mlp import GatedMLPWorkspace, ResidentGatedMLP
 from venturi.models.qwen.gdn_frontend import GDNFrontendWeights, GDNMixerWorkspace
-from venturi.models.qwen.qwen_weights import QwenQ8Weights
+from venturi.models.qwen.qwen_weights import QwenWeights
 
 
 def _outside_capture(device):
@@ -55,8 +55,8 @@ class ResidentQwenGDNLayer:
     @classmethod
     def from_q8(cls, weights, backend, *, layer, dtype=torch.bfloat16, device="cuda:0"):
         """Upload one encoded projection at a time; never retain a dense model."""
-        if not isinstance(weights, QwenQ8Weights):
-            raise TypeError("Expected complete preflighted QwenQ8Weights")
+        if not isinstance(weights, QwenWeights):
+            raise TypeError("Expected complete preflighted QwenWeights")
         weights.layer_bindings(layer)
         cfg = weights.config
         if cfg["layer_types"][layer] != "linear_attention":
@@ -70,7 +70,7 @@ class ResidentQwenGDNLayer:
         target = backend.validate_device(dtype, device)
         _outside_capture(target)
         prefix = f"text/layers/{layer}/"
-        frontend = GDNFrontendWeights.from_ninfer(weights.artifact, layer=layer).upload(
+        frontend = GDNFrontendWeights.from_weights(weights, layer=layer).upload(
             backend, dtype=dtype, device=target, epsilon=cfg["rms_norm_eps"]
         )
 

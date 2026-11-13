@@ -8,9 +8,9 @@ import pytest
 from safetensors.torch import save_file
 import torch
 
-from venturi.checkpoint import inspect_checkpoint
-from venturi.models.flash_next_fp8 import BlockFP8ExpertStore, decode_block_fp8
-from venturi.models.flash_next_moe import MoEGeometry
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_fp8 import BlockFP8ExpertStore, decode_block_fp8
+from venturi.models.flash_next.flash_next_moe import MoEGeometry
 
 
 @pytest.mark.parametrize('strategy', ['tiled', 'vectorized'])

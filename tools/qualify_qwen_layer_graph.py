@@ -1,5 +1,7 @@
 """Untimed trained graph/eager full verification-byte and committed-state gate."""
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 import hashlib
 import json
@@ -8,10 +10,10 @@ import torch
 from venturi.models import (
     NativeQwenModel,
     NativeQwenMTPModel,
-    QwenQ8Weights,
+    QwenWeights,
     QwenMTPWeights,
 )
-from venturi.ninfer import NInferArtifact
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 from qualify_qwen_projection_variant import state_signature, tensor_signature
 
@@ -31,12 +33,13 @@ def draft_signature(state):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("artifact")
-    p.add_argument("--mtp-artifact", required=True)
+    p.add_argument("--mtp-checkpoint", required=True)
     p.add_argument("--library", required=True)
     p.add_argument("--cases", required=True)
     p.add_argument("--prior-target-report", required=True)
     p.add_argument("--prior-target-report-sha256", required=True)
     p.add_argument("--output-directory", required=True)
+    p.add_argument("--qwen-library", required=True)
     a = p.parse_args()
     out = Path(a.output_directory)
     out.mkdir(parents=True, exist_ok=False)
@@ -49,11 +52,11 @@ def main():
     prior = json.loads(Path(a.prior_target_report).read_text())
     assert prior["completed"]
     cases = json.loads(Path(a.cases).read_text())
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
-    assert prior["artifact_id"] == weights.artifact.artifact_id
+    weights = QwenWeights.open(a.artifact)
+    assert prior["header_sha256"] == weights.source.header_sha256
     target = NativeQwenModel.from_q8(
         weights,
-        CudaBackend(a.library),
+        QwenRuntime(a.qwen_library, CudaBackend(a.library)),
         weight_mode="resident",
         dtype=torch.float16,
         device="cuda:0",
@@ -69,7 +72,7 @@ def main():
         profiled=False,
         performance_qualified=False,
         library_sha256=digest(a.library),
-        artifact_id=weights.artifact.artifact_id,
+        header_sha256=weights.source.header_sha256,
         prior_target_report_sha256=a.prior_target_report_sha256,
         cases=[],
         reset_repeat=None,
@@ -80,7 +83,7 @@ def main():
 
     try:
         model = NativeQwenMTPModel.from_q8(
-            target, QwenMTPWeights.from_ninfer(NInferArtifact(a.mtp_artifact))
+            target, QwenMTPWeights.open(a.mtp_checkpoint)
         )
         for case in cases:
             capacity = len(case["prompt_token_ids"]) + case["max_new_tokens"]

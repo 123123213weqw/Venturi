@@ -19,10 +19,9 @@ import torch
 
 from gpu_telemetry import FIELDS, telemetry
 from gpu_telemetry import idle_gpu
-from venturi.ninfer import NInferArtifact
+from venturi.models.qwen.qwen_weights import QwenWeights
 from venturi.ops import (
     CudaBackend,
-    NInferVocabulary,
     Q8VocabularyWeights,
     ResidentQ8Vocabulary,
     TorchBackend,
@@ -110,56 +109,67 @@ def bf16_check(actual, ideal, *, floor=2e-5):
     )
 
 
-def qualify_vocabulary_bindings(artifact, backend):
-    """Exercise the public two-binding API with actual token-embedding input."""
-    bound = NInferVocabulary.upload_from_ninfer(artifact, backend)
-    ids = [1, 42, bound.embedding.vocab_size - 1]
-    lookup = bound.embedding.prepare_embedding(ids)
-    hidden = torch.empty(
-        len(ids), bound.embedding.hidden_size, dtype=torch.bfloat16, device="cuda"
+def qualify_vocabulary_bindings(weights, backend):
+    """Bind admitted Q8 planes explicitly; no storage-format vocabulary facade."""
+    embedding = weights.read_linear("text/token_embedding")
+    head = weights.read_linear("text/output_head")
+    resident = Q8VocabularyWeights(
+        embedding.codes, embedding.scales, embedding.in_features
+    ).upload(backend)
+    output = (
+        resident
+        if weights.plan.tied_embeddings
+        else Q8VocabularyWeights(head.codes, head.scales, head.in_features).upload(
+            backend
+        )
     )
-    lookup.run(out=hidden)
-    source = bound.object_ids[0]
-    expected = torch.tensor([artifact.decode_row(source, i) for i in ids]).bfloat16()
-    assert torch.equal(hidden.cpu(), expected)
-    logits = torch.empty(1, bound.head.vocab_size, dtype=torch.bfloat16, device="cuda")
-    bound.head.prepare(tokens=1).run(hidden[1:2], out=logits)
+    ids = [1, 42, resident.vocab_size - 1]
+    hidden = torch.empty(
+        len(ids), resident.hidden_size, dtype=torch.bfloat16, device="cuda"
+    )
+    resident.prepare_embedding(ids).run(out=hidden)
+
+    def rows(weight, indices):
+        return (
+            weight.codes[indices].double()
+            * weight.scales[indices].double().repeat_interleave(32, dim=1)
+        )[:, : weight.in_features]
+
+    assert torch.equal(hidden.cpu(), rows(embedding, ids).bfloat16())
+    logits = torch.empty(1, output.vocab_size, dtype=torch.bfloat16, device="cuda")
+    output.prepare(tokens=1).run(hidden[1:2], out=logits)
     assert bool(torch.isfinite(logits).all())
-    rows = sorted(
+    selected = sorted(
         set(
             [
                 0,
                 1,
                 42,
-                bound.head.vocab_size - 1,
+                output.vocab_size - 1,
                 *logits[0].topk(10).indices.cpu().tolist(),
             ]
         )
     )
-    head_rows = torch.tensor(
-        [artifact.decode_row(bound.object_ids[1], i) for i in rows], dtype=torch.float64
+    checked = bf16_check(
+        logits[:, selected],
+        hidden[1:2].cpu().double() @ rows(head, selected).T,
+        floor=2e-4,
     )
-    ideal = hidden[1:2].cpu().double() @ head_rows.T
-    checked = bf16_check(logits[:, rows], ideal, floor=2e-4)
     assert checked["passed"], checked
     return dict(
-        object_ids=bound.object_ids,
-        embedding_shape=[bound.embedding.vocab_size, bound.embedding.hidden_size],
-        head_shape=[bound.head.vocab_size, bound.head.hidden_size],
-        resident_weight_bytes=bound.storage_nbytes,
-        tied_storage=bound.embedding is bound.head,
         embedding_exact=True,
         head_logits_finite=True,
-        head_sample_rows=rows,
+        head_sample_rows=selected,
         head_sample_qualification=checked,
-        scope="Public vocabulary binding composition only; embedding input is not a decoder hidden state",
+        tied_storage=resident is output,
+        scope="Vocabulary composition only; not decoder quality or model TPS",
     )
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("checkpoint")
-    parser.add_argument("--blocks-library", required=True)
+    parser.add_argument("--ops-library", required=True)
     parser.add_argument("--output-directory", required=True)
     parser.add_argument("--seconds", type=float, default=2.0)
     parser.add_argument("--tokens", type=int, nargs="+", default=[1, 128])
@@ -170,19 +180,23 @@ def main(argv=None):
     out.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(4)
     write(out / "background.json", {"compute_processes": idle_gpu()})
-    native = CudaBackend(args.blocks_library)
-    artifact = NInferArtifact(args.checkpoint)
-    config = artifact.manifest["components"]["text"]["config"]
+    native = CudaBackend(args.ops_library)
+    admitted = QwenWeights.open(args.checkpoint)
+    artifact = admitted.source
+    config = admitted.config
     if config.get("model_type") != "qwen3_5_text":
         raise ValueError("This qualification expects the current qwen3_5_text artifact")
     write(
         out / "artifact-config.json",
         dict(
-            artifact_id=artifact.artifact_id,
+            header_sha256=artifact.header_sha256,
             path=str(artifact.path),
             config=config,
             vocabulary_bindings={
-                name: artifact.objects[artifact.manifest["bindings"][name]["object"]]
+                name: dict(
+                    source=admitted.descriptor(name).source,
+                    shape=admitted.descriptor(name).shape,
+                )
                 for name in ("text/token_embedding", "text/output_head")
             },
         ),
@@ -329,7 +343,10 @@ def main(argv=None):
             # independently, releasing the previous matrix before the next one.
             for binding in ("text/token_embedding", "text/output_head"):
                 print("binding", binding, flush=True)
-                weights = Q8VocabularyWeights.from_ninfer(artifact, binding)
+                linear = admitted.read_linear(binding)
+                weights = Q8VocabularyWeights(
+                    linear.codes, linear.scales, linear.in_features
+                )
                 resident = weights.upload(native)
                 reference = ResidentQ8Vocabulary(
                     TorchBackend(),
@@ -350,8 +367,10 @@ def main(argv=None):
                 lookup.run(out=embedding)
                 # Existing independent artifact decoder validates the storage
                 # binding, including signs, group scales and payload offsets.
-                obj = artifact.manifest["bindings"][binding]["object"]
-                expected_rows = torch.tensor([artifact.decode_row(obj, i) for i in ids])
+                expected_rows = (
+                    linear.codes[ids].double()
+                    * linear.scales[ids].double().repeat_interleave(32, dim=1)
+                )[:, : linear.in_features]
                 assert torch.equal(embedding.cpu(), expected_rows.bfloat16())
                 case = dict(
                     name=binding.replace("/", "-"),
@@ -391,9 +410,9 @@ def main(argv=None):
                         for name, target in targets.items()
                     }
                     write(out / (case["name"] + "-qualification.json"), case)
-                    assert all(c["passed"] for c in case["qualification"].values()), (
-                        case
-                    )
+                    assert all(
+                        c["passed"] for c in case["qualification"].values()
+                    ), case
                     calls = {
                         name: (
                             lambda plan=plan, target=targets[name]: plan.run(

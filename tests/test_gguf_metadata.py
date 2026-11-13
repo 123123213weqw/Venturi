@@ -5,8 +5,8 @@ import sys
 
 import pytest
 
-from venturi.gguf_metadata import read_verified_integer_metadata
-from venturi.model_assets import ModelAsset
+from venturi.container.gguf.gguf_metadata import read_verified_integer_metadata
+from venturi.container.model_assets import ModelAsset
 
 
 def write_gguf(root,tensors,metadata=()):
@@ -73,7 +73,7 @@ def test_symlink_asset_refused(tmp_path,asset):
 
 
 def test_changed_file_during_scan_is_retained_as_failure(tmp_path,asset,monkeypatch):
-    import venturi.gguf_metadata as module
+    import venturi.container.gguf.gguf_metadata as module
     real=module.hashlib.sha256;count=0
     class ChangingDigest:
         def __init__(self):self.inner=real()
@@ -92,12 +92,12 @@ def test_changed_file_during_scan_is_retained_as_failure(tmp_path,asset,monkeypa
 
 
 def test_integer_metadata_import_is_torch_free():
-    subprocess.check_call([sys.executable,'-c','import sys;import venturi.gguf_metadata;assert "torch" not in sys.modules'])
+    subprocess.check_call([sys.executable,'-c','import sys;import venturi.container.gguf.gguf_metadata;assert "torch" not in sys.modules'])
 
 
 
 def test_inventory_header_must_match_same_verified_descriptor(tmp_path,asset,monkeypatch):
-    import venturi.gguf_metadata as module
+    import venturi.container.gguf.gguf_metadata as module
     from dataclasses import replace
     original=module.inspect_gguf
     def wrong_header(*args,**kwargs):

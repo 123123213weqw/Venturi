@@ -5,12 +5,12 @@ import torch
 
 from test_fp16_port import port as base_port
 from test_state_space import conv_oracle, assert_qualified
-from test_qwen_source import fixture_tensors, source_config, write_source
+from qwen_fixtures import fixture_tensors, source_config, write_source
 from test_qwen_q8_layer_tool import load as load_tool
-from venturi.models import ResidentQwenGDNLayer, QwenQ8Weights, qwen_resident_bytes
-from venturi.ninfer import NInferArtifact
+from venturi.models import ResidentQwenGDNLayer, QwenWeights, qwen_resident_bytes
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import DenseWeight, TorchBackend, CudaBackend
-from venturi.qwen_export import export_qwen_q8
+from venturi.models.qwen.qwen_export import export_qwen_q8
 
 
 @pytest.fixture(params=["cpu-fp16", "native-fp16", "cpu-bf16", "native-bf16"])
@@ -22,7 +22,7 @@ def mixed_port(request):
             return TorchBackend(), torch.bfloat16, "cpu"
         if os.environ.get("VENTURI_SM70_LIBRARY"):
             pytest.skip("Native BF16 is not supported on SM70")
-        library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+        library = os.environ.get("VENTURI_OPS_LIBRARY")
         if not library:
             pytest.skip("explicit SM89 native library required")
         return CudaBackend(library), torch.bfloat16, "cuda:0"
@@ -123,8 +123,8 @@ def test_gdn_original_small_parameters_and_parameter_fidelity_tool(
     for role in ("in_proj_a.weight", "in_proj_b.weight", "conv1d.weight"):
         raw[prefix + role].flatten()[0] = torch.tensor(1e-8, dtype=torch.bfloat16)
     source = write_source(tmp_path / "source", raw=cfg, tensors=raw)
-    export = export_qwen_q8(source, tmp_path / "q8.ninfer")
-    w = QwenQ8Weights.from_ninfer(NInferArtifact(export["output"]))
+    export = export_qwen_q8(source, tmp_path / "q8.safetensors")
+    w = QwenWeights.open(export["output"])
     r = ResidentQwenGDNLayer.from_q8(w, backend, layer=0, dtype=dtype, device=device)
     assert (
         qwen_resident_bytes(

@@ -23,10 +23,13 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests"))
 from q8_dp4a_reference import projection_reference  # noqa: E402
 from probe_cuda_multigpu_graph import Runtime  # noqa: E402
-from venturi.models import QwenQ8Weights  # noqa: E402
-from venturi.ninfer import NInferArtifact  # noqa: E402
+from venturi.models import QwenWeights  # noqa: E402
+from venturi.container.safetensors import SafetensorsContainer  # noqa: E402
 from venturi.ops import CudaBackend, Q8RowSplitWeight, prepare_q8_dp4a  # noqa: E402
-from venturi.ops.q8_column_tp import prepare_q8_column_partial, slice_q8_columns  # noqa: E402
+from venturi.ops.q8_column_tp import (
+    prepare_q8_column_partial,
+    slice_q8_columns,
+)  # noqa: E402
 from venturi.ops.q8_fused import prepare_q8_fused  # noqa: E402
 from venturi.ops.q8_shared import prepare_q8_tiled_shared  # noqa: E402
 
@@ -59,7 +62,7 @@ def main():
         torch.cuda.get_device_capability(i) != (7, 0) for i in [0, 1]
     ):
         raise ValueError("Exactly two explicitly selected V100 GPUs required")
-    w = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
+    w = QwenWeights.open(a.artifact)
     # Layer zero is a trained GDN block, but the MLP layout is shared by both types.
     prefix = next(
         s.binding.rsplit("/", 2)[0]
@@ -83,10 +86,12 @@ def main():
             weights = [
                 row_slice(gate, rank),
                 row_slice(up, rank),
-                row_slice(down, rank)
-                if mode == "row"
-                else slice_q8_columns(
-                    down, rank * (inter // 2), (rank + 1) * (inter // 2)
+                (
+                    row_slice(down, rank)
+                    if mode == "row"
+                    else slice_q8_columns(
+                        down, rank * (inter // 2), (rank + 1) * (inter // 2)
+                    )
                 ),
             ]
             residents[mode].append(
@@ -114,7 +119,7 @@ def main():
         scope=__doc__,
         completed=False,
         profiled=a.profile,
-        artifact_id=w.artifact.artifact_id,
+        header_sha256=w.source.header_sha256,
         library_sha256=hashlib.sha256(Path(a.library).read_bytes()).hexdigest(),
         binding_prefix=prefix,
         hidden=h,
@@ -261,9 +266,9 @@ def main():
                     silu[mode].append(
                         backend.prepare_swiglu(
                             tokens=tokens,
-                            features=inter
-                            if mode == "row" and rank == 0
-                            else inter // 2,
+                            features=(
+                                inter if mode == "row" and rank == 0 else inter // 2
+                            ),
                             dtype=torch.float16,
                             device=f"cuda:{rank}",
                         )

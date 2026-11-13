@@ -20,9 +20,9 @@ __all__ = [
 ]
 
 _EXPORTS = {
-    **{name: ".checkpoint" for name in ("Checkpoint", "CheckpointError", "TensorSpec", "inspect_checkpoint")},
-    **{name: ".loader" for name in ("LoadedCheckpoint", "LoadStats", "load_checkpoint")},
-    **{name: ".verification" for name in ("VerificationStats", "verify_loaded_checkpoint")},
+    **{name: 'venturi.container.checkpoint' for name in ("Checkpoint", "CheckpointError", "TensorSpec", "inspect_checkpoint")},
+    **{name: 'venturi.container.loader' for name in ("LoadedCheckpoint", "LoadStats", "load_checkpoint")},
+    **{name: 'venturi.quantization.verification' for name in ("VerificationStats", "verify_loaded_checkpoint")},
 }
 
 

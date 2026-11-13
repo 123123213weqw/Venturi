@@ -10,12 +10,10 @@ from torch.nn.attention import SDPBackend, sdpa_kernel
 from test_flash_next_loader import fixture as floating_fixture, OPTIONS
 from test_flash_next_fp8_loader import fixture as fp8_fixture
 from venturi.cli import main
-from venturi.flash_next_generation import generate_flash_next_tokens, generate_flash_next_text
-from venturi.models.flash_next_loader import (
-    load_floating_text, load_weight_decoded_fp8_text, plan_floating_text,
-)
-from venturi.models.flash_next_ngram import PreparedNGramTable
-from venturi.models.flash_next_request import FlashNextRequest
+from venturi.models.flash_next.flash_next_generation import generate_flash_next_tokens, generate_flash_next_text
+from venturi.models.flash_next.flash_next_loader import load_floating_text, load_weight_decoded_fp8_text, plan_floating_text
+from venturi.models.flash_next.flash_next_ngram import PreparedNGramTable
+from venturi.models.flash_next.flash_next_request import FlashNextRequest
 
 
 @pytest.mark.parametrize('encoding', ['floating', 'fp8'])
@@ -128,7 +126,7 @@ def test_cli_real_local_tokenizer_plan_and_completion(tmp_path, capsys, fp8):
 
 def test_execution_preflight_is_metadata_only_and_counts_cast_bytes(tmp_path, monkeypatch):
     cp, _, _ = floating_fixture(tmp_path, dtype=torch.bfloat16)
-    import venturi.models.flash_next_loader as loader
+    import venturi.models.flash_next.flash_next_loader as loader
     monkeypatch.setattr(loader, 'safe_open', lambda *a, **k: pytest.fail('plan read payload'))
     monkeypatch.setattr(torch.cuda, 'get_device_properties', lambda *a: pytest.fail('plan initialized CUDA'))
     report = plan_floating_text(cp, **dict(OPTIONS, execution_device='cuda:0', execution_dtype=torch.float32))
@@ -156,14 +154,14 @@ def test_prefill_admission_before_io_and_empty_prompt(tmp_path, monkeypatch):
     loaded.core.max_logits_elements = 32
     with pytest.raises(ValueError, match='smaller chunk'):
         generate_flash_next_tokens(loaded.core, loaded.tables[1], [2, 3], prefill_chunk_size=2)
-    from venturi.generation import LocalTokenizer
+    from venturi.engine.generation import LocalTokenizer
     tokenizer = LocalTokenizer(tokenizer_file(tmp_path), vocab_size=32)
     with pytest.raises(ValueError, match='Empty tokenized'):
         generate_flash_next_text(loaded.core, loaded.tables[1], tokenizer, '')
 
 
 def test_generation_stops_are_separate_from_ngram_segment_eos(tmp_path):
-    from venturi.flash_next_generation import resolve_flash_next_eos
+    from venturi.models.flash_next.flash_next_generation import resolve_flash_next_eos
     cp, _, _ = floating_fixture(tmp_path)
     assert resolve_flash_next_eos(cp) == ((31,), 'text_config.eos_token_id')
     path = tmp_path/'generation_config.json'
@@ -178,7 +176,7 @@ def test_generation_stops_are_separate_from_ngram_segment_eos(tmp_path):
 
 @pytest.mark.parametrize('value', [True, '31', [], [32], [True], [31]*129])
 def test_invalid_eos_metadata_is_not_silently_applied(tmp_path, value):
-    from venturi.flash_next_generation import resolve_flash_next_eos
+    from venturi.models.flash_next.flash_next_generation import resolve_flash_next_eos
     cp, _, _ = floating_fixture(tmp_path)
     (tmp_path/'generation_config.json').write_text(json.dumps(dict(eos_token_id=value)))
     with pytest.raises(ValueError):

@@ -6,9 +6,9 @@ import os
 import pytest
 import torch
 
-from test_ninfer import write_artifact
-from venturi.ninfer import NInferArtifact, row_geometry
-from venturi.ops import CudaBackend, NInferVocabulary, Q8VocabularyWeights, TorchBackend
+from venturi.container.safetensors import SafetensorsContainer
+from venturi.quantization.layout import row_geometry
+from venturi.ops import CudaBackend, Q8VocabularyWeights, TorchBackend
 
 
 def vocabulary_weights(n=31, k=129):
@@ -19,55 +19,11 @@ def vocabulary_weights(n=31, k=129):
     return Q8VocabularyWeights(codes, scales, k)
 
 
-def vocabulary_artifact(path, weights, *, split=None):
-    n, padded = weights.codes.shape
-    _, _, _, _, scale_offset, size = row_geometry(
-        (n, weights.hidden_size), "q8_g32_fp16"
-    )
-    code_bytes, scale_bytes = (
-        weights.codes.numpy().tobytes(),
-        weights.scales.numpy().tobytes(),
-    )
-    payload = code_bytes + bytes(scale_offset - len(code_bytes)) + scale_bytes
-    assert len(payload) == size
-    manifest = {
-        "components": {
-            "text": {
-                "config": {
-                    "model_type": "qwen3_5_text",
-                    "vocab_size": n,
-                    "hidden_size": weights.hidden_size,
-                    "tie_word_embeddings": True,
-                }
-            }
-        },
-        "objects": [
-            {
-                "id": "vocabulary",
-                "kind": "tensor",
-                "shape": [n, weights.hidden_size],
-                "format": "q8_g32_fp16",
-                "layout": "row_split_k128_v1",
-                "offset": 0,
-                "bytes": size,
-            }
-        ],
-        "bindings": {
-            "text/token_embedding": {"object": "vocabulary"},
-            "text/output_head": {"object": "vocabulary"},
-        },
-        "uses": [],
-    }
-    return NInferArtifact(
-        write_artifact(path, manifest=manifest, payload=payload, split=split)
-    )
-
-
 @pytest.fixture(params=["reference", "cuda"])
 def backend(request):
     if request.param == "reference":
         return TorchBackend(), "cpu"
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native blocks library required")
     return CudaBackend(library), "cuda:0"
@@ -108,26 +64,24 @@ def test_q8_embedding_head_independent_fp64_and_shared_storage(backend, k):
     assert pointers == tuple(t.data_ptr() for t in resident.storage_tensors)
 
 
-@pytest.mark.parametrize("split", [None, 3, 3980])
-def test_ninfer_checkpoint_binding_planes_and_row_decode(tmp_path, split):
+def test_standard_tensor_plane_round_trip(tmp_path):
+    from safetensors.torch import save_file
+
     weights = vocabulary_weights()
-    artifact = vocabulary_artifact(tmp_path, weights, split=split)
-    actual = Q8VocabularyWeights.from_ninfer(artifact, "text/token_embedding")
-    assert torch.equal(actual.codes, weights.codes)
-    assert torch.equal(actual.scales, weights.scales)
-    assert actual.hidden_size == weights.hidden_size
-    for row in (0, 30):
-        exact = weights.codes[row].float() * weights.scales[
-            row
-        ].float().repeat_interleave(32)
-        assert torch.equal(
-            torch.tensor(artifact.decode_row("vocabulary", row)), exact[:129]
-        )
-    artifact.manifest["bindings"]["text/token_embedding"] = {
-        "parts": [{"object": "vocabulary", "range": [0, 129]}]
-    }
-    with pytest.raises(ValueError, match="direct"):
-        Q8VocabularyWeights.from_ninfer(artifact, "text/token_embedding")
+    path = tmp_path / "vocabulary.safetensors"
+    save_file({"codes": weights.codes, "scales": weights.scales}, str(path))
+    source = SafetensorsContainer(path)
+    codes = torch.frombuffer(
+        bytearray(source.read_bytes("codes")), dtype=torch.int8
+    ).reshape(weights.codes.shape)
+    scales = torch.frombuffer(
+        bytearray(source.read_bytes("scales")), dtype=torch.float16
+    ).reshape(weights.scales.shape)
+    actual = Q8VocabularyWeights(codes, scales, weights.hidden_size)
+    actual.validate()
+    assert torch.equal(actual.codes, weights.codes) and torch.equal(
+        actual.scales, weights.scales
+    )
 
 
 @pytest.mark.parametrize(
@@ -162,7 +116,7 @@ def test_q8_invalid_ids_and_aliases(backend):
 
 @pytest.mark.cuda
 def test_q8_graph_capture_no_dense_fallback(monkeypatch):
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native blocks library required")
     resident = vocabulary_weights().upload(CudaBackend(library))
@@ -195,39 +149,14 @@ def test_q8_graph_capture_no_dense_fallback(monkeypatch):
     assert torch.equal(out, expected)
 
 
-def test_vocabulary_binding_deduplicates_and_prevalidates(tmp_path, monkeypatch):
+def test_explicit_fp16_upload_and_unsupported_target():
     weights = vocabulary_weights()
-    artifact = vocabulary_artifact(tmp_path, weights)
-    bound = NInferVocabulary.upload_from_ninfer(artifact, TorchBackend(), device="cpu")
-    assert bound.embedding is bound.head
-    assert bound.storage_nbytes == bound.embedding.storage_nbytes
-    artifact.manifest["components"]["text"]["config"]["hidden_size"] = 128
-
-    def forbidden(*args, **kwargs):
-        raise AssertionError("Invalid metadata triggered a payload read")
-
-    monkeypatch.setattr(artifact, "read_object", forbidden)
-    with pytest.raises(ValueError, match="row-split"):
-        NInferVocabulary.upload_from_ninfer(artifact, TorchBackend(), device="cpu")
-
-
-def test_explicit_fp16_vocabulary_binding_and_preflight(tmp_path, monkeypatch):
-    weights = vocabulary_weights()
-    artifact = vocabulary_artifact(tmp_path, weights)
-    bound = NInferVocabulary.upload_from_ninfer(
-        artifact, TorchBackend(), device="cpu", dtype=torch.float16
-    )
-    assert bound.embedding is bound.head and bound.head.dtype == torch.float16
+    resident = weights.upload(TorchBackend(), device="cpu", dtype=torch.float16)
+    assert resident.dtype == torch.float16
 
     class Unsupported:
         def validate_device(self, dtype, device):
             raise ValueError("unsupported architecture/precision")
 
-    def forbidden(*a, **k):
-        raise AssertionError("unsupported target triggered payload read")
-
-    monkeypatch.setattr(artifact, "read_object", forbidden)
     with pytest.raises(ValueError, match="unsupported architecture"):
-        NInferVocabulary.upload_from_ninfer(
-            artifact, Unsupported(), dtype=torch.float16
-        )
+        weights.upload(Unsupported(), dtype=torch.float16, device="cuda:0")

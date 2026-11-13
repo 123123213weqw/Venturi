@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 import pytest
-
+from import_budget import framework_import_timeout
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -19,14 +19,18 @@ def test_external_command_is_not_registered_or_silently_redirected(monkeypatch, 
     from venturi.commands.registry import COMMAND_BY_NAME
 
     assert "qwen" not in COMMAND_BY_NAME
-    assert COMMAND_BY_NAME["qwen-native"].module == "venturi.qwen_native_cli"
+    assert (
+        COMMAND_BY_NAME["qwen-native"].module == "venturi.models.qwen.qwen_native_cli"
+    )
 
     def forbidden(*args, **kwargs):
         pytest.fail("Retired command must not import or start any engine")
 
     monkeypatch.setattr(cli, "import_module", forbidden)
     with pytest.raises(SystemExit) as caught:
-        cli.main(["qwen", "generate", "old-model.ninfer", "--runner", "old-runner"])
+        cli.main(
+            ["qwen", "generate", "old-model.safetensors", "--runner", "old-runner"]
+        )
     assert caught.value.code == 2
     assert "invalid choice" in capsys.readouterr().err
 
@@ -59,7 +63,7 @@ print(json.dumps({{'removed': True}}))
     assert json.loads(p.stdout) == {"removed": True}
 
 
-def test_native_qwen_and_ninfer_format_reader_need_no_external_engine():
+def test_native_qwen_and_safetensors_reader_need_no_external_engine():
     code = """
 import importlib.abc,json,sys
 class Block(importlib.abc.MetaPathFinder):
@@ -67,15 +71,18 @@ class Block(importlib.abc.MetaPathFinder):
         if name.split('.')[0] in {'ninfer','cinference','strata','llama_cpp','vllm','sglang'}:
             raise AssertionError('Unexpected external engine: '+name)
 sys.meta_path.insert(0,Block())
-from venturi.models import NativeQwenModel,NativeQwenSession,QwenQ8Weights
+from venturi.models import NativeQwenModel,NativeQwenSession,QwenWeights
 from venturi.ops import CudaBackend
-from venturi.ninfer import NInferArtifact
+from venturi.container.safetensors import SafetensorsContainer
 import torch
 assert not torch.cuda.is_initialized()
 print(json.dumps(dict(native_available=True,cuda_initialized=False)))
 """
     p = subprocess.run(
-        [sys.executable, "-c", code], capture_output=True, text=True, timeout=30
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        timeout=framework_import_timeout(),
     )
     assert p.returncode == 0, p.stderr
     assert json.loads(p.stdout) == {"native_available": True, "cuda_initialized": False}

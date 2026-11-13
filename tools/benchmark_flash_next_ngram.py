@@ -18,9 +18,9 @@ from safetensors import safe_open
 from safetensors.torch import save_file
 import torch
 
-from venturi.checkpoint import inspect_checkpoint
-from venturi.flash_next import FlashNextConfig
-from venturi.models.flash_next_ngram import NGramRequest, ShardedNGramTable
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next import FlashNextConfig
+from venturi.models.flash_next.flash_next_ngram import NGramRequest, ShardedNGramTable
 
 
 def cpu_seconds():

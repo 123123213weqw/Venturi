@@ -1,3 +1,51 @@
+# Native boundary update
+
+The active Qwen C++ runtime is in `models/qwen/csrc` and links the separate ops
+DSO through concrete C declarations. See [the two-library contract](native-library-split.md).
+The historical monolithic build descriptions below are not the current build API.
+
+# Active cleanup direction (2026-11-13)
+
+This branch targets Star (RTX 4090 D, CUDA 12.9), not preservation of old
+entry points or historical implementation counts. The old compatibility modules,
+CLI injected hooks and upload+prepare shortcuts are removed. Internal callers use
+canonical package paths. Historical benchmark/operation snapshots are immutable
+evidence, not runtime dependencies or promises of current support.
+
+Actual responsibilities:
+- `container/`: physical storage records and bounded reads, not model interpretation.
+- `quantization/layout.py`: pure encoded geometry, independent of Torch/model/container imports.
+- `quantization/codecs.py`: the single codec/qualification registry.
+- `models/<family>/`: architecture binding and mathematical semantics.
+- `ops/`: owned execution and explicitly prepared resources.
+- `runtime/`: active request state and scheduling.
+- `commands/`: CLI argument handling; not an injection surface for old module globals.
+
+Unused Qwen v2/matrix wrapper prototypes, unused quantization/container interfaces,
+and empty engine Protocol scaffolding are removed rather than supported alongside
+actual implementations. Package namespaces may resolve **current** APIs lazily;
+this is import isolation, not preservation of deleted paths.
+
+The Q4 plugin has an independent ABI-2 SIMT correctness baseline without vendored
+kernel source. Its multi-token performance materially regresses against the old
+MMA implementation. A self-contained WMMA experiment also failed its performance
+gate and is not retained in active source. This is not a performance promotion.
+Build identities follow transitive local includes; unrelated model source no
+longer forces an independent Q4 rebuild.
+
+The `.ninfer` reader and Qwen loading chain are now removed. Physical safetensors
+planes are admitted against Qwen-derived roles, with explicit native offsets;
+there is no serialized universal object directory. See [the current contract](qwen-safetensors.md)
+for schemas, intentional API breaks and verification boundaries. The rejected
+objects-in-another-container prototype is not active source. No production service
+or route was changed.
+
+---
+
+## Historical October architecture record
+
+The following describes its original revision, not current compatibility policy.
+
 # Repository architecture
 
 ## Scope

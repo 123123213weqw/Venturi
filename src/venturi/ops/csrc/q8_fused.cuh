@@ -1,6 +1,5 @@
 // Experimental complete-row projection fusion. No partial-sum reduction.
 #pragma once
-struct VQFOutput {const std::int8_t* codes;const __half* scales;__half* out;int n,stride;};
 static_assert(sizeof(VQFOutput)==32);
 namespace vqf {
 struct Group {VQFOutput item[3]{};int count=0;};

@@ -7,7 +7,7 @@ import platform
 import sys
 
 
-def main(argv: list[str] | None = None, *, inspect=None, load=None, verify=None) -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="venturi")
     commands = parser.add_subparsers(dest="command", required=True)
     for command in ("inspect", "load", "verify", "generate", "benchmark"):
@@ -58,17 +58,14 @@ def main(argv: list[str] | None = None, *, inspect=None, load=None, verify=None)
     args = parser.parse_args(argv)
     try:
         if args.command == "inspect":
-            if inspect is None:
-                from ..checkpoint import inspect_checkpoint as inspect
+            from venturi.container.checkpoint import inspect_checkpoint as inspect
             summary = inspect(args.path).summary()
         else:
             import safetensors
             import torch
 
-            if inspect is None:
-                from ..checkpoint import inspect_checkpoint as inspect
-            if load is None:
-                from ..loader import load_checkpoint as load
+            from venturi.container.checkpoint import inspect_checkpoint as inspect
+            from venturi.container.loader import load_checkpoint as load
             tokenizer = None
             if args.command in ("generate", "benchmark"):
                 from ..text import LocalTokenizer
@@ -135,12 +132,11 @@ def main(argv: list[str] | None = None, *, inspect=None, load=None, verify=None)
                     "scope": "PyTorch allocator only; excludes native allocations and CUDA context",
                 }
             if args.command == "verify":
-                if verify is None:
-                    from ..verification import verify_loaded_checkpoint as verify
+                from venturi.quantization.verification import verify_loaded_checkpoint as verify
                 stats = verify(model, chunk_bytes=args.chunk_bytes)
                 summary["verification"] = {"passed": True, **asdict(stats)}
             if args.command in ("generate", "benchmark"):
-                from ..generation import generate_text
+                from venturi.engine.generation import generate_text
                 from ..models import GPTNeoXModel
 
                 runner = GPTNeoXModel(model)

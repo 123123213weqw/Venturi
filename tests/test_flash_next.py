@@ -12,12 +12,10 @@ import pytest
 import torch
 from safetensors.torch import save_file
 
-from venturi.checkpoint import inspect_checkpoint
+from venturi.container.checkpoint import inspect_checkpoint
 from venturi.cli import main
-from venturi.flash_next import FlashNextConfig, FlashNextManifest
-from venturi.models.flash_next_ngram import (
-    FP8ShardedNGramTable, NGramRequest, PreparedNGramTable, ShardedNGramTable,
-)
+from venturi.models.flash_next.flash_next import FlashNextConfig, FlashNextManifest
+from venturi.models.flash_next.flash_next_ngram import FP8ShardedNGramTable, NGramRequest, PreparedNGramTable, ShardedNGramTable
 
 
 def raw_config():
@@ -390,7 +388,7 @@ def test_prepared_bits_batch_history_and_owned_lifetime(fixture, fp8):
 
 
 def test_prepared_opens_each_file_once_without_full_table_reads(fixture, monkeypatch):
-    import venturi.models.flash_next_ngram as module
+    import venturi.models.flash_next.flash_next_ngram as module
     path, _, c, _, _ = fixture
     original = ShardedNGramTable(inspect_checkpoint(path), c)
     real_open, events = module.safe_open, []

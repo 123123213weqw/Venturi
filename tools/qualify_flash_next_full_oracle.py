@@ -9,10 +9,10 @@ import torch
 from torch.nn.attention import SDPBackend, sdpa_kernel
 
 from flash_next_full_oracle import make_full_oracle, run_oracle_step, assert_full_state
-from venturi.models.flash_next_expert_policy import bind_fp8_expert_policy
-from venturi.models.flash_next_loader import load_weight_decoded_fp8_text
-from venturi.models.flash_next_ngram import PreparedNGramTable
-from venturi.models.flash_next_request import FlashNextRequest
+from venturi.models.flash_next.flash_next_expert_policy import bind_fp8_expert_policy
+from venturi.models.flash_next.flash_next_loader import load_weight_decoded_fp8_text
+from venturi.models.flash_next.flash_next_ngram import PreparedNGramTable
+from venturi.models.flash_next.flash_next_request import FlashNextRequest
 
 
 def main():

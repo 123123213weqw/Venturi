@@ -10,7 +10,7 @@ import threading
 
 import torch
 
-from venturi.models.gdn_frontend import GDNFrontendWeights
+from venturi.models.qwen.gdn_frontend import GDNFrontendWeights
 from venturi.ops import CudaBackend, Q8RowSplitWeight
 from venturi.ops.q8_column_tp import slice_q8_columns
 
@@ -137,7 +137,7 @@ class Parts:
         return cls(
             *(weights.read_linear(prefix + name) for name in ("qkv", "z", "output")),
             *(weights.read_float(prefix + name).float() for name in ("a", "b")),
-            GDNFrontendWeights.from_ninfer(weights.artifact, layer=layer),
+            GDNFrontendWeights.from_weights(weights, layer=layer),
             weights.config["rms_norm_eps"],
         )
 
@@ -221,7 +221,13 @@ class Pilot:
             self.tensors,
             self.state_tensors,
             self.prefix_tensors,
-        ) = CudaBackend(blocks), [], [], [], []
+        ) = (
+            CudaBackend(blocks),
+            [],
+            [],
+            [],
+            [],
+        )
         self.native = C.CDLL(str(library))
         n = self.native
         n.venturi_gdn_head_error.restype = C.c_char_p
@@ -301,12 +307,16 @@ class Pilot:
                         )
                     ),
                 ),
-                slice_q8_columns(
-                    parts.output, rank * heads * dv // 2, (rank + 1) * heads * dv // 2
-                )
-                if local
-                else take_rows(
-                    parts.output, tuple(range(rank * h // 2, (rank + 1) * h // 2))
+                (
+                    slice_q8_columns(
+                        parts.output,
+                        rank * heads * dv // 2,
+                        (rank + 1) * heads * dv // 2,
+                    )
+                    if local
+                    else take_rows(
+                        parts.output, tuple(range(rank * h // 2, (rank + 1) * h // 2))
+                    )
                 ),
             )
             for j, w in enumerate(weights):
@@ -369,9 +379,11 @@ class Pilot:
                 self.keep.append(gates)
                 desc.rate, desc.bias = (v.data_ptr() for v in gates.storage_tensors)
                 gamma = owned(
-                    f.gated_norm
-                    if f.gated_norm.dtype == torch.float32
-                    else f.gated_norm.half(),
+                    (
+                        f.gated_norm
+                        if f.gated_norm.dtype == torch.float32
+                        else f.gated_norm.half()
+                    ),
                     rank,
                 )
                 desc.gamma = gamma.data_ptr()
@@ -403,7 +415,10 @@ class Pilot:
                             (
                                 desc.prefix_history[p * 8 + s],
                                 desc.prefix_state[p * 8 + s],
-                            ) = hp.data_ptr(), sp.data_ptr()
+                            ) = (
+                                hp.data_ptr(),
+                                sp.data_ptr(),
+                            )
             self.tensors.append(t)
             self.state_tensors.append((hslots, sslots))
             self.prefix_tensors.append((ph, ps))
@@ -538,15 +553,17 @@ class Pilot:
             ranks = (0, 1) if self.mode == "head" else (0,)
             result["history"] = torch.stack(
                 [
-                    join_channels(
-                        [self.state_tensors[r][0][s].cpu() for r in ranks],
-                        self.qk,
-                        self.heads,
-                        self.dk,
-                        self.dv,
+                    (
+                        join_channels(
+                            [self.state_tensors[r][0][s].cpu() for r in ranks],
+                            self.qk,
+                            self.heads,
+                            self.dk,
+                            self.dv,
+                        )
+                        if self.mode == "head"
+                        else self.state_tensors[0][0][s].cpu()
                     )
-                    if self.mode == "head"
-                    else self.state_tensors[0][0][s].cpu()
                     for s in range(self.sequences)
                 ]
             )

@@ -6,7 +6,7 @@ import torch
 from neox_reference import full_logits, tiny_checkpoint
 from venturi import load_checkpoint
 from venturi.cli import main
-from venturi.generation import LocalTokenizer, generate_text, generate_tokens
+from venturi.engine.generation import LocalTokenizer, generate_text, generate_tokens
 from venturi.models import GPTNeoXModel
 
 
@@ -53,7 +53,11 @@ def test_greedy_tokens_against_uncached_oracle(model_fixture):
     assert result.finish_reason == "length"
     assert result.prefill_seconds >= 0 and result.decode_seconds >= 0
     assert result.total_seconds >= result.prefill_seconds + result.decode_seconds
-    assert result.total_seconds >= result.time_to_first_token_seconds >= result.prefill_seconds
+    assert (
+        result.total_seconds
+        >= result.time_to_first_token_seconds
+        >= result.prefill_seconds
+    )
     assert result.kv_cache_bytes == 2 * 2 * 2 * 9 * 8 * 8
 
 
@@ -70,9 +74,13 @@ def test_explicit_session_reuse_resets_history_and_validates_owner(model_fixture
         assert actual.generated_ids == expected.generated_ids
         assert actual.kv_cache_bytes == session.cache_bytes
     with pytest.raises(ValueError, match="belong"):
-        generate_tokens(model, [2], max_new_tokens=1, session=SimpleNamespace(model=None))
+        generate_tokens(
+            model, [2], max_new_tokens=1, session=SimpleNamespace(model=None)
+        )
     with pytest.raises(ValueError, match="fit"):
-        generate_tokens(model, [2, 5], max_new_tokens=3, session=model.create_session(2))
+        generate_tokens(
+            model, [2, 5], max_new_tokens=3, session=model.create_session(2)
+        )
 
 
 def test_eos_and_zero_token_budget(model_fixture, monkeypatch):
@@ -170,10 +178,10 @@ def test_cli_generation_json_and_plain(model_fixture, tokenizer_path, capsys):
 
 def test_cli_rejects_unknown_arch_before_loading(make_checkpoint, capsys, monkeypatch):
     path = make_checkpoint()
-    import venturi.cli
+    import venturi.container.loader
 
     monkeypatch.setattr(
-        venturi.cli,
+        venturi.container.loader,
         "load_checkpoint",
         lambda *args, **kwargs: pytest.fail("unsupported architecture loaded weights"),
     )
@@ -192,9 +200,23 @@ def test_malformed_tokenizer(tmp_path):
 def test_cli_benchmark(model_fixture, tokenizer_path, capsys):
     _, _, _, path = model_fixture
     args = [
-        "benchmark", str(path), "--device", "cpu", "--loader", "safetensors",
-        "--tokenizer", str(tokenizer_path), "--prompt", "hello world",
-        "--max-new-tokens", "3", "--warmup", "0", "--repeats", "2", "--ignore-eos",
+        "benchmark",
+        str(path),
+        "--device",
+        "cpu",
+        "--loader",
+        "safetensors",
+        "--tokenizer",
+        str(tokenizer_path),
+        "--prompt",
+        "hello world",
+        "--max-new-tokens",
+        "3",
+        "--warmup",
+        "0",
+        "--repeats",
+        "2",
+        "--ignore-eos",
     ]
     assert main(args + ["--json"]) == 0
     stats = json.loads(capsys.readouterr().out)["benchmark"]
@@ -206,36 +228,69 @@ def test_cli_benchmark(model_fixture, tokenizer_path, capsys):
     assert "TTFT median:" in capsys.readouterr().out
 
 
-def test_cli_graph_cpu_rejected_before_loading(model_fixture, tokenizer_path, capsys, monkeypatch):
-    import venturi.cli
+def test_cli_graph_cpu_rejected_before_loading(
+    model_fixture, tokenizer_path, capsys, monkeypatch
+):
+    import venturi.container.loader
 
     _, _, _, path = model_fixture
     monkeypatch.setattr(
-        venturi.cli, "load_checkpoint",
+        venturi.container.loader,
+        "load_checkpoint",
         lambda *args, **kwargs: pytest.fail("invalid graph device loaded weights"),
     )
-    assert main([
-        "generate", str(path), "--device", "cpu", "--execution", "cuda-graph",
-        "--tokenizer", str(tokenizer_path), "--prompt", "hello",
-    ]) == 1
+    assert (
+        main(
+            [
+                "generate",
+                str(path),
+                "--device",
+                "cpu",
+                "--execution",
+                "cuda-graph",
+                "--tokenizer",
+                str(tokenizer_path),
+                "--prompt",
+                "hello",
+            ]
+        )
+        == 1
+    )
     assert "requires a CUDA device" in capsys.readouterr().err
 
 
-@pytest.mark.parametrize("option,value", [
-    ("--max-new-tokens", "0"), ("--warmup", "-1"), ("--repeats", "0"),
-])
+@pytest.mark.parametrize(
+    "option,value",
+    [
+        ("--max-new-tokens", "0"),
+        ("--warmup", "-1"),
+        ("--repeats", "0"),
+    ],
+)
 def test_cli_benchmark_invalid_before_load(
     model_fixture, tokenizer_path, capsys, monkeypatch, option, value
 ):
-    import venturi.cli
+    import venturi.container.loader
 
     _, _, _, path = model_fixture
     monkeypatch.setattr(
-        venturi.cli, "load_checkpoint",
+        venturi.container.loader,
+        "load_checkpoint",
         lambda *args, **kwargs: pytest.fail("invalid request loaded weights"),
     )
-    assert main([
-        "benchmark", str(path), "--tokenizer", str(tokenizer_path),
-        "--prompt", "hello", option, value,
-    ]) == 1
+    assert (
+        main(
+            [
+                "benchmark",
+                str(path),
+                "--tokenizer",
+                str(tokenizer_path),
+                "--prompt",
+                "hello",
+                option,
+                value,
+            ]
+        )
+        == 1
+    )
     assert "benchmark requires" in capsys.readouterr().err

@@ -4,9 +4,9 @@ from dataclasses import replace
 import pytest
 import torch
 
-from venturi.models.engram_bindings import load_deepseek41_engram_hash
-from venturi.models.engram_hash import EngramHashState
-from venturi.models.engram_lookup import EngramIQ4NLLookup
+from venturi.models.deepseek.engram_bindings import load_deepseek41_engram_hash
+from venturi.models.deepseek.engram_hash import EngramHashState
+from venturi.models.deepseek.engram_lookup import EngramIQ4NLLookup
 from test_engram_component_binding import inputs, config, header, REV
 from test_gguf_rows import fixture
 
@@ -116,9 +116,9 @@ def test_lookup_failure_cannot_commit_a_callers_hash_state(tmp_path):
 
 def test_bound_hash_rows_decoded_q5_bf16_and_f32_projection_component_chain(tmp_path):
     import struct
-    from venturi.gguf_quantization import decode_q5_k_rows,decode_bf16_rows
-    from venturi.models.engram_projection import reference_engram_from_rows
-    from venturi.models.engram_residual import reference_engram_residual
+    from venturi.container.gguf.gguf_quantization import decode_q5_k_rows, decode_bf16_rows
+    from venturi.models.deepseek.engram_projection import reference_engram_from_rows
+    from venturi.models.deepseek.engram_residual import reference_engram_residual
     from test_gguf_projection_quantization import q5_block
     bundle,binding,asset,expected=components(tmp_path,head_dim=64)
     original=EngramHashState(binding.hash_spec,batch_size=1,max_sequence_tokens=8)

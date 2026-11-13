@@ -13,12 +13,12 @@ import weakref
 import torch
 
 from venturi.models.qwen.qwen_native import NativeQwenModel, NativeQwenSession
-from venturi.models.qwen.qwen_weights import QwenQ8Weights
-from venturi.ops import CudaBackend
+from venturi.models.qwen.qwen_weights import QwenWeights
+from venturi.models.qwen.native_runtime import QwenRuntime
 
 
-def _pipeline_bind(backend):
-    n = backend._native
+def _pipeline_bind(runtime):
+    n = runtime._native
     ptr, integer, u64 = C.c_void_p, C.c_int, C.c_uint64
     signatures = {
         "create": ([ptr, ptr], ptr),
@@ -52,7 +52,7 @@ class NativeQwenPipelineModel(NativeQwenModel):
     def from_q8(
         cls,
         weights,
-        backend,
+        runtime,
         *,
         weight_mode,
         pipeline_device,
@@ -63,12 +63,11 @@ class NativeQwenPipelineModel(NativeQwenModel):
         max_tokens=128,
         reserve_bytes=512 * 2**20,
     ):
-        if not isinstance(weights, QwenQ8Weights) or not isinstance(
-            backend, CudaBackend
-        ):
+        if not isinstance(weights, QwenWeights) or not isinstance(runtime, QwenRuntime):
             raise TypeError(
-                "Native pipeline requires Q8 weights and explicit CudaBackend"
+                "Native pipeline requires Q8 weights and explicit QwenRuntime"
             )
+        backend = runtime.operators
         if weight_mode != "resident" or transport != "host":
             raise ValueError(
                 "Native pipeline requires explicit resident weights and host transport"
@@ -79,7 +78,9 @@ class NativeQwenPipelineModel(NativeQwenModel):
             raise ValueError(
                 "Pipeline split must leave at least one layer in each stage"
             )
-        a, b = backend.validate_device(dtype, device), backend.validate_device(dtype, pipeline_device)
+        a, b = backend.validate_device(dtype, device), backend.validate_device(
+            dtype, pipeline_device
+        )
         if a == b:
             raise ValueError("Pipeline requires two different CUDA devices")
         stages = []
@@ -89,7 +90,7 @@ class NativeQwenPipelineModel(NativeQwenModel):
                 stages.append(
                     NativeQwenModel.from_q8(
                         weights,
-                        backend,
+                        runtime,
                         weight_mode="resident",
                         dtype=dtype,
                         device=target,
@@ -98,12 +99,12 @@ class NativeQwenPipelineModel(NativeQwenModel):
                         _stage_range=span,
                     )
                 )
-            native = _pipeline_bind(backend)
+            native = _pipeline_bind(runtime)
             handle = native.venturi_qwen_create(stages[0]._handle, stages[1]._handle)
             if not handle:
-                backend._check(-1)
+                runtime._check(-1)
             self = cls()
-            self._handle, self._native, self._backend = handle, native, backend
+            self._handle, self._native, self._runtime = handle, native, runtime
             self._stages = tuple(stages)
             self._cfg, self._weights = stages[0]._cfg, stages[0]._weights
             self._device, self._dtype = a, dtype
@@ -141,7 +142,7 @@ class NativeQwenPipelineModel(NativeQwenModel):
             self._metadata()
             h = self._native.venturi_qwen_session(self._handle, capacity)
             if not h:
-                self._backend._check(-1)
+                self._runtime._check(-1)
             return NativeQwenPipelineSession(self, h, capacity)
 
 
@@ -152,7 +153,7 @@ class NativeQwenPipelineSession(NativeQwenSession):
         with self._lock:
             result = super().info()
             detail = (C.c_uint64 * 4)()
-            self.model._backend._check(
+            self.model._runtime._check(
                 self.model._native.venturi_qwen_details(self._handle, detail)
             )
             result.update(

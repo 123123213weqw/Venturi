@@ -8,9 +8,9 @@ import torch
 
 from neox_reference import tiny_checkpoint
 from venturi import load_checkpoint
-from venturi.generation import generate_tokens
+from venturi.engine.generation import generate_tokens
 from venturi.models import GPTNeoXModel
-from venturi.models.cuda_graph import GPTNeoXCUDAGraphSession
+from venturi.models.neox.cuda_graph import GPTNeoXCUDAGraphSession
 
 
 def test_graph_requires_cuda_fp16():

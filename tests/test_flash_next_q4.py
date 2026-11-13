@@ -4,8 +4,8 @@ import json
 import pytest
 import torch
 
-from venturi.models.flash_next_q4 import CODEC, LazyQ4ExpertArchive, decode_q4_fp16, quantize_q4_rtn
-from venturi.models.flash_next_moe import MoEGeometry, TensorExpertStore
+from venturi.models.flash_next.flash_next_q4 import CODEC, LazyQ4ExpertArchive, decode_q4_fp16, quantize_q4_rtn
+from venturi.models.flash_next.flash_next_moe import MoEGeometry, TensorExpertStore
 from venturi.ops.flash_next_q4 import NativeQ4
 from venturi.ops.weights import Q4RowSplitWeight
 

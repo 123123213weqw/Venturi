@@ -30,10 +30,10 @@ def projection_info(spec, cfg, quant_bytes, native):
         projection_precision_scope=f"Original Q8 weights/scales; {dtype} storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic.",
     )
     if spec.column_profile:
-        info["projection_precision_scope"] += (
-            " Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity."
-        )
-        query = getattr(native, "venturi_q8_swiglu_quant_enabled", None)
+        info[
+            "projection_precision_scope"
+        ] += " Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity."
+        query = getattr(spec.backend._native, "venturi_q8_swiglu_quant_enabled", None)
         if query is not None:
             query.argtypes, query.restype = [], C.c_int
             enabled = bool(query())
@@ -41,10 +41,11 @@ def projection_info(spec, cfg, quant_bytes, native):
                 compiled_opt_in=enabled,
                 eligible_intermediate_per_rank=8704,
                 eligible_token_range=[1, 32],
-                model_has_eligible_mlp=enabled and cfg["intermediate_size"] // 2 == 8704,
+                model_has_eligible_mlp=enabled
+                and cfg["intermediate_size"] // 2 == 8704,
                 precision="Original F16 rounding and both residual-A8 passes preserved",
             )
-        query = getattr(native, "venturi_q8_rms_quant_enabled", None)
+        query = getattr(spec.backend._native, "venturi_q8_rms_quant_enabled", None)
         if query is not None:
             query.argtypes, query.restype = [], C.c_int
             enabled = bool(query())
@@ -58,8 +59,8 @@ def projection_info(spec, cfg, quant_bytes, native):
     return info
 
 
-def reconcile(spec, backend, handle, cfg, owned, budget, info):
-    native = backend._native
+def reconcile(spec, runtime, handle, cfg, owned, budget, info):
+    native = runtime._native
     max_tokens = spec.max_tokens
     quant_bytes = budget.quant_bytes
     head_workspace = budget.head_workspace
@@ -72,7 +73,7 @@ def reconcile(spec, backend, handle, cfg, owned, budget, info):
             C.c_int,
         )
         values = (C.c_uint64 * 3)()
-        backend._check(query(handle, values))
+        runtime._check(query(handle, values))
         if list(values) != [
             2,
             quant_bytes,
@@ -88,11 +89,11 @@ def reconcile(spec, backend, handle, cfg, owned, budget, info):
                 C.c_int,
             )
             values = (C.c_uint64 * 8)()
-            backend._check(query(handle, values))
+            runtime._check(query(handle, values))
             partial = max_tokens * cfg["hidden_size"] * 4
             unique_down = len(
                 {
-                    owned._object(f"text/layers/{i}/mlp/down")["offset"]
+                    owned.plane_offset(f"text/layers/{i}/mlp/down")
                     for i in range(cfg["num_hidden_layers"])
                 }
             )
@@ -137,7 +138,7 @@ def reconcile(spec, backend, handle, cfg, owned, budget, info):
                 C.c_int,
             )
             values = (C.c_uint64 * 5)()
-            backend._check(query(handle, values))
+            runtime._check(query(handle, values))
             gdn_count = cfg["layer_types"].count("linear_attention")
             if list(values) != [
                 1,
@@ -156,9 +157,9 @@ def reconcile(spec, backend, handle, cfg, owned, budget, info):
                 gdn_weight_layout="bit-preserved semantic Q/K/V head rows and group32 output-column halves",
                 gdn_state_layout="private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
             )
-            info["projection_precision_scope"] += (
-                " Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity."
-            )
+            info[
+                "projection_precision_scope"
+            ] += " Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity."
     except Exception:
         native.venturi_qwen_destroy(handle)
         raise

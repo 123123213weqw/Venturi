@@ -23,8 +23,8 @@ from qualify_flash_next_layer import references, make_oracle
 from qualify_flash_next_qsa import UPSTREAM_SHA256
 from qualify_flash_next_gdn import CACHE_SHA256
 from qualify_flash_next_sdpa import SDPA_SHA256
-from venturi.models.flash_next_ngram import NGramRequest, PreparedNGramTable
-from venturi.models.flash_next_request import FlashNextRequest
+from venturi.models.flash_next.flash_next_ngram import NGramRequest, PreparedNGramTable
+from venturi.models.flash_next.flash_next_request import FlashNextRequest
 
 
 def text_references(path, scope):

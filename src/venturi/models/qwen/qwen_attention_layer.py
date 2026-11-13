@@ -23,7 +23,7 @@ from venturi.models.decoder_layer import (
     _capture_dense_step,
 )
 from venturi.models.gated_mlp import ResidentGatedMLP, GatedMLPWorkspace
-from venturi.models.qwen.qwen_weights import QwenQ8Weights
+from venturi.models.qwen.qwen_weights import QwenWeights
 from venturi.models.qwen.qwen_rope import QwenTextRoPE
 
 
@@ -65,8 +65,8 @@ class ResidentQwenAttentionLayer(DenseKVCacheOwner):
 
     @classmethod
     def from_q8(cls, weights, backend, *, layer, dtype=torch.bfloat16, device="cuda:0"):
-        if not isinstance(weights, QwenQ8Weights):
-            raise TypeError("Expected complete preflighted QwenQ8Weights")
+        if not isinstance(weights, QwenWeights):
+            raise TypeError("Expected complete preflighted QwenWeights")
         weights.layer_bindings(layer)
         cfg = weights.config
         if cfg["layer_types"][layer] != "full_attention":

@@ -16,14 +16,15 @@ pytestmark = pytest.mark.cuda
 @pytest.fixture(params=[False, True], ids=["dense", "q4"])
 def backend(request):
     blocks, ada = (
-        os.environ.get("VENTURI_BLOCKS_LIBRARY"),
+        os.environ.get("VENTURI_OPS_LIBRARY"),
         os.environ.get("VENTURI_ADA_LIBRARY"),
     )
     if not blocks or (request.param and not ada):
         pytest.skip("explicit native libraries required")
-    return CudaBackend(
-        blocks, q4_backend=AdaBackend(ada) if request.param else None
-    ), request.param
+    return (
+        CudaBackend(blocks, q4_backend=AdaBackend(ada) if request.param else None),
+        request.param,
+    )
 
 
 @pytest.mark.parametrize("layout", ["split_half", "interleaved"])

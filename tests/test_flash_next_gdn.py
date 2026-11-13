@@ -8,8 +8,8 @@ from safetensors.torch import save_file
 import torch
 from torch.nn import functional as F
 
-from venturi.checkpoint import inspect_checkpoint
-from venturi.models.flash_next_gdn import FlashNextGDN, GDNGeometry, GDNState
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_gdn import FlashNextGDN, GDNGeometry, GDNState
 
 
 def module(dtype=torch.float32):

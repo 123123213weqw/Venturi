@@ -19,7 +19,7 @@ from gpu_telemetry import FIELDS, telemetry
 from qualify_checkpoint_gdn import bf16_check, phase, write
 from qualify_native_q8_bootstrap import capture
 from gpu_telemetry import idle_gpu
-from venturi.ninfer import NInferArtifact
+from venturi.models.qwen.qwen_weights import QwenWeights
 from venturi.ops import CudaBackend
 
 
@@ -36,7 +36,7 @@ def input_oracle():
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("checkpoint")
-    parser.add_argument("--blocks-library", required=True)
+    parser.add_argument("--ops-library", required=True)
     parser.add_argument("--output-directory", required=True)
     parser.add_argument("--seconds", type=float, default=2.0)
     args = parser.parse_args(argv)
@@ -46,19 +46,20 @@ def main(argv=None):
     out = Path(args.output_directory)
     out.mkdir(parents=True, exist_ok=False)
     write(out / "background.json", {"compute_processes": idle_gpu()})
-    artifact = NInferArtifact(args.checkpoint)
-    cfg = artifact.manifest["components"]["text"]["config"]
+    admitted = QwenWeights.open(args.checkpoint)
+    artifact = admitted.source
+    cfg = admitted.config
     geometry = dict(
         qk_heads=cfg["linear_num_key_heads"],
         value_heads=cfg["linear_num_value_heads"],
         key_dim=cfg["linear_key_head_dim"],
         value_dim=cfg["linear_value_head_dim"],
     )
-    backend, oracle = CudaBackend(args.blocks_library), input_oracle()
+    backend, oracle = CudaBackend(args.ops_library), input_oracle()
     report = dict(
         scope=__doc__,
         geometry=geometry,
-        artifact_id=artifact.artifact_id,
+        header_sha256=artifact.header_sha256,
         library=str(backend.library),
         torch=torch.__version__,
         cuda=torch.version.cuda,
@@ -163,11 +164,11 @@ def main(argv=None):
                     qualification=checks,
                     packed_vs_unpacked_bit_exact=exact,
                     baseline_copies_per_replay=3 if copies_required else 0,
-                    unpack_workspace_bytes=sum(
-                        t.numel() * t.element_size() for t in separate
-                    )
-                    if copies_required
-                    else 0,
+                    unpack_workspace_bytes=(
+                        sum(t.numel() * t.element_size() for t in separate)
+                        if copies_required
+                        else 0
+                    ),
                     packed_unpack_workspace_bytes=0,
                     phases=[],
                     timing="Fixed-state graph replay wrapper; separate state_out; CUDA event intervals can include host submission gaps; CPU time includes event wait",

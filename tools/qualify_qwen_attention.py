@@ -38,7 +38,7 @@ def sample(shape, seed):
 def main(argv=None):
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--parameters", required=True)
-    p.add_argument("--blocks-library", required=True)
+    p.add_argument("--ops-library", required=True)
     p.add_argument("--output-directory", required=True)
     p.add_argument("--seconds", type=float, default=2)
     a = p.parse_args(argv)
@@ -57,7 +57,7 @@ def main(argv=None):
         for k, v in parameters["parameters"].items()
     }
     backends = {
-        "native": CudaBackend(a.blocks_library),
+        "native": CudaBackend(a.ops_library),
         "torch-reference": TorchBackend(),
     }
     qk = {
@@ -94,7 +94,7 @@ def main(argv=None):
         cuda=torch.version.cuda,
         torch=torch.__version__,
         gpu=torch.cuda.get_device_name(),
-        library=a.blocks_library,
+        library=a.ops_library,
         cases=[],
         counters="No achieved occupancy/SM/DRAM/cache/stall counters; RmProfilingAdminOnly=1. No profiler in timed phases.",
     )
@@ -244,9 +244,9 @@ def main(argv=None):
                             keeps.append((op, target))
                             calls[name] = call
                         checks[name] = results
-                    assert all(c["passed"] for cs in checks.values() for c in cs), (
-                        checks
-                    )
+                    assert all(
+                        c["passed"] for cs in checks.values() for c in cs
+                    ), checks
                     case = dict(
                         name=f"{kind}-t{t}",
                         tokens=t,

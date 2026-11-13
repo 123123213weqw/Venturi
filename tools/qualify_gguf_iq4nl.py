@@ -15,7 +15,7 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from venturi.gguf_quantization import decode_iq4_nl_rows
+from venturi.container.gguf.gguf_quantization import decode_iq4_nl_rows
 
 
 REVISION = '3cf03257f219afbe7334045ff7c6a06ac68c627d'

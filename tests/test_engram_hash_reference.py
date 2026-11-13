@@ -3,7 +3,7 @@ from dataclasses import replace
 import pytest
 import torch
 
-from venturi.models.engram_hash import EngramHashSpec,EngramHashState
+from venturi.models.deepseek.engram_hash import EngramHashSpec, EngramHashState
 
 
 def spec():

@@ -8,7 +8,7 @@ import sys
 
 import pytest
 
-from venturi.model_assets import ModelAsset,ModelBundle
+from venturi.container.model_assets import ModelAsset, ModelBundle
 
 TOOL=Path(__file__).parents[1]/'tools/inventory_gguf.py'
 spec=importlib.util.spec_from_file_location('gguf_inventory_tool',TOOL)

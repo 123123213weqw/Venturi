@@ -7,6 +7,8 @@ Native TTFT/per-token timing is not instrumented yet; record it missing, not zer
 Raw CUDA allocations are not included in PyTorch allocator peaks.
 """
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 from contextlib import nullcontext
 import gc
@@ -24,9 +26,9 @@ from venturi.models import (
     NativeQwenModel,
     ResidentQwenModel,
     StreamingQwenModel,
-    QwenQ8Weights,
+    QwenWeights,
 )
-from venturi.ninfer import NInferArtifact
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend, prepare_greedy
 
 
@@ -69,6 +71,7 @@ def main():
         required=True,
         help="Say synthetic fixture or full trained checkpoint explicitly",
     )
+    ap.add_argument("--qwen-library", required=True)
     args = ap.parse_args()
     order = args.order.split(",")
     if (
@@ -86,13 +89,13 @@ def main():
     maximum = case["max_new_tokens"]
     eos = case["eos_token_ids"]
     dtype = torch.float16 if args.dtype == "fp16" else torch.bfloat16
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(args.artifact))
+    weights = QwenWeights.open(args.artifact)
     backend = CudaBackend(args.library)
     report = dict(
         scope=__doc__,
         model_scope=args.scope,
         case=case,
-        artifact_id=weights.artifact.artifact_id,
+        header_sha256=weights.source.header_sha256,
         library_sha256=hashlib.sha256(Path(args.library).read_bytes()).hexdigest(),
         dtype=str(dtype),
         weight_mode=args.weight_mode,
@@ -138,7 +141,7 @@ def main():
             if engine == "native":
                 model = NativeQwenModel.from_q8(
                     weights,
-                    backend,
+                    QwenRuntime(args.qwen_library, backend),
                     weight_mode=args.weight_mode,
                     dtype=dtype,
                     device="cuda:0",
@@ -150,6 +153,7 @@ def main():
                     return request.generate(
                         ids, max_new_tokens=maximum, eos_token_ids=eos
                     )
+
             else:
                 cls = (
                     ResidentQwenModel

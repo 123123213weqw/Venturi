@@ -10,13 +10,13 @@ from torch.nn.attention import sdpa_kernel,SDPBackend
 from test_flash_next_fp8_loader import fixture
 from test_flash_next_loader import OPTIONS
 from test_flash_next_text import assert_states_equal
-from venturi.checkpoint import inspect_checkpoint
-from venturi.models.flash_next_fp8 import BlockFP8ExpertStore
-from venturi.models.flash_next_loader import load_weight_decoded_fp8_text,load_weight_decoded_q4_text
-from venturi.models.flash_next_moe import TensorExpertStore,MoEGeometry
-from venturi.models.flash_next_q4 import quantize_q4_rtn,decode_q4_fp16
-from venturi.models.flash_next_q4_bundle import export_q4_text,bundle_manifest,CompleteQ4ExpertStore
-from venturi.models.flash_next_request import FlashNextRequest
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_fp8 import BlockFP8ExpertStore
+from venturi.models.flash_next.flash_next_loader import load_weight_decoded_fp8_text, load_weight_decoded_q4_text
+from venturi.models.flash_next.flash_next_moe import TensorExpertStore, MoEGeometry
+from venturi.models.flash_next.flash_next_q4 import quantize_q4_rtn, decode_q4_fp16
+from venturi.models.flash_next.flash_next_q4_bundle import export_q4_text, bundle_manifest, CompleteQ4ExpertStore
+from venturi.models.flash_next.flash_next_request import FlashNextRequest
 
 IDENTITY=dict(revision='fixture-original-FP8',manifest_sha256='fixture-authenticated',decode_dtype='FP16')
 

@@ -12,9 +12,9 @@ from torch.nn import functional as F
 
 from collect_hf_headers import fetch_range
 from sample_flash_next_fp8 import e4m3fn
-from venturi.checkpoint import inspect_checkpoint
-from venturi.models.flash_next_fp8 import BlockFP8ExpertStore
-from venturi.models.flash_next_moe import MoEGeometry
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_fp8 import BlockFP8ExpertStore
+from venturi.models.flash_next.flash_next_moe import MoEGeometry
 
 
 REVISION = '236dfdf285828023ca3bcd3f37366c58a3469b13'

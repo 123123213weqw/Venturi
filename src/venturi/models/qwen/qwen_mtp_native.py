@@ -14,16 +14,12 @@ import weakref
 
 import torch
 
-from venturi.ninfer import NInferArtifact, row_geometry
 from venturi.ops.vocabulary import _ids
+from venturi.models.qwen_load.abi import Config, Span, Matrix, Layer
+from venturi.models.qwen.qwen_metadata import source_digest
 from venturi.models.qwen.qwen_native import (
-    Config,
-    Span,
-    Matrix,
-    Layer,
     NativeQwenModel,
     NativeQwenSession,
-    _digest,
 )
 from venturi.models.qwen.qwen_pipeline import NativeQwenPipelineModel
 from venturi.models.qwen.qwen_mtp import QwenMTPWeights
@@ -103,16 +99,7 @@ def _bind(backend):
 
 
 def _stamps(weights):
-    return tuple(
-        (
-            f.path.stat().st_dev,
-            f.path.stat().st_ino,
-            f.path.stat().st_size,
-            f.path.stat().st_mtime_ns,
-            f.path.stat().st_ctime_ns,
-        )
-        for f in weights.artifact.files
-    )
+    return (weights.source.stamp,)
 
 
 class NativeQwenMTPModel(NativeQwenModel):
@@ -144,7 +131,7 @@ class NativeQwenMTPModel(NativeQwenModel):
             ):
                 raise ValueError("Residual MTP draft requires FP16 non-PP target")
             if any(
-                getattr(target._backend._native, "venturi_qwen_mtp_" + suffix, None)
+                getattr(target._runtime._native, "venturi_qwen_mtp_" + suffix, None)
                 is None
                 for suffix in ("create_profiled", "projection_info")
             ):
@@ -153,15 +140,16 @@ class NativeQwenMTPModel(NativeQwenModel):
                 )
         if target._mode != "resident" or target._max_tokens < 2:
             raise ValueError("MTP target requires resident weights and max_tokens >= 2")
-        weights = QwenMTPWeights.from_ninfer(NInferArtifact(weights.artifact.path))
+        weights = QwenMTPWeights.open(weights.source.path)
         weights.validate_target(target._binding_weights())
-        cfg, backend = target.config, target._backend
+        cfg, runtime = target.config, target._runtime
+        backend = runtime.operators
         device = (
             target.pipeline_device
             if isinstance(target, NativeQwenPipelineModel)
             else target.device
         )
-        native = _bind(backend)
+        native = _bind(runtime)
         if residual and torch.cuda.get_device_capability(device) != (7, 0):
             raise ValueError("Residual MTP draft requires SM70")
         rope = QwenTextRoPE.from_config(cfg)
@@ -194,7 +182,7 @@ class NativeQwenMTPModel(NativeQwenModel):
             reserve_bytes,
             None,
         )
-        initial_digest, initial_stamps = _digest(weights), _stamps(weights)
+        initial_digest, initial_stamps = source_digest(weights), _stamps(weights)
         keep = []
 
         def norm(role):
@@ -208,9 +196,14 @@ class NativeQwenMTPModel(NativeQwenModel):
             return r.storage_tensors[0].data_ptr()
 
         def matrix(role):
-            obj = weights._object("mtp/" + role)
-            offset = row_geometry(obj["shape"], obj["format"])[4]
-            return Matrix(obj["offset"], obj["offset"] + offset, *obj["shape"])
+            name = "mtp/" + role
+            desc = weights.descriptor(name)
+            return Matrix(
+                weights.plane_offset(name, "codes"),
+                0,
+                weights.plane_offset(name, "scales"),
+                *desc.shape,
+            )
 
         layer = Layer()
         layer.kind, layer.norm, layer.post = (
@@ -262,6 +255,9 @@ class NativeQwenMTPModel(NativeQwenModel):
             target._max_tokens,
             cfg["max_position_embeddings"],
             1,
+            8,
+            32,
+            0,
             cfg["rms_norm_eps"],
             cfg["linear_key_head_dim"] ** -0.5,
             cfg["head_dim"] ** -0.5,
@@ -269,16 +265,14 @@ class NativeQwenMTPModel(NativeQwenModel):
             0,
             reserve_bytes,
         )
-        spans = (Span * len(weights.artifact.files))(
-            *(
-                Span(
-                    str(f.path.resolve()).encode(),
-                    f.logical_start,
-                    f.payload_start,
-                    f.payload_bytes,
-                    f.path.stat().st_size,
-                )
-                for f in weights.artifact.files
+        span = weights.source.byte_spans()[0]
+        spans = (Span * 1)(
+            Span(
+                span.path.encode(),
+                span.logical_start,
+                span.file_offset,
+                span.bytes,
+                span.file_bytes,
             )
         )
         torch.cuda.current_stream(device).synchronize()
@@ -306,9 +300,9 @@ class NativeQwenMTPModel(NativeQwenModel):
                 *([2] if residual else []),
             )
         if not handle:
-            backend._check(-1)
+            runtime._check(-1)
         self = cls()
-        self._handle, self._native, self._backend = handle, native, backend
+        self._handle, self._native, self._runtime = handle, native, runtime
         self.target, self._mtp_weights = target, weights
         self._cfg, self._weights = copy.deepcopy(cfg), target._weights
         self._dtype, self._device = target.dtype, target.device
@@ -339,7 +333,7 @@ class NativeQwenMTPModel(NativeQwenModel):
         try:
             if native.venturi_qwen_projection_info is not None:
                 values = (C.c_uint64 * 3)()
-                backend._check(native.venturi_qwen_projection_info(handle, values))
+                runtime._check(native.venturi_qwen_projection_info(handle, values))
                 if tuple(values) != (2 if residual else 0, quant_bytes, 0):
                     raise RuntimeError(
                         "MTP draft profile/workspace accounting mismatch"
@@ -353,7 +347,7 @@ class NativeQwenMTPModel(NativeQwenModel):
     def _metadata(self):
         self.target._metadata()
         if (
-            _digest(self._mtp_weights) != self._mtp_digest
+            source_digest(self._mtp_weights) != self._mtp_digest
             or _stamps(self._mtp_weights) != self._mtp_stamps
         ):
             raise RuntimeError("MTP metadata/source changed; recreate model")
@@ -381,7 +375,7 @@ class NativeQwenMTPModel(NativeQwenModel):
             self._metadata()
             handle = self._native.venturi_qwen_session(self._handle, capacity)
             if not handle:
-                self._backend._check(-1)
+                self._runtime._check(-1)
             return NativeQwenMTPSession(self, handle, capacity)
 
 
@@ -464,9 +458,11 @@ class NativeQwenMTPSession(NativeQwenSession):
             raise ValueError("MTP2 requires at least three projection rows")
         fn = getattr(
             self.model._native,
-            "venturi_qwen_generate2_prefix"
-            if recovery == "prefix"
-            else "venturi_qwen_generate2",
+            (
+                "venturi_qwen_generate2_prefix"
+                if recovery == "prefix"
+                else "venturi_qwen_generate2"
+            ),
             None,
         )
         if fn is None:
@@ -487,7 +483,7 @@ class NativeQwenMTPSession(NativeQwenSession):
             raise RuntimeError("Target layer graph export absent; rebuild explicitly")
         with self._lock:
             self._check()
-            self.model._backend._check(fn(self._handle, int(enabled)))
+            self.model._runtime._check(fn(self._handle, int(enabled)))
             self._target_graph_enabled = enabled
 
     def target_layer_graph_info(self):
@@ -502,7 +498,7 @@ class NativeQwenMTPSession(NativeQwenSession):
                 "Target layer graph info export absent; rebuild explicitly"
             )
         values = (C.c_uint64 * 11)()
-        self.model._backend._check(fn(self._handle, values))
+        self.model._runtime._check(fn(self._handle, values))
         keys = (
             "enabled",
             "ready",
@@ -530,7 +526,7 @@ class NativeQwenMTPSession(NativeQwenSession):
             raise RuntimeError("Verification trace export absent; rebuild explicitly")
         with self._lock:
             self._check()
-            self.model._backend._check(fn(self._handle, int(enabled)))
+            self.model._runtime._check(fn(self._handle, int(enabled)))
 
     def _verification_trace(self):
         fn = getattr(self.model._native, "venturi_qwen_verification_data", None)
@@ -541,9 +537,9 @@ class NativeQwenMTPSession(NativeQwenSession):
         with self._lock:
             self._check()
             meta = (C.c_uint64 * 2)()
-            self.model._backend._check(fn(self._handle, None, 0, None, 0, meta))
+            self.model._runtime._check(fn(self._handle, None, 0, None, 0, meta))
             bits, widths = (C.c_ubyte * meta[0])(), (C.c_int * meta[1])()
-            self.model._backend._check(
+            self.model._runtime._check(
                 fn(self._handle, bits, meta[0], widths, meta[1], meta)
             )
             return dict(widths=list(widths), fp16_bytes=bytes(bits))
@@ -555,20 +551,20 @@ class NativeQwenMTPSession(NativeQwenSession):
             raise RuntimeError("MTP2 prefix export absent; rebuild explicitly")
         with self._lock:
             self._check()
-            self.model._backend._check(fn(self._handle))
+            self.model._runtime._check(fn(self._handle))
 
     def stats(self):
         with self._lock:
             self._check()
             values, times = (C.c_uint64 * 20)(), (C.c_double * 5)()
-            self.model._backend._check(
+            self.model._runtime._check(
                 self.model._native.venturi_qwen_stats(self._handle, values, times)
             )
             result = _base_mtp_stats(values, times)
             fn = getattr(self.model._native, "venturi_qwen_chain_stats", None)
             if fn is not None:
                 chain = (C.c_uint64 * 13)()
-                self.model._backend._check(fn(self._handle, chain))
+                self.model._runtime._check(fn(self._handle, chain))
                 if chain[0] == 2:
                     result.update(
                         draft_tokens_per_round=2,
@@ -592,18 +588,18 @@ class NativeQwenMTPSession(NativeQwenSession):
             fn = getattr(self.model._native, "venturi_qwen_prefix_info", None)
             if fn is not None:
                 extra = (C.c_uint64 * 3)()
-                self.model._backend._check(fn(self._handle, extra))
+                self.model._runtime._check(fn(self._handle, extra))
                 if extra[0] or extra[1] or result["draft_tokens_per_round"] == 2:
                     result.update(
                         prefix_trace_extra_primary_bytes=int(extra[0]),
                         prefix_trace_extra_secondary_bytes=int(extra[1]),
-                        target_recovery="prefix-trace"
-                        if extra[2]
-                        else "checkpoint-replay",
+                        target_recovery=(
+                            "prefix-trace" if extra[2] else "checkpoint-replay"
+                        ),
                     )
             if self.model.projection_info.get("head_gdn_enabled"):
                 memory = (C.c_uint64 * 3)()
-                self.model._backend._check(
+                self.model._runtime._check(
                     self.model._native.venturi_qwen_head_gdn_memory(
                         self._handle, memory
                     )
@@ -660,7 +656,7 @@ class NativeQwenMTPSession(NativeQwenSession):
                 self.model._cfg["vocab_size"], dtype=torch.float32, device="cpu"
             )
             output = torch.empty(shape, dtype=self.model.dtype, device="cpu")
-            self.model._backend._check(
+            self.model._runtime._check(
                 self.model._native.venturi_qwen_draft(
                     self._handle,
                     ids,
@@ -683,7 +679,7 @@ class NativeQwenMTPSession(NativeQwenSession):
                     dtype=self.model.dtype,
                     device="cpu",
                 )
-                self.model._backend._check(
+                self.model._runtime._check(
                     self.model._native.venturi_qwen_draft_snapshot(
                         self._handle,
                         kind,
@@ -700,7 +696,7 @@ class NativeQwenMTPSession(NativeQwenSession):
         with self._lock:
             self._check()
             values = (C.c_int64 * len(ids))(*ids)
-            self.model._backend._check(
+            self.model._runtime._check(
                 self.model._native.venturi_qwen_debug_proposals(
                     self._handle, values, len(values)
                 )

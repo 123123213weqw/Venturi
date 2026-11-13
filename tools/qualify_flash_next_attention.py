@@ -17,8 +17,8 @@ import torch
 
 from collect_hf_headers import fetch_range
 from qualify_flash_next_qsa import INDEX_ABI_SHIM, REVISION, UPSTREAM_SHA256, positions, reference_class
-from venturi.models.flash_next_attention import FlashNextQSAAttention, QSAAttentionGeometry, QSAState
-from venturi.models.flash_next_qsa import QSAIndexerGeometry
+from venturi.models.flash_next.flash_next_attention import FlashNextQSAAttention, QSAAttentionGeometry, QSAState
+from venturi.models.flash_next.flash_next_qsa import QSAIndexerGeometry
 
 
 PREFIX = "model.language_model.layers.3.self_attn"

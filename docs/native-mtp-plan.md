@@ -1,3 +1,6 @@
+> Current Qwen storage/API contract: [direct safetensors](qwen-safetensors.md).
+> Historical measurements below retain their original scope; `.ninfer` is no longer a supported input.
+
 # Native MTP implementation and acceptance
 
 Status: **experimental greedy one- or two-proposal implementation**, additive
@@ -14,7 +17,7 @@ this wrapper is a production continuous-batching or paged-cache scheduler.
   intermediate GDN/history recovery, with zero replayed target inputs.
 - Call `session.prepare_prefix()` on a fresh/reset request to allocate outside
   generation timing; reset retains these allocations. The CLI does this during
-  its preparation stage. CLI flags: `--mtp-artifact ... --mtp-draft-tokens 2
+  its preparation stage. CLI flags: `--mtp-checkpoint ... --mtp-draft-tokens 2
   --mtp-recovery prefix`. The benchmark uses `--mtp-depth 2` instead of the CLI's
   `--mtp-draft-tokens`. Existing libraries need the optional new exports for
   these opt-ins; default depth-one compatibility remains.
@@ -175,7 +178,7 @@ that prefix without target replay; accepted catch-up uses verified target hidden
 Errors poison the whole selected cohort, which requires reset before reuse.
 
 The benchmark adapter exposes explicit `--batch-mtp`, requiring TP, depth one and
-`--mtp-artifact`. It is opt-in rather than an automatic strategy. Ordinary batch,
+`--mtp-checkpoint`. It is opt-in rather than an automatic strategy. Ordinary batch,
 scalar MTP2-prefix and this mode must be compared at the same workload before
 selection: faster two-request verification is not an eight-request/single win.
 Per-request verification wall overlaps; cohort counters/timestamps count once.

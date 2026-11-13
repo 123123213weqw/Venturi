@@ -1,5 +1,7 @@
 """New arithmetic stays explicit; private state and old numerical gates remain."""
 
+from qwen_native_runtime import native_runtime
+
 import os
 from types import SimpleNamespace
 
@@ -25,7 +27,10 @@ def test_profile_preflight_before_device_payload_and_missing_export(tmp_path):
     for profile in (None, True, 1, "auto", "q8"):
         with pytest.raises(ValueError, match="Projection profile"):
             NativeQwenModel.from_q8(
-                weights, backend, weight_mode="resident", projection_profile=profile
+                weights,
+                native_runtime(backend),
+                weight_mode="resident",
+                projection_profile=profile,
             )
     for options in (
         dict(weight_mode="streaming", dtype=torch.float16),
@@ -34,13 +39,16 @@ def test_profile_preflight_before_device_payload_and_missing_export(tmp_path):
     ):
         with pytest.raises(ValueError, match="complete resident FP16"):
             NativeQwenModel.from_q8(
-                weights, backend, projection_profile="q8-residual", **options
+                weights,
+                native_runtime(backend),
+                projection_profile="q8-residual",
+                **options,
             )
     backend._native = SimpleNamespace()
     with pytest.raises(RuntimeError, match="exports absent"):
         NativeQwenModel.from_q8(
             weights,
-            backend,
+            native_runtime(backend),
             weight_mode="resident",
             dtype=torch.float16,
             projection_profile="q8-residual",
@@ -109,7 +117,7 @@ def test_profile_independent_fp64_full_fixture_unchanged_logit_gates(
     for profile in ("fp16", "q8-residual"):
         model = NativeQwenModel.from_q8(
             weights,
-            backend,
+            native_runtime(backend),
             weight_mode="resident",
             dtype=dtype,
             device=device,

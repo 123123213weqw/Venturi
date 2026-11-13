@@ -11,12 +11,10 @@ from torch.nn.attention import SDPBackend, sdpa_kernel
 
 from test_flash_next_loader import fixture as floating_fixture, OPTIONS
 from test_flash_next_text import assert_states_equal
-from venturi.checkpoint import inspect_checkpoint
-from venturi.models.flash_next_loader import (
-    load_floating_text, load_weight_decoded_fp8_text, plan_weight_decoded_fp8_text,
-)
-from venturi.models.flash_next_moe import TensorExpertStore
-from venturi.models.flash_next_request import FlashNextRequest
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_loader import load_floating_text, load_weight_decoded_fp8_text, plan_weight_decoded_fp8_text
+from venturi.models.flash_next.flash_next_moe import TensorExpertStore
+from venturi.models.flash_next.flash_next_request import FlashNextRequest
 
 
 def fixture(path, *, execution_dtype=torch.bfloat16):
@@ -75,7 +73,7 @@ def test_explicit_fp8_bridge_matches_independently_decoded_floating_text(tmp_pat
             b.commit(y, accepted)
             assert_states_equal(a.state, b.state)
             assert torch.equal(a.last_logits, b.last_logits)
-    from venturi.models.flash_next_ngram import NGramRequest
+    from venturi.models.flash_next.flash_next_ngram import NGramRequest
     reader = loaded.tables[1]
     plan = NGramRequest(reader.config, reader.multipliers).preview([2, 31, 5])
     rows = reader.lookup(plan)

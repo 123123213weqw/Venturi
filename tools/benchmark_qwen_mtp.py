@@ -7,6 +7,8 @@ uses same-call native timestamps; no concurrent decode TPS is manufactured from
 summed/averaged request durations or from subtracting unrelated prefill trials.
 """
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 from collections import defaultdict
 import hashlib
@@ -23,10 +25,10 @@ from venturi.models import (
     NativeQwenModel,
     NativeQwenPipelineModel,
     NativeQwenMTPModel,
-    QwenQ8Weights,
+    QwenWeights,
     QwenMTPWeights,
 )
-from venturi.ninfer import NInferArtifact
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 
 
@@ -100,7 +102,7 @@ def summarize(rows):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("artifact")
-    p.add_argument("--mtp-artifact", required=True)
+    p.add_argument("--mtp-checkpoint", required=True)
     p.add_argument("--library", required=True)
     p.add_argument("--case", required=True)
     p.add_argument("--mode", choices=("tp", "pp"), required=True)
@@ -112,6 +114,7 @@ def main():
     p.add_argument("--profile-nvtx", action="store_true")
     p.add_argument("--profile-variant", choices=("baseline", "mtp"), default="mtp")
     p.add_argument("--new-tokens", type=int, default=32)
+    p.add_argument("--qwen-library", required=True)
     args = p.parse_args()
     if args.mode == "pp" and args.projection_profile != "fp16":
         p.error("Residual projection profile currently supports TP, not PP")
@@ -180,12 +183,12 @@ def main():
                 )
             )
         backend = CudaBackend(args.library)
-        weights = QwenQ8Weights.from_ninfer(NInferArtifact(args.artifact))
-        draft = QwenMTPWeights.from_ninfer(NInferArtifact(args.mtp_artifact))
+        weights = QwenWeights.open(args.artifact)
+        draft = QwenMTPWeights.open(args.mtp_checkpoint)
         draft.validate_target(weights)
         report.update(
-            target_artifact_id=weights.artifact.artifact_id,
-            mtp_artifact_id=draft.artifact.artifact_id,
+            target_header_sha256=weights.source.header_sha256,
+            mtp_checkpoint_id=draft.source.header_sha256,
         )
         kw = dict(
             weight_mode="resident",
@@ -196,12 +199,16 @@ def main():
         start = perf_counter()
         target = (
             NativeQwenPipelineModel.from_q8(
-                weights, backend, pipeline_device="cuda:1", split_layer=32, **kw
+                weights,
+                QwenRuntime(args.qwen_library, backend),
+                pipeline_device="cuda:1",
+                split_layer=32,
+                **kw,
             )
             if args.mode == "pp"
             else NativeQwenModel.from_q8(
                 weights,
-                backend,
+                QwenRuntime(args.qwen_library, backend),
                 tensor_parallel_device="cuda:1",
                 tensor_parallel_transport="host",
                 projection_profile=args.projection_profile,

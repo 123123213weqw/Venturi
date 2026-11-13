@@ -8,9 +8,9 @@ from safetensors.torch import save_file
 import torch
 
 from test_flash_next import fixture as checkpoint_fixture  # noqa: F401
-from venturi.checkpoint import inspect_checkpoint
-from venturi.models.flash_next_ngram import NGramRequest, PreparedNGramTable, ShardedNGramTable
-from venturi.models.flash_next_ple import FlashNextPLE, PLEGeometry, PLEState, gather_ple_rows
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_ngram import NGramRequest, PreparedNGramTable, ShardedNGramTable
+from venturi.models.flash_next.flash_next_ple import FlashNextPLE, PLEGeometry, PLEState, gather_ple_rows
 
 
 def module(dtype=torch.float32):

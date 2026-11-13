@@ -1,8 +1,8 @@
 import pytest
 import torch
 
-from venturi.gguf_metadata import read_verified_integer_metadata
-from venturi.models.engram_hash import EngramHashState,bind_engram_hash_metadata
+from venturi.container.gguf.gguf_metadata import read_verified_integer_metadata
+from venturi.models.deepseek.engram_hash import EngramHashState, bind_engram_hash_metadata
 from test_gguf_metadata import write_gguf
 
 

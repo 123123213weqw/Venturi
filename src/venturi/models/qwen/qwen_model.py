@@ -15,11 +15,16 @@ import torch
 
 from venturi.ops.blocks import _shape, _no_overlap
 from venturi.ops.vocabulary import _ids
-from venturi.models.decoder_layer import _outside_capture, _owner_stream, _stream, _unique_bytes
+from venturi.models.decoder_layer import (
+    _outside_capture,
+    _owner_stream,
+    _stream,
+    _unique_bytes,
+)
 from venturi.models.qwen.qwen_attention_layer import ResidentQwenAttentionLayer
 from venturi.models.qwen.qwen_gdn_layer import ResidentQwenGDNLayer
 from venturi.models.qwen.qwen_rope import QwenTextRoPE
-from venturi.models.qwen.qwen_weights import QwenQ8Weights
+from venturi.models.qwen.qwen_weights import QwenWeights
 
 
 def qwen_resident_bytes(weights, *, reference=False, dtype=torch.bfloat16, layer=None):
@@ -30,8 +35,8 @@ def qwen_resident_bytes(weights, *, reference=False, dtype=torch.bfloat16, layer
     Tied embeddings are counted once. An optional layer selects only its roles.
     Metadata-only: no payload reads/uploads.
     """
-    if not isinstance(weights, QwenQ8Weights):
-        raise TypeError("Expected complete preflighted QwenQ8Weights")
+    if not isinstance(weights, QwenWeights):
+        raise TypeError("Expected complete preflighted QwenWeights")
     specs = weights.plan.bindings
     if layer is not None:
         names = set(weights.layer_bindings(layer))
@@ -125,8 +130,8 @@ class ResidentQwenModel:
         reserve_bytes=512 * 2**20,
         memory_budget_bytes=None,
     ):
-        if not isinstance(weights, QwenQ8Weights):
-            raise TypeError("Expected complete preflighted QwenQ8Weights")
+        if not isinstance(weights, QwenWeights):
+            raise TypeError("Expected complete preflighted QwenWeights")
         if dtype not in (torch.float16, torch.bfloat16) and not (
             backend.capabilities.reference and dtype == torch.float64
         ):
@@ -264,9 +269,11 @@ class QwenSession:
             for layer in model.layers
         )
         self._caches = tuple(
-            layer.empty_cache(capacity=capacity)
-            if isinstance(layer, ResidentQwenAttentionLayer)
-            else None
+            (
+                layer.empty_cache(capacity=capacity)
+                if isinstance(layer, ResidentQwenAttentionLayer)
+                else None
+            )
             for layer in model.layers
         )
         self._lanes = {}
@@ -384,9 +391,11 @@ class QwenSession:
                     )
                     embedding = self.model.embedding.prepare_embedding(ids)
                     steps = tuple(
-                        p.at(position=position, cache=cache)
-                        if cache is not None
-                        else None
+                        (
+                            p.at(position=position, cache=cache)
+                            if cache is not None
+                            else None
+                        )
                         for p, cache in zip(active.layers, self._caches)
                     )
                     # Preflight ALL layers before any numerical/state update for

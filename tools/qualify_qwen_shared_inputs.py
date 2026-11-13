@@ -6,6 +6,8 @@ outputs and committed private caches are byte-exact to the qualified control.
 No fresh BF16/corpus-quality claim and no arithmetic-profile substitution.
 """
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 import ctypes
 import gc
@@ -16,8 +18,8 @@ from pathlib import Path
 import torch
 
 from qualify_qwen_projection_profile import native_generate
-from venturi.models import NativeQwenModel, QwenQ8Weights
-from venturi.ninfer import NInferArtifact
+from venturi.models import NativeQwenModel, QwenWeights
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 
 
@@ -57,22 +59,24 @@ def main():
     parser.add_argument("--prior-report-sha256", required=True)
     parser.add_argument("--cases", required=True)
     parser.add_argument("--output-directory", required=True)
+    parser.add_argument("--qwen-library", required=True)
+    parser.add_argument("--baseline-qwen-library", required=True)
     a = parser.parse_args()
     out = Path(a.output_directory)
     out.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(4)
-    assert digest(a.prior_report) == a.prior_report_sha256, (
-        "Qualified prior report changed"
-    )
+    assert (
+        digest(a.prior_report) == a.prior_report_sha256
+    ), "Qualified prior report changed"
     prior = json.loads(Path(a.prior_report).read_text())
     assert prior["completed"] and digest(a.baseline_library) == prior["library_sha256"]
     assert all(p["passed"] for p in prior["profiles"].values())
     cases = json.loads(Path(a.cases).read_text())
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
-    assert weights.artifact.artifact_id == prior["artifact_id"]
+    weights = QwenWeights.open(a.artifact)
+    assert weights.source.header_sha256 == prior["header_sha256"]
     report = dict(
         scope=__doc__,
-        artifact_id=weights.artifact.artifact_id,
+        header_sha256=weights.source.header_sha256,
         artifact_hash_scope="Prior frozen original-source artifact validation reused, not a fresh payload SHA256 scan; same artifact is loaded by both controls.",
         prior_report_sha256=a.prior_report_sha256,
         baseline_library_sha256=digest(a.baseline_library),
@@ -92,7 +96,10 @@ def main():
         for label, library in (("unshared", a.baseline_library), ("shared", a.library)):
             model = NativeQwenModel.from_q8(
                 weights,
-                CudaBackend(library),
+                QwenRuntime(
+                    a.baseline_qwen_library if label == "unshared" else a.qwen_library,
+                    CudaBackend(library),
+                ),
                 weight_mode="resident",
                 dtype=torch.float16,
                 max_tokens=32,
@@ -123,9 +130,9 @@ def main():
                             logits = session.forward(prefix)
                             hashes.append(tensor_signature(logits))
                             ids.append(int(logits.argmax()))
-                            assert ids[-1] == token, (
-                                "Pinned original trajectory changed"
-                            )
+                            assert (
+                                ids[-1] == token
+                            ), "Pinned original trajectory changed"
                         diagnostic = state_signature(session.snapshot())
                         session.reset()
                         generated = native_generate(
@@ -147,9 +154,9 @@ def main():
                         )
                         record["cases"].append(item)
                         if label == "shared":
-                            assert item == controls["unshared"]["cases"][i], (
-                                "Candidate changed same-profile logits/cache bytes"
-                            )
+                            assert (
+                                item == controls["unshared"]["cases"][i]
+                            ), "Candidate changed same-profile logits/cache bytes"
                         save()
                     finally:
                         session.close()
@@ -188,9 +195,9 @@ def main():
                         positions=[s["position"] for s in batch.info()["requests"]],
                     )
                     if label == "shared":
-                        assert record["batch"] == controls["unshared"]["batch"], (
-                            "Shared batch changed original profile bytes"
-                        )
+                        assert (
+                            record["batch"] == controls["unshared"]["batch"]
+                        ), "Shared batch changed original profile bytes"
                         assert (
                             record["reset_continuation"]
                             == controls["unshared"]["reset_continuation"]

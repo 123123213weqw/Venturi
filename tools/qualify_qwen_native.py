@@ -6,6 +6,8 @@ the same represented Q8/FP16 profile, NOT original-BF16/upstream/corpus quality.
 Diagnostic forward/snapshots are explicit; actual generation is one native call.
 """
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 from contextlib import ExitStack
 import gc
@@ -18,8 +20,8 @@ from unittest.mock import patch
 import torch
 
 from qualify_qwen_streaming import digest, logits_comparison, metrics
-from venturi.models import NativeQwenModel, NativeQwenPipelineModel, QwenQ8Weights
-from venturi.ninfer import NInferArtifact
+from venturi.models import NativeQwenModel, NativeQwenPipelineModel, QwenWeights
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 
 
@@ -74,7 +76,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("artifact")
     p.add_argument("--expected-sha256", required=True)
-    p.add_argument("--blocks-library", required=True)
+    p.add_argument("--ops-library", required=True)
     p.add_argument("--previous-directory", required=True)
     p.add_argument("--previous-report-sha256", required=True)
     p.add_argument("--tokenizer-file", required=True)
@@ -87,6 +89,7 @@ def main():
     p.add_argument("--pipeline-device")
     p.add_argument("--pipeline-split-layer", type=int)
     p.add_argument("--output-directory", required=True)
+    p.add_argument("--qwen-library", required=True)
     args = p.parse_args()
     out = Path(args.output_directory)
     out.mkdir(parents=True, exist_ok=False)
@@ -114,7 +117,7 @@ def main():
     print("Hashing complete Q8 artifact before native mapping", flush=True)
     if digest(Path(args.artifact)) != args.expected_sha256:
         raise ValueError("Artifact hash changed")
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(args.artifact))
+    weights = QwenWeights.open(args.artifact)
     report = dict(
         scope=__doc__,
         artifact_sha256=args.expected_sha256,
@@ -158,7 +161,7 @@ def main():
             raise ValueError("Select explicit TP or PP, not both")
         model = NativeQwenPipelineModel.from_q8(
             weights,
-            CudaBackend(args.blocks_library),
+            QwenRuntime(args.qwen_library, CudaBackend(args.ops_library)),
             **common,
             pipeline_device=args.pipeline_device,
             split_layer=args.pipeline_split_layer,
@@ -167,7 +170,7 @@ def main():
     else:
         model = NativeQwenModel.from_q8(
             weights,
-            CudaBackend(args.blocks_library),
+            QwenRuntime(args.qwen_library, CudaBackend(args.ops_library)),
             **common,
             tensor_parallel_device=args.tensor_parallel_device,
             tensor_parallel_transport=args.tensor_parallel_transport,
@@ -179,9 +182,11 @@ def main():
         for step, token in enumerate(prev["native_generated_ids"]):
             trace = []
             logits = s.forward(
-                case["prompt_token_ids"]
-                if step == 0
-                else [prev["native_generated_ids"][step - 1]],
+                (
+                    case["prompt_token_ids"]
+                    if step == 0
+                    else [prev["native_generated_ids"][step - 1]]
+                ),
                 trace=trace,
             )
             current = dict(logits=logits, trace=trace, state=s.snapshot())
@@ -248,7 +253,7 @@ def main():
                 stack.enter_context(patch.object(torch, name, forbidden))
             for name in ("to", "cpu", "float", "argmax", "matmul", "__matmul__"):
                 stack.enter_context(patch.object(torch.Tensor, name, forbidden))
-            stack.enter_context(patch.object(QwenQ8Weights, "read_linear", forbidden))
+            stack.enter_context(patch.object(QwenWeights, "read_linear", forbidden))
             generated = s.generate(
                 case["prompt_token_ids"],
                 max_new_tokens=case["max_new_tokens"],

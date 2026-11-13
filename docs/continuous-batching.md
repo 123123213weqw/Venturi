@@ -1,3 +1,6 @@
+> Current Qwen storage/API contract: [direct safetensors](qwen-safetensors.md).
+> Historical measurements below retain their original scope; `.ninfer` is no longer a supported input.
+
 # Opt-in native continuous scheduling
 
 This is an ordinary-greedy request scheduler over an explicitly prepared native
@@ -125,7 +128,7 @@ The existing loopback-only, pretokenized benchmark adapter now has an explicit
 `--continuous-target` mode, for example:
 
 ```sh
-python tools/serve_native_benchmark.py /absolute/model.ninfer \
+python tools/serve_native_benchmark.py /absolute/model.safetensors \
   --library /absolute/libventuri_blocks.so --mode tp --port 18033 \
   --ready-file /absolute/ready.json --slots 8 --capacity 512 \
   --projection-rows 32 --projection-profile q8-residual-column-mlp-head-gdn \

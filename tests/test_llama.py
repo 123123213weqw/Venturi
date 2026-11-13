@@ -6,8 +6,8 @@ import pytest
 import torch
 from safetensors.torch import save_file
 
-from venturi.generation import generate_tokens
-from venturi.loader import load_checkpoint
+from venturi.engine.generation import generate_tokens
+from venturi.container.loader import load_checkpoint
 from venturi.models import LlamaConfig, LlamaWeights
 from venturi.ops import TorchBackend
 

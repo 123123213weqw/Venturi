@@ -5,7 +5,7 @@ import os
 import pytest
 import torch
 
-from venturi.models.qwen_rope import QwenTextRoPE
+from venturi.models.qwen.qwen_rope import QwenTextRoPE
 from venturi.ops import CudaBackend, TorchBackend
 
 
@@ -17,7 +17,7 @@ def engine(request):
             torch.float64 if request.param == "fp64" else torch.bfloat16,
             "cpu",
         )
-    lib = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    lib = os.environ.get("VENTURI_OPS_LIBRARY")
     if not lib:
         pytest.skip("explicit native library required")
     return CudaBackend(lib), getattr(torch, request.param), "cuda:0"
@@ -62,9 +62,9 @@ def check(actual, ideal):
     if d == torch.float64:
         torch.testing.assert_close(actual.cpu().double(), ideal, atol=2e-12, rtol=2e-11)
     else:
-        assert bool((err <= 2 * torch.finfo(d).eps * ideal.abs() + 2e-5).all()), (
-            err.max().item()
-        )
+        assert bool(
+            (err <= 2 * torch.finfo(d).eps * ideal.abs() + 2e-5).all()
+        ), err.max().item()
 
 
 @pytest.mark.parametrize("d", [64, 128, 256])
@@ -181,7 +181,7 @@ def test_qwen_ops_reject_aliases_and_invalid_geometry(engine):
 
 @pytest.mark.cuda
 def test_qwen_ops_graph_has_no_numerical_fallback_or_tensor_views(monkeypatch):
-    lib = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    lib = os.environ.get("VENTURI_OPS_LIBRARY")
     if not lib:
         pytest.skip("explicit native library required")
     backend, dtype, device = CudaBackend(lib), torch.bfloat16, "cuda:0"

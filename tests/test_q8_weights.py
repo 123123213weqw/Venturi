@@ -90,7 +90,7 @@ def test_descriptor_guards(bad):
 def engine(request):
     if request.param == "reference":
         return TorchBackend(), torch.float64, "cpu"
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native library required")
     return CudaBackend(library), torch.bfloat16, "cuda:0"
@@ -141,7 +141,7 @@ def test_q8_mlp_and_decoder_composition(engine):
         up=quant(original.up),
         down=quant(original.down),
     )
-    plan = weights.prepare(backend, tokens=7, dtype=dtype, device=device)
+    plan = weights.upload(backend, dtype=dtype, device=device).prepare(tokens=7)
     x = torch.randn(7, 32, dtype=dtype, device=device)
     out, workspace = torch.empty_like(x), plan.empty_workspace()
     expected = (

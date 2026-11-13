@@ -2,6 +2,7 @@ from dataclasses import replace
 import json
 
 import pytest
+from import_budget import framework_import_timeout
 import torch
 
 from venturi import CheckpointError, load_checkpoint, verify_loaded_checkpoint
@@ -169,7 +170,7 @@ def test_acceptance_tool(make_checkpoint, weights, tmp_path):
         env=dict(os.environ, PYTHONPATH=str(root / "src")),
         text=True,
         capture_output=True,
-        timeout=30,
+        timeout=framework_import_timeout(),
     )
     assert completed.returncode == 0, completed.stderr
     report = json.loads(output.read_text())

@@ -113,7 +113,7 @@ def run(args):
                 raise RuntimeError("Successful converter report/output mismatch")
             state.update(
                 status="complete",
-                artifact_id=result["artifact_id"],
+                header_sha256=result["header_sha256"],
                 artifact_sha256=result["sha256"],
             )
         else:

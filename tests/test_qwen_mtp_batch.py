@@ -1,5 +1,7 @@
 """Batched MTP must preserve every target/draft byte, not only token output."""
 
+from qwen_native_runtime import native_runtime
+
 import os
 from concurrent.futures import ThreadPoolExecutor
 from types import SimpleNamespace
@@ -30,7 +32,7 @@ def models(
     a, b, _, _ = mtp_fixture(tmp_path, tied=tied)
     target = NativeQwenModel.from_q8(
         a,
-        backend,
+        native_runtime(backend),
         weight_mode="resident",
         dtype=torch.float16,
         device="cuda:0",
@@ -85,9 +87,13 @@ def test_target_and_corrected_draft_bytes(tmp_path, engine, tp, profile, count, 
                     good = forced == "accept" or (forced == "mixed" and i % 2 == 0)
                     batch._force_proposals(
                         slots[i],
-                        full[i]
-                        if good
-                        else [(v + 1) % target.config["vocab_size"] for v in full[i]],
+                        (
+                            full[i]
+                            if good
+                            else [
+                                (v + 1) % target.config["vocab_size"] for v in full[i]
+                            ]
+                        ),
                     )
             result = batch.generate(
                 prompts, max_new_tokens=11, eos_token_ids=eos, slots=slots
@@ -273,7 +279,7 @@ def test_cpu_model_capacity_export_and_continuation_preflight():
     for capacities in [[], [12] * 3, [0], [21], [True]]:
         with pytest.raises(ValueError):
             NativeQwenMTPBatchSession.create(model, capacities)
-    model._backend = SimpleNamespace(_native=SimpleNamespace())
+    model._runtime = SimpleNamespace(_native=SimpleNamespace())
     with pytest.raises(RuntimeError, match="exports absent"):
         NativeQwenMTPBatchSession.create(model, [12])
     with pytest.raises(ValueError, match="continuation"):
@@ -284,10 +290,10 @@ def test_cpu_model_capacity_export_and_continuation_preflight():
     "extra",
     [
         [],
-        ["--mtp-artifact", "draft", "--mtp-depth", "2"],
-        ["--mtp-artifact", "draft", "--mtp-recovery", "prefix"],
-        ["--mtp-artifact", "draft", "--batch-target"],
-        ["--mtp-artifact", "draft", "--mode", "pp"],
+        ["--mtp-checkpoint", "draft", "--mtp-depth", "2"],
+        ["--mtp-checkpoint", "draft", "--mtp-recovery", "prefix"],
+        ["--mtp-checkpoint", "draft", "--batch-target"],
+        ["--mtp-checkpoint", "draft", "--mode", "pp"],
     ],
 )
 def test_server_batch_mtp_preflight_before_runtime(extra, monkeypatch):
@@ -416,7 +422,7 @@ def metadata_fake_batch():
         _cfg=dict(vocab_size=8),
         projection_info={},
         _metadata=metadata,
-        _backend=SimpleNamespace(_check=check),
+        _runtime=SimpleNamespace(_check=check),
     )
     return batch, state
 

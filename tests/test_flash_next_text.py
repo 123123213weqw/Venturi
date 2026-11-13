@@ -12,12 +12,12 @@ from torch.nn.attention import SDPBackend, sdpa_kernel
 
 from test_flash_next import raw_config
 from test_flash_next_layer import module as layer_module
-from venturi.checkpoint import inspect_checkpoint
-from venturi.flash_next import FlashNextConfig
-from venturi.models.flash_next_ngram import PreparedNGramTable, ShardedNGramTable
-from venturi.models.flash_next_request import FlashNextRequest
-from venturi.models.flash_next_residual import FlashNextGatedResidual
-from venturi.models.flash_next_text import FlashNextTextCore
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next import FlashNextConfig
+from venturi.models.flash_next.flash_next_ngram import PreparedNGramTable, ShardedNGramTable
+from venturi.models.flash_next.flash_next_request import FlashNextRequest
+from venturi.models.flash_next.flash_next_residual import FlashNextGatedResidual
+from venturi.models.flash_next.flash_next_text import FlashNextTextCore
 
 
 def module(dtype=torch.float32, device='cpu'):
@@ -52,7 +52,7 @@ def table_fixture(path, *, dtype=torch.bfloat16):
 def assert_states_equal(a, b):
     assert a.tokens_seen == b.tokens_seen and torch.equal(a.visible_keys, b.visible_keys)
     for x, y in zip(a.layers, b.layers):
-        from venturi.models.flash_next_gdn import GDNState
+        from venturi.models.flash_next.flash_next_gdn import GDNState
         names = ('conv', 'recurrent') if isinstance(x.attention, GDNState) else ('raw_indexer_keys', 'keys', 'values')
         for name in names:
             torch.testing.assert_close(getattr(x.attention, name), getattr(y.attention, name), atol=0, rtol=0)

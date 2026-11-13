@@ -13,12 +13,12 @@ from venturi.text import LocalTokenizer
 from venturi.models import (
     NativeQwenModel,
     NativeQwenPipelineModel,
-    QwenQ8Weights,
+    QwenWeights,
     NativeQwenMTPModel,
     QwenMTPWeights,
 )
-from venturi.ninfer import NInferArtifact
 from venturi.ops import CudaBackend
+from venturi.models.qwen.native_runtime import QwenRuntime
 from venturi.ops.vocabulary import _ids
 
 
@@ -44,7 +44,7 @@ def main(argv=None):
     p.add_argument("command", choices=("inspect", "generate"))
     p.add_argument("path")
     p.add_argument(
-        "--blocks-library",
+        "--ops-library",
         help="Explicit ABI-matching native library; never builds automatically",
     )
     p.add_argument(
@@ -60,10 +60,18 @@ def main(argv=None):
     )
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--kv-cache", choices=("static", "vram-first"), default="static")
-    p.add_argument("--kv-gpu-budget-mib", type=int, default=0,
-                   help="VRAM-first KV pool cap; 0 uses current free VRAM minus reserve")
-    p.add_argument("--kv-ram-budget-mib", type=int, default=0,
-                   help="Explicit CPU spill-backing limit; 0 forbids RAM spill")
+    p.add_argument(
+        "--kv-gpu-budget-mib",
+        type=int,
+        default=0,
+        help="VRAM-first KV pool cap; 0 uses current free VRAM minus reserve",
+    )
+    p.add_argument(
+        "--kv-ram-budget-mib",
+        type=int,
+        default=0,
+        help="Explicit CPU spill-backing limit; 0 forbids RAM spill",
+    )
     p.add_argument(
         "--projection-profile",
         choices=(
@@ -92,7 +100,7 @@ def main(argv=None):
     p.add_argument("--pipeline-split-layer", type=int)
     p.add_argument("--pipeline-transport", choices=("host",), default="host")
     p.add_argument(
-        "--mtp-artifact",
+        "--mtp-checkpoint",
         help="Explicit original-source Q8 MTP payload; experimental native greedy verification",
     )
     p.add_argument(
@@ -139,30 +147,28 @@ def main(argv=None):
         type=int,
         help="Default prompt length + max-new-tokens; no truncation",
     )
+    p.add_argument(
+        "--qwen-library", help="Explicit separately built Qwen runtime library"
+    )
     args = p.parse_args(argv)
     total = perf_counter()
     try:
-        artifact = NInferArtifact(args.path)
-        weights = QwenQ8Weights.from_ninfer(artifact)
+        weights = QwenWeights.open(args.path)
         verified = None
         if args.expected_sha256:
-            if len(artifact.files) != 1:
-                raise ValueError(
-                    "A root-file hash alone cannot verify a multipart artifact"
-                )
-            verified = _hash(artifact.path)
+            verified = _hash(weights.source.path)
             if verified != args.expected_sha256.lower():
                 raise ValueError("Artifact SHA256 mismatch")
         if args.command == "inspect":
             print(
                 json.dumps(
                     dict(
-                        artifact_id=artifact.artifact_id,
+                        header_sha256=weights.source.header_sha256,
                         config=weights.config,
                         formats=dict(
-                            Counter(o["format"] for o in artifact.objects.values())
+                            Counter(d.format for d in weights.tensors.values())
                         ),
-                        file_bytes=sum(f.path.stat().st_size for f in artifact.files),
+                        file_bytes=weights.source.path.stat().st_size,
                         verified_single_file_sha256=verified,
                         scope="Metadata inspection, not payload validation, generation or quality qualification",
                     ),
@@ -172,14 +178,18 @@ def main(argv=None):
             return 0
         if min(args.kv_gpu_budget_mib, args.kv_ram_budget_mib) < 0:
             raise ValueError("KV budgets must be nonnegative")
-        if args.kv_cache == "static" and (args.kv_gpu_budget_mib or args.kv_ram_budget_mib):
+        if args.kv_cache == "static" and (
+            args.kv_gpu_budget_mib or args.kv_ram_budget_mib
+        ):
             raise ValueError("KV budgets require --kv-cache vram-first")
         if args.kv_cache != "static" and (
-            args.pipeline_device or args.mtp_artifact or args.weight_mode != "resident"
+            args.pipeline_device
+            or args.mtp_checkpoint
+            or args.weight_mode != "resident"
         ):
             raise ValueError("VRAM-first KV requires resident single/TP, not PP/MTP")
         if args.mtp_draft_projection_profile != "fp16" and (
-            not args.mtp_artifact
+            not args.mtp_checkpoint
             or args.dtype != "fp16"
             or args.pipeline_device
             or args.weight_mode != "resident"
@@ -188,16 +198,16 @@ def main(argv=None):
                 "Residual MTP draft requires an explicit artifact and resident FP16 non-PP target"
             )
         if args.mtp_recovery != "replay" and (
-            not args.mtp_artifact or args.mtp_draft_tokens != 2
+            not args.mtp_checkpoint or args.mtp_draft_tokens != 2
         ):
             raise ValueError("Prefix recovery requires explicit MTP2")
-        if args.mtp_draft_tokens != 1 and not args.mtp_artifact:
-            raise ValueError("--mtp-draft-tokens requires --mtp-artifact")
+        if args.mtp_draft_tokens != 1 and not args.mtp_checkpoint:
+            raise ValueError("--mtp-draft-tokens requires --mtp-checkpoint")
         if args.mtp_draft_tokens == 2 and args.max_tokens < 3:
             raise ValueError("MTP2 requires --max-tokens >= 3")
-        if not args.blocks_library or not args.weight_mode:
+        if not args.ops_library or not args.qwen_library or not args.weight_mode:
             raise ValueError(
-                "generate requires explicit --blocks-library and --weight-mode"
+                "generate requires explicit --ops-library, --qwen-library and --weight-mode"
             )
         if args.projection_profile != "fp16" and (
             args.dtype != "fp16"
@@ -256,15 +266,17 @@ def main(argv=None):
             max_tokens=args.max_tokens,
         )
         if args.kv_cache != "static":
-            common.update(kv_cache=args.kv_cache,
-                          kv_gpu_budget_bytes=args.kv_gpu_budget_mib * 2**20,
-                          kv_ram_budget_bytes=args.kv_ram_budget_mib * 2**20)
+            common.update(
+                kv_cache=args.kv_cache,
+                kv_gpu_budget_bytes=args.kv_gpu_budget_mib * 2**20,
+                kv_ram_budget_bytes=args.kv_ram_budget_mib * 2**20,
+            )
         if args.pipeline_device:
             if args.tensor_parallel_device or args.tensor_parallel_transport != "peer":
                 raise ValueError("Select TP or PP, not a two-device TP/PP hybrid")
             model = NativeQwenPipelineModel.from_q8(
                 weights,
-                CudaBackend(args.blocks_library),
+                QwenRuntime(args.qwen_library, CudaBackend(args.ops_library)),
                 **common,
                 pipeline_device=args.pipeline_device,
                 split_layer=args.pipeline_split_layer,
@@ -275,18 +287,18 @@ def main(argv=None):
                 raise ValueError("Pipeline split requires --pipeline-device")
             model = NativeQwenModel.from_q8(
                 weights,
-                CudaBackend(args.blocks_library),
+                QwenRuntime(args.qwen_library, CudaBackend(args.ops_library)),
                 **common,
                 tensor_parallel_device=args.tensor_parallel_device,
                 tensor_parallel_transport=args.tensor_parallel_transport,
                 projection_profile=args.projection_profile,
             )
-        if args.mtp_artifact:
+        if args.mtp_checkpoint:
             target_model = model
             try:
                 model = NativeQwenMTPModel.from_q8(
                     target_model,
-                    QwenMTPWeights.from_ninfer(NInferArtifact(args.mtp_artifact)),
+                    QwenMTPWeights.open(args.mtp_checkpoint),
                     **(
                         {"draft_projection_profile": args.mtp_draft_projection_profile}
                         if args.mtp_draft_projection_profile != "fp16"
@@ -301,7 +313,7 @@ def main(argv=None):
             init = perf_counter()
             session = model.create_session(capacity)
             try:
-                if args.mtp_artifact and args.mtp_recovery == "prefix":
+                if args.mtp_checkpoint and args.mtp_recovery == "prefix":
                     session.prepare_prefix()
                 prepare_seconds = perf_counter() - init
                 start, cpu = perf_counter(), _cpu()
@@ -329,36 +341,46 @@ def main(argv=None):
                     dtype=args.dtype,
                     projection_profile=info.get(
                         "projection_profile",
-                        args.projection_profile
-                        if args.dtype == "fp16" or args.projection_profile != "fp16"
-                        else "bf16",
+                        (
+                            args.projection_profile
+                            if args.dtype == "fp16" or args.projection_profile != "fp16"
+                            else "bf16"
+                        ),
                     ),
-                    mtp_draft_projection_profile=info.get(
-                        "mtp_draft_projection_profile",
-                        args.mtp_draft_projection_profile
-                        if args.dtype == "fp16"
-                        else args.dtype,
-                    )
-                    if args.mtp_artifact
-                    else None,
+                    mtp_draft_projection_profile=(
+                        info.get(
+                            "mtp_draft_projection_profile",
+                            (
+                                args.mtp_draft_projection_profile
+                                if args.dtype == "fp16"
+                                else args.dtype
+                            ),
+                        )
+                        if args.mtp_checkpoint
+                        else None
+                    ),
                     tensor_parallel_device=args.tensor_parallel_device,
-                    tensor_parallel_transport=args.tensor_parallel_transport
-                    if args.tensor_parallel_device
-                    else None,
+                    tensor_parallel_transport=(
+                        args.tensor_parallel_transport
+                        if args.tensor_parallel_device
+                        else None
+                    ),
                     pipeline_device=args.pipeline_device,
                     pipeline_split_layer=args.pipeline_split_layer,
-                    mtp_artifact=args.mtp_artifact,
-                    mtp_recovery=args.mtp_recovery if args.mtp_artifact else None,
-                    speculative_draft_tokens=args.mtp_draft_tokens
-                    if args.mtp_artifact
-                    else 0,
+                    mtp_artifact=args.mtp_checkpoint,
+                    mtp_recovery=args.mtp_recovery if args.mtp_checkpoint else None,
+                    speculative_draft_tokens=(
+                        args.mtp_draft_tokens if args.mtp_checkpoint else 0
+                    ),
                     sampling="explicit greedy, lowest-index ties, nonfinite reject; not source stochastic defaults",
                     prompt_tokens=len(ids),
                     generated_ids=generated,
                     text=tokenizer.decode(generated) if tokenizer else None,
-                    finish_reason="eos"
-                    if generated and generated[-1] in eos
-                    else "max_new_tokens",
+                    finish_reason=(
+                        "eos"
+                        if generated and generated[-1] in eos
+                        else "max_new_tokens"
+                    ),
                     tokenizer_sha256=tokenizer.sha256 if tokenizer else None,
                     verified_single_file_sha256=verified,
                     model_load_wall_seconds=load_seconds,

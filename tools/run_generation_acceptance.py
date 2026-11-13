@@ -18,7 +18,7 @@ import tempfile
 import torch
 
 from venturi import load_checkpoint
-from venturi.generation import LocalTokenizer, generate_text
+from venturi.engine.generation import LocalTokenizer, generate_text
 from venturi.models import GPTNeoXModel
 
 

@@ -4,6 +4,8 @@ No source guard is disabled. Loading, SDK validation, reset and result validatio
 are outside the marked ctypes call; output IDs and acceptance remain checked.
 """
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 import ctypes as C
 import hashlib
@@ -16,22 +18,23 @@ import torch
 from venturi.models import (
     NativeQwenModel,
     NativeQwenMTPModel,
-    QwenQ8Weights,
+    QwenWeights,
     QwenMTPWeights,
 )
-from venturi.ninfer import NInferArtifact
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("artifact")
-    p.add_argument("--mtp-artifact", required=True)
+    p.add_argument("--mtp-checkpoint", required=True)
     p.add_argument("--library", required=True)
     p.add_argument("--case", required=True)
     p.add_argument("--repeats", type=int, default=3)
     p.add_argument("--instrumented", action="store_true")
     p.add_argument("--output", required=True)
+    p.add_argument("--qwen-library", required=True)
     a = p.parse_args()
     if a.repeats not in (1, 3):
         p.error("This bounded diagnostic permits one or three marked calls")
@@ -39,8 +42,8 @@ def main():
     case = json.loads(Path(a.case).read_text())
     prompt, expected = case["prompt_token_ids"], case["expected_generated_ids"]
     target = NativeQwenModel.from_q8(
-        QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact)),
-        CudaBackend(a.library),
+        QwenWeights.open(a.artifact),
+        QwenRuntime(a.qwen_library, CudaBackend(a.library)),
         weight_mode="resident",
         dtype=torch.float16,
         device="cuda:0",
@@ -53,7 +56,7 @@ def main():
     try:
         model = NativeQwenMTPModel.from_q8(
             target,
-            QwenMTPWeights.from_ninfer(NInferArtifact(a.mtp_artifact)),
+            QwenMTPWeights.open(a.mtp_checkpoint),
             draft_projection_profile="q8-residual",
         )
         sessions = [model.create_session(256) for _ in range(8)]
@@ -90,7 +93,7 @@ def main():
             end = time.time()
             thread = time.thread_time() - thread
             cpu = time.process_time() - cpu
-            model._backend._check(rc)
+            model._runtime._check(rc)
             actual = list(result[: count.value])
             assert actual == expected
             stats = session.stats()
@@ -112,7 +115,7 @@ def main():
             calls=calls,
             checkpoint_paths=[
                 str(Path(a.artifact).resolve()),
-                str(Path(a.mtp_artifact).resolve()),
+                str(Path(a.mtp_checkpoint).resolve()),
             ],
             library=str(Path(a.library).resolve()),
             library_sha256=hashlib.sha256(Path(a.library).read_bytes()).hexdigest(),

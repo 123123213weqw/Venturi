@@ -1,7 +1,7 @@
 """Prepared, model-independent operators with explicit buffers and stream ownership.
 
 The native backend owns RMSNorm/SwiGLU/Add/RoPE/attention kernels and delegates dense GEMM to
-cuBLAS, not NInfer. An explicitly supplied AdaBackend provides the existing
+cuBLAS. An explicitly supplied AdaBackend provides the existing
 attributed Q4 operator. TorchBackend is an allocating numerical/performance
 reference, not a hidden CUDA fallback. Plans and operands must outlive queued
 GPU work; each concurrent execution needs independent caller-owned workspace.
@@ -20,7 +20,6 @@ from torch.nn import functional as F
 from .ada import _overlaps
 from .backend import Backend, BackendCapabilities, OperatorSupport
 from .weights import DenseWeight, Q4RowSplitWeight, Q8RowSplitWeight
-
 
 _DTYPES = {torch.float16: 0, torch.bfloat16: 1, torch.float32: 2}
 
@@ -222,17 +221,7 @@ class _SharedPreparedBackend(Backend):
     """Existing Torch/CUDA adapters only; new backends implement Backend directly.
 
     Common setup and extension entry points live here, not in model adapters.
-    Legacy private aliases remain for callers outside this module.
     """
-
-    def _device(self, dtype, device):
-        return self.validate_device(dtype, device)
-
-    def _bind_linear(self, resident, tokens):
-        return self.bind_linear(resident, tokens=tokens)
-
-    def _bind_rmsnorm(self, resident, tokens):
-        return self.bind_rmsnorm(resident, tokens=tokens)
 
     def empty(self, shape, *, dtype, device):
         if not isinstance(shape, (list, tuple)) or any(
@@ -320,7 +309,7 @@ class _SharedPreparedBackend(Backend):
 class CudaBackend(_SharedPreparedBackend):
     """Explicit architecture-tagged native library; loading never builds a model."""
 
-    name = "venturi-blocks-cuda"
+    name = "venturi-ops-cuda"
     execution_kind = "native-cuda"
 
     @property
@@ -337,7 +326,7 @@ class CudaBackend(_SharedPreparedBackend):
         self._native = ctypes.CDLL(str(self.library))
         self._native.venturi_blocks_abi.argtypes = []
         self._native.venturi_blocks_abi.restype = ctypes.c_int
-        if self._native.venturi_blocks_abi() != 16:
+        if self._native.venturi_blocks_abi() != 17:
             raise RuntimeError("Venturi blocks ABI mismatch; rebuild explicitly")
         self._native.venturi_blocks_arch.argtypes = []
         self._native.venturi_blocks_arch.restype = ctypes.c_int
@@ -358,10 +347,12 @@ class CudaBackend(_SharedPreparedBackend):
                 [ctypes.c_void_p] * 3 + [ctypes.c_int] * 4 + [ctypes.c_void_p],
                 ctypes.c_int,
             ),
-            "venturi_dense_create": ([ctypes.c_int] * 4, ctypes.c_void_p),
+            "venturi_dense_create": ([ctypes.c_int], ctypes.c_void_p),
             "venturi_dense_destroy": ([ctypes.c_void_p], None),
             "venturi_dense_run": (
-                [ctypes.c_void_p] * 5 + [ctypes.c_size_t, ctypes.c_void_p],
+                [ctypes.c_void_p] * 4
+                + [ctypes.c_int] * 3
+                + [ctypes.c_void_p, ctypes.c_size_t, ctypes.c_void_p],
                 ctypes.c_int,
             ),
             "venturi_rms_run": (
@@ -537,12 +528,7 @@ class CudaBackend(_SharedPreparedBackend):
         if resident._payload.dtype != resident.dtype:
             return _FP32WeightLinear(resident, tokens)
         with torch.cuda.device(resident.device):
-            handle = self._native.venturi_dense_create(
-                tokens,
-                resident.out_features,
-                resident.in_features,
-                _DTYPES[resident.dtype],
-            )
+            handle = self._native.venturi_dense_create(_DTYPES[resident.dtype])
             if not handle:
                 self._check(-1)
         return _DenseLinear(self, resident._payload, tokens, handle)
@@ -616,8 +602,8 @@ class _FP32WeightLinear:
         )
 
     def __post_init__(self):
-        _shape(self.tokens, self.resident.in_features)
-        if self.tokens * self.resident.out_features >= 2**31:
+        _shape(self.tokens, self.in_features)
+        if self.tokens * self.out_features >= 2**31:
             raise ValueError("FP32 Linear row count must fit int32")
 
     @property
@@ -731,6 +717,9 @@ class _DenseLinear:
                     x.data_ptr(),
                     self._weight.data_ptr(),
                     out.data_ptr(),
+                    self.tokens,
+                    self.out_features,
+                    self.in_features,
                     workspace.data_ptr(),
                     workspace.numel(),
                     torch.cuda.current_stream(self.device).cuda_stream,
@@ -928,9 +917,11 @@ class TorchBackend(_SharedPreparedBackend):
             self,
             (
                 data,
-                weight.format
-                if isinstance(weight, (Q4RowSplitWeight, Q8RowSplitWeight))
-                else False,
+                (
+                    weight.format
+                    if isinstance(weight, (Q4RowSplitWeight, Q8RowSplitWeight))
+                    else False
+                ),
             ),
             (data,),
             dtype,

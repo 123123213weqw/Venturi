@@ -20,8 +20,8 @@ from torch import nn
 from collect_hf_headers import fetch_range
 from qualify_flash_next_gdn import CACHE_SHA256, references
 from qualify_flash_next_qsa import REVISION, UPSTREAM_SHA256
-from venturi.checkpoint import inspect_checkpoint
-from venturi.models.flash_next_ple import FlashNextPLE, PLEGeometry, PLEState
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_ple import FlashNextPLE, PLEGeometry, PLEState
 
 
 PREFIX = "model.language_model.layers.1.ple"

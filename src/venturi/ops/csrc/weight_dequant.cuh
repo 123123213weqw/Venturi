@@ -1,6 +1,6 @@
 // Venturi row-codec weight dequantization kernels (q4/q5/q6_g64 family).
-// Included inside namespace vr by qwen_runtime.cuh. Contract mirrors
-// NInfer row_split_k128_v1 decode_row exactly: per row, groups = padded/64;
+// Included inside the private operator namespace vrow by blocks.cu. Contract:
+// Signed row-split group decode: per row, groups = padded/64;
 // group codes are 32 packed bytes (even lane = low nibble, odd = high nibble);
 // q5/q6 add a high-bit plane ((bits-4) bits per lane, LSB-first little-endian
 // stream, (bits-4)*64/8 bytes per group); values are bits-wide two's

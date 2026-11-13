@@ -1,3 +1,6 @@
+> Current Qwen storage/API contract: [direct safetensors](qwen-safetensors.md).
+> Historical measurements below retain their original scope; `.ninfer` is no longer a supported input.
+
 # Prepared operator backend contract
 
 The public contract is `venturi.ops.OperatorBackend`, with an optional abstract

@@ -13,11 +13,11 @@ from torch import nn
 
 from qualify_flash_next_layer import references
 from qualify_flash_next_text import text_references, oracle_step
-from venturi.flash_next import FlashNextConfig
-from venturi.models.flash_next_fp8 import BlockFP8ExpertStore
-from venturi.models.flash_next_gdn import GDNState
-from venturi.models.flash_next_moe import MoEGeometry
-from venturi.models.flash_next_ngram import NGramProposal
+from venturi.models.flash_next.flash_next import FlashNextConfig
+from venturi.models.flash_next.flash_next_fp8 import BlockFP8ExpertStore
+from venturi.models.flash_next.flash_next_gdn import GDNState
+from venturi.models.flash_next.flash_next_moe import MoEGeometry
+from venturi.models.flash_next.flash_next_ngram import NGramProposal
 
 
 class SelectedPair:

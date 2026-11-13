@@ -17,11 +17,11 @@ from types import SimpleNamespace
 import numpy as np
 import torch
 
-from venturi.gguf_rows import VerifiedIQ4NLRows
-from venturi.model_assets import ModelAsset
-from venturi.models.engram_hash import EngramHashSpec, EngramHashState
-from venturi.models.engram_projection import reference_engram_from_rows
-from venturi.gguf_quantization import decode_bf16_rows,decode_q5_k_rows
+from venturi.container.gguf.gguf_rows import VerifiedIQ4NLRows
+from venturi.container.model_assets import ModelAsset
+from venturi.models.deepseek.engram_hash import EngramHashSpec, EngramHashState
+from venturi.models.deepseek.engram_projection import reference_engram_from_rows
+from venturi.container.gguf.gguf_quantization import decode_bf16_rows, decode_q5_k_rows
 from qualify_deepseek41_tokenizer import SOURCE_SHA256 as HASH_SOURCE_SHA256
 from qualify_gguf_iq4nl import _reference as iq4_reference, SOURCE_SHA256 as IQ4_SOURCE_SHA256
 from qualify_gguf_projection_formats import references as projection_references

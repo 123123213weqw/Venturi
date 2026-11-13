@@ -18,7 +18,7 @@ from venturi.models import (
     NativeQwenMTPModel,
     QwenMTPWeights,
 )
-from venturi.models.qwen_mtp_native import _bind
+from venturi.models.qwen.qwen_mtp_native import _bind
 from venturi.ops import CudaBackend
 
 
@@ -32,7 +32,7 @@ def test_explicit_draft_profile_cpu_preflight_and_default():
     weights = object.__new__(QwenMTPWeights)
     target = object.__new__(NativeQwenModel)
     target._dtype = torch.float16
-    target._backend = SimpleNamespace(_native=SimpleNamespace())
+    target._runtime = SimpleNamespace(_native=SimpleNamespace())
     with pytest.raises(ValueError, match="explicit fp16/q8-residual"):
         NativeQwenMTPModel.from_q8(target, weights, draft_projection_profile="auto")
     with pytest.raises(RuntimeError, match="exports absent"):
@@ -69,7 +69,7 @@ def test_additive_profile_exports_do_not_break_old_binding():
 def test_cli_draft_profile_requires_artifact_before_backend(
     tmp_path, monkeypatch, capsys
 ):
-    from venturi import qwen_native_cli
+    from venturi.models.qwen import qwen_native_cli as qwen_native_cli
     from test_qwen_model import hybrid_fixture
 
     w, _ = hybrid_fixture(tmp_path)
@@ -82,7 +82,7 @@ def test_cli_draft_profile_requires_artifact_before_backend(
         qwen_native_cli.main(
             [
                 "generate",
-                str(w.artifact.path),
+                str(w.source.path),
                 "--token-ids",
                 "1,2",
                 "--mtp-draft-projection-profile",

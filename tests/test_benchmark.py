@@ -4,7 +4,7 @@ import pytest
 import torch
 
 from venturi.benchmark import benchmark_tokens
-from venturi.generation import GenerationResult
+from venturi.engine.generation import GenerationResult
 
 
 def install_fake(monkeypatch, *, counts=(3,), device="cpu"):

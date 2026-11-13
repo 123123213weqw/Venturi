@@ -18,7 +18,7 @@ import torch
 from torch import nn
 
 from collect_hf_headers import fetch_range
-from venturi.models.flash_next_qsa import FlashNextQSAIndexer, QSAIndexerGeometry
+from venturi.models.flash_next.flash_next_qsa import FlashNextQSAIndexer, QSAIndexerGeometry
 
 
 UPSTREAM_SHA256 = "e57b3617e71e81ecb7e5ae3b420c45b5aee80d76a07aa8c88b797c2642f1f5df"

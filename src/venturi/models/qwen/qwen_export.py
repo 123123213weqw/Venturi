@@ -1,28 +1,21 @@
 """CPU-only, bounded-row original HF -> separately identified Q8 text artifact.
 
-No GPU allocation, remote code, Q4 re-quantization or model forward. The v3
-container is reused as a storage format, not as an external execution engine.
+No GPU allocation, remote code, Q4 re-quantization or model forward. Each code/scale plane is a real safetensors tensor; no private object directory.
 """
 
 import ctypes
 import hashlib
 import json
-import os
 from pathlib import Path
-import shutil
-import struct
-import tempfile
 from time import perf_counter
-import uuid
 
 import torch
 from safetensors import safe_open
 
 from venturi.container.checkpoint import CheckpointError, _read_json, inspect_checkpoint
 from venturi.models.qwen.qwen_source import QwenSourcePlan
-from venturi.ninfer import MAGIC, NInferArtifact, _align, row_geometry
+from venturi.container.safetensors import SafetensorsWriter
 from venturi.ops.weights import Q8RowSplitWeight
-
 
 QUANTIZATION = {
     "scheme": "q8_g32_fp16",
@@ -103,29 +96,20 @@ def _source_evidence(checkpoint, *, manifest, allow_unverified):
         stamps[name], hashes[name] = before, digest
     if _read_json(root / "config.json") != dict(checkpoint.config):
         raise CheckpointError("Source config changed since inspection")
-    return dict(
-        kind="verified-acquisition"
-        if record is not None
-        else "explicitly-unverified-local-floating-source",
-        repo=record.get("repo") if record else None,
-        revision=record.get("revision") if record else None,
-        endpoint=record.get("source_endpoint") if record else None,
-        files_sha256=hashes,
-    ), stamps
-
-
-def _write_tensor(stream, tensor):
-    """Write a contiguous CPU tensor's bytes without a NumPy/full-size copy."""
-    if tensor.device.type != "cpu" or not tensor.is_contiguous():
-        raise ValueError("Export writes require contiguous CPU storage")
-    size = tensor.numel() * tensor.element_size()
-    view = memoryview((ctypes.c_ubyte * size).from_address(tensor.data_ptr())).cast("B")
-    # FileIO normally writes all bytes, but tolerate legitimate short writes.
-    while view:
-        count = stream.write(view)
-        if not count:
-            raise OSError("Short artifact payload write")
-        view = view[count:]
+    return (
+        dict(
+            kind=(
+                "verified-acquisition"
+                if record is not None
+                else "explicitly-unverified-local-floating-source"
+            ),
+            repo=record.get("repo") if record else None,
+            revision=record.get("revision") if record else None,
+            endpoint=record.get("source_endpoint") if record else None,
+            files_sha256=hashes,
+        ),
+        stamps,
+    )
 
 
 def _export_qwen_q8(
@@ -173,142 +157,96 @@ def _export_qwen_q8(
     evidence, stamps = _source_evidence(
         checkpoint, manifest=manifest_path, allow_unverified=allow_unverified_source
     )
-    objects, bindings, offset = [], {}, 0
+    tensors = {}
     for spec in plan.bindings:
-        offset = _align(offset)
-        objects.append(
-            dict(
-                id=spec.source,
-                kind="tensor",
-                shape=list(spec.shape),
-                format=spec.format,
-                layout="row_split_k128_v1"
-                if spec.format == "q8_g32_fp16"
-                else "contiguous_le_v1",
-                offset=offset,
-                bytes=spec.nbytes,
+        if spec.format == "q8_g32_fp16":
+            n, k = spec.shape
+            padded = (k + 127) // 128 * 128
+            tensors[spec.source + ".codes"] = ("I8", (n, padded))
+            tensors[spec.source + ".scales"] = ("F16", (n, padded // 32))
+        else:
+            tensors[spec.source] = (
+                {"bf16": "BF16", "fp32": "F32"}[spec.format],
+                spec.shape,
             )
+    component = "mtp" if mtp else "text"
+    metadata = {
+        "venturi.config": json.dumps(dict(checkpoint.config), sort_keys=True),
+        "venturi.component": component,
+        "venturi.matrix_format": "q8_g32_fp16",
+        "venturi.source": json.dumps(evidence, sort_keys=True),
+    }
+
+    def raw(value):
+        if value.device.type != "cpu" or not value.is_contiguous():
+            raise ValueError("Export requires contiguous CPU tensors")
+        size = value.numel() * value.element_size()
+        return memoryview((ctypes.c_ubyte * size).from_address(value.data_ptr())).cast(
+            "B"
         )
-        bindings[spec.binding] = {"object": spec.source}
-        offset += spec.nbytes
-    if plan.tied_embeddings:
-        bindings["text/output_head"] = dict(bindings["text/token_embedding"])
-    directory = dict(
-        components={
-            "text": {"config": plan.config},
-            **({"mtp": {"config": plan.config, "target": "text"}} if mtp else {}),
-        },
-        objects=objects,
-        bindings=bindings,
-        uses=[],
-        files=[{"path": None, "payload_bytes": offset}],
-        provenance=dict(
-            converter="venturi-qwen-mtp-q8-v1" if mtp else "venturi-qwen-q8-v1",
-            source=evidence,
-            quantization=QUANTIZATION,
-            excluded_tensors=list(ignored),
-            excluded_components=["vision", "target_text_payload"]
-            if mtp
-            else ["vision", "mtp"],
-            transforms={
-                s.binding: s.transform
-                for s in plan.bindings
-                if s.transform != "identity"
-            },
-            norm_policy="Raw zero-centered parameters; runtime must apply 1+weight except GDN gated norm",
-            q_layout="Per-head [query D | gate D]; never all-query followed by all-gate",
-            source_bindings={s.binding: s.source for s in plan.bindings},
-        ),
-    )
-    encoded = json.dumps(
-        directory, sort_keys=True, separators=(",", ":"), allow_nan=False
-    ).encode()
-    payload_start = _align(32 + len(encoded), 4096)
-    total = payload_start + offset
-    if shutil.disk_usage(target.parent).free < total + 256 * 2**20:
-        raise OSError(
-            "Insufficient disk space for a separate complete Q8 artifact and reserve"
-        )
-    artifact_id = uuid.uuid4().bytes
-    temp = None
-    try:
-        with tempfile.NamedTemporaryFile(
-            prefix=".venturi-q8-", suffix=".partial", dir=target.parent, delete=False
-        ) as stream:
-            temp = Path(stream.name)
-            stream.truncate(total)  # New sparse zero-filled padding, never old bytes.
-            stream.write(
-                MAGIC + struct.pack("<Q", len(encoded)) + artifact_id + encoded
-            )
-            for spec, obj in zip(plan.bindings, objects):
-                source_file = checkpoint.tensors[spec.source].file
-                with safe_open(
-                    str(source_file), framework="pt", device="cpu"
-                ) as reader:
-                    sliced = reader.get_slice(spec.source)
-                    if (
-                        tuple(sliced.get_shape()) != spec.source_shape
-                        or sliced.get_dtype() not in spec.source_dtypes
-                    ):
-                        raise CheckpointError(f"Source header changed: {spec.source}")
-                    base = payload_start + obj["offset"]
-                    if spec.format == "q8_g32_fp16":
-                        n, k = spec.shape
-                        padded = (k + 127) // 128 * 128
-                        scales_offset = row_geometry(spec.shape, spec.format)[4]
-                        for begin in range(0, n, rows_per_chunk):
-                            end = min(n, begin + rows_per_chunk)
-                            dense = sliced[begin:end].contiguous()
-                            weight = Q8RowSplitWeight.from_dense(
-                                dense, rows_per_chunk=rows_per_chunk
-                            )
-                            stream.seek(base + begin * padded)
-                            _write_tensor(stream, weight.codes)
-                            stream.seek(
-                                base + scales_offset + begin * (padded // 32) * 2
-                            )
-                            _write_tensor(stream, weight.scales)
-                            del dense, weight
-                    else:
-                        value = reader.get_tensor(spec.source)
-                        if not bool(torch.isfinite(value).all()):
-                            raise ValueError(
-                                f"Nonfinite source parameter: {spec.source}"
-                            )
-                        if spec.transform == "conv-kc":
-                            value = value.squeeze(1).transpose(0, 1).contiguous()
-                        value = value.to(
-                            torch.float32 if spec.format == "fp32" else torch.bfloat16
-                        ).contiguous()
-                        stream.seek(base)
-                        _write_tensor(stream, value)
-                        del value
-            stream.flush()
-            os.fsync(stream.fileno())
+
+    with SafetensorsWriter(target, tensors, metadata) as writer:
+        for spec in plan.bindings:
+            with safe_open(
+                str(checkpoint.tensors[spec.source].file), framework="pt", device="cpu"
+            ) as reader:
+                sliced = reader.get_slice(spec.source)
+                if (
+                    tuple(sliced.get_shape()) != spec.source_shape
+                    or sliced.get_dtype() not in spec.source_dtypes
+                ):
+                    raise CheckpointError("Source header changed: " + spec.source)
+                if spec.format == "q8_g32_fp16":
+                    n, k = spec.shape
+                    padded = (k + 127) // 128 * 128
+                    for begin in range(0, n, rows_per_chunk):
+                        end = min(n, begin + rows_per_chunk)
+                        dense = sliced[begin:end].contiguous()
+                        weight = Q8RowSplitWeight.from_dense(
+                            dense, rows_per_chunk=rows_per_chunk
+                        )
+                        writer.write_slice(
+                            spec.source + ".codes", raw(weight.codes), begin * padded
+                        )
+                        writer.write_slice(
+                            spec.source + ".scales",
+                            raw(weight.scales),
+                            begin * (padded // 32) * 2,
+                        )
+                else:
+                    value = reader.get_tensor(spec.source)
+                    if not bool(torch.isfinite(value).all()):
+                        raise ValueError("Nonfinite source parameter: " + spec.source)
+                    if spec.transform == "conv-kc":
+                        value = value.squeeze(1).transpose(0, 1).contiguous()
+                    value = value.to(
+                        torch.float32 if spec.format == "fp32" else torch.bfloat16
+                    ).contiguous()
+                    writer.write_slice(spec.source, raw(value))
+        writer.finish()
         for name, stamp in stamps.items():
             if _stamp(checkpoint.directory / name) != stamp:
-                raise CheckpointError(f"Source file changed during export: {name}")
-        artifact = NInferArtifact(temp)
-        if len(artifact.objects) != len(plan.bindings):
-            raise RuntimeError("Export artifact directory validation failed")
-        digest = _digest(temp)
-        os.link(temp, target)  # Atomic no-clobber publication on the same filesystem.
-        return dict(
-            output=str(target),
-            artifact_id=artifact_id.hex(),
-            sha256=digest,
-            file_bytes=total,
-            tensor_payload_bytes=sum(s.nbytes for s in plan.bindings),
-            tensor_count=len(plan.bindings),
-            ignored_source_tensors=len(ignored),
-            source=evidence,
-            rows_per_chunk=rows_per_chunk,
-            seconds=perf_counter() - started,
-            scope="Storage conversion only; not full trained-model quality or native generation qualification",
-        )
-    finally:
-        if temp is not None:
-            temp.unlink(missing_ok=True)
+                raise CheckpointError("Source file changed during export: " + name)
+        from .qwen_weights import QwenWeights
+        from .qwen_mtp import QwenMTPWeights
+
+        admitted = (QwenMTPWeights if mtp else QwenWeights).open(writer.temporary)
+        digest = _digest(writer.temporary)
+        writer.publish()
+    return dict(
+        output=str(target),
+        sha256=digest,
+        file_bytes=target.stat().st_size,
+        tensor_count=len(tensors),
+        role_count=len(plan.bindings),
+        tensor_payload_bytes=admitted.source.total_payload_bytes(),
+        ignored_source_tensors=len(ignored),
+        source=evidence,
+        rows_per_chunk=rows_per_chunk,
+        seconds=perf_counter() - started,
+        component=component,
+        scope="Standard safetensors storage export; not trained-model quality qualification",
+    )
 
 
 def export_qwen_q8(
@@ -319,7 +257,7 @@ def export_qwen_q8(
     source_manifest=None,
     allow_unverified_source=False,
 ):
-    """Export the target text payload without changing its existing format."""
+    """Export Qwen text tensors and Q8 planes directly to safetensors."""
     return _export_qwen_q8(
         source,
         output,

@@ -5,6 +5,8 @@ Cold online exploration, extra calibration, and steady measurements are separate
 No production service management, builds, downloads, or HTTP serving here.
 """
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 from datetime import datetime, timezone
 import hashlib
@@ -17,14 +19,14 @@ from time import perf_counter, process_time
 
 import torch
 
-from venturi.adaptive_mtp import AdaptiveMTPPolicy
+from venturi.models.qwen.adaptive_mtp import AdaptiveMTPPolicy
 from venturi.models import (
     NativeQwenModel,
     NativeQwenMTPModel,
-    QwenQ8Weights,
+    QwenWeights,
     QwenMTPWeights,
 )
-from venturi.ninfer import NInferArtifact
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 
 
@@ -37,7 +39,7 @@ def save(path, data):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("artifact")
-    p.add_argument("--mtp-artifact", required=True)
+    p.add_argument("--mtp-checkpoint", required=True)
     p.add_argument("--library", required=True)
     p.add_argument("--case", required=True)
     p.add_argument("--output-directory", required=True)
@@ -45,6 +47,7 @@ def main():
     p.add_argument("--repeats", type=int, default=3)
     p.add_argument("--capacity", type=int, default=256)
     p.add_argument("--profile", default="q8-residual-column-mlp-head-gdn")
+    p.add_argument("--qwen-library", required=True)
     args = p.parse_args()
     if args.repeats < 3:
         p.error("At least three timed repeats required")
@@ -54,8 +57,8 @@ def main():
     prompt, maximum = case["prompt_token_ids"], case["max_new_tokens"]
     torch.set_num_threads(4)
     target = NativeQwenModel.from_q8(
-        QwenQ8Weights.from_ninfer(NInferArtifact(args.artifact)),
-        CudaBackend(args.library),
+        QwenWeights.open(args.artifact),
+        QwenRuntime(args.qwen_library, CudaBackend(args.library)),
         weight_mode="resident",
         dtype=torch.float16,
         device="cuda:0",
@@ -99,7 +102,7 @@ def main():
     try:
         model = NativeQwenMTPModel.from_q8(
             target,
-            QwenMTPWeights.from_ninfer(NInferArtifact(args.mtp_artifact)),
+            QwenMTPWeights.open(args.mtp_checkpoint),
             draft_projection_profile="q8-residual",
         )
         policy = AdaptiveMTPPolicy()
@@ -114,8 +117,8 @@ def main():
                 utc=datetime.now(timezone.utc).isoformat(),
                 args=vars(args),
                 case=case,
-                target_artifact_id=target._weights.artifact.artifact_id,
-                draft_artifact_id=model._mtp_weights.artifact.artifact_id,
+                target_header_sha256=target._weights.source.header_sha256,
+                draft_header_sha256=model._mtp_weights.source.header_sha256,
                 library_sha256=hashlib.sha256(
                     Path(args.library).read_bytes()
                 ).hexdigest(),
@@ -142,9 +145,9 @@ def main():
                 info = adaptive.info()
                 if reference is None:
                     reference = ids
-                    assert ids == [case["expected_generated_ids"]] * count, (
-                        "Pinned target trajectory mismatch"
-                    )
+                    assert (
+                        ids == [case["expected_generated_ids"]] * count
+                    ), "Pinned target trajectory mismatch"
                 assert ids == reference, "Strategy changed generated target IDs"
                 r = dict(
                     phase=phase,

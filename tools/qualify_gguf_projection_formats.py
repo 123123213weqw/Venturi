@@ -11,7 +11,7 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from venturi.gguf_quantization import decode_bf16_rows,decode_q5_k_rows
+from venturi.container.gguf.gguf_quantization import decode_bf16_rows, decode_q5_k_rows
 
 
 SOURCE_SHA256='2c927a1b3d9f0920dcf4007fb686e1b0999333e9f65ce43dcc689900c0beae8b'

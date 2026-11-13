@@ -62,7 +62,7 @@ class NativeQwenMTPBatchSession(NativeQwenBatchSession):
             for c in capacities
         ):
             raise ValueError("MTP batch capacities exceed context")
-        native = _bind(model._backend)
+        native = _bind(model._runtime)
         with model._lock:
             if not model._finalizer.alive:
                 raise RuntimeError("MTP model closed")
@@ -70,7 +70,7 @@ class NativeQwenMTPBatchSession(NativeQwenBatchSession):
             cap = (C.c_int * len(capacities))(*capacities)
             handle = native.create(model._handle, cap, len(capacities))
             if not handle:
-                model._backend._check(-1)
+                model._runtime._check(-1)
         self = cls()
         self.model, self.capacities, self._handle, self._native = (
             model,
@@ -98,7 +98,7 @@ class NativeQwenMTPBatchSession(NativeQwenBatchSession):
     def _stats_unchecked(self, slot):
         """Owner lock + one validated public entry are required by both callers."""
         values, times = (C.c_uint64 * 20)(), (C.c_double * 5)()
-        self.model._backend._check(
+        self.model._runtime._check(
             self._native.stats(self._handle, slot, values, times)
         )
         result = _base_mtp_stats(values, times)
@@ -122,7 +122,7 @@ class NativeQwenMTPBatchSession(NativeQwenBatchSession):
             result = super().info()
             extra, seconds = (C.c_uint64 * 4)(), (C.c_double * 1)()
             cohort = (C.c_double * 2)()
-            self.model._backend._check(
+            self.model._runtime._check(
                 self._native.extra_info(self._handle, extra, seconds)
             )
             result.update(
@@ -137,7 +137,7 @@ class NativeQwenMTPBatchSession(NativeQwenBatchSession):
                 )
             )
             result["shared_verification_wall_seconds"] = seconds[0]
-            self.model._backend._check(
+            self.model._runtime._check(
                 self._native.cohort_timings(self._handle, cohort)
             )
             result["shared_prefill_complete_seconds"] = cohort[0]
@@ -165,7 +165,7 @@ class NativeQwenMTPBatchSession(NativeQwenBatchSession):
                     dtype=self.model.dtype,
                     device="cpu",
                 )
-                self.model._backend._check(
+                self.model._runtime._check(
                     self._native.draft_snapshot(
                         self._handle,
                         slot,
@@ -183,6 +183,6 @@ class NativeQwenMTPBatchSession(NativeQwenBatchSession):
         with self._lock:
             self._check()
             values = (C.c_int64 * len(ids))(*ids)
-            self.model._backend._check(
+            self.model._runtime._check(
                 self._native.debug_proposals(self._handle, slot, values, len(ids))
             )

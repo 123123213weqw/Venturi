@@ -16,39 +16,18 @@
 #endif
 static_assert(VENTURI_BLOCKS_ARCH == 70 || VENTURI_BLOCKS_ARCH == 89);
 
+#include "cuda_common.cuh"
+#include "ops_api.h"
 namespace {
 thread_local std::string error_text;
-void check(cudaError_t status) {
-    if (status != cudaSuccess) throw std::runtime_error(cudaGetErrorString(status));
-}
-void check(cublasStatus_t status) {
-    if (status != CUBLAS_STATUS_SUCCESS)
-        throw std::runtime_error("cuBLAS status " + std::to_string(static_cast<int>(status)));
-}
-cudaDataType_t data_type(int dtype) {
-    if (dtype == 0) return CUDA_R_16F;
-    if (dtype == 1) {
-        if (VENTURI_BLOCKS_ARCH == 70) throw std::invalid_argument("SM70 does not support native BF16 execution");
-        return CUDA_R_16BF;
-    }
-    if (dtype == 2) return CUDA_R_32F;
-    throw std::invalid_argument("unsupported scalar type");
-}
 void validate(int tokens, int features, int dtype) {
     if (tokens <= 0 || features <= 0) throw std::invalid_argument("invalid shape");
     (void)data_type(dtype);
 }
 struct Linear {
     cublasHandle_t handle{};
-    int tokens, n, k, dtype;
+    int dtype;
 };
-template<class T> __device__ float read(T x) { return static_cast<float>(x); }
-template<> __device__ float read(__half x) { return __half2float(x); }
-template<> __device__ float read(__nv_bfloat16 x) { return __bfloat162float(x); }
-template<class T> __device__ T cast(float x) { return static_cast<T>(x); }
-template<> __device__ __half cast(float x) { return __float2half_rn(x); }
-template<> __device__ __nv_bfloat16 cast(float x) { return __float2bfloat16_rn(x); }
-
 // FP32 statistics and multiplication; one observable output-dtype cast.
 template<class T>
 __global__ void rms_norm(const T* x, const float* weight, T* out, int features, float epsilon) {
@@ -130,20 +109,7 @@ __global__ void rope(const T* x, const float* cos, const float* sin, T* out,
     }
 }
 
-__device__ float block_sum(float value, float* partial) {
-    for (int delta = 16; delta; delta >>= 1)
-        value += __shfl_down_sync(0xffffffff, value, delta);
-    if ((threadIdx.x & 31) == 0) partial[threadIdx.x >> 5] = value;
-    __syncthreads();
-    if (threadIdx.x < 32) {
-        value = threadIdx.x < 8 ? partial[threadIdx.x] : 0.0f;
-        for (int delta = 16; delta; delta >>= 1)
-            value += __shfl_down_sync(0xffffffff, value, delta);
-        if (threadIdx.x == 0) partial[0] = value;
-    }
-    __syncthreads();
-    return partial[0];
-}
+
 
 // Correctness-first online softmax. No scores matrix, global scratch, allocation,
 // cache mutation, or Tensor Core claim. Serial key traversal is deliberately a
@@ -240,23 +206,7 @@ __global__ void gdn_recurrent(const T* q, const T* k,
 // Keep the original eight logical warp partials, including virtual inactive
 // lanes. This is not a new reduction association. Virtual arithmetic preserves
 // signed-zero/nonfinite propagation instead of reading unwritten shared slots.
-__device__ __forceinline__ float gdn_compact_sum(float value,float inactive,float* partial) {
-    for(int delta=16;delta;delta>>=1)value+=__shfl_down_sync(0xffffffff,value,delta);
-    if((threadIdx.x&31)==0)partial[threadIdx.x>>5]=value;
-    if(threadIdx.x>=blockDim.x/32 && threadIdx.x<8) {
-        for(int delta=16;delta;delta>>=1)inactive+=inactive;
-        partial[threadIdx.x]=inactive;
-    }
-    __syncthreads();
-    if(threadIdx.x<32) {
-        value=threadIdx.x<8?partial[threadIdx.x]:0.0f;
-        for(int delta=16;delta;delta>>=1)value+=__shfl_down_sync(0xffffffff,value,delta);
-        if(threadIdx.x==0)partial[0]=value;
-    }
-    __syncthreads();
-    const float result=partial[0];
-    __syncthreads();return result;
-}
+
 // Research geometry: exactly DK threads for DK=64/128; the legacy 256-thread
 // kernel stays intact and remains the default public-operator/FP16 dispatch.
 template<class T, bool Packed>
@@ -528,9 +478,7 @@ __global__ void fp32_weight_linear(const T* x, const float* weight, T* out, int 
     if (threadIdx.x==0) out[blockIdx.x]=cast<T>(value);
 }
 
-__device__ float sigmoid(float x) {
-    return x >= 0 ? 1.0f / (1.0f + expf(-x)) : expf(x) / (1.0f + expf(x));
-}
+
 
 // Each thread owns one channel across time. In-place history update is safe:
 // consume its old history before updating the suffix, in chronological order.
@@ -699,7 +647,7 @@ __global__ void greedy_finish(const GreedyCandidate* scratch, std::int64_t* out,
 
 }
 
-extern "C" int venturi_blocks_abi() { return 16; }
+extern "C" int venturi_blocks_abi() { return 17; }
 extern "C" int venturi_blocks_arch() { return VENTURI_BLOCKS_ARCH; }
 extern "C" const char* venturi_blocks_error() { return error_text.c_str(); }
 extern "C" int venturi_greedy_run(const void* logits, std::int64_t* out, void* workspace,
@@ -723,12 +671,11 @@ extern "C" int venturi_greedy_run(const void* logits, std::int64_t* out, void* w
         check(cudaGetLastError()); return 0;
     } catch (const std::exception& e) { error_text=e.what(); return -1; }
 }
-extern "C" void* venturi_dense_create(int tokens, int n, int k, int dtype) {
+extern "C" void* venturi_dense_create(int dtype) {
     Linear* plan = nullptr;
     try {
-        validate(tokens, n, dtype);
-        if (k <= 0) throw std::invalid_argument("invalid K");
-        plan = new Linear{nullptr, tokens, n, k, dtype};
+        (void)data_type(dtype);
+        plan = new Linear{nullptr, dtype};
         check(cublasCreate(&plan->handle));
         check(cublasSetPointerMode(plan->handle, CUBLAS_POINTER_MODE_HOST));
         check(cublasSetAtomicsMode(plan->handle, CUBLAS_ATOMICS_NOT_ALLOWED));
@@ -744,11 +691,13 @@ extern "C" void venturi_dense_destroy(void* opaque) {
     auto* plan = static_cast<Linear*>(opaque);
     if (plan) { cublasDestroy(plan->handle); delete plan; }
 }
-extern "C" int venturi_dense_run(void* opaque, const void* x, const void* w, void* out,
+extern "C" int venturi_dense_run(void* opaque, const void* x, const void* w, void* out, int tokens, int n, int k,
                                  void* workspace, std::size_t workspace_bytes, void* raw_stream) {
     try {
         auto* p = static_cast<Linear*>(opaque);
         if (!p || !x || !w || !out || !workspace) throw std::invalid_argument("null Linear operand");
+        validate(tokens,n,p->dtype);
+        if (k<=0) throw std::invalid_argument("invalid K");
         check(cublasSetStream(p->handle, static_cast<cudaStream_t>(raw_stream)));
         // SetStream resets the handle workspace, so restore the explicit caller buffer.
         check(cublasSetWorkspace(p->handle, workspace, workspace_bytes));
@@ -756,9 +705,9 @@ extern "C" int venturi_dense_run(void* opaque, const void* x, const void* w, voi
         // Use the explicit FP32 arithmetic contract for every stored input type.
         const auto compute = CUBLAS_COMPUTE_32F_PEDANTIC;
         // Row-major Y[T,N] = X[T,K] W[N,K]^T via column-major Y^T.
-        check(cublasGemmEx(p->handle, CUBLAS_OP_T, CUBLAS_OP_N, p->n, p->tokens, p->k,
-            &alpha, w, data_type(p->dtype), p->k, x, data_type(p->dtype), p->k,
-            &beta, out, data_type(p->dtype), p->n, compute, CUBLAS_GEMM_DEFAULT));
+        check(cublasGemmEx(p->handle, CUBLAS_OP_T, CUBLAS_OP_N, n, tokens, k,
+            &alpha, w, data_type(p->dtype), k, x, data_type(p->dtype), k,
+            &beta, out, data_type(p->dtype), n, compute, CUBLAS_GEMM_DEFAULT));
         return 0;
     } catch (const std::exception& e) { error_text = e.what(); return -1; }
 }
@@ -1095,12 +1044,37 @@ extern "C" int venturi_qwen_gate_run(const void* x, const void* qg, void* out,
 #include "q8_projection_dispatch.cuh"
 #include "q8_producer.cuh"
 #include "q8_rms_producer.cuh"
-#include "qwen_runtime.cuh"
 
-#include "qwen_batch.cuh"
-
-#include "qwen_pipeline.cuh"
-
-#include "qwen_handoff.cuh"
-
-#include "qwen_mtp.cuh"
+namespace vrow {
+#include "weight_dequant.cuh"
+#include "q4_fused.cuh"
+}
+// q4 fused GEMM: reads compressed nibble codes directly, no FP16 materialization.
+extern "C" int venturi_q4_fused_run(const void* x,const void* codes,const void* scales,void* out,int t,int rows,int k,int padded,int dtype,void* stream) {
+    try { require(x && codes && scales && out && t>0 && rows>0 && k>0 && padded>=k && padded%128==0 && dtype==0,"invalid q4 fused GEMM geometry");
+        const dim3 grid((rows+7)/8,t);  // 256 threads = 8 warps, one row per warp
+        vrow::q4_fused_run_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
+            static_cast<const __half*>(x),static_cast<const unsigned char*>(codes),
+            static_cast<const __half*>(scales),static_cast<__half*>(out),t,rows,k,padded);
+        check(cudaGetLastError());return 0;
+    } catch (const std::exception& e) { error_text=e.what();return -1; }
+}
+// Row-codec dequantification entry points (q4/q5/q6; high plane null for q4).
+extern "C" int venturi_row_dequant_rows(const void* codes,const void* high,const void* scales,void* out,int row,int rows,int k,int padded,int bits,void* stream) {
+    try { require(codes && scales && out && rows>0 && k>0 && row>=0 && padded>=k && padded%128==0 && bits>=4 && bits<=6,"invalid row-codec dequant geometry");
+        const int groups=padded>>6;const dim3 grid((groups+255)/256,rows);
+        vrow::row_dequant_rows_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
+            static_cast<const unsigned char*>(codes),static_cast<const unsigned char*>(high),
+            static_cast<const __half*>(scales),static_cast<__half*>(out),row,rows,k,padded,bits);
+        check(cudaGetLastError());return 0;
+    } catch (const std::exception& e) { error_text=e.what();return -1; }
+}
+extern "C" int venturi_row_dequant_indexed(const void* codes,const void* high,const void* scales,const std::int64_t* ids,void* out,int count,int k,int padded,int bits,void* stream) {
+    try { require(codes && scales && ids && out && count>0 && k>0 && padded>=k && padded%128==0 && bits>=4 && bits<=6,"invalid row-codec dequant geometry");
+        const int groups=padded>>6;const dim3 grid((groups+255)/256,count);
+        vrow::row_dequant_indexed_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
+            static_cast<const unsigned char*>(codes),static_cast<const unsigned char*>(high),
+            static_cast<const __half*>(scales),ids,static_cast<__half*>(out),count,k,padded,bits);
+        check(cudaGetLastError());return 0;
+    } catch (const std::exception& e) { error_text=e.what();return -1; }
+}

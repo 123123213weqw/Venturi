@@ -7,24 +7,15 @@ enforced against the freshly copied config, in the historical order.
 
 import copy
 
-from ...ninfer import NInferArtifact
 from venturi.models.decoder_layer import _outside_capture
-from venturi.models.qwen.qwen_weights import QwenQ8Weights
+from venturi.models.qwen.qwen_weights import QwenWeights
 
 
 def prepare_source(spec):
     _outside_capture(spec.target)
-    # Re-open from the artifact's own path with the caller's declared matrix
-    # codec, never trusting the in-memory copy. The execution gate in the spec
-    # has already restricted this to q8 in practice.
-    matrix_format = next(
-        s.format
-        for s in spec.weights.plan.bindings
-        if s.binding == "text/token_embedding"
-    )
-    owned = QwenQ8Weights.from_ninfer(
-        NInferArtifact(spec.weights.artifact.path), matrix_format=matrix_format
-    )
+    # Re-admit physical tensors and declared codec from the file itself, never
+    # trusting a caller-mutated in-memory config or descriptor table.
+    owned = QwenWeights.open(spec.weights.source.path)
     cfg = copy.deepcopy(owned.config)
     if spec.stage_range is not None:
         if (

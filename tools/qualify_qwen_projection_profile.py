@@ -5,6 +5,8 @@ separate. Additional teacher forcing follows the original greedy trajectory;
 same-profile scalar/batch cache bytes must agree. No throughput or corpus claim.
 """
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 from contextlib import ExitStack
 import gc
@@ -20,10 +22,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests"))
 from test_qwen_tensor_parallel import same_state  # noqa: E402
 from qualify_qwen_native import compare_saved  # noqa: E402
 from qualify_qwen_streaming import logits_comparison  # noqa: E402
-from venturi.models import NativeQwenModel, QwenQ8Weights  # noqa: E402
-from venturi.ninfer import NInferArtifact  # noqa: E402
+from venturi.models import NativeQwenModel, QwenWeights  # noqa: E402
+from venturi.container.safetensors import SafetensorsContainer  # noqa: E402
 from venturi.ops import CudaBackend  # noqa: E402
-
 
 CPU_REPORT_SHA = "cb443b28c13f074372da52918fb9a89064523552216af9b0c555ed9ae12b1732"
 SNAPSHOT_SHA = {
@@ -72,31 +73,32 @@ def main():
     p.add_argument("--cases", required=True)
     p.add_argument("--cpu-reference-directory", required=True)
     p.add_argument("--output-directory", required=True)
+    p.add_argument("--qwen-library", required=True)
     a = p.parse_args()
     out = Path(a.output_directory)
     out.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(4)
     reference_dir = Path(a.cpu_reference_directory)
-    assert digest(reference_dir / "report.json") == CPU_REPORT_SHA, (
-        "Pinned CPU report changed"
-    )
+    assert (
+        digest(reference_dir / "report.json") == CPU_REPORT_SHA
+    ), "Pinned CPU report changed"
     original = json.loads((reference_dir / "report.json").read_text())
     assert (
         original["teacher_forced_cpu_reference_completed"]
         and original["numerical_agreement_gate_passed"]
     )
-    assert digest(a.artifact) == original["artifact_sha256"], (
-        "Official-source Q8 artifact changed"
-    )
+    assert (
+        digest(a.artifact) == original["artifact_sha256"]
+    ), "Official-source Q8 artifact changed"
     for name, sha in SNAPSHOT_SHA.items():
         assert digest(reference_dir / name) == sha, "Pinned CPU/native snapshot changed"
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
-    assert weights.artifact.artifact_id == "3d635b87db004f42aefd6730e372e530"
+    weights = QwenWeights.open(a.artifact)
+    assert weights.source.header_sha256 == "3d635b87db004f42aefd6730e372e530"
     cases = json.loads(Path(a.cases).read_text())
     report = dict(
         scope=__doc__,
         library_sha256=digest(a.library),
-        artifact_id=weights.artifact.artifact_id,
+        header_sha256=weights.source.header_sha256,
         cpu_report_sha256=CPU_REPORT_SHA,
         cpu_snapshot_sha256=SNAPSHOT_SHA,
         profiles={},
@@ -117,7 +119,7 @@ def main():
     for profile in ("fp16", "q8-residual"):
         model = NativeQwenModel.from_q8(
             weights,
-            CudaBackend(a.library),
+            QwenRuntime(a.qwen_library, CudaBackend(a.library)),
             weight_mode="resident",
             dtype=torch.float16,
             device="cuda:0",
@@ -168,9 +170,9 @@ def main():
                     )
                     record["fixed_cpu_steps"].append(item)
                     save()
-                    assert item["logits_vs_pinned_cpu"]["passed"], (
-                        "Unchanged trained CPU logit gate failed"
-                    )
+                    assert item["logits_vs_pinned_cpu"][
+                        "passed"
+                    ], "Unchanged trained CPU logit gate failed"
                     if profile == "fp16":
                         assert item["original_native_logit_bytes_equal"] and all(
                             c["bytes_equal"] for c in comparisons
@@ -239,9 +241,9 @@ def main():
                     record["trained_cases"].append(item)
                     save()
                     if reference is not None:
-                        assert all(c["passed"] for c in checks) and ids == expected, (
-                            "Trained original-trajectory logit/top1 gate failed"
-                        )
+                        assert (
+                            all(c["passed"] for c in checks) and ids == expected
+                        ), "Trained original-trajectory logit/top1 gate failed"
                     state = session.snapshot()
                     session.reset()
                     generated = native_generate(
@@ -250,9 +252,9 @@ def main():
                         max_new_tokens=case["max_new_tokens"],
                         eos_token_ids=case.get("eos_token_ids", []),
                     )
-                    assert generated == ids, (
-                        "Native generation differs from qualified greedy trajectory"
-                    )
+                    assert (
+                        generated == ids
+                    ), "Native generation differs from qualified greedy trajectory"
                     same_state(session.snapshot(), state)
                     item.update(
                         generated_ids=generated,
@@ -282,9 +284,9 @@ def main():
                     actual = native_generate(
                         batch, prompts, max_new_tokens=maximum, eos_token_ids=eos
                     )
-                    assert actual == expected, (
-                        "Heterogeneous residual-profile batch IDs changed"
-                    )
+                    assert (
+                        actual == expected
+                    ), "Heterogeneous residual-profile batch IDs changed"
                     for j in range(8):
                         scalar = model.create_session(256)
                         try:

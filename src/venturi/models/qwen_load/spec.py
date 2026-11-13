@@ -11,15 +11,16 @@ import ctypes as C
 
 import torch
 
-from ... import codecs
-from ...ops import CudaBackend
-from venturi.models.qwen.qwen_weights import QwenQ8Weights
+from venturi.quantization import codecs as codecs
+from venturi.models.qwen.native_runtime import QwenRuntime
+from venturi.models.qwen.qwen_weights import QwenWeights
 
 
 @dataclass(frozen=True)
 class LoadSpec:
     weights: object
     backend: object
+    runtime: QwenRuntime
     weight_mode: str
     dtype: object
     device: str
@@ -60,10 +61,9 @@ def ensure_execution_qualified(weights):
         )
 
 
-
 def validate_load_spec(
     weights,
-    backend,
+    runtime,
     *,
     weight_mode,
     dtype,
@@ -81,12 +81,11 @@ def validate_load_spec(
     metadata_mode,
     dequant_resident=False,
 ):
-    if not isinstance(weights, QwenQ8Weights) or not isinstance(
-        backend, CudaBackend
-    ):
+    if not isinstance(weights, QwenWeights) or not isinstance(runtime, QwenRuntime):
         raise TypeError(
-            "Native Qwen requires preflighted Q8 weights and explicit CudaBackend"
+            "Native Qwen requires preflighted Q8 weights and explicit QwenRuntime"
         )
+    backend = runtime.operators
     if weight_mode not in ("streaming", "resident"):
         raise ValueError("Select explicit streaming or resident weight_mode")
     if metadata_mode not in ("checked-json", "sealed"):
@@ -108,43 +107,57 @@ def validate_load_spec(
         "q8-residual-column-mlp",
         "q8-residual-column-mlp-head-gdn",
     ):
-        raise ValueError("Projection profile must be explicit fp16/q8-residual/q8-residual-column-mlp/q8-residual-column-mlp-head-gdn")
+        raise ValueError(
+            "Projection profile must be explicit fp16/q8-residual/q8-residual-column-mlp/q8-residual-column-mlp-head-gdn"
+        )
     if column_profile and (
         tensor_parallel_device is None or tensor_parallel_transport != "host"
     ):
         raise ValueError("Column MLP requires explicit two-device host TP")
     if projection_profile != "fp16" and (
-        dtype != torch.float16
-        or weight_mode != "resident"
-        or _stage_range is not None
+        dtype != torch.float16 or weight_mode != "resident" or _stage_range is not None
     ):
-        raise ValueError(
-            "q8-residual requires a complete resident FP16 target, not PP"
-        )
+        raise ValueError("q8-residual requires a complete resident FP16 target, not PP")
     if type(experimental_flags) is not int or not 0 <= experimental_flags <= 15:
         raise ValueError("experimental_flags must be an integer mask 0..15")
     if experimental_flags and not head_profile:
         raise ValueError("Experiments require the explicit head-GDN projection profile")
+    if type(dequant_resident) is not bool:
+        raise ValueError("dequant_resident must be an explicit boolean")
     if dequant_resident:
         quantized = {s.format for s in weights.plan.bindings} - {"bf16", "fp32"}
-        if not quantized or not all(f.startswith(("q4_", "q5_", "q6_")) for f in quantized):
-            raise ValueError("dequant_resident requires a row-codec artifact (q4/q5/q6)")
-        if weight_mode != "resident" or tensor_parallel_device is not None or projection_profile != "fp16":
-            raise ValueError("dequant_resident requires resident single-device plain profile")
+        if not quantized or not all(
+            f.startswith(("q4_", "q5_", "q6_")) for f in quantized
+        ):
+            raise ValueError(
+                "dequant_resident requires a row-codec artifact (q4/q5/q6)"
+            )
+        if (
+            weight_mode != "resident"
+            or tensor_parallel_device is not None
+            or projection_profile != "fp16"
+        ):
+            raise ValueError(
+                "dequant_resident requires resident single-device plain profile"
+            )
     if kv_cache not in ("static", "vram-first"):
         raise ValueError("kv_cache must be explicit static or vram-first")
-    if any(type(n) is not int or not 0 <= n < 2**63 for n in
-           (kv_gpu_budget_bytes, kv_ram_budget_bytes)):
+    if any(
+        type(n) is not int or not 0 <= n < 2**63
+        for n in (kv_gpu_budget_bytes, kv_ram_budget_bytes)
+    ):
         raise ValueError("KV budgets must be nonnegative integer byte counts")
     if kv_cache == "static" and (kv_gpu_budget_bytes or kv_ram_budget_bytes):
         raise ValueError("KV budgets require kv_cache='vram-first'")
     tier_enable = None
     if kv_cache == "vram-first":
         if weight_mode != "resident" or _stage_range is not None:
-            raise ValueError("VRAM-first KV requires a complete resident target, not PP")
+            raise ValueError(
+                "VRAM-first KV requires a complete resident target, not PP"
+            )
         try:
-            tier_enable = backend._native.venturi_qwen_enable_kv_tier
-            backend._native.venturi_qwen_kv_tier_info
+            tier_enable = runtime._native.venturi_qwen_enable_kv_tier
+            runtime._native.venturi_qwen_kv_tier_info
         except AttributeError as e:
             raise RuntimeError("VRAM-first KV exports absent; rebuild blocks") from e
         tier_enable.argtypes = [C.c_void_p, C.c_uint64, C.c_uint64]
@@ -153,14 +166,20 @@ def validate_load_spec(
     if projection_profile != "fp16":
         try:
             profiled_create = getattr(
-                backend._native,
-                "venturi_qwen_create_experimental"
-                if experimental_flags
-                else "venturi_qwen_create_head_gdn"
-                if head_profile
-                else "venturi_qwen_create_column_mlp"
-                if column_profile
-                else "venturi_qwen_create_profiled",
+                runtime._native,
+                (
+                    "venturi_qwen_create_experimental"
+                    if experimental_flags
+                    else (
+                        "venturi_qwen_create_head_gdn"
+                        if head_profile
+                        else (
+                            "venturi_qwen_create_column_mlp"
+                            if column_profile
+                            else "venturi_qwen_create_profiled"
+                        )
+                    )
+                ),
             )
         except AttributeError as e:
             raise RuntimeError(
@@ -171,9 +190,7 @@ def validate_load_spec(
     if tensor_parallel_transport not in ("peer", "host"):
         raise ValueError("Tensor parallel transport must be explicit peer or host")
     if tensor_parallel_device is None and tensor_parallel_transport != "peer":
-        raise ValueError(
-            "Host transport requires an explicit tensor parallel device"
-        )
+        raise ValueError("Host transport requires an explicit tensor parallel device")
     peer = None
     if tensor_parallel_device is not None:
         if weight_mode != "resident":
@@ -191,6 +208,7 @@ def validate_load_spec(
     return LoadSpec(
         weights=weights,
         backend=backend,
+        runtime=runtime,
         weight_mode=weight_mode,
         dtype=dtype,
         device=device,

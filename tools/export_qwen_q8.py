@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from venturi.qwen_export import export_qwen_q8
+from venturi.models.qwen.qwen_export import export_qwen_q8
 
 
 def main(argv=None):

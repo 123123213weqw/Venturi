@@ -5,7 +5,7 @@ from statistics import median
 
 import torch
 
-from .generation import _synchronize, generate_tokens
+from venturi.engine.generation import _synchronize, generate_tokens
 
 
 def _rate(tokens, seconds):

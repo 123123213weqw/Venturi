@@ -20,23 +20,6 @@ def _ids(ids, vocab):
         raise ValueError("Vocabulary ID/count is out of range")
 
 
-def _read_plane(artifact, name, offset, shape, dtype):
-    # Bound each physical read. Never duplicate a multi-GB bytes object just to
-    # turn it into a tensor; the destination has exactly one owned CPU allocation.
-    out = torch.empty(shape, dtype=dtype)
-    raw = out.view(torch.uint8).view(-1)
-    chunk = 16 * 2**20
-    for start in range(0, raw.numel(), chunk):
-        size = min(chunk, raw.numel() - start)
-        data = bytearray(
-            artifact.read_object(
-                name, offset=offset + start, size=size, max_bytes=chunk
-            )
-        )
-        raw[start : start + size].copy_(torch.frombuffer(data, dtype=torch.uint8))
-    return out
-
-
 @dataclass(frozen=True)
 class Q8VocabularyWeights:
     codes: torch.Tensor
@@ -60,35 +43,6 @@ class Q8VocabularyWeights:
             raise ValueError("Q8 code -128 is outside the artifact contract")
         if not bool(torch.isfinite(self.scales).all()) or bool((self.scales < 0).any()):
             raise ValueError("Q8 scales must be finite and nonnegative")
-
-    @classmethod
-    def from_ninfer(cls, artifact, binding):
-        """Bind a direct named matrix using already validated NInfer metadata.
-
-        No multipart flattening, format guessing, model execution or repacking.
-        Embedding/head bindings in the current Qwen artifact are direct objects.
-        """
-        from ..ninfer import NInferArtifact, row_geometry
-
-        if not isinstance(artifact, NInferArtifact):
-            raise TypeError("Expected validated NInferArtifact")
-        spec = artifact.manifest["bindings"][binding]
-        if spec.keys() != {"object"}:
-            raise ValueError("Q8 vocabulary requires a direct matrix binding")
-        name = spec["object"]
-        obj = artifact.objects[name]
-        if (
-            obj.get("format") != "q8_g32_fp16"
-            or obj.get("layout") != "row_split_k128_v1"
-        ):
-            raise ValueError("Vocabulary requires q8_g32_fp16/row_split_k128_v1")
-        n, k = obj["shape"]
-        _, _, groups, _, scale_offset, _ = row_geometry(obj["shape"], obj["format"])
-        codes = _read_plane(artifact, name, 0, (n, groups * 32), torch.int8)
-        scales = _read_plane(artifact, name, scale_offset, (n, groups), torch.float16)
-        weights = cls(codes, scales, k)
-        weights.validate()
-        return weights
 
     def upload(self, backend, *, device="cuda:0", dtype=torch.bfloat16):
         self.validate()
@@ -217,67 +171,3 @@ class Q8OutputHead:
                     )
                 )
         return out
-
-
-@dataclass(frozen=True)
-class NInferVocabulary:
-    """Validated text embedding/head bindings, deduplicated by physical object ID.
-
-    Q8 row-split format only for now. This binds vocabulary storage, not decoder
-    layers or a whole model. Different Qwen/other NInfer adapters can reuse it.
-    """
-
-    embedding: ResidentQ8Vocabulary
-    head: ResidentQ8Vocabulary
-    object_ids: tuple[str, str]
-
-    @classmethod
-    def upload_from_ninfer(
-        cls, artifact, backend, *, device="cuda:0", dtype=torch.bfloat16
-    ):
-        from ..ninfer import NInferArtifact
-
-        if not isinstance(artifact, NInferArtifact):
-            raise TypeError("Expected validated NInferArtifact")
-        config = artifact.manifest["components"]["text"]["config"]
-        vocab, hidden = config.get("vocab_size"), config.get("hidden_size")
-        _shape(vocab, hidden)
-        names = ("text/token_embedding", "text/output_head")
-        objects = []
-        # Validate both bindings before any large reads or GPU allocation.
-        for name in names:
-            spec = artifact.manifest["bindings"].get(name)
-            if not isinstance(spec, dict) or spec.keys() != {"object"}:
-                raise ValueError(f"{name} requires a direct vocabulary binding")
-            obj = artifact.objects[spec["object"]]
-            if (
-                obj["shape"] != [vocab, hidden]
-                or obj.get("format") != "q8_g32_fp16"
-                or obj.get("layout") != "row_split_k128_v1"
-            ):
-                raise ValueError(
-                    f"{name} requires Q8 [vocab_size,hidden_size] row-split storage"
-                )
-            objects.append(spec["object"])
-        tied = config.get("tie_word_embeddings", False)
-        if type(tied) is not bool or (tied and objects[0] != objects[1]):
-            raise ValueError("Tied vocabulary must reference the same physical object")
-        if dtype not in (torch.float16, torch.bfloat16):
-            raise ValueError("Q8 vocabulary supports FP16/BF16 activations")
-        backend.validate_device(dtype, device)
-        residents = {}
-        for name, obj in zip(names, objects):
-            if obj not in residents:
-                weights = Q8VocabularyWeights.from_ninfer(artifact, name)
-                residents[obj] = weights.upload(backend, device=device, dtype=dtype)
-                del weights
-        return cls(residents[objects[0]], residents[objects[1]], tuple(objects))
-
-    @property
-    def storage_nbytes(self):
-        unique = {
-            t.data_ptr(): t
-            for r in (self.embedding, self.head)
-            for t in r.storage_tensors
-        }
-        return sum(t.numel() * t.element_size() for t in unique.values())

@@ -33,7 +33,7 @@ def benchmark(backend, n, k, tokens, repeats, iterations, device):
     weight = Q4RowSplitWeight.from_codes(integers, scales)
     x = torch.randn((tokens, k), device=device, dtype=torch.bfloat16)
     plans = {
-        name: backend.prepare_linear(weight, tokens=tokens, device=device, route=name)
+        name: backend.upload_linear(weight, device=device).prepare(tokens=tokens, route=name)
         for name in ("auto", "generic")
     }
     outputs = {name: plan.empty_output() for name, plan in plans.items()}

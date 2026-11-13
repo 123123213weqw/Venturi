@@ -17,8 +17,8 @@ from time import perf_counter
 
 import torch
 
-from venturi.models import StreamingQwenModel, QwenQ8Weights
-from venturi.ninfer import NInferArtifact
+from venturi.models import StreamingQwenModel, QwenWeights
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend, TorchBackend, prepare_greedy
 
 
@@ -86,17 +86,24 @@ def planned_greedy(logits, plan, out, workspace):
 def snapshot(session):
     return dict(
         gdn=[
-            None
-            if s is None
-            else (s.history.detach().cpu().clone(), s.recurrent.detach().cpu().clone())
+            (
+                None
+                if s is None
+                else (
+                    s.history.detach().cpu().clone(),
+                    s.recurrent.detach().cpu().clone(),
+                )
+            )
             for s in session._states
         ],
         kv=[
-            None
-            if s is None
-            else (
-                s.keys[: session.position].detach().cpu().clone(),
-                s.values[: session.position].detach().cpu().clone(),
+            (
+                None
+                if s is None
+                else (
+                    s.keys[: session.position].detach().cpu().clone(),
+                    s.values[: session.position].detach().cpu().clone(),
+                )
             )
             for s in session._kv
         ],
@@ -143,7 +150,7 @@ def digest(path):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("artifact")
-    parser.add_argument("--blocks-library", required=True)
+    parser.add_argument("--ops-library", required=True)
     parser.add_argument("--expected-sha256", required=True)
     parser.add_argument("--case", required=True)
     parser.add_argument("--tokenizer-file", required=True)
@@ -166,21 +173,21 @@ def main(argv=None):
         raise ValueError("Use 1..16 diagnostic tokens")
     if digest(Path(args.tokenizer_file)) != case["tokenizer_sha256"]:
         raise ValueError("Tokenizer hash mismatch")
-    artifact = NInferArtifact(args.artifact)
-    weights = QwenQ8Weights.from_ninfer(artifact)
+    artifact = SafetensorsContainer(args.artifact)
+    weights = QwenWeights.open(artifact.path)
     print("Hashing complete original-derived artifact", flush=True)
     if digest(artifact.path) != args.expected_sha256:
         raise ValueError("Artifact hash mismatch")
     dtype = torch.float16 if args.dtype == "fp16" else torch.bfloat16
     native = StreamingQwenModel.from_q8(
-        weights, CudaBackend(args.blocks_library), dtype=dtype, device="cuda:0"
+        weights, CudaBackend(args.ops_library), dtype=dtype, device="cuda:0"
     )
     report = dict(
         scope=__doc__,
         case=case,
-        artifact_id=artifact.artifact_id,
+        header_sha256=artifact.header_sha256,
         artifact_sha256=args.expected_sha256,
-        blocks_library=args.blocks_library,
+        blocks_library=args.ops_library,
         dtype=str(dtype),
         torch=torch.__version__,
         cuda=torch.version.cuda,
@@ -294,9 +301,9 @@ def main(argv=None):
             * 1024
         )
         peak = max(
-            32 * obj["shape"][0] * ((obj["shape"][1] + 127) // 128 * 128)
-            for obj in artifact.objects.values()
-            if obj["format"] == "q8_g32_fp16"
+            32 * desc.shape[0] * ((desc.shape[1] + 127) // 128 * 128)
+            for desc in weights.tensors.values()
+            if desc.format == "q8_g32_fp16"
         )
         report["cpu_reference_memory_preflight"] = dict(
             available_bytes=available,

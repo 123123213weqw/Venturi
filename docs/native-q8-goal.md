@@ -1,3 +1,6 @@
+> Current Qwen storage/API contract: [direct safetensors](qwen-safetensors.md).
+> Historical measurements below retain their original scope; `.ninfer` is no longer a supported input.
+
 # Native Q8 Qwen-27B: llama.cpp comparison and optimization goal
 
 App goal created 2026-10-19. Same-host SSH recovered and the final evidence campaign finished. The scoped >=5% numeric target passes, but full acceptance remains open: repeatable paired one-proposal MTP controls at2/8 requests are unavailable in the pinned comparator. No overall speed-superiority claim.
@@ -422,10 +425,10 @@ local-source opt-in is labeled as such and is not an original-quality claim.
 
 Publication is atomic and no-clobber, with private temporary files cleaned up on
 ordinary failure. Original source and existing mixed-Q4 artifacts are untouched.
-`QwenQ8Weights` preflights the complete runtime role set before reads and exposes
+`QwenWeights` preflights the complete runtime role set before reads and exposes
 one encoded projection or bounded floating parameter at a time for native upload.
-The reused v3 container is storage only: this does not claim compatibility with
-an external NInfer model forward or complete native Qwen generation.
+The active path uses standard safetensors planes, not the historical v3 container.
+Storage export does not establish trained-model quality or throughput.
 
 Once the original acquisition reports complete, run the CPU-only converter on
 the V100 host using the existing owned Torch environment (no package changes):
@@ -436,7 +439,7 @@ OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 PYTHONPATH=src \
   /home/data/wangyue/repos/codex-build/.venvs/b2-v100/bin/python \
   tools/export_qwen_q8.py \
   /home/wzu/codex-build/Venturi/models/qwen3.5-27b-bf16 \
-  /home/wzu/codex-build/Venturi/models/qwen3.5-27b-text-q8.ninfer \
+  /home/wzu/codex-build/Venturi/models/qwen3.5-27b-text-q8.safetensors \
   --report /home/wzu/codex-build/Venturi/q8-export-validation/export-report.json
 ```
 
@@ -915,7 +918,7 @@ A separate verified-original-source 15-tensor Q8 draft artifact now binds to the
 native target's shared embedding/output head. Drafting, two-token verification,
 greedy selection, target GDN/history save/restore/replay and cursor commits remain
 native. No external model forward or Python token/layer loop is introduced.
-Rebuild for ABI 15 and explicitly pass `--mtp-artifact`; ordinary decode remains
+Rebuild for ABI 15 and explicitly pass `--mtp-checkpoint`; ordinary decode remains
 the default. Requests must be fresh/reset; only one-proposal greedy is supported.
 
 Correctness: local 735 passed/532 skipped; final V100 864 passed/403 skipped.

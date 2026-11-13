@@ -6,6 +6,8 @@ outputs and committed private caches are byte-exact to the qualified control.
 No fresh BF16/corpus-quality claim and no arithmetic-profile substitution.
 """
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 import ctypes
 import gc
@@ -16,8 +18,8 @@ from pathlib import Path
 import torch
 
 from qualify_qwen_projection_profile import native_generate
-from venturi.models import NativeQwenModel, QwenQ8Weights
-from venturi.ninfer import NInferArtifact
+from venturi.models import NativeQwenModel, QwenWeights
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 
 
@@ -77,13 +79,15 @@ def main():
         help="Execute affected candidate profiles; omitted profiles are explicitly reused, not new passes",
     )
     parser.add_argument("--output-directory", required=True)
+    parser.add_argument("--qwen-library", required=True)
+    parser.add_argument("--baseline-qwen-library", required=True)
     a = parser.parse_args()
     out = Path(a.output_directory)
     out.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(4)
-    assert digest(a.prior_report) == a.prior_report_sha256, (
-        "Qualified prior report changed"
-    )
+    assert (
+        digest(a.prior_report) == a.prior_report_sha256
+    ), "Qualified prior report changed"
     prior = json.loads(Path(a.prior_report).read_text())
     assert (
         prior["completed"]
@@ -94,9 +98,9 @@ def main():
         profile: p["candidate"] if "candidate" in p else p["shared"]
         for profile, p in prior["profiles"].items()
     }
-    assert set(a.profiles) <= set(reference), (
-        "Selected profiles need complete pinned prior signatures"
-    )
+    assert set(a.profiles) <= set(
+        reference
+    ), "Selected profiles need complete pinned prior signatures"
     inherited = prior.get("unexecuted_profile_reference", {})
     cases = json.loads(Path(a.cases).read_text())
     if a.reuse_prior_control:
@@ -113,11 +117,11 @@ def main():
                 == 8
             )
             assert [c["name"] for c in p["cases"]] == [c["name"] for c in cases]
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
-    assert weights.artifact.artifact_id == prior["artifact_id"]
+    weights = QwenWeights.open(a.artifact)
+    assert weights.source.header_sha256 == prior["header_sha256"]
     report = dict(
         scope=__doc__,
-        artifact_id=weights.artifact.artifact_id,
+        header_sha256=weights.source.header_sha256,
         artifact_hash_scope=(
             "Prior frozen payload validation reused, not a fresh SHA256 scan; current candidate artifact ID matches the hash-pinned control reference. Control model is not re-executed."
             if a.reuse_prior_control
@@ -129,9 +133,9 @@ def main():
         profiles={},
         broad_bf16_corpus_quality_qualified=False,
         completed=False,
-        control_mode="reused pinned complete signatures"
-        if a.reuse_prior_control
-        else "fresh",
+        control_mode=(
+            "reused pinned complete signatures" if a.reuse_prior_control else "fresh"
+        ),
         cases_sha256=digest(a.cases),
         executed_candidate_profiles=a.profiles,
         unexecuted_profile_reference={
@@ -173,12 +177,17 @@ def main():
                 continue
             model = NativeQwenModel.from_q8(
                 weights,
-                CudaBackend(library),
+                QwenRuntime(
+                    a.baseline_qwen_library if label == "control" else a.qwen_library,
+                    CudaBackend(library),
+                ),
                 weight_mode="resident",
                 dtype=torch.float16,
-                max_tokens=a.projection_rows
-                if label == "candidate"
-                else prior["fixed_work"]["max_tokens"],
+                max_tokens=(
+                    a.projection_rows
+                    if label == "candidate"
+                    else prior["fixed_work"]["max_tokens"]
+                ),
                 tensor_parallel_device="cuda:1",
                 tensor_parallel_transport="host",
                 projection_profile=profile,
@@ -201,9 +210,9 @@ def main():
                             logits = session.forward(prefix)
                             hashes.append(tensor_signature(logits))
                             ids.append(int(logits.argmax()))
-                            assert ids[-1] == token, (
-                                "Pinned original trajectory changed"
-                            )
+                            assert (
+                                ids[-1] == token
+                            ), "Pinned original trajectory changed"
                         diagnostic = state_signature(session.snapshot())
                         session.reset()
                         generated = native_generate(
@@ -225,9 +234,9 @@ def main():
                         )
                         record["cases"].append(item)
                         if label == "candidate":
-                            assert item == controls["control"]["cases"][i], (
-                                "Candidate changed same-profile logits/cache bytes"
-                            )
+                            assert (
+                                item == controls["control"]["cases"][i]
+                            ), "Candidate changed same-profile logits/cache bytes"
                         save()
                     finally:
                         session.close()
@@ -266,9 +275,9 @@ def main():
                         positions=[s["position"] for s in batch.info()["requests"]],
                     )
                     if label == "candidate":
-                        assert record["batch"] == controls["control"]["batch"], (
-                            "Shared batch changed original profile bytes"
-                        )
+                        assert (
+                            record["batch"] == controls["control"]["batch"]
+                        ), "Shared batch changed original profile bytes"
                         assert (
                             record["reset_continuation"]
                             == controls["control"]["reset_continuation"]

@@ -21,10 +21,13 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests"))
 from q8_dp2a_reference import projection_reference as ref16  # noqa: E402
 from q8_dp4a_reference import projection_reference as ref8  # noqa: E402
-from venturi.models import QwenQ8Weights  # noqa: E402
-from venturi.ninfer import NInferArtifact  # noqa: E402
+from venturi.models import QwenWeights  # noqa: E402
+from venturi.container.safetensors import SafetensorsContainer  # noqa: E402
 from venturi.ops import CudaBackend, Q8RowSplitWeight, prepare_q8_dp4a  # noqa: E402
-from venturi.ops.q8_column_tp import prepare_q8_column_partial, slice_q8_columns  # noqa: E402
+from venturi.ops.q8_column_tp import (
+    prepare_q8_column_partial,
+    slice_q8_columns,
+)  # noqa: E402
 from venturi.ops.q8_dp2a import DP2APilot  # noqa: E402
 from venturi.ops.q8_fused import prepare_q8_fused  # noqa: E402
 from venturi.ops.q8_shared import prepare_q8_tiled_shared  # noqa: E402
@@ -85,12 +88,12 @@ def main():
     torch.set_num_threads(4)
     if torch.cuda.get_device_capability(0) != (7, 0):
         raise ValueError("Explicit SM70 pilot required")
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
+    weights = QwenWeights.open(a.artifact)
     pilot, backend = DP2APilot(a.library), CudaBackend(a.baseline_library)
     report = dict(
         scope=__doc__,
         profiled=a.profile,
-        artifact_id=weights.artifact.artifact_id,
+        header_sha256=weights.source.header_sha256,
         pilot_library_sha256=hashlib.sha256(Path(a.library).read_bytes()).hexdigest(),
         control_library_sha256=hashlib.sha256(
             Path(a.baseline_library).read_bytes()

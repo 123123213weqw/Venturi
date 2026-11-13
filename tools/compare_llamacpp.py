@@ -143,7 +143,7 @@ def venturi_worker(args):
     import torch
 
     from venturi import load_checkpoint
-    from venturi.generation import LocalTokenizer, _greedy_token
+    from venturi.engine.generation import LocalTokenizer, _greedy_token
     from venturi.models import GPTNeoXModel
 
     request = json.loads(Path(args.request).read_text())

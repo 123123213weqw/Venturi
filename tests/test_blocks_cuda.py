@@ -16,9 +16,9 @@ pytestmark = pytest.mark.cuda
 
 @pytest.fixture(scope="module")
 def backend():
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
-        pytest.skip("set VENTURI_BLOCKS_LIBRARY to an explicitly built library")
+        pytest.skip("set VENTURI_OPS_LIBRARY to an explicitly built library")
     if not torch.cuda.is_available():
         pytest.fail("Native library selected but CUDA unavailable")
     return CudaBackend(library)
@@ -109,7 +109,7 @@ def test_shared_block_fp64_graph_stream_and_allocations(
     backend, h, intermediate, dtype, monkeypatch
 ):
     weights = make_weights(h, intermediate, dtype)
-    plan = weights.prepare(backend, tokens=7, dtype=dtype, device="cuda:0")
+    plan = weights.upload(backend, dtype=dtype, device="cuda:0").prepare(tokens=7)
     ws = plan.empty_workspace()
     x = torch.randn(
         7, h, dtype=dtype, generator=torch.Generator().manual_seed(723 + h)
@@ -162,7 +162,9 @@ def test_q4_composition_without_external_model_engine(backend, tokens):
         pytest.skip("set VENTURI_ADA_LIBRARY for explicit Q4 composition")
     native = CudaBackend(backend.library, q4_backend=AdaBackend(library))
     weights = make_weights(65, 97, torch.bfloat16, q4=True)
-    plan = weights.prepare(native, tokens=tokens, dtype=torch.bfloat16, device="cuda:0")
+    plan = weights.upload(native, dtype=torch.bfloat16, device="cuda:0").prepare(
+        tokens=tokens
+    )
     x = torch.randn(tokens, 65, device="cuda", dtype=torch.bfloat16)
     out = torch.empty_like(x)
     ws = plan.empty_workspace()
@@ -199,8 +201,8 @@ def test_qwen_sized_down_projection_near_cancellation_regression(backend):
             (5120, 128),
         ]:
             x = (torch.randn(count, features, device="cuda") * 0.5).bfloat16()
-    plan = weights.prepare(
-        backend, tokens=tokens, dtype=torch.bfloat16, device="cuda:0"
+    plan = weights.upload(backend, dtype=torch.bfloat16, device="cuda:0").prepare(
+        tokens=tokens
     )
     ws = plan.empty_workspace()
     plan.norm.run(x, out=ws.hidden)
@@ -225,7 +227,7 @@ def test_fp16_whole_chain_counterexample_passes_per_op_bounds(backend):
     x = torch.randn(
         7, 40, dtype=torch.float16, generator=torch.Generator().manual_seed(7)
     ).cuda()
-    plan = weights.prepare(backend, tokens=7, dtype=x.dtype, device="cuda:0")
+    plan = weights.upload(backend, dtype=x.dtype, device="cuda:0").prepare(tokens=7)
     expected = qualified_native_composition(plan, weights, x)
     out = torch.empty_like(x)
     plan.run(x, out=out, workspace=plan.empty_workspace())

@@ -19,12 +19,12 @@ from time import perf_counter
 import torch
 
 from venturi.models import (
-    QwenQ8Weights,
+    QwenWeights,
     qwen_resident_bytes,
     ResidentQwenGDNLayer,
     ResidentQwenAttentionLayer,
 )
-from venturi.ninfer import NInferArtifact
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend, DenseWeight
 
 
@@ -101,9 +101,11 @@ class Checks:
             role,
             out,
             linear_ideal(self.weights, self.prefix + role, x),
-            floor=2e-4
-            if self.weights._object(self.prefix + role)["format"] == "q8_g32_fp16"
-            else 2e-5,
+            floor=(
+                2e-4
+                if self.weights.descriptor(self.prefix + role).format == "q8_g32_fp16"
+                else 2e-5
+            ),
         )
 
     def mlp(self, p, workspace, residual, out):
@@ -417,7 +419,7 @@ def small_parameter_statistics(weights, resident):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("artifact")
-    parser.add_argument("--blocks-library", required=True)
+    parser.add_argument("--ops-library", required=True)
     parser.add_argument("--expected-sha256", required=True)
     parser.add_argument("--output-directory", required=True)
     parser.add_argument("--dtype", choices=("fp16", "bf16"), required=True)
@@ -434,8 +436,8 @@ def main(argv=None):
     out.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(4)
     started = perf_counter()
-    artifact = NInferArtifact(args.artifact)
-    weights = QwenQ8Weights.from_ninfer(artifact)
+    artifact = SafetensorsContainer(args.artifact)
+    weights = QwenWeights.open(artifact.path)
     for layer in args.layers:
         weights.layer_bindings(layer)
     before = artifact.path.stat()
@@ -452,12 +454,12 @@ def main(argv=None):
             digest.update(chunk)
     if digest.hexdigest() != args.expected_sha256:
         raise ValueError("Original-derived Q8 artifact SHA256 mismatch")
-    backend = CudaBackend(args.blocks_library)
+    backend = CudaBackend(args.ops_library)
     dtype = torch.float16 if args.dtype == "fp16" else torch.bfloat16
-    target = backend._device(dtype, "cuda:0")
+    target = backend.validate_device(dtype, "cuda:0")
     report = dict(
         scope=__doc__,
-        artifact_id=artifact.artifact_id,
+        header_sha256=artifact.header_sha256,
         artifact_sha256=digest.hexdigest(),
         artifact=str(artifact.path),
         library=str(backend.library),

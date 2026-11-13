@@ -10,8 +10,8 @@ import sys
 import pytest
 import torch
 
-from venturi.gguf_rows import VerifiedIQ4NLRows
-from venturi.model_assets import ModelAsset
+from venturi.container.gguf.gguf_rows import VerifiedIQ4NLRows
+from venturi.container.model_assets import ModelAsset
 
 
 LUT=(-127,-104,-83,-65,-49,-35,-22,-10,1,13,25,38,53,69,89,113)
@@ -45,6 +45,18 @@ def fixture(root, *, tables=None, metadata=()):
         f'https://huggingface.co/venturi-fixtures/rows/resolve/{rev}/lookup.gguf',
         'venturi-fixtures/rows',rev,'lookup.gguf','sparse_lookup')
     return asset,expected
+
+
+def mutate_source_with_observable_metadata(path):
+    """Test metadata leases deterministically on coarse Linux timestamp clocks.
+
+    This does not test continuous content hashing or filesystem immutability.
+    """
+    before = path.stat()
+    with path.open('r+b') as stream:
+        stream.seek(-1, 2)
+        stream.write(b'1')
+    os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns + 1_000_000_000))
 
 
 def store(root,**kw):
@@ -83,7 +95,7 @@ def test_deduplication_noncontiguous_ids_output_aliases_and_no_persistent_row_ca
 
 
 def test_input_ids_and_shape_are_snapshotted_before_payload_io(tmp_path,monkeypatch):
-    import venturi.gguf_rows as module
+    import venturi.container.gguf.gguf_rows as module
     reader,expected=store(tmp_path);ids=torch.tensor([1,4]);original=module.os.pread
     def change_input(*args):
         ids.resize_(1,2);ids.fill_(0)
@@ -95,7 +107,7 @@ def test_input_ids_and_shape_are_snapshotted_before_payload_io(tmp_path,monkeypa
 
 
 def test_empty_requests_and_all_empty_group_have_no_payload_reads(tmp_path,monkeypatch):
-    import venturi.gguf_rows as module
+    import venturi.container.gguf.gguf_rows as module
     reader,_=store(tmp_path)
     def forbidden(*args):raise AssertionError('Empty lookup must not pread')
     monkeypatch.setattr(module.os,'pread',forbidden)
@@ -107,7 +119,7 @@ def test_empty_requests_and_all_empty_group_have_no_payload_reads(tmp_path,monke
 @pytest.mark.parametrize('ids',[torch.tensor([-1]),torch.tensor([11]),torch.tensor([1.]),
     torch.tensor([True]),torch.tensor(1),torch.empty(1,dtype=torch.int64,device='meta'),[1]])
 def test_invalid_ids_are_rejected_before_payload_io_and_do_not_poison_source(tmp_path,monkeypatch,ids):
-    import venturi.gguf_rows as module
+    import venturi.container.gguf.gguf_rows as module
     reader,_=store(tmp_path);original=module.os.pread
     def forbidden(*args):raise AssertionError('Bad ID must not pread')
     monkeypatch.setattr(module.os,'pread',forbidden)
@@ -154,23 +166,23 @@ def test_missing_full_sha_partial_symlink_and_nonregular_sources_are_rejected(tm
     with pytest.raises(ValueError,match='regular source'):VerifiedIQ4NLRows(asset,tmp_path,expected_shapes=SCHEMA)
 
 
-def test_same_length_payload_corruption_after_admission_poisoned_not_retried(tmp_path):
+def test_observable_same_length_source_change_after_admission_poisoned_not_retried(tmp_path):
     reader,_=store(tmp_path)
     with reader:
-        with (tmp_path/'lookup.gguf').open('r+b') as f:f.seek(-1,2);f.write(b'1')
+        mutate_source_with_observable_metadata(tmp_path/'lookup.gguf')
         with pytest.raises(ValueError,match='changed'):reader.lookup('layer1',torch.tensor([0]))
         with pytest.raises(ValueError,match='lease failed'):reader.lookup('layer1',torch.tensor([1]))
 
 
 @pytest.mark.parametrize('mode',['change','short','eio'])
 def test_change_during_pread_short_reads_and_io_errors_do_not_return_plausible_rows(tmp_path,monkeypatch,mode):
-    import venturi.gguf_rows as module
+    import venturi.container.gguf.gguf_rows as module
     reader,_=store(tmp_path);real=module.os.pread
     def failing(fd,size,offset):
         if mode=='eio':raise OSError(5,'injected EIO')
         if mode=='short':return b''
         raw=real(fd,size,offset)
-        with (tmp_path/'lookup.gguf').open('r+b') as f:f.seek(-1,2);f.write(b'1')
+        mutate_source_with_observable_metadata(tmp_path/'lookup.gguf')
         return raw
     monkeypatch.setattr(module.os,'pread',failing)
     with reader:
@@ -180,7 +192,7 @@ def test_change_during_pread_short_reads_and_io_errors_do_not_return_plausible_r
 
 
 def test_partial_pread_progress_is_completed_and_counted(tmp_path,monkeypatch):
-    import venturi.gguf_rows as module
+    import venturi.container.gguf.gguf_rows as module
     reader,expected=store(tmp_path);real=module.os.pread
     monkeypatch.setattr(module.os,'pread',lambda fd,size,offset:real(fd,min(size,7),offset))
     with reader:
@@ -196,7 +208,7 @@ def test_context_closes_descriptor_on_lookup_failure(tmp_path):
 
 
 def test_header_must_match_the_full_sha_open_descriptor(tmp_path,monkeypatch):
-    import venturi.gguf_rows as module
+    import venturi.container.gguf.gguf_rows as module
     asset,_=fixture(tmp_path);original=module.inspect_gguf
     def different(*args,**kw):return replace(original(*args,**kw),header_sha256='0'*64)
     monkeypatch.setattr(module,'inspect_gguf',different)
@@ -221,7 +233,7 @@ def test_concurrent_callers_are_serialized_but_outputs_remain_request_private(tm
 
 
 def test_admission_failure_closes_the_new_source_descriptor(tmp_path,monkeypatch):
-    import venturi.gguf_rows as module
+    import venturi.container.gguf.gguf_rows as module
     asset,_=fixture(tmp_path);opened=[];real=module.os.fdopen
     def record(*args,**kw):
         stream=real(*args,**kw);opened.append(stream);return stream
@@ -232,13 +244,13 @@ def test_admission_failure_closes_the_new_source_descriptor(tmp_path,monkeypatch
 
 
 def test_change_during_full_admission_scan_is_rejected(tmp_path,monkeypatch):
-    import venturi.gguf_rows as module
+    import venturi.container.gguf.gguf_rows as module
     asset,_=fixture(tmp_path);original=module.hashlib.sha256;count=0
     class ChangingDigest:
         def __init__(self):self.inner=original()
         def update(self,data):
             self.inner.update(data)
-            with (tmp_path/'lookup.gguf').open('r+b') as f:f.seek(-1,2);f.write(b'1')
+            mutate_source_with_observable_metadata(tmp_path/'lookup.gguf')
         def hexdigest(self):return self.inner.hexdigest()
     def hasher():
         nonlocal count
@@ -250,7 +262,7 @@ def test_change_during_full_admission_scan_is_rejected(tmp_path,monkeypatch):
 
 
 def test_full_sha_valid_but_nonfinite_quantized_scale_poisoned_not_cleaned(tmp_path):
-    from venturi.gguf_inventory import inspect_gguf
+    from venturi.container.gguf.gguf_inventory import inspect_gguf
     asset,_=fixture(tmp_path);path=tmp_path/asset.filename
     offset=inspect_gguf(path).tensors[0].offset
     with path.open('r+b') as f:f.seek(offset);f.write(struct.pack('<e',float('inf')))
@@ -264,4 +276,4 @@ def test_full_sha_valid_but_nonfinite_quantized_scale_poisoned_not_cleaned(tmp_p
 
 
 def test_import_has_no_torch_or_gpu_initialization():
-    subprocess.check_call([sys.executable,'-c','import sys;import venturi.gguf_rows;assert "torch" not in sys.modules'])
+    subprocess.check_call([sys.executable,'-c','import sys;import venturi.container.gguf.gguf_rows;assert "torch" not in sys.modules'])

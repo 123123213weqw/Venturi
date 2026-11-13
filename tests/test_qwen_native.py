@@ -1,5 +1,7 @@
 """Native forward/control/cache loop parity, ownership, source and failure checks."""
 
+from qwen_native_runtime import native_runtime
+
 import ctypes
 import gc
 from concurrent.futures import ThreadPoolExecutor
@@ -10,8 +12,8 @@ import torch
 from test_fp32_parameters import mixed_port as base_port
 from test_qwen_model import hybrid_fixture
 from venturi.models import NativeQwenModel, ResidentQwenModel, StreamingQwenModel
-from venturi.models.qwen_native import Config, Span, Matrix, Layer
-from venturi.models.qwen_rope import QwenTextRoPE
+from venturi.models.qwen_load.abi import Config, Span, Matrix, Layer
+from venturi.models.qwen.qwen_rope import QwenTextRoPE
 from venturi.ops import TorchBackend
 
 
@@ -27,7 +29,7 @@ def test_native_descriptor_layout_and_explicit_backend():
         and Config.peer_transport.offset == 100
         and Config.reserve.offset == 104
     )
-    with pytest.raises(TypeError, match="explicit CudaBackend"):
+    with pytest.raises(TypeError, match="explicit QwenRuntime"):
         NativeQwenModel.from_q8(None, TorchBackend(), weight_mode="streaming")
 
 
@@ -68,7 +70,7 @@ def test_native_complete_hybrid_logits_state_trace_and_chunk_continuation(
     weights, _ = hybrid_fixture(tmp_path)
     model = NativeQwenModel.from_q8(
         weights,
-        b,
+        native_runtime(b),
         weight_mode=mode,
         dtype=dtype,
         device=dev,
@@ -112,7 +114,7 @@ def test_generation_entirely_native_no_python_model_or_torch_math(
     weights, _ = hybrid_fixture(tmp_path)
     model = NativeQwenModel.from_q8(
         weights,
-        b,
+        native_runtime(b),
         weight_mode=mode,
         dtype=dtype,
         device=dev,
@@ -162,7 +164,7 @@ def test_native_failure_atomic_cursor_reset_and_independent_requests(
     weights, _ = hybrid_fixture(tmp_path)
     model = NativeQwenModel.from_q8(
         weights,
-        b,
+        native_runtime(b),
         weight_mode="streaming",
         dtype=dtype,
         device=dev,
@@ -197,7 +199,7 @@ def test_native_owned_constants_model_close_and_metadata_isolation(
     weights, _ = hybrid_fixture(tmp_path)
     model = NativeQwenModel.from_q8(
         weights,
-        b,
+        native_runtime(b),
         weight_mode="resident",
         dtype=dtype,
         device=dev,
@@ -207,7 +209,7 @@ def test_native_owned_constants_model_close_and_metadata_isolation(
     s = model.create_session(12)
     expected = s.forward([1, 2, 3])
     s.reset()
-    weights.artifact.manifest["bindings"].clear()  # Caller metadata is not shared.
+    weights.config["layer_types"].clear()  # Caller metadata is not shared.
     cfg = model.config
     cfg["hidden_size"] = 1  # Public config is a detached copy.
     gc.collect()
@@ -227,7 +229,7 @@ def test_native_source_change_preflight_and_capacity_guards(tmp_path, native_eng
     weights, _ = hybrid_fixture(tmp_path)
     model = NativeQwenModel.from_q8(
         weights,
-        b,
+        native_runtime(b),
         weight_mode="streaming",
         dtype=dtype,
         device=dev,
@@ -238,13 +240,13 @@ def test_native_source_change_preflight_and_capacity_guards(tmp_path, native_eng
     with pytest.raises(ValueError, match="capacity"):
         s.generate([1] * 7, max_new_tokens=2)
     assert s.position == 0 and not s.failed
-    weights.artifact.path.touch()
+    weights.source.path.touch()
     with pytest.raises(RuntimeError, match="source changed"):
         s.forward([1])
     ids = (ctypes.c_int64 * 1)(1)
     out = (ctypes.c_float * model.config["vocab_size"])()
     with pytest.raises(RuntimeError, match="source changed"):
-        b._check(
+        model._runtime._check(
             model._native.venturi_qwen_forward(
                 s._handle, ids, 1, out, len(out), 0, None, 0
             )
@@ -261,7 +263,7 @@ def test_serialized_concurrent_native_requests_keep_independent_state(
     weights, _ = hybrid_fixture(tmp_path)
     model = NativeQwenModel.from_q8(
         weights,
-        b,
+        native_runtime(b),
         weight_mode="resident",
         dtype=dtype,
         device=dev,
@@ -291,7 +293,7 @@ def test_cpu_output_budget_default_factory_and_resident_admission(
     weights, _ = hybrid_fixture(tmp_path)
     model = NativeQwenModel.from_q8(
         weights,
-        b,
+        native_runtime(b),
         weight_mode="streaming",
         dtype=dtype,
         device=dev,
@@ -317,9 +319,53 @@ def test_cpu_output_budget_default_factory_and_resident_admission(
         with pytest.raises(MemoryError, match="No implicit offload"):
             NativeQwenModel.from_q8(
                 weights,
-                b,
+                native_runtime(b),
                 weight_mode="resident",
                 dtype=dtype,
                 device=dev,
                 reserve_bytes=2**64 - 1,
             )
+
+
+@pytest.mark.parametrize("mode", ["streaming", "resident"])
+def test_standard_safetensors_permuted_physical_planes(tmp_path, native_engine, mode):
+    """Official writer sorts F16 scales before I8 codes: never infer adjacency."""
+    from safetensors import safe_open
+    from safetensors.torch import save_file
+    from venturi.models.qwen.qwen_weights import QwenWeights
+
+    backend, dtype, device = native_engine
+    original, _ = hybrid_fixture(tmp_path)
+    with safe_open(original.source.path, framework="pt") as source:
+        tensors = {name: source.get_tensor(name) for name in source.keys()}
+        metadata = source.metadata()
+    path = tmp_path / "permuted.safetensors"
+    save_file(tensors, str(path), metadata=metadata)
+    weights = QwenWeights.open(path)
+    role = "text/token_embedding"
+    assert weights.plane_offset(role, "scales") < weights.plane_offset(role, "codes")
+    model = NativeQwenModel.from_q8(
+        weights,
+        native_runtime(backend),
+        weight_mode=mode,
+        dtype=dtype,
+        device=device,
+        max_tokens=3,
+        reserve_bytes=0,
+    )
+    reference_model = ResidentQwenModel.from_q8(
+        original, backend, dtype=dtype, device=device, reserve_bytes=0
+    )
+    session = model.create_session(12)
+    reference = reference_model.create_session(12, max_tokens=3, reserve_bytes=0)
+    try:
+        for ids in ([1, 2, 3, 4], [5], [6, 7]):
+            assert torch.equal(
+                session.forward(ids, all_logits=True),
+                reference.forward(ids, all_logits=True).cpu(),
+            )
+            equal_snapshot(session.snapshot(), reference, session.position)
+    finally:
+        session.close()
+        reference.close()
+        model.close()

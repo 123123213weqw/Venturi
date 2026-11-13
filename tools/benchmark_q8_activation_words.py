@@ -14,8 +14,8 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests"))
 from q8_dp4a_reference import projection_reference  # noqa: E402
-from venturi.models import QwenQ8Weights  # noqa: E402
-from venturi.ninfer import NInferArtifact  # noqa: E402
+from venturi.models import QwenWeights  # noqa: E402
+from venturi.container.safetensors import SafetensorsContainer  # noqa: E402
 from venturi.ops import CudaBackend, Q8RowSplitWeight  # noqa: E402
 from venturi.ops.q8_shared import prepare_q8_tiled_shared  # noqa: E402
 from venturi.ops.q8_fused import prepare_q8_fused  # noqa: E402
@@ -54,7 +54,7 @@ def main():
     out = Path(a.output_directory)
     out.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(4)
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
+    weights = QwenWeights.open(a.artifact)
     libraries = [a.baseline_library, a.library]
     if a.unbounded_library:
         libraries.append(a.unbounded_library)
@@ -65,7 +65,7 @@ def main():
     report = dict(
         scope=__doc__,
         profiled=a.profile,
-        artifact_id=weights.artifact.artifact_id,
+        header_sha256=weights.source.header_sha256,
         token_counts=[3, 4, 8],
         row_mode="tp-first",
         baseline_sha256=hashlib.sha256(
@@ -76,21 +76,21 @@ def main():
         graph_nodes=3,
         graph_replays=3,
         repeats=3,
-        unbounded_ablation_sha256=hashlib.sha256(
-            Path(a.unbounded_library).read_bytes()
-        ).hexdigest()
-        if a.unbounded_library
-        else None,
+        unbounded_ablation_sha256=(
+            hashlib.sha256(Path(a.unbounded_library).read_bytes()).hexdigest()
+            if a.unbounded_library
+            else None
+        ),
         candidate_arm=a.candidate_name,
         extra_ablation_sha256={
             name: hashlib.sha256(Path(path).read_bytes()).hexdigest()
             for name, path in extra
         },
-        bounded_pairs_ablation_sha256=hashlib.sha256(
-            Path(a.bounded_pairs_library).read_bytes()
-        ).hexdigest()
-        if a.bounded_pairs_library
-        else None,
+        bounded_pairs_ablation_sha256=(
+            hashlib.sha256(Path(a.bounded_pairs_library).read_bytes()).hexdigest()
+            if a.bounded_pairs_library
+            else None
+        ),
         cases=[],
         completed=False,
         full_model_quality_qualified=False,

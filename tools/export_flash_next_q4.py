@@ -3,8 +3,8 @@ import argparse,json,time,resource
 from pathlib import Path
 import torch
 from benchmark_flash_next_full import checked_payloads
-from venturi.checkpoint import inspect_checkpoint
-from venturi.models.flash_next_q4_bundle import export_q4_text
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_q4_bundle import export_q4_text
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)

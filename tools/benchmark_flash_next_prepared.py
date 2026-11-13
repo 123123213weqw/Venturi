@@ -18,10 +18,8 @@ from safetensors.torch import load_file, save_file
 import torch
 
 from benchmark_flash_next_ngram import make_fixture
-from venturi.checkpoint import inspect_checkpoint
-from venturi.models.flash_next_ngram import (
-    FP8ShardedNGramTable, NGramRequest, PreparedNGramTable, ShardedNGramTable,
-)
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_ngram import FP8ShardedNGramTable, NGramRequest, PreparedNGramTable, ShardedNGramTable
 
 
 def usage():

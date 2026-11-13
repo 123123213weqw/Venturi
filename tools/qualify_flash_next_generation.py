@@ -18,11 +18,11 @@ from qualify_flash_next_text import (
     text_references, make_text_oracle, make_cache, oracle_step, assert_state,
     UPSTREAM_SHA256, CACHE_SHA256, SDPA_SHA256,
 )
-from venturi.flash_next_generation import generate_flash_next_tokens
-from venturi.models.flash_next_expert_policy import bind_fp8_expert_policy
-from venturi.models.flash_next_loader import load_floating_text, load_weight_decoded_fp8_text
-from venturi.models.flash_next_moe import TensorExpertStore
-from venturi.models.flash_next_ngram import PreparedNGramTable
+from venturi.models.flash_next.flash_next_generation import generate_flash_next_tokens
+from venturi.models.flash_next.flash_next_expert_policy import bind_fp8_expert_policy
+from venturi.models.flash_next.flash_next_loader import load_floating_text, load_weight_decoded_fp8_text
+from venturi.models.flash_next.flash_next_moe import TensorExpertStore
+from venturi.models.flash_next.flash_next_ngram import PreparedNGramTable
 
 
 def main():

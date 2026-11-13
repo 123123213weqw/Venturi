@@ -7,7 +7,7 @@ import torch
 
 from test_gated_mlp import make_weights
 from test_llama import llama_fixture
-from venturi.loader import load_checkpoint
+from venturi.container.loader import load_checkpoint
 from venturi.models import LlamaWeights
 from venturi.ops import (
     Backend,
@@ -172,7 +172,7 @@ def test_unsupported_buffer_device_and_dtype_fail_closed():
         b.empty((2,), dtype=torch.complex64, device="cpu")
 
 
-def test_resident_protocol_reuse_ownership_and_legacy_aliases():
+def test_resident_protocol_reuse_ownership_and_canonical_bindings():
     b, other = TorchBackend(), TorchBackend()
     w = b.upload_linear(
         DenseWeight(torch.ones(3, 5)), dtype=torch.float32, device="cpu"
@@ -181,12 +181,11 @@ def test_resident_protocol_reuse_ownership_and_legacy_aliases():
     a, c = w.prepare(tokens=1), w.prepare(tokens=4)
     assert isinstance(a, LinearPlan)
     assert a.storage_tensors[0] is c.storage_tensors[0]
-    assert b._device(torch.float32, "cpu") == b.validate_device(torch.float32, "cpu")
-    assert b._bind_linear(w, 2).tokens == 2
+    assert b.bind_linear(w, tokens=2).tokens == 2
     norm = b.upload_rmsnorm(
         torch.ones(5), dtype=torch.float32, device="cpu", epsilon=1e-6
     )
-    assert b._bind_rmsnorm(norm, 2).tokens == 2
+    assert b.bind_rmsnorm(norm, tokens=2).tokens == 2
     for method, resident in ((other.bind_linear, w), (other.bind_rmsnorm, norm)):
         with pytest.raises(ValueError, match="different backend"):
             method(resident, tokens=1)
@@ -233,7 +232,7 @@ def test_workspace_uses_selected_backend_allocator(monkeypatch):
         return allocate(shape, **options)
 
     monkeypatch.setattr(b, "empty", tracked)
-    p = make_weights(8, 16).prepare(b, tokens=3, dtype=torch.float64, device="cpu")
+    p = make_weights(8, 16).upload(b, dtype=torch.float64, device='cpu').prepare(tokens=3)
     ws = p.empty_workspace()
     assert [c[0] for c in calls] == [(3, 8), (3, 16), (3, 16)]
     assert ws.hidden.dtype == torch.float64
@@ -268,7 +267,7 @@ def test_structural_plugin_does_not_need_inheritance_or_private_device_api():
     b = Plugin()
     assert isinstance(b, OperatorBackend)
     assert not hasattr(b, "_device") and not hasattr(b, "_native")
-    p = make_weights(8, 16).prepare(b, tokens=2, dtype=torch.float64, device="cpu")
+    p = make_weights(8, 16).upload(b, dtype=torch.float64, device='cpu').prepare(tokens=2)
     x = torch.zeros(2, 8, dtype=torch.float64)
     out = torch.empty_like(x)
     assert p.run(x, out=out, workspace=p.empty_workspace()) is out
@@ -283,7 +282,7 @@ def test_display_name_does_not_select_operator_math_or_model_reference_mode(tmp_
     x = torch.arange(32, dtype=torch.float64).reshape(2, 16) / 100
     outputs = []
     for b in (TorchBackend(), RenamedBackend()):
-        p = weights.prepare(b, tokens=2, dtype=torch.float64, device="cpu")
+        p = weights.upload(b, dtype=torch.float64, device='cpu').prepare(tokens=2)
         out = torch.empty_like(x)
         p.run(x, out=out, workspace=p.empty_workspace())
         outputs.append(out)

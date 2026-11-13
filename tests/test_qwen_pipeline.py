@@ -1,5 +1,7 @@
 """Native stage-local ownership, exact state parity and concurrent requests."""
 
+from qwen_native_runtime import native_runtime
+
 import os
 from concurrent.futures import ThreadPoolExecutor
 
@@ -14,7 +16,7 @@ from venturi.ops import TorchBackend
 
 
 def test_pipeline_requires_explicit_native_backend():
-    with pytest.raises(TypeError, match="explicit CudaBackend"):
+    with pytest.raises(TypeError, match="explicit QwenRuntime"):
         NativeQwenPipelineModel.from_q8(
             None, TorchBackend(), weight_mode="resident", pipeline_device="cuda:1"
         )
@@ -44,9 +46,9 @@ def test_pipeline_exact_logits_trace_state_and_continuation(
         max_tokens=3,
         reserve_bytes=0,
     )
-    reference = NativeQwenModel.from_q8(weights, b, **kw)
+    reference = NativeQwenModel.from_q8(weights, native_runtime(b), **kw)
     pipeline = NativeQwenPipelineModel.from_q8(
-        weights, b, pipeline_device="cuda:1", split_layer=split, **kw
+        weights, native_runtime(b), pipeline_device="cuda:1", split_layer=split, **kw
     )
     a, c = reference.create_session(24), pipeline.create_session(24)
     try:
@@ -89,7 +91,7 @@ def test_pipeline_concurrent_request_isolation(tmp_path, pp_engine, count):
     weights, _ = hybrid_fixture(tmp_path)
     pipeline = NativeQwenPipelineModel.from_q8(
         weights,
-        b,
+        native_runtime(b),
         pipeline_device="cuda:1",
         split_layer=2,
         weight_mode="resident",
@@ -134,9 +136,9 @@ def test_pipeline_failure_reset_lifetime_and_no_python_math(
         max_tokens=3,
         reserve_bytes=0,
     )
-    reference = NativeQwenModel.from_q8(weights, b, **kw)
+    reference = NativeQwenModel.from_q8(weights, native_runtime(b), **kw)
     pipeline = NativeQwenPipelineModel.from_q8(
-        weights, b, pipeline_device="cuda:1", **kw
+        weights, native_runtime(b), pipeline_device="cuda:1", **kw
     )
     a, c = reference.create_session(24), pipeline.create_session(24)
     expected = a.generate([1, 2, 3], max_new_tokens=5)
@@ -191,19 +193,30 @@ def test_pipeline_explicit_configuration_and_source_guard(tmp_path, pp_engine):
     for split in (0, 4, -1, True):
         with pytest.raises(ValueError, match="split"):
             NativeQwenPipelineModel.from_q8(
-                weights, b, pipeline_device="cuda:1", split_layer=split, **kw
+                weights,
+                native_runtime(b),
+                pipeline_device="cuda:1",
+                split_layer=split,
+                **kw,
             )
     with pytest.raises(ValueError, match="different"):
-        NativeQwenPipelineModel.from_q8(weights, b, pipeline_device=device, **kw)
+        NativeQwenPipelineModel.from_q8(
+            weights, native_runtime(b), pipeline_device=device, **kw
+        )
     with pytest.raises(ValueError, match="resident"):
         NativeQwenPipelineModel.from_q8(
-            weights, b, pipeline_device="cuda:1", **{**kw, "weight_mode": "streaming"}
+            weights,
+            native_runtime(b),
+            pipeline_device="cuda:1",
+            **{**kw, "weight_mode": "streaming"},
         )
     with pytest.raises(ValueError, match="host"):
         NativeQwenPipelineModel.from_q8(
-            weights, b, pipeline_device="cuda:1", transport="peer", **kw
+            weights, native_runtime(b), pipeline_device="cuda:1", transport="peer", **kw
         )
-    model = NativeQwenPipelineModel.from_q8(weights, b, pipeline_device="cuda:1", **kw)
+    model = NativeQwenPipelineModel.from_q8(
+        weights, native_runtime(b), pipeline_device="cuda:1", **kw
+    )
     s = model.create_session(12)
     try:
         expected = s.generate([1, 2, 3], max_new_tokens=3)
@@ -215,10 +228,8 @@ def test_pipeline_explicit_configuration_and_source_guard(tmp_path, pp_engine):
         assert s.position == 3
         with pytest.raises(ValueError, match="capacity"):
             s.generate([1, 2, 3], max_new_tokens=10)
-        old = weights.artifact.path.stat()
-        os.utime(
-            weights.artifact.path, ns=(old.st_atime_ns, old.st_mtime_ns + 1_000_000)
-        )
+        old = weights.source.path.stat()
+        os.utime(weights.source.path, ns=(old.st_atime_ns, old.st_mtime_ns + 1_000_000))
         with pytest.raises(RuntimeError, match="source changed"):
             s.generate([1], max_new_tokens=1)
     finally:

@@ -5,7 +5,7 @@ import sys
 import pytest
 import torch
 
-from venturi.gguf_quantization import decode_iq4_nl_rows
+from venturi.container.gguf.gguf_quantization import decode_iq4_nl_rows
 
 
 LUT = (-127,-104,-83,-65,-49,-35,-22,-10,1,13,25,38,53,69,89,113)
@@ -61,4 +61,4 @@ def test_output_budgets_are_checked_before_allocating(budget):
 
 
 def test_import_has_no_torch_or_gpu_side_effects():
-    subprocess.check_call([sys.executable,'-c','import sys;import venturi.gguf_quantization;assert "torch" not in sys.modules'])
+    subprocess.check_call([sys.executable,'-c','import sys;import venturi.container.gguf.gguf_quantization;assert "torch" not in sys.modules'])

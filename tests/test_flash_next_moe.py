@@ -8,11 +8,8 @@ from safetensors.torch import save_file
 import torch
 from torch.nn import functional as F
 
-from venturi.checkpoint import inspect_checkpoint
-from venturi.models.flash_next_moe import (
-    FlashNextMoE, FusedFloatingExpertStore, MoEGeometry,
-    TensorExpertStore, routed_experts,
-)
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_moe import FlashNextMoE, FusedFloatingExpertStore, MoEGeometry, TensorExpertStore, routed_experts
 
 
 def geometry(normalize=True):
@@ -150,7 +147,7 @@ def test_fused_checkpoint_slice_and_core_binding(tmp_path, dtype, monkeypatch):
     x = torch.randn(2, 3, 8, dtype=dtype)
     assert torch.equal(bound(x), module(x))
     # Prove the expert path requests slices, never the complete 3D bank.
-    import venturi.models.flash_next_moe as impl
+    import venturi.models.flash_next.flash_next_moe as impl
     real_open = impl.safe_open
 
     class SliceOnly:

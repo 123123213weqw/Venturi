@@ -52,7 +52,7 @@ def gdn_oracle(q, k, v, g, beta, state, *, normalize=True):
 def gdn_backend(request):
     if request.param == "reference":
         return TorchBackend(), torch.float64, "cpu"
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native blocks library required")
     return CudaBackend(library), torch.bfloat16, "cuda:0"
@@ -172,7 +172,7 @@ def test_gdn_alias_and_validation(gdn_backend):
 
 @pytest.mark.cuda
 def test_native_gdn_graph_and_no_numerical_fallback(monkeypatch):
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native blocks library required")
     backend = CudaBackend(library)
@@ -238,7 +238,7 @@ def test_transformers_raw_recurrence_independent_layout():
 
 @pytest.mark.cuda
 def test_gdn_zero_update_and_independent_streams():
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native blocks library required")
     backend = CudaBackend(library)
@@ -271,7 +271,7 @@ def test_gdn_zero_update_and_independent_streams():
 @pytest.mark.cuda
 @pytest.mark.parametrize("dtype", [torch.float16, torch.bfloat16, torch.float32])
 def test_native_dense_embedding_scalar_dispatch(dtype):
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native blocks library required")
     backend = CudaBackend(library)
@@ -371,7 +371,7 @@ def test_packed_rejects_all_input_sections_and_bad_layout(gdn_backend):
 
 @pytest.mark.cuda
 def test_packed_graph_has_no_unpack_copy_or_tensor_allocation(monkeypatch):
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native blocks library required")
     backend = CudaBackend(library)

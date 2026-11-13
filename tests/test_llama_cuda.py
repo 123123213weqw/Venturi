@@ -7,7 +7,7 @@ import torch
 
 from decoder_checks import qualified_decoder_composition
 from test_llama import llama_fixture
-from venturi.loader import load_checkpoint
+from venturi.container.loader import load_checkpoint
 from venturi.models import LlamaWeights
 from venturi.ops import CudaBackend, TorchBackend
 
@@ -16,7 +16,7 @@ pytestmark = pytest.mark.cuda
 
 @pytest.fixture
 def backend():
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native blocks library required")
     return CudaBackend(library)
@@ -132,7 +132,7 @@ def test_native_session_stream_guard_and_lanes(tmp_path, backend):
 
 
 def test_native_and_reference_fixture_greedy_generation(tmp_path, backend):
-    from venturi.generation import generate_tokens
+    from venturi.engine.generation import generate_tokens
 
     llama_fixture(tmp_path, dtype=torch.bfloat16)
     bound = LlamaWeights.bind(

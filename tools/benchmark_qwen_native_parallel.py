@@ -7,6 +7,8 @@ Split TTFT/continuation phases are separate from complete one-call requests.
 Aggregate throughput uses total emitted tokens divided by cohort wall time.
 """
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import nullcontext
@@ -22,8 +24,8 @@ from time import perf_counter, thread_time, time
 
 import torch
 
-from venturi.models import NativeQwenModel, NativeQwenPipelineModel, QwenQ8Weights
-from venturi.ninfer import NInferArtifact
+from venturi.models import NativeQwenModel, NativeQwenPipelineModel, QwenWeights
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 
 
@@ -94,6 +96,7 @@ def main():
     p.add_argument("--new-tokens", type=int, default=32)
     p.add_argument("--split-layer", type=int)
     p.add_argument("--profile-nvtx", action="store_true")
+    p.add_argument("--qwen-library", required=True)
     args = p.parse_args()
     counts = [int(x) for x in args.concurrency.split(",")]
     if (
@@ -159,8 +162,8 @@ def main():
                     stderr=subprocess.STDOUT,
                 )
             )
-        weights = QwenQ8Weights.from_ninfer(NInferArtifact(args.artifact))
-        report["artifact_id"] = weights.artifact.artifact_id
+        weights = QwenWeights.open(args.artifact)
+        report["header_sha256"] = weights.source.header_sha256
         common = dict(
             weight_mode="resident",
             dtype=torch.float16,
@@ -171,7 +174,7 @@ def main():
         if args.mode == "pp":
             model = NativeQwenPipelineModel.from_q8(
                 weights,
-                CudaBackend(args.library),
+                QwenRuntime(args.qwen_library, CudaBackend(args.library)),
                 pipeline_device="cuda:1",
                 split_layer=args.split_layer,
                 transport="host",
@@ -180,7 +183,7 @@ def main():
         else:
             model = NativeQwenModel.from_q8(
                 weights,
-                CudaBackend(args.library),
+                QwenRuntime(args.qwen_library, CudaBackend(args.library)),
                 tensor_parallel_device="cuda:1",
                 tensor_parallel_transport="host",
                 **common,

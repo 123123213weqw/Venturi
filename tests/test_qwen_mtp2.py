@@ -254,7 +254,7 @@ def test_cli_depth2_route_and_required_artifact(
     tmp_path, monkeypatch, capsys, recovery, fail_prepare
 ):
     import json
-    from venturi import qwen_native_cli as module
+    from venturi.models.qwen import qwen_native_cli as module
     from test_qwen_model import hybrid_fixture
 
     weights, _ = hybrid_fixture(tmp_path)
@@ -262,14 +262,18 @@ def test_cli_depth2_route_and_required_artifact(
     def forbidden(*a, **kw):
         raise AssertionError("Invalid CLI touched CUDA")
 
+    monkeypatch.setattr(module, "QwenRuntime", lambda library, operators: operators)
+
     monkeypatch.setattr(module, "CudaBackend", forbidden)
     base = [
         "generate",
-        str(weights.artifact.path),
+        str(weights.source.path),
         "--token-ids",
         "1,2,3",
-        "--blocks-library",
+        "--ops-library",
         "explicit.so",
+        "--qwen-library",
+        "not-loaded-qwen.so",
         "--weight-mode",
         "resident",
         "--dtype",
@@ -282,7 +286,7 @@ def test_cli_depth2_route_and_required_artifact(
     with pytest.raises(SystemExit):
         module.main(base)
     assert (
-        "--mtp-artifact" if recovery == "replay" else "Prefix recovery"
+        "--mtp-checkpoint" if recovery == "replay" else "Prefix recovery"
     ) in capsys.readouterr().err
     calls, events = [], []
 
@@ -321,12 +325,13 @@ def test_cli_depth2_route_and_required_artifact(
         SimpleNamespace(from_q8=lambda target, weights: target),
     )
     monkeypatch.setattr(
-        module, "QwenMTPWeights", SimpleNamespace(from_ninfer=lambda a: object())
+        module, "QwenMTPWeights", SimpleNamespace(open=lambda a: object())
     )
+    monkeypatch.setattr(module, "QwenRuntime", lambda library, operators: operators)
     monkeypatch.setattr(module, "CudaBackend", lambda a: object())
     argv = base + [
-        "--mtp-artifact",
-        str(weights.artifact.path),
+        "--mtp-checkpoint",
+        str(weights.source.path),
         "--max-tokens",
         "3",
         "--max-new-tokens",
@@ -357,7 +362,7 @@ def test_server_rejects_unpaired_depth_before_runtime(monkeypatch):
         "argv",
         [
             "serve",
-            "not-opened.ninfer",
+            "not-opened.safetensors",
             "--library",
             "absent.so",
             "--mode",
@@ -382,7 +387,7 @@ def test_server_prefix_rejects_missing_depth_or_artifact(artifact, monkeypatch):
 
     args = [
         "serve",
-        "not-opened.ninfer",
+        "not-opened.safetensors",
         "--library",
         "absent.so",
         "--mode",
@@ -395,7 +400,7 @@ def test_server_prefix_rejects_missing_depth_or_artifact(artifact, monkeypatch):
         "prefix",
     ]
     if artifact:
-        args += ["--mtp-artifact", "not-opened-draft.ninfer"]
+        args += ["--mtp-checkpoint", "not-opened-draft.safetensors"]
     else:
         args += ["--mtp-depth", "2"]
     monkeypatch.setattr(sys, "argv", args)

@@ -10,9 +10,9 @@ from torch.nn.attention import SDPBackend, sdpa_kernel
 
 from test_flash_next_fp8_loader import fixture
 from test_flash_next_loader import OPTIONS
-from venturi.models.flash_next_loader import load_weight_decoded_fp8_text
-from venturi.models.flash_next_ngram import PreparedNGramTable
-from venturi.models.flash_next_request import FlashNextRequest
+from venturi.models.flash_next.flash_next_loader import load_weight_decoded_fp8_text
+from venturi.models.flash_next.flash_next_ngram import PreparedNGramTable
+from venturi.models.flash_next.flash_next_request import FlashNextRequest
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "tools"))
 from flash_next_full_oracle import make_full_oracle, run_oracle_step, assert_full_state

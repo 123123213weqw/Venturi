@@ -1,5 +1,7 @@
 """Separate MTP source bindings, independent block reference and native rollback."""
 
+from qwen_native_runtime import native_runtime
+
 import copy
 import os
 from concurrent.futures import ThreadPoolExecutor
@@ -8,7 +10,7 @@ import pytest
 import torch
 
 from test_qwen_model import hybrid_fixture, zero_norm
-from test_qwen_source import write_source
+from qwen_fixtures import write_source
 from test_qwen_tensor_parallel import same_state
 from qwen_gdn_reference import q8_source_oracle
 from attention_reference import attention_reference
@@ -19,10 +21,10 @@ from venturi.models import (
     NativeQwenMTPModel,
     QwenMTPPlan,
     QwenMTPWeights,
-    QwenQ8Weights,
+    QwenWeights,
 )
-from venturi.ninfer import NInferArtifact
-from venturi.qwen_export import export_qwen_q8, export_qwen_mtp_q8
+from venturi.container.safetensors import SafetensorsContainer
+from venturi.models.qwen.qwen_export import export_qwen_q8, export_qwen_mtp_q8
 
 
 def mtp_fixture(root, *, tied=False):
@@ -45,11 +47,11 @@ def mtp_fixture(root, *, tied=False):
         raw=dict(model_type="qwen3_5", tie_word_embeddings=tied, text_config=cfg),
         tensors=raw,
     )
-    target = QwenQ8Weights.from_ninfer(
-        NInferArtifact(export_qwen_q8(source, root / "mtp-target.ninfer")["output"])
+    target = QwenWeights.open(
+        export_qwen_q8(source, root / "mtp-target.safetensors")["output"]
     )
-    draft = QwenMTPWeights.from_ninfer(
-        NInferArtifact(export_qwen_mtp_q8(source, root / "mtp-draft.ninfer")["output"])
+    draft = QwenMTPWeights.open(
+        export_qwen_mtp_q8(source, root / "mtp-draft.safetensors")["output"]
     )
     return target, draft, raw, source
 
@@ -59,7 +61,7 @@ def test_mtp_separate_schema_and_original_quantization(tmp_path):
     draft.validate_target(target)
     assert len(draft.plan.bindings) == 15
     assert len([s for s in draft.plan.bindings if s.format == "q8_g32_fp16"]) == 8
-    assert target.artifact.artifact_id != draft.artifact.artifact_id
+    assert target.source.header_sha256 != draft.source.header_sha256
     for s in draft.plan.bindings:
         value = raw[s.source]
         if s.format == "q8_g32_fp16":
@@ -72,13 +74,17 @@ def test_mtp_separate_schema_and_original_quantization(tmp_path):
             assert torch.equal(actual, q8_source_oracle(value))
         else:
             assert torch.equal(draft.read_float(s.binding), value)
-    with pytest.raises(ValueError, match="complete unfused"):
-        QwenQ8Weights.from_ninfer(draft.artifact)
+    with pytest.raises(ValueError, match="Qwen text checkpoint"):
+        QwenWeights.open(draft.source.path)
     cfg = copy.deepcopy(target.config)
     cfg["mtp_use_dedicated_embeddings"] = True
     with pytest.raises(ValueError, match="shared"):
         QwenMTPPlan.from_config(cfg)
-    changed = copy.deepcopy(target)
+    from dataclasses import replace
+
+    changed = replace(
+        target, plan=replace(target.plan, config=copy.deepcopy(target.config))
+    )
     changed.plan.config["rms_norm_eps"] *= 2
     with pytest.raises(ValueError, match="configuration"):
         draft.validate_target(changed)
@@ -89,8 +95,8 @@ def test_mtp_separate_schema_and_original_quantization(tmp_path):
         tensors=raw,
     )
     with pytest.raises(Exception, match="15 original"):
-        export_qwen_mtp_q8(incomplete, tmp_path / "bad.ninfer")
-    assert not (tmp_path / "bad.ninfer").exists()
+        export_qwen_mtp_q8(incomplete, tmp_path / "bad.safetensors")
+    assert not (tmp_path / "bad.safetensors").exists()
 
 
 def mtp_oracle(
@@ -145,8 +151,10 @@ def mtp_oracle(
     qg = linear(v, p + "self_attn.q_proj.weight").reshape(len(ids), hq, 2 * d)
     key = linear(v, p + "self_attn.k_proj.weight").reshape(len(ids), hk, d)
     value = linear(v, p + "self_attn.v_proj.weight").reshape(len(ids), hk, d)
-    query = zero_norm(qg[..., :d], raw[p + "self_attn.q_norm.weight"], eps)
-    key = zero_norm(key, raw[p + "self_attn.k_norm.weight"], eps)
+    # Match the documented activation boundaries: norm, each rotary product,
+    # and sigmoid gate round separately. Equations remain CPU FP64.
+    query = cast(zero_norm(qg[..., :d], raw[p + "self_attn.q_norm.weight"], eps))
+    key = cast(zero_norm(key, raw[p + "self_attn.k_norm.weight"], eps))
     pos = 0 if cache is None else len(cache[0])
     r = int(d * cfg["rope_parameters"]["partial_rotary_factor"])
     inv = 1.0 / cfg["rope_parameters"]["rope_theta"] ** (
@@ -162,7 +170,12 @@ def mtp_oracle(
 
     def rotate(z):
         a, b = z[..., : r // 2], z[..., r // 2 : r]
-        return cast(torch.cat((a * co - b * si, b * co + a * si, z[..., r:]), -1))
+        return cast(
+            torch.cat(
+                (cast(a * co) - cast(b * si), cast(b * co) + cast(a * si), z[..., r:]),
+                -1,
+            )
+        )
 
     query, key = rotate(query), rotate(key)
     keys, values = (
@@ -171,7 +184,7 @@ def mtp_oracle(
         else (torch.cat((cache[0], key)), torch.cat((cache[1], value)))
     )
     attended = cast(attention_reference(query, keys, values, d**-0.5))
-    attended = cast(attended * qg[..., d:].sigmoid())
+    attended = cast(attended * cast(qg[..., d:].sigmoid()))
     residual = cast(x + linear(attended.flatten(1), p + "self_attn.o_proj.weight"))
     normalized = norm(residual, p + "post_attention_layernorm.weight")
     gate, up = (linear(normalized, p + f"mlp.{s}_proj.weight") for s in ("gate", "up"))
@@ -204,6 +217,10 @@ def load_models(
     draft_profile="fp16",
 ):
     backend, dtype, device = engine
+    if mode != "single" and torch.cuda.device_count() < 2:
+        pytest.skip(
+            "TP/PP requires two visible GPUs; single-card qualification does not enable it"
+        )
     kw = dict(
         weight_mode="resident",
         dtype=dtype,
@@ -213,13 +230,17 @@ def load_models(
     )
     if mode == "pp":
         target = NativeQwenPipelineModel.from_q8(
-            target_weights, backend, pipeline_device="cuda:1", split_layer=2, **kw
+            target_weights,
+            native_runtime(backend),
+            pipeline_device="cuda:1",
+            split_layer=2,
+            **kw,
         )
     else:
         kw["projection_profile"] = profile
         if mode == "tp":
             kw.update(tensor_parallel_device="cuda:1", tensor_parallel_transport="host")
-        target = NativeQwenModel.from_q8(target_weights, backend, **kw)
+        target = NativeQwenModel.from_q8(target_weights, native_runtime(backend), **kw)
     try:
         return target, NativeQwenMTPModel.from_q8(
             target, mtp_weights, reserve_bytes=0, draft_projection_profile=draft_profile

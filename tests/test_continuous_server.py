@@ -1,4 +1,5 @@
 """Explicit loopback continuous admission, without a model/device dependency."""
+
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 import subprocess
@@ -13,7 +14,10 @@ from test_continuous_scheduler import Batch, reference
 
 def adapter(batch, policy="round-robin"):
     return load("serve_native_benchmark").ContinuousCompletionBatcher(
-        batch, token_budget=8, prefill_chunk_size=3, max_pending=64,
+        batch,
+        token_budget=8,
+        prefill_chunk_size=3,
+        max_pending=64,
         prefill_policy=policy,
     )
 
@@ -23,6 +27,7 @@ def test_concurrent_http_lanes_use_private_dynamic_slots_and_own_timing_scope(po
     batch = Batch(capacities=(64,) * 2)
     service = adapter(batch, policy)
     try:
+
         def run(i):
             prompt = [i % 31, (i + 1) % 31]
             result = service.submit(i, prompt, i % 6 + 1).result(timeout=3)
@@ -32,7 +37,12 @@ def test_concurrent_http_lanes_use_private_dynamic_slots_and_own_timing_scope(po
             assert result["native_timings"] is None
             assert "not native-only" in result["scheduler_timings_scope"]
             timing = result["scheduler_timings"]
-            assert 0 <= timing["queue_seconds"] <= timing["time_to_first_token_seconds"] <= timing["wall_seconds"]
+            assert (
+                0
+                <= timing["queue_seconds"]
+                <= timing["time_to_first_token_seconds"]
+                <= timing["wall_seconds"]
+            )
             return result["request_id"]
 
         with ThreadPoolExecutor(max_workers=8) as pool:
@@ -100,12 +110,22 @@ def test_only_explicit_continuous_validation_allows_long_chunked_prompts():
 
 
 def test_http_benchmark_does_not_treat_scheduler_timing_as_native_only_decode():
-    response = dict(native_timings=None, scheduler_timings=dict(
-        time_to_first_token_seconds=0.3, max_inter_token_seconds=0.2,
-    ))
-    waves = [dict(request_count=1, emitted_tokens=4, wall_seconds=2.0,
-                  server_cpu_core_seconds=1.2,
-                  requests=[dict(client_completion_seconds=1.9, response=response)])]
+    response = dict(
+        native_timings=None,
+        scheduler_timings=dict(
+            time_to_first_token_seconds=0.3,
+            max_inter_token_seconds=0.2,
+        ),
+    )
+    waves = [
+        dict(
+            request_count=1,
+            emitted_tokens=4,
+            wall_seconds=2.0,
+            server_cpu_core_seconds=1.2,
+            requests=[dict(client_completion_seconds=1.9, response=response)],
+        )
+    ]
     result = load("benchmark_completion_api").summarize(waves)[0]
     assert result["aggregate_complete_request_output_tps"] == 2.0
     assert "native_single_post_first_tps" not in result
@@ -113,20 +133,48 @@ def test_http_benchmark_does_not_treat_scheduler_timing_as_native_only_decode():
     assert "not HTTP streaming/native-only" in result["scheduler_timing_scope"]
 
 
-@pytest.mark.parametrize("flags", [
-    ["--mode", "pp"], ["--batch-target"], ["--batch-mtp"],
-    ["--mtp-artifact", "missing"], ["--adaptive-mtp"], ["--target-layer-graph"],
-    ["--mtp-depth", "2"], ["--prefill-chunk-size", "0"],
-    ["--prefill-chunk-size", "33"], ["--max-pending", "0"],
-    ["--max-pending", "65537"],
-])
-def test_unsupported_continuous_combinations_rejected_before_model_or_gpu(flags, tmp_path):
+@pytest.mark.parametrize(
+    "flags",
+    [
+        ["--mode", "pp"],
+        ["--batch-target"],
+        ["--batch-mtp"],
+        ["--mtp-checkpoint", "missing"],
+        ["--adaptive-mtp"],
+        ["--target-layer-graph"],
+        ["--mtp-depth", "2"],
+        ["--prefill-chunk-size", "0"],
+        ["--prefill-chunk-size", "33"],
+        ["--max-pending", "0"],
+        ["--max-pending", "65537"],
+    ],
+)
+def test_unsupported_continuous_combinations_rejected_before_model_or_gpu(
+    flags, tmp_path
+):
     tool = Path(__file__).resolve().parents[1] / "tools/serve_native_benchmark.py"
-    result = subprocess.run([
-        sys.executable, str(tool), "missing-model", "--library", "missing-library",
-        "--mode", "tp", "--port", "18033", "--ready-file", str(tmp_path / "ready.json"),
-        "--continuous-target", *flags,
-    ], capture_output=True, text=True, timeout=15)
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(tool),
+            "missing-model",
+            "--library",
+            "missing-library",
+            "--qwen-library",
+            "missing-qwen-library",
+            "--mode",
+            "tp",
+            "--port",
+            "18033",
+            "--ready-file",
+            str(tmp_path / "ready.json"),
+            "--continuous-target",
+            *flags,
+        ],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
     assert result.returncode == 2
     assert "Continuous target requires" in result.stderr
     assert "Traceback" not in result.stderr

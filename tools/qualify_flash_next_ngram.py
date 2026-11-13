@@ -19,8 +19,8 @@ import torch
 from torch import nn
 
 from collect_hf_headers import fetch_range
-from venturi.flash_next import FlashNextManifest
-from venturi.models.flash_next_ngram import NGramRequest
+from venturi.models.flash_next.flash_next import FlashNextManifest
+from venturi.models.flash_next.flash_next_ngram import NGramRequest
 
 
 UPSTREAM_SHA256 = "e57b3617e71e81ecb7e5ae3b420c45b5aee80d76a07aa8c88b797c2642f1f5df"

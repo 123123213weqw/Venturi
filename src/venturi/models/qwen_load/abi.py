@@ -1,13 +1,9 @@
 """ctypes ABI descriptors and native symbol binding for the Qwen runtime.
 
-Split out of qwen_native so the load-planning modules can share the exact
-descriptor definitions without importing the model class. qwen_native
-re-exports every name here, so historical import sites are unchanged.
+Shared by native model and load planning; callers import this module directly.
 """
 
 import ctypes as C
-
-from venturi.models.qwen.qwen_metadata import source_digest
 
 
 class Config(C.Structure):
@@ -85,8 +81,8 @@ class Layer(C.Structure):
     )
 
 
-def _bind(backend):
-    n = backend._native
+def _bind(runtime):
+    n = runtime._native
     ptr, integer, u64 = C.c_void_p, C.c_int, C.c_uint64
     signatures = {
         "venturi_qwen_sizes": ([C.POINTER(u64)], integer),
@@ -131,11 +127,7 @@ def _bind(backend):
     stage.argtypes = signatures["venturi_qwen_create"][0] + [integer, integer]
     stage.restype = ptr
     sizes = (u64 * 4)()
-    backend._check(n.venturi_qwen_sizes(sizes))
+    runtime._check(n.venturi_qwen_sizes(sizes))
     if list(sizes) != [C.sizeof(t) for t in (Config, Span, Matrix, Layer)]:
         raise RuntimeError("Native Qwen descriptor ABI mismatch; rebuild explicitly")
     return n
-
-
-def _digest(weights):
-    return source_digest(weights.config, weights.artifact.manifest)

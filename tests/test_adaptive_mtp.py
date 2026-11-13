@@ -4,7 +4,7 @@ import math
 
 import pytest
 
-from venturi.adaptive_mtp import AdaptiveMTPPolicy, MTPWorkload
+from venturi.models.qwen.adaptive_mtp import AdaptiveMTPPolicy, MTPWorkload
 
 
 def workload(count=1, prompt=23, budget=32, stopping=False):

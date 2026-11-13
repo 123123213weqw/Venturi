@@ -26,7 +26,7 @@ def selector_engine(request):
     if mode == "cpu":
         return TorchBackend(), dtype, "cpu"
     library = os.environ.get("VENTURI_SM70_LIBRARY") or os.environ.get(
-        "VENTURI_BLOCKS_LIBRARY"
+        "VENTURI_OPS_LIBRARY"
     )
     if not library:
         pytest.skip("Explicit native SM70/SM89 library required")

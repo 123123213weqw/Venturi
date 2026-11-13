@@ -1,5 +1,7 @@
 """Larger projection workspaces must preserve ragged private state and work."""
 
+from qwen_native_runtime import native_runtime
+
 import os
 
 import pytest
@@ -40,7 +42,7 @@ def test_large_budget_ragged_logits_cache_eos_reset_and_memory(
     if tp:
         opts.update(tensor_parallel_device="cuda:1", tensor_parallel_transport="host")
     models = [
-        NativeQwenModel.from_q8(weights, backend, max_tokens=n, **opts)
+        NativeQwenModel.from_q8(weights, native_runtime(backend), max_tokens=n, **opts)
         for n in [32, rows]
     ]
     batches = [m.create_batch([128] * 8) for m in models]

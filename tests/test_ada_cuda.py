@@ -66,7 +66,7 @@ def assert_numerics(actual, expected, dtype):
 )
 def test_general_shapes(backend, dtype, n, k, t):
     weight = make_weight(n, k)
-    plan = backend.prepare_linear(weight, tokens=t, dtype=dtype)
+    plan = backend.upload_linear(weight).prepare(tokens=t, dtype=dtype)
     x = torch.randn((t, k), dtype=dtype, device="cuda")
     out = plan.empty_output()
     assert plan.run(x, out=out) is out
@@ -87,13 +87,13 @@ def test_general_shapes(backend, dtype, n, k, t):
         (25600, 16),
     ],
 )
-def test_retained_mma_schedule(backend, k, t):
+def test_bf16_small_token_shapes(backend, k, t):
     weight = make_weight(80, k)
-    plan = backend.prepare_linear(weight, tokens=t, route="tuned")
+    plan = backend.upload_linear(weight).prepare(tokens=t)
     x = torch.randn((t, k), dtype=torch.bfloat16, device="cuda")
     out = plan.empty_output()
     plan.run(x, out=out)
-    assert plan.route == "ada-mma-small-t"
+    assert plan.route == "generic-simt"
     assert_numerics(out, oracle(weight, x), torch.bfloat16)
 
 
@@ -101,20 +101,20 @@ def test_retained_mma_schedule(backend, k, t):
     "n,k,t",
     [(32, 512, 1), (64, 1024, 3), (96, 3584, 9), (128, 4096, 17), (64, 8192, 33)],
 )
-def test_general_mma_dimensions(backend, n, k, t):
+def test_bf16_aligned_dimensions(backend, n, k, t):
     weight = make_weight(n, k)
-    plan = backend.prepare_linear(weight, tokens=t, route="mma")
+    plan = backend.upload_linear(weight).prepare(tokens=t)
     x = torch.randn((t, k), dtype=torch.bfloat16, device="cuda")
     out = plan.empty_output()
     plan.run(x, out=out)
-    assert plan.route == "ada-mma-general"
+    assert plan.route == "generic-simt"
     assert_numerics(out, oracle(weight, x), torch.bfloat16)
 
 
 @pytest.mark.parametrize("n,k,t", [(4096, 4096, 1), (4096, 4096, 17), (5120, 25600, 8)])
 def test_full_size_operator(backend, n, k, t):
     weight = make_weight(n, k)
-    plan = backend.prepare_linear(weight, tokens=t)
+    plan = backend.upload_linear(weight).prepare(tokens=t)
     x = torch.randn((t, k), dtype=torch.bfloat16, device="cuda")
     out = plan.empty_output()
     plan.run(x, out=out)
@@ -136,7 +136,7 @@ def test_full_size_operator(backend, n, k, t):
 )
 def test_stream_graph_and_no_allocations(backend, n, k, t, dtype, monkeypatch):
     weight = make_weight(n, k)
-    plan = backend.prepare_linear(weight, tokens=t, dtype=dtype)
+    plan = backend.upload_linear(weight).prepare(tokens=t, dtype=dtype)
     x = torch.randn((t, k), dtype=dtype, device="cuda")
     out = plan.empty_output()
     stream = torch.cuda.Stream()
@@ -171,7 +171,7 @@ def test_stream_graph_and_no_allocations(backend, n, k, t, dtype, monkeypatch):
 
 def test_owned_preparation_and_operand_errors(backend):
     weight = make_weight(128, 128)
-    plan = backend.prepare_linear(weight, tokens=2)
+    plan = backend.upload_linear(weight).prepare(tokens=2)
     expected_weight = make_weight(128, 128)
     weight.codes.zero_()
     weight.scales.zero_()
@@ -191,20 +191,20 @@ def test_owned_preparation_and_operand_errors(backend):
             plan.run(bad, out=out)
     with pytest.raises(ValueError, match="inference-only"):
         plan.run(x.requires_grad_(), out=out)
-    with pytest.raises(RuntimeError, match="tuned route"):
-        backend.prepare_linear(expected_weight, tokens=1, route="tuned")
+    with pytest.raises(ValueError, match="removed"):
+        backend.upload_linear(expected_weight).prepare(tokens=1, route='tuned')
 
 
 def test_alignment_frozen_plan_and_capture_preparation(backend):
     from dataclasses import FrozenInstanceError
 
     weight = make_weight(80, 5120)
-    plan = backend.prepare_linear(weight, tokens=8, route="tuned")
-    raw = torch.empty(8 * 5120 + 1, dtype=torch.bfloat16, device="cuda")
+    plan = backend.upload_linear(weight).prepare(tokens=8)
+    raw = torch.zeros(8 * 5120 + 1, dtype=torch.bfloat16, device="cuda")
     misaligned = raw[1:].view(8, 5120)
     out = plan.empty_output()
-    with pytest.raises(ValueError, match="16-byte alignment"):
-        plan.run(misaligned, out=out)
+    plan.run(misaligned, out=out)
+    assert_numerics(out, oracle(weight, misaligned), torch.bfloat16)
     with pytest.raises(FrozenInstanceError):
         plan.tokens = 9
     x = torch.zeros((8, 5120), dtype=torch.bfloat16, device="cuda")
@@ -216,14 +216,14 @@ def test_alignment_frozen_plan_and_capture_preparation(backend):
         with torch.cuda.graph(graph, stream=stream):
             plan.run(x, out=out)
             with pytest.raises(RuntimeError, match="outside CUDA graph capture"):
-                backend.prepare_linear(weight, tokens=8)
+                backend.upload_linear(weight).prepare(tokens=8)
     stream.synchronize()
 
 
 def test_cuda_source_ownership_and_shared_readonly_plan(backend):
     cpu = make_weight(128, 128)
     weight = Q4RowSplitWeight(cpu.codes.cuda(), cpu.scales.cuda(), 128)
-    plan = backend.prepare_linear(weight, tokens=2)
+    plan = backend.upload_linear(weight).prepare(tokens=2)
     weight.codes.zero_()
     weight.scales.zero_()
     x = torch.ones((2, 128), dtype=torch.bfloat16, device="cuda")

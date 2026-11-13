@@ -16,14 +16,14 @@ from qualify_flash_next_text import (
     text_references, make_text_oracle, run_case, request_trajectory, partial_trajectory,
     UPSTREAM_SHA256, CACHE_SHA256, SDPA_SHA256,
 )
-from venturi.models.flash_next_expert_cache import CachedExpertStore
-from venturi.models.flash_next_loader import load_weight_decoded_fp8_text
-from venturi.models.flash_next_ngram import PreparedNGramTable
+from venturi.models.flash_next.flash_next_expert_cache import CachedExpertStore
+from venturi.models.flash_next.flash_next_loader import load_weight_decoded_fp8_text
+from venturi.models.flash_next.flash_next_ngram import PreparedNGramTable
 
 
 
 def stream_stress(device):
-    from venturi.models.flash_next_moe import MoEGeometry, TensorExpertStore
+    from venturi.models.flash_next.flash_next_moe import MoEGeometry, TensorExpertStore
     geometry = MoEGeometry(128, 1, 1, 128, 128)
     source = TensorExpertStore(geometry, {0: (torch.ones(256, 128, device=device), torch.ones(128, 128, device=device))})
     torch.cuda.synchronize()

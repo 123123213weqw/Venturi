@@ -6,7 +6,7 @@ import sys
 
 import pytest
 
-from venturi.gguf_inventory import GgufArraySummary, GgufLimits, inspect_gguf
+from venturi.container.gguf.gguf_inventory import GgufArraySummary, GgufLimits, inspect_gguf
 
 
 def string(value):
@@ -117,7 +117,7 @@ def test_symlink_and_nonregular_refused(tmp_path):
 
 
 def test_only_header_is_read_not_payload(tmp_path,monkeypatch):
-    import venturi.gguf_inventory as module
+    import venturi.container.gguf.gguf_inventory as module
     p,header,size=write(tmp_path)
     original=module._HeaderReader.read;positions=[]
     def bounded(self,n):
@@ -135,7 +135,7 @@ def test_zero_tensor_metadata_file_does_not_round_header(tmp_path):
 
 
 def test_torch_free_import_in_fresh_process():
-    out=subprocess.check_output([sys.executable,'-c','import sys;import venturi.gguf_inventory;assert "torch" not in sys.modules;assert "safetensors" not in sys.modules'],text=True)
+    out=subprocess.check_output([sys.executable,'-c','import sys;import venturi.container.gguf.gguf_inventory;assert "torch" not in sys.modules;assert "safetensors" not in sys.modules'],text=True)
     assert out==''
 
 

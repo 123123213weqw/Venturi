@@ -254,12 +254,7 @@ def main():
                             ("torch", TorchBackend()),
                             ("native", native),
                         ]:
-                            plan = weights.prepare(
-                                backend,
-                                tokens=tokens,
-                                dtype=torch.bfloat16,
-                                device="cuda:0",
-                            )
+                            plan = weights.upload(backend, dtype=torch.bfloat16, device='cuda:0').prepare(tokens=tokens)
                             workspace = plan.empty_workspace()
                             output = torch.empty_like(x)
 

@@ -1,8 +1,8 @@
 import pytest
 import torch
 
-from venturi.models.engram_projection import reference_engram_from_rows
-from venturi.models.engram_residual import reference_engram_residual
+from venturi.models.deepseek.engram_projection import reference_engram_from_rows
+from venturi.models.deepseek.engram_residual import reference_engram_residual
 
 
 def inputs(dtype=torch.float32):

@@ -9,7 +9,7 @@ import statistics
 import torch
 
 from venturi import load_checkpoint
-from venturi.generation import generate_tokens
+from venturi.engine.generation import generate_tokens
 from venturi.models import GPTNeoXModel
 
 

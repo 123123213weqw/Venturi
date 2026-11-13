@@ -6,6 +6,8 @@ otherwise pass greedy target parity with zero acceptance. No performance claims
 come from these diagnostic calls or CPU snapshots.
 """
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 from contextlib import ExitStack
 import hashlib
@@ -26,10 +28,10 @@ from venturi.models import (
     NativeQwenModel,
     NativeQwenPipelineModel,
     NativeQwenMTPModel,
-    QwenQ8Weights,
+    QwenWeights,
     QwenMTPWeights,
 )  # noqa: E402
-from venturi.ninfer import NInferArtifact  # noqa: E402
+from venturi.container.safetensors import SafetensorsContainer  # noqa: E402
 from venturi.ops import CudaBackend  # noqa: E402
 
 
@@ -65,7 +67,7 @@ def block_comparison(actual, reference):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("artifact")
-    p.add_argument("--mtp-artifact", required=True)
+    p.add_argument("--mtp-checkpoint", required=True)
     p.add_argument("--library", required=True)
     p.add_argument("--source", required=True)
     p.add_argument("--cases", required=True)
@@ -96,6 +98,7 @@ def main():
         choices=("fp16", "q8-residual"),
         default="fp16",
     )
+    p.add_argument("--qwen-library", required=True)
     a = p.parse_args()
     if a.target_layer_graph and (
         a.draft_tokens != 2
@@ -117,8 +120,8 @@ def main():
     out = Path(a.output_directory)
     out.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(4)
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
-    mtp_weights = QwenMTPWeights.from_ninfer(NInferArtifact(a.mtp_artifact))
+    weights = QwenWeights.open(a.artifact)
+    mtp_weights = QwenMTPWeights.open(a.mtp_checkpoint)
     mtp_weights.validate_target(weights)
     report = dict(
         scope=__doc__,
@@ -126,9 +129,9 @@ def main():
         projection_profile=a.projection_profile,
         mtp_draft_projection_profile=a.mtp_draft_projection_profile,
         library_sha256=digest(a.library),
-        mtp_artifact_sha256=digest(a.mtp_artifact),
-        target_artifact_id=weights.artifact.artifact_id,
-        mtp_artifact_id=mtp_weights.artifact.artifact_id,
+        mtp_checkpoint_sha256=digest(a.mtp_checkpoint),
+        target_header_sha256=weights.source.header_sha256,
+        mtp_checkpoint_id=mtp_weights.source.header_sha256,
         block_reference=[],
         recurrence_reference=[],
         draft_tokens=a.draft_tokens,
@@ -150,12 +153,16 @@ def main():
     backend = CudaBackend(a.library)
     target = (
         NativeQwenPipelineModel.from_q8(
-            weights, backend, pipeline_device="cuda:1", split_layer=32, **kw
+            weights,
+            QwenRuntime(a.qwen_library, backend),
+            pipeline_device="cuda:1",
+            split_layer=32,
+            **kw,
         )
         if a.mode == "pp"
         else NativeQwenModel.from_q8(
             weights,
-            backend,
+            QwenRuntime(a.qwen_library, backend),
             tensor_parallel_device="cuda:1",
             tensor_parallel_transport="host",
             projection_profile=a.projection_profile,
@@ -172,7 +179,7 @@ def main():
             prior_target = json.loads(Path(a.prior_target_report).read_text())
             assert (
                 prior_target["completed"]
-                and prior_target["artifact_id"] == weights.artifact.artifact_id
+                and prior_target["header_sha256"] == weights.source.header_sha256
             )
             prior_target = prior_target["profiles"][a.projection_profile]["candidate"]
         if not a.skip_block_reference or a.draft_tokens == 2:
@@ -241,9 +248,9 @@ def main():
                         )
                     )
                     save()
-                    assert passed, (
-                        "Independent trained MTP hidden/KV reference gate failed"
-                    )
+                    assert (
+                        passed
+                    ), "Independent trained MTP hidden/KV reference gate failed"
                 if a.draft_tokens == 2:
                     session.reset()
                     cache = None
@@ -292,9 +299,11 @@ def main():
                                 position=state["position"],
                                 checks=checks,
                                 passed=passed,
-                                hidden_input="random normalized-state-shaped seed"
-                                if step == 0
-                                else "previous normalized native draft output; independently checked before reuse",
+                                hidden_input=(
+                                    "random normalized-state-shaped seed"
+                                    if step == 0
+                                    else "previous normalized native draft output; independently checked before reuse"
+                                ),
                             )
                         )
                         save()

@@ -2,7 +2,7 @@ import hashlib
 
 import pytest
 
-from venturi.model_assets import ModelAsset, ModelBundle, StorageBudget, plan_moe_storage
+from venturi.container.model_assets import ModelAsset, ModelBundle, StorageBudget, plan_moe_storage
 
 
 def asset(role="backbone", size=100, **changes):

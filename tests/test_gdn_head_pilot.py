@@ -10,10 +10,10 @@ import torch
 
 from qwen_gdn_reference import gdn_layer_oracle
 from test_qwen_model import hybrid_fixture
-from test_qwen_source import source_config, fixture_tensors, write_source
-from venturi.models import QwenQ8Weights
-from venturi.ninfer import NInferArtifact
-from venturi.qwen_export import export_qwen_q8
+from qwen_fixtures import source_config, fixture_tensors, write_source
+from venturi.models import QwenWeights
+from venturi.container.safetensors import SafetensorsContainer
+from venturi.models.qwen.qwen_export import export_qwen_q8
 
 
 def eligible_fixture(root):
@@ -42,8 +42,8 @@ def eligible_fixture(root):
             torch.float32 if name in ("A_log", "norm.weight") else torch.bfloat16
         )
     source = write_source(root / "eligible-source", raw=cfg, tensors=raw)
-    artifact = export_qwen_q8(source, root / "eligible.ninfer")
-    return QwenQ8Weights.from_ninfer(NInferArtifact(artifact["output"])), raw
+    artifact = export_qwen_q8(source, root / "eligible.safetensors")
+    return QwenWeights.open(artifact["output"]), raw
 
 
 @pytest.fixture
@@ -152,9 +152,9 @@ def validate(row, head):
     a, b = row.snapshot(), head.snapshot()
     for name in a:
         if name not in ("output", "projected"):
-            assert torch.equal(a[name].view(torch.uint8), b[name].view(torch.uint8)), (
-                name
-            )
+            assert torch.equal(
+                a[name].view(torch.uint8), b[name].view(torch.uint8)
+            ), name
     assert error(a["output"], b["output"]) < 5e-4
     assert error(a["projected"], b["projected"]) < 5e-4
     return a, b

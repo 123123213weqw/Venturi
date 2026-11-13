@@ -5,7 +5,7 @@ import torch
 from torch.nn.attention import SDPBackend, sdpa_kernel
 
 from test_flash_next_attention import inputs, module
-from venturi.models.flash_next_attention import FlashNextQSAAttention
+from venturi.models.flash_next.flash_next_attention import FlashNextQSAAttention
 
 
 @pytest.mark.parametrize("dtype", [torch.float32, torch.bfloat16])

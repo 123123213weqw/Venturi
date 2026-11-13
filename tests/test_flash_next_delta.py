@@ -3,7 +3,7 @@
 import pytest
 import torch
 
-from venturi.models.flash_next_delta import SigmoidGatedRMSNorm, gated_delta_rule
+from venturi.models.flash_next.flash_next_delta import SigmoidGatedRMSNorm, gated_delta_rule
 
 
 def fixture(length=7, dtype=torch.float32):

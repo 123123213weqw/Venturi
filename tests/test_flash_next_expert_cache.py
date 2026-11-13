@@ -6,8 +6,8 @@ import time
 import pytest
 import torch
 
-from venturi.models.flash_next_expert_cache import CachedExpertStore
-from venturi.models.flash_next_moe import MoEGeometry, TensorExpertStore
+from venturi.models.flash_next.flash_next_expert_cache import CachedExpertStore
+from venturi.models.flash_next.flash_next_moe import MoEGeometry, TensorExpertStore
 
 
 def source():

@@ -16,9 +16,9 @@ from types import SimpleNamespace
 
 import torch
 
-from venturi.models.engram_hash import EngramHashSpec,EngramHashState,bind_engram_hash_metadata
-from venturi.gguf_metadata import read_verified_integer_metadata
-from venturi.model_assets import ModelAsset
+from venturi.models.deepseek.engram_hash import EngramHashSpec, EngramHashState, bind_engram_hash_metadata
+from venturi.container.gguf.gguf_metadata import read_verified_integer_metadata
+from venturi.container.model_assets import ModelAsset
 
 
 def bind_fixture(spec):

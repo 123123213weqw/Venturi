@@ -1,3 +1,6 @@
+> Current Qwen storage/API contract: [direct safetensors](qwen-safetensors.md).
+> Historical measurements below retain their original scope; `.ninfer` is no longer a supported input.
+
 # DeepSeek V4.1 / single 4090D overnight qualification
 
 ## Native-only policy update (2026-10-28)

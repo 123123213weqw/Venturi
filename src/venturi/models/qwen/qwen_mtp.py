@@ -1,11 +1,12 @@
 """Explicit Qwen3.5 single-block MTP checkpoint schema, separate from the target."""
 
 from dataclasses import dataclass
+import json
+from venturi.container.safetensors import SafetensorsContainer
 
 from venturi.container.checkpoint import CheckpointError
-from venturi.ninfer import NInferArtifact
 from venturi.models.qwen.qwen_source import QwenSourceBinding, QwenSourcePlan
-from venturi.models.qwen.qwen_weights import QwenQ8Weights
+from venturi.models.qwen.qwen_weights import QwenWeights
 
 
 @dataclass(frozen=True)
@@ -90,51 +91,28 @@ class QwenMTPPlan:
 
 
 @dataclass(frozen=True)
-class QwenMTPWeights(QwenQ8Weights):
+class QwenMTPWeights(QwenWeights):
     @classmethod
-    def from_ninfer(cls, artifact):
-        if not isinstance(artifact, NInferArtifact):
-            raise TypeError("Expected validated NInferArtifact")
-        parts = artifact.manifest["components"]
-        if "mtp" not in parts or parts["mtp"].get("target") != "text":
-            raise ValueError(
-                "Expected separate MTP artifact with external target vocabulary"
-            )
-        plan = QwenMTPPlan.from_config(parts["text"]["config"])
-        if parts["mtp"]["config"] != plan.config:
-            raise ValueError("MTP component config mismatch")
-        expected = {s.binding: s for s in plan.bindings}
-        if artifact.manifest["bindings"].keys() != expected.keys():
-            raise ValueError("MTP requires exactly all 15 direct role bindings")
-        seen = set()
-        for name, spec in expected.items():
-            binding = artifact.manifest["bindings"][name]
-            if binding.keys() != {"object"} or binding["object"] in seen:
-                raise ValueError("MTP bindings must be direct and untied")
-            seen.add(binding["object"])
-            obj = artifact.objects[binding["object"]]
-            if (
-                obj["shape"] != list(spec.shape)
-                or obj["format"] != spec.format
-                or obj["layout"]
-                != (
-                    "row_split_k128_v1"
-                    if spec.format == "q8_g32_fp16"
-                    else "contiguous_le_v1"
-                )
-            ):
-                raise ValueError(f"MTP role shape/format/layout mismatch: {name}")
-        return cls(artifact, plan)
+    def open(cls, path):
+        source = SafetensorsContainer(path)
+        meta = source.metadata()
+        if (
+            meta.get("venturi.component") != "mtp"
+            or meta.get("venturi.matrix_format") != "q8_g32_fp16"
+        ):
+            raise ValueError("Expected a separate Q8 MTP safetensors checkpoint")
+        plan = QwenMTPPlan.from_config(json.loads(meta["venturi.config"]))
+        return cls._admit(source, plan, "mtp")
 
     def validate_target(self, target):
         if (
-            not isinstance(target, QwenQ8Weights)
+            not isinstance(target, QwenWeights)
             or isinstance(target, QwenMTPWeights)
             or target.config != self.config
         ):
             raise ValueError("MTP/target configuration mismatch")
-        a = self.artifact.manifest.get("provenance", {}).get("source")
-        b = target.artifact.manifest.get("provenance", {}).get("source")
+        a = self.provenance
+        b = target.provenance
         if not a or a != b:
             raise ValueError(
                 "MTP and target must derive from identical verified source files/revision"

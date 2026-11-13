@@ -100,22 +100,21 @@ def test_reject_bad_storage(case):
 
 
 def test_preparation_contract_before_cuda():
+    from venturi.ops.ada import ResidentQ4Weight
     backend = object.__new__(AdaBackend)
     weight = Q4RowSplitWeight.from_codes(
         torch.zeros(1, 1, dtype=torch.int8), torch.ones(1, 1, dtype=torch.float16)
     )
     with pytest.raises(TypeError, match="Q4RowSplitWeight"):
-        backend.prepare_linear(object(), tokens=1)
-    for kwargs in [
-        dict(tokens=0),
-        dict(tokens=True),
-        dict(tokens=262141),
-        dict(tokens=1, dtype=torch.float32),
-        dict(tokens=1, route="awq"),
-        dict(tokens=1, device="cpu"),
-    ]:
+        backend.upload_linear(object())
+    with pytest.raises(ValueError):
+        backend.upload_linear(weight, device="cpu")
+    resident = ResidentQ4Weight(backend, weight)
+    for kwargs in [dict(tokens=0), dict(tokens=True), dict(tokens=262141),
+                   dict(tokens=1,dtype=torch.float32), dict(tokens=1,route="awq"),
+                   dict(tokens=1,route="tuned"), dict(tokens=1,route="mma")]:
         with pytest.raises(ValueError):
-            backend.prepare_linear(weight, **kwargs)
+            resident.prepare(**kwargs)
 
 
 def test_build_is_explicit_and_linux_only(monkeypatch, tmp_path):

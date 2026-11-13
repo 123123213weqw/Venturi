@@ -110,7 +110,7 @@ def test_cpu_index_is_normalized(make_checkpoint):
 
 def test_inspection_does_not_materialize_tensors(make_checkpoint, monkeypatch):
     directory = make_checkpoint()
-    module = importlib.import_module("venturi.checkpoint")
+    module = importlib.import_module("venturi.container.checkpoint")
     original = module.safe_open
 
     class HeaderOnly:
@@ -275,7 +275,7 @@ def test_cuda_unavailable_does_not_fallback(make_checkpoint, monkeypatch):
 
 
 def test_missing_siphon_has_install_message(make_checkpoint, monkeypatch):
-    from venturi.loader import _siphon_tensors
+    from venturi.container.loader import _siphon_tensors
 
     monkeypatch.setitem(sys.modules, "siphon", None)
     checkpoint = inspect_checkpoint(make_checkpoint())
@@ -284,7 +284,7 @@ def test_missing_siphon_has_install_message(make_checkpoint, monkeypatch):
 
 
 def test_unavailable_dtype_fails_before_cuda(make_checkpoint, monkeypatch):
-    module = importlib.import_module("venturi.loader")
+    module = importlib.import_module("venturi.container.loader")
 
     def unsupported(code):
         raise ValueError(f"Installed PyTorch does not support {code}")
@@ -302,7 +302,7 @@ def test_unavailable_dtype_fails_before_cuda(make_checkpoint, monkeypatch):
     "requested", [None, "MMAP", "mmap", "BUFFERED", "URING,MMAP", "invalid"]
 )
 def test_siphon_adapter_contract(make_checkpoint, weights, monkeypatch, requested):
-    from venturi.loader import _siphon_tensors
+    from venturi.container.loader import _siphon_tensors
 
     calls = []
 
@@ -360,7 +360,7 @@ def test_siphon_adapter_contract(make_checkpoint, weights, monkeypatch, requeste
 def test_runtime_validation_closes_reader(
     make_checkpoint, weights, monkeypatch, mutation
 ):
-    module = importlib.import_module("venturi.loader")
+    module = importlib.import_module("venturi.container.loader")
     items = list(weights.items())
     if mutation == "missing":
         items.pop()

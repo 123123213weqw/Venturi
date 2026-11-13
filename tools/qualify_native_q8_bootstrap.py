@@ -18,7 +18,7 @@ from gpu_telemetry import FIELDS, telemetry
 from qualify_checkpoint_gdn import bf16_check, comparison, timed_pair, write
 from gpu_telemetry import idle_gpu
 from venturi.models import GDNFrontendWeights
-from venturi.ninfer import NInferArtifact
+from venturi.models.qwen.qwen_weights import QwenWeights
 from venturi.ops import CudaBackend, Q8RowSplitWeight, TorchBackend
 
 
@@ -48,7 +48,7 @@ def oracle_module():
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("checkpoint")
-    parser.add_argument("--blocks-library", required=True)
+    parser.add_argument("--ops-library", required=True)
     parser.add_argument("--output-directory", required=True)
     parser.add_argument("--seconds", type=float, default=2.0)
     parser.add_argument("--skip-projection", action="store_true")
@@ -59,18 +59,19 @@ def main(argv=None):
     out = Path(args.output_directory)
     out.mkdir(parents=True, exist_ok=False)
     write(out / "background.json", {"compute_processes": idle_gpu()})
-    artifact = NInferArtifact(args.checkpoint)
-    weights = GDNFrontendWeights.from_ninfer(artifact, layer=0)
+    admitted = QwenWeights.open(args.checkpoint)
+    artifact = admitted.source
+    weights = GDNFrontendWeights.from_weights(admitted, layer=0)
     backends = {
-        "native": CudaBackend(args.blocks_library),
+        "native": CudaBackend(args.ops_library),
         "torch-reference": TorchBackend(),
     }
     constants = {name: weights.upload(backend) for name, backend in backends.items()}
     oracle = oracle_module()
-    cfg = artifact.manifest["components"]["text"]["config"]
+    cfg = admitted.config
     report = dict(
         scope=__doc__,
-        artifact_id=artifact.artifact_id,
+        header_sha256=artifact.header_sha256,
         cuda=torch.version.cuda,
         torch=torch.__version__,
         gpu=torch.cuda.get_device_name(),

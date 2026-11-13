@@ -15,13 +15,13 @@ class Command:
 COMMANDS = (
     Command(
         "flash-next",
-        "venturi.flash_next_cli",
+        "venturi.models.flash_next.flash_next_cli",
         "Experimental Qwen4-Exp inspection or floating reference generation",
         True,
     ),
     Command(
         "qwen-native",
-        "venturi.qwen_native_cli",
+        "venturi.models.qwen.qwen_native_cli",
         "Owned Q8 C++/CUDA runtime: inspect or explicit greedy generation",
         True,
     ),

@@ -7,8 +7,8 @@ from pathlib import Path
 import resource
 from time import perf_counter
 import torch
-from venturi.models import QwenQ8Weights
-from venturi.ninfer import NInferArtifact
+from venturi.models import QwenWeights
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend, Q8RowSplitWeight
 from venturi.ops.q8_fused import prepare_q8_fused
 
@@ -25,7 +25,7 @@ def main():
     p.add_argument("--output", required=True)
     a = p.parse_args()
     torch.set_num_threads(4)
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
+    weights = QwenWeights.open(a.artifact)
     role = next(
         s.binding for s in weights.plan.bindings if s.binding.endswith("/mlp/gate")
     )

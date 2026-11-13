@@ -11,9 +11,9 @@ from torch.nn.attention import SDPBackend, sdpa_kernel
 
 from test_flash_next_text import assert_states_equal, module, table_fixture
 from test_flash_next import raw_config
-from venturi.checkpoint import inspect_checkpoint
-from venturi.models.flash_next_loader import load_floating_text, plan_floating_text
-from venturi.models.flash_next_request import FlashNextRequest
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_loader import load_floating_text, plan_floating_text
+from venturi.models.flash_next.flash_next_request import FlashNextRequest
 
 
 OPTIONS = dict(max_core_bytes=2**20, max_expert_bytes=2**20, max_sequence=128, attention_backend='sdpa')
@@ -76,7 +76,7 @@ def test_complete_floating_binding_and_transaction_are_exact(tmp_path, dtype):
 
 def test_preflight_metadata_only_and_core_does_not_read_expert_or_table_payloads(tmp_path, monkeypatch):
     cp, _, _ = fixture(tmp_path)
-    import venturi.models.flash_next_loader as loader
+    import venturi.models.flash_next.flash_next_loader as loader
     original, reads = loader.safe_open, []
     class Reader:
         def __init__(self, *args, **kwargs):
@@ -104,7 +104,7 @@ def test_preflight_metadata_only_and_core_does_not_read_expert_or_table_payloads
 
 def test_preflight_all_required_weights_and_budgets_before_payload_reads(tmp_path, monkeypatch):
     cp, _, _ = fixture(tmp_path)
-    import venturi.models.flash_next_loader as loader
+    import venturi.models.flash_next.flash_next_loader as loader
     def forbidden(*args, **kwargs):
         raise AssertionError('payload access before successful metadata admission')
     monkeypatch.setattr(loader, 'safe_open', forbidden)

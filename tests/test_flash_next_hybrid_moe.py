@@ -5,11 +5,8 @@ import pytest
 import torch
 from torch.nn import functional as F
 
-from venturi.models.flash_next_hybrid_moe import (
-    ColdExpertPool, FixedHotBank, HybridExpertDispatch, RouteCounter, cpu_expert, bind_fixed_expert_policy,
-    CPUDecodedExpertCache,
-)
-from venturi.models.flash_next_moe import MoEGeometry, TensorExpertStore, routed_experts
+from venturi.models.flash_next.flash_next_hybrid_moe import ColdExpertPool, FixedHotBank, HybridExpertDispatch, RouteCounter, cpu_expert, bind_fixed_expert_policy, CPUDecodedExpertCache
+from venturi.models.flash_next.flash_next_moe import MoEGeometry, TensorExpertStore, routed_experts
 
 
 @pytest.fixture
@@ -101,8 +98,8 @@ def test_admission_and_route_validation(setup):
 def test_full_fixture_binding_close_and_default_path_unchanged(tmp_path, setup,cpu_compute):
     from test_flash_next_fp8_loader import fixture
     from test_flash_next_loader import OPTIONS
-    from venturi.models.flash_next_loader import load_weight_decoded_fp8_text
-    from venturi.models.flash_next_request import FlashNextRequest
+    from venturi.models.flash_next.flash_next_loader import load_weight_decoded_fp8_text
+    from venturi.models.flash_next.flash_next_request import FlashNextRequest
     from torch.nn.attention import sdpa_kernel, SDPBackend
     cp,_,_=fixture(tmp_path,execution_dtype=torch.float16)
     loaded=load_weight_decoded_fp8_text(cp,**dict(OPTIONS,execution_dtype=torch.float16))

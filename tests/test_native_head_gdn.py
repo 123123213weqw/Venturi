@@ -1,5 +1,7 @@
 """Distributed GDN caches are request-owned, including rollback and diagnostics."""
 
+from qwen_native_runtime import native_runtime
+
 import copy
 import os
 from types import SimpleNamespace
@@ -10,13 +12,13 @@ import torch
 
 from test_qwen_model import hybrid_fixture, independent_forward
 from test_qwen_mtp import mtp_fixture, load_models
-from test_qwen_source import write_source
+from qwen_fixtures import write_source
 from test_qwen_tensor_parallel import same_state
-from venturi.models import NativeQwenModel, QwenQ8Weights, QwenMTPWeights
-from venturi.models.qwen_native import _head_gdn_workspace
-from venturi.ninfer import NInferArtifact
+from venturi.models import NativeQwenModel, QwenWeights, QwenMTPWeights
+from venturi.models.qwen_load.budget import _head_gdn_workspace
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
-from venturi.qwen_export import export_qwen_q8, export_qwen_mtp_q8
+from venturi.models.qwen.qwen_export import export_qwen_q8, export_qwen_mtp_q8
 
 PROFILE = "q8-residual-column-mlp-head-gdn"
 
@@ -57,11 +59,11 @@ def eligible_mtp(root, *, tied=False):
         raw=dict(model_type="qwen3_5", text_config=cfg, tie_word_embeddings=tied),
         tensors=raw,
     )
-    target = QwenQ8Weights.from_ninfer(
-        NInferArtifact(export_qwen_q8(source, root / "target.ninfer")["output"])
+    target = QwenWeights.open(
+        export_qwen_q8(source, root / "target.safetensors")["output"]
     )
-    draft = QwenMTPWeights.from_ninfer(
-        NInferArtifact(export_qwen_mtp_q8(source, root / "draft.ninfer")["output"])
+    draft = QwenMTPWeights.open(
+        export_qwen_mtp_q8(source, root / "draft.safetensors")["output"]
     )
     return target, draft, raw, source
 
@@ -78,7 +80,7 @@ def load(weights, engine, rows=8, profile=PROFILE, *, metadata_mode="checked-jso
     backend, dtype, device = engine
     return NativeQwenModel.from_q8(
         weights,
-        backend,
+        native_runtime(backend),
         weight_mode="resident",
         dtype=dtype,
         device=device,
@@ -92,15 +94,15 @@ def load(weights, engine, rows=8, profile=PROFILE, *, metadata_mode="checked-jso
 
 
 def test_head_profile_fails_closed_before_cuda_access():
-    weights, backend = object.__new__(QwenQ8Weights), object.__new__(CudaBackend)
+    weights, backend = object.__new__(QwenWeights), object.__new__(CudaBackend)
     backend._native = SimpleNamespace()
     kw = dict(weight_mode="resident", dtype=torch.float16, projection_profile=PROFILE)
     with pytest.raises(ValueError, match="two-device host TP"):
-        NativeQwenModel.from_q8(weights, backend, **kw)
+        NativeQwenModel.from_q8(weights, native_runtime(backend), **kw)
     with pytest.raises(RuntimeError, match="exports absent"):
         NativeQwenModel.from_q8(
             weights,
-            backend,
+            native_runtime(backend),
             tensor_parallel_device="cuda:1",
             tensor_parallel_transport="host",
             **kw,
@@ -108,7 +110,7 @@ def test_head_profile_fails_closed_before_cuda_access():
     with pytest.raises(ValueError, match="complete resident FP16"):
         NativeQwenModel.from_q8(
             weights,
-            backend,
+            native_runtime(backend),
             tensor_parallel_device="cuda:1",
             tensor_parallel_transport="host",
             **{**kw, "weight_mode": "streaming"},

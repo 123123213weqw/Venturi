@@ -15,7 +15,7 @@ from torch import nn
 from torch.nn import functional as F
 
 from qualify_flash_next_qsa import UPSTREAM_SHA256
-from venturi.models.flash_next_delta import SigmoidGatedRMSNorm, gated_delta_rule
+from venturi.models.flash_next.flash_next_delta import SigmoidGatedRMSNorm, gated_delta_rule
 
 
 def oracle(path):

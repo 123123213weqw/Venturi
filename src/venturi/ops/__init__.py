@@ -30,7 +30,6 @@ _EXPORTS = {
     "PreparedGDNGates": ".state_space",
     "ResidentGatedRMSNorm": ".state_space",
     "PreparedGatedRMSNorm": ".state_space",
-    "NInferVocabulary": ".vocabulary",
     "Q8VocabularyWeights": ".vocabulary",
     "ResidentQ8Vocabulary": ".vocabulary",
     "PreparedEmbedding": ".embedding",

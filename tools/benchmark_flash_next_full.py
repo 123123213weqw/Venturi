@@ -18,13 +18,13 @@ import torch
 from torch.nn.attention import SDPBackend, sdpa_kernel
 
 from flash_next_full_oracle import make_full_oracle, run_oracle_step, assert_full_state
-from venturi.checkpoint import inspect_checkpoint
-from venturi.flash_next_generation import generate_flash_next_text, resolve_flash_next_eos
-from venturi.generation import LocalTokenizer
-from venturi.models.flash_next_expert_policy import bind_fp8_expert_policy
-from venturi.models.flash_next_loader import load_weight_decoded_fp8_text
-from venturi.models.flash_next_ngram import PreparedNGramTable
-from venturi.models.flash_next_request import FlashNextRequest
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_generation import generate_flash_next_text, resolve_flash_next_eos
+from venturi.engine.generation import LocalTokenizer
+from venturi.models.flash_next.flash_next_expert_policy import bind_fp8_expert_policy
+from venturi.models.flash_next.flash_next_loader import load_weight_decoded_fp8_text
+from venturi.models.flash_next.flash_next_ngram import PreparedNGramTable
+from venturi.models.flash_next.flash_next_request import FlashNextRequest
 
 
 def write(path, value):

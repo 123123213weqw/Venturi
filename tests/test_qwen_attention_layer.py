@@ -8,12 +8,12 @@ import torch
 
 from attention_reference import attention_reference
 from qwen_gdn_reference import q8_source_oracle
-from test_qwen_source import fixture_tensors, source_config, write_source
+from qwen_fixtures import fixture_tensors, source_config, write_source
 from test_qwen_attention_ops import oracle as qk_oracle
-from venturi.models import QwenQ8Weights, ResidentQwenAttentionLayer
-from venturi.ninfer import NInferArtifact
+from venturi.models import QwenWeights, ResidentQwenAttentionLayer
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend, TorchBackend
-from venturi.qwen_export import export_qwen_q8
+from venturi.models.qwen.qwen_export import export_qwen_q8
 
 
 def fixture_weights(root):
@@ -40,8 +40,8 @@ def fixture_weights(root):
             torch.randn(tensor.shape, generator=gen, dtype=torch.float64) * scale
         ).bfloat16()
     source = write_source(root / "source", raw=cfg, tensors=raw)
-    artifact = export_qwen_q8(source, root / "q8.ninfer")
-    return QwenQ8Weights.from_ninfer(NInferArtifact(artifact["output"])), raw, c
+    artifact = export_qwen_q8(source, root / "q8.safetensors")
+    return QwenWeights.open(artifact["output"]), raw, c
 
 
 @pytest.fixture(params=["fp64", "cpu-bf16", "cuda"])
@@ -52,7 +52,7 @@ def engine(request):
             torch.float64 if request.param == "fp64" else torch.bfloat16,
             "cpu",
         )
-    lib = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    lib = os.environ.get("VENTURI_OPS_LIBRARY")
     if not lib:
         pytest.skip("explicit native library required")
     return CudaBackend(lib), torch.bfloat16, "cuda:0"
@@ -294,7 +294,7 @@ def test_preflight_owner_alias_view_and_closed_plan_before_cache_mutation(
 
 @pytest.mark.cuda
 def test_layer_capture_no_allocations_views_fallback_and_commit(tmp_path, monkeypatch):
-    lib = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    lib = os.environ.get("VENTURI_OPS_LIBRARY")
     if not lib:
         pytest.skip("explicit native library required")
     weights, _, _ = fixture_weights(tmp_path)
@@ -379,7 +379,7 @@ def test_submission_failure_poisons_cache_without_advancing_visibility(
 
 @pytest.mark.cuda
 def test_independent_request_caches_stream_ownership_and_graph_views(tmp_path):
-    lib = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    lib = os.environ.get("VENTURI_OPS_LIBRARY")
     if not lib:
         pytest.skip("explicit native library required")
     weights, _, _ = fixture_weights(tmp_path)

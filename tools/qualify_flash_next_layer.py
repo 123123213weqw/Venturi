@@ -20,7 +20,7 @@ from qualify_flash_next_ple import reference as ple_reference
 from qualify_flash_next_qsa import UPSTREAM_SHA256, positions
 from qualify_flash_next_sdpa import reference as sdpa_reference, SDPA_SHA256
 from qualify_flash_next_gdn import CACHE_SHA256
-from venturi.models.flash_next_gdn import GDNState
+from venturi.models.flash_next.flash_next_gdn import GDNState
 
 
 def references(modeling, cache, sdpa):

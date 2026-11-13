@@ -66,7 +66,7 @@ def test_resident_binding_rejects_invalid_shape_without_allocating():
 @pytest.mark.cuda
 @pytest.mark.parametrize("q4", [False, True])
 def test_cuda_resident_shapes_stream_graph_and_handle_independence(q4, monkeypatch):
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     ada_library = os.environ.get("VENTURI_ADA_LIBRARY")
     if not library or (q4 and not ada_library):
         pytest.skip("explicit native libraries required")
@@ -113,7 +113,7 @@ def test_cuda_resident_shapes_stream_graph_and_handle_independence(q4, monkeypat
 
 @pytest.mark.cuda
 def test_cuda_resident_binding_capture_is_rejected():
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native library required")
     resident = CudaBackend(library).upload_linear(
@@ -180,7 +180,7 @@ def test_blocks_checks_abi_before_binding_new_symbols(tmp_path, monkeypatch, old
 @pytest.mark.parametrize("q4", [False, True])
 def test_shared_weights_overlapping_streams_independent_workspaces(q4):
     library, ada = (
-        os.environ.get("VENTURI_BLOCKS_LIBRARY"),
+        os.environ.get("VENTURI_OPS_LIBRARY"),
         os.environ.get("VENTURI_ADA_LIBRARY"),
     )
     if not library or (q4 and not ada):

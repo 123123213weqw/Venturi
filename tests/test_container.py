@@ -1,4 +1,5 @@
 """Container layer tests: SafetensorsContainer."""
+
 import json
 import struct
 import tempfile
@@ -9,7 +10,9 @@ import torch
 from safetensors.torch import save_file
 
 from venturi.container import (
-    ByteSpan, SafetensorsContainer, WeightContainer, TensorInfo,
+    ByteSpan,
+    SafetensorsContainer,
+    TensorInfo,
 )
 
 
@@ -29,12 +32,14 @@ def _make_quantized_safetensors(tmp_path, n=64, k=128, bits=4):
         "layer.0.norm.weight": norm,
     }
     metadata = {
-        "quantization_config": json.dumps({
-            "quant_method": "venturi",
-            "bits": bits,
-            "group_size": group,
-            "format": f"q{bits}_g{group}_fp16",
-        }),
+        "quantization_config": json.dumps(
+            {
+                "quant_method": "venturi",
+                "bits": bits,
+                "group_size": group,
+                "format": f"q{bits}_g{group}_fp16",
+            }
+        ),
     }
     path = tmp_path / "quantized.safetensors"
     save_file(tensors, str(path), metadata=metadata)
@@ -87,7 +92,7 @@ class TestSafetensorsContainer:
         c = SafetensorsContainer(path)
         spans = c.byte_spans()
 
-        assert len(spans) >= 2  # at least codes + norm
+        assert len(spans) == 1  # one physical safetensors data section
         for span in spans:
             assert span.path == str(path)
             assert span.bytes > 0
@@ -100,6 +105,7 @@ class TestSafetensorsContainer:
     def test_payload_round_trip(self, tmp_path):
         """Verify read_bytes returns the same data as safetensors.torch.load."""
         from safetensors.torch import load_file
+
         path = _make_quantized_safetensors(tmp_path)
         c = SafetensorsContainer(path)
 
@@ -109,11 +115,3 @@ class TestSafetensorsContainer:
 
         actual = c.read_bytes("layer.0.attn.q.codes", 0, codes.numel())
         assert actual == expected
-
-
-class TestWeightContainerProtocol:
-    def test_satisfies_protocol(self, tmp_path):
-        path = _make_quantized_safetensors(tmp_path)
-        c = SafetensorsContainer(path)
-        # Protocol check (runtime_checkable)
-        assert isinstance(c, WeightContainer)

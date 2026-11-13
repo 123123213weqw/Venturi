@@ -12,11 +12,11 @@ from dataclasses import dataclass
 
 import torch
 
-from ...ninfer import row_geometry
 from ...ops import DenseWeight
-from venturi.models.gdn_frontend import GDNFrontendWeights
-from ... import codecs
-from venturi.models.qwen_load.abi import Config, Layer, Matrix, Span, _bind, _digest
+from venturi.models.qwen.gdn_frontend import GDNFrontendWeights
+from venturi.models.qwen.qwen_metadata import source_digest
+from venturi.quantization import codecs as codecs
+from venturi.models.qwen_load.abi import Config, Layer, Matrix, Span, _bind
 
 
 @dataclass
@@ -38,28 +38,19 @@ def build_descriptors(spec, owned, cfg, budget):
     backend, target, dtype = spec.backend, spec.target, spec.dtype
     max_tokens = spec.max_tokens
     peer = spec.tensor_parallel_device
-    native = _bind(backend)
+    native = _bind(spec.runtime)
     profiled_create = spec.profiled_create
     if profiled_create is not None:
         profiled_create.argtypes = native.venturi_qwen_create.argtypes + (
             [C.c_int] if spec.experimental_flags or not spec.column_profile else []
         )
         profiled_create.restype = C.c_void_p
-    initial_digest = _digest(owned)
-    initial_stamps = tuple(
-        (
-            f.path.stat().st_dev,
-            f.path.stat().st_ino,
-            f.path.stat().st_size,
-            f.path.stat().st_mtime_ns,
-            f.path.stat().st_ctime_ns,
-        )
-        for f in owned.artifact.files
-    )
+    initial_digest = source_digest(owned)
+    initial_stamps = (owned.source.stamp,)
     keep = []
 
     def norm(role):
-        upload = backend.upload_rmsnorm if cfg.get("venturi_gguf_q8_0") else backend.upload_zero_centered_rmsnorm
+        upload = backend.upload_zero_centered_rmsnorm
         r = upload(
             owned.read_float(role),
             dtype=dtype,
@@ -70,21 +61,21 @@ def build_descriptors(spec, owned, cfg, budget):
         return r.storage_tensors[0].data_ptr()
 
     def matrix(role):
-        obj = owned._object(role)
-        codec = codecs.codec_for(obj["format"])
-        if codec.quantized:
-            allowed = codecs.EXECUTION_QUALIFIED.get(
-                torch.cuda.get_device_capability(spec.target), set()
+        desc = owned.descriptor(role)
+        codec = codecs.codec_for(desc.format)
+        if not codec.quantized or desc.format not in codecs.EXECUTION_QUALIFIED.get(
+            torch.cuda.get_device_capability(spec.target), set()
+        ):
+            raise ValueError(
+                "Matrix codec is not execution-qualified on this architecture: "
+                + desc.format
             )
-            if obj["format"] not in allowed:
-                raise ValueError(
-                    f"Native matrix descriptor requires an execution-qualified "
-                    f"codec on this architecture, got {obj['format']!r}; "
-                    f"qualified here: {sorted(allowed)}"
-                )
-        bits, group, groups, high_offset, scales_offset, _ = row_geometry(obj["shape"], obj["format"])
-        high_abs = obj["offset"] + high_offset if bits > 4 else 0
-        return Matrix(obj["offset"], high_abs, obj["offset"] + scales_offset, *obj["shape"])
+        return Matrix(
+            owned.plane_offset(role, "codes"),
+            owned.plane_offset(role, "high") if codec.high_plane else 0,
+            owned.plane_offset(role, "scales"),
+            *desc.shape,
+        )
 
     layers = (Layer * cfg["num_hidden_layers"])()
     for i, kind in enumerate(cfg["layer_types"]):
@@ -92,7 +83,7 @@ def build_descriptors(spec, owned, cfg, budget):
         prefix = f"text/layers/{i}/"
         layer_desc.post = norm(prefix + "post_attention_norm")
         if kind == "linear_attention":
-            f = GDNFrontendWeights.from_ninfer(owned.artifact, layer=i).upload(
+            f = GDNFrontendWeights.from_weights(owned, layer=i).upload(
                 backend, dtype=dtype, device=target, epsilon=cfg["rms_norm_eps"]
             )
             keep.append(f)
@@ -144,9 +135,7 @@ def build_descriptors(spec, owned, cfg, budget):
             layer_desc.matrix[j] = matrix(prefix + "mlp/" + name)
     final_norm = norm("text/output_norm")
     matrix_format = next(
-        s.format
-        for s in owned.plan.bindings
-        if s.binding == "text/token_embedding"
+        s.format for s in owned.plan.bindings if s.binding == "text/token_embedding"
     )
     matrix_codec = codecs.codec_for(matrix_format)
     c = Config(
@@ -178,16 +167,14 @@ def build_descriptors(spec, owned, cfg, budget):
         int(spec.tensor_parallel_transport == "host"),
         spec.reserve_bytes,
     )
-    spans = (Span * len(owned.artifact.files))(
-        *(
-            Span(
-                str(f.path.resolve()).encode(),
-                f.logical_start,
-                f.payload_start,
-                f.payload_bytes,
-                f.path.stat().st_size,
-            )
-            for f in owned.artifact.files
+    span = owned.source.byte_spans()[0]
+    spans = (Span * 1)(
+        Span(
+            span.path.encode(),
+            span.logical_start,
+            span.file_offset,
+            span.bytes,
+            span.file_bytes,
         )
     )
     embedding, head = matrix("text/token_embedding"), matrix("text/output_head")

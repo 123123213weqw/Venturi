@@ -66,12 +66,6 @@ class GatedMLPWeights:
             backend.upload_linear(self.down, dtype=dtype, device=device),
         )
 
-    def prepare(self, backend, *, tokens, dtype, device, epsilon=1e-6):
-        """Compatibility helper: upload then prepare one token shape."""
-        _shape(tokens, self.gate.in_features)
-        return self.upload(
-            backend, dtype=dtype, device=device, epsilon=epsilon
-        ).prepare(tokens=tokens)
 
 
 @dataclass(frozen=True)

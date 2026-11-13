@@ -4,6 +4,8 @@ Diagnostic only: snapshots and scalar controls are not throughput measurements.
 Reuses the independently qualified target operators without changing arithmetic.
 """
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 from contextlib import ExitStack
 import hashlib
@@ -16,8 +18,8 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests"))
 from test_qwen_tensor_parallel import same_state  # noqa: E402
-from venturi.models import NativeQwenModel, QwenQ8Weights  # noqa: E402
-from venturi.ninfer import NInferArtifact  # noqa: E402
+from venturi.models import NativeQwenModel, QwenWeights  # noqa: E402
+from venturi.container.safetensors import SafetensorsContainer  # noqa: E402
 from venturi.ops import CudaBackend  # noqa: E402
 
 
@@ -27,17 +29,18 @@ def main():
     p.add_argument("--library", required=True)
     p.add_argument("--cases", required=True)
     p.add_argument("--output-directory", required=True)
+    p.add_argument("--qwen-library", required=True)
     args = p.parse_args()
     out = Path(args.output_directory)
     out.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(4)
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(args.artifact))
+    weights = QwenWeights.open(args.artifact)
     cases = json.loads(Path(args.cases).read_text())
     # Two differently ordered copies, not eight views of one recurrent cache.
     order = [0, 1, 2, 3, 3, 2, 1, 0]
     report = dict(
         scope=__doc__,
-        artifact_id=weights.artifact.artifact_id,
+        header_sha256=weights.source.header_sha256,
         library_sha256=hashlib.sha256(Path(args.library).read_bytes()).hexdigest(),
         precision="Original-source Q8/group32 FP16 scales; FP16 activations/KV, FP32 GDN state; original small-parameter profile unchanged",
         independent_reference_scope="Reuses frozen v100-native-mtp/native-target represented-weight reference gates. This is new exact scalar/batch state and output qualification, not a new BF16/corpus gate.",
@@ -51,7 +54,7 @@ def main():
     save()
     model = NativeQwenModel.from_q8(
         weights,
-        CudaBackend(args.library),
+        QwenRuntime(args.qwen_library, CudaBackend(args.library)),
         weight_mode="resident",
         dtype=torch.float16,
         device="cuda:0",
@@ -75,9 +78,9 @@ def main():
             )
             pinned = cases[order[j]].get("expected_generated_ids")
             if pinned is not None:
-                assert expected[-1] == pinned[: maximum[j]], (
-                    "Pinned scalar output changed"
-                )
+                assert (
+                    expected[-1] == pinned[: maximum[j]]
+                ), "Pinned scalar output changed"
 
         def forbidden(*args, **kwargs):
             raise AssertionError("Torch math called by native batched generation")
@@ -125,9 +128,9 @@ def main():
             [scalar[i].forward(ids) for i, ids in zip(selected, continuation)]
         )
         logits = batch.forward(continuation, slots=selected)
-        assert torch.equal(logits.view(torch.uint8), reference.view(torch.uint8)), (
-            "Continuation logits differ"
-        )
+        assert torch.equal(
+            logits.view(torch.uint8), reference.view(torch.uint8)
+        ), "Continuation logits differ"
         for j, s in enumerate(scalar):
             same_state(batch.snapshot(j), s.snapshot())
         report["reordered_unequal_position_continuation"] = dict(

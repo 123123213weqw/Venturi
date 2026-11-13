@@ -1,5 +1,7 @@
 """Separate fixed-cohort MTP1 target-batch trace, not unprofiled serving TPS."""
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 import hashlib
 import json
@@ -10,10 +12,10 @@ import torch
 from venturi.models import (
     NativeQwenModel,
     NativeQwenMTPModel,
-    QwenQ8Weights,
+    QwenWeights,
     QwenMTPWeights,
 )
-from venturi.ninfer import NInferArtifact
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 
 
@@ -25,7 +27,7 @@ def cpu():
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("artifact")
-    p.add_argument("--mtp-artifact", required=True)
+    p.add_argument("--mtp-checkpoint", required=True)
     p.add_argument("--library", required=True)
     p.add_argument("--case", required=True)
     p.add_argument("--count", type=int, choices=(1, 8), required=True)
@@ -44,6 +46,7 @@ def main():
         choices=("fp16", "q8-residual"),
         default="fp16",
     )
+    p.add_argument("--qwen-library", required=True)
     a = p.parse_args()
     torch.set_num_threads(4)
     case = json.loads(Path(a.case).read_text())
@@ -51,8 +54,8 @@ def main():
     expected = case["expected_generated_ids"]
     slots = list(range(a.count))
     target = NativeQwenModel.from_q8(
-        QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact)),
-        CudaBackend(a.library),
+        QwenWeights.open(a.artifact),
+        QwenRuntime(a.qwen_library, CudaBackend(a.library)),
         weight_mode="resident",
         dtype=torch.float16,
         device="cuda:0",
@@ -65,7 +68,7 @@ def main():
     try:
         model = NativeQwenMTPModel.from_q8(
             target,
-            QwenMTPWeights.from_ninfer(NInferArtifact(a.mtp_artifact)),
+            QwenMTPWeights.open(a.mtp_checkpoint),
             draft_projection_profile=a.mtp_draft_projection_profile,
         )
         batch = model.create_batch([256] * 8)

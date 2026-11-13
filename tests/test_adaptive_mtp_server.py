@@ -85,7 +85,7 @@ def test_conflicting_adaptive_flags_fail_before_loading(monkeypatch, extra):
         "--adaptive-mtp",
     ]
     if extra:
-        argv += ["--mtp-artifact", "nonexistent-draft"] + extra
+        argv += ["--mtp-checkpoint", "nonexistent-draft"] + extra
     monkeypatch.setattr(sys, "argv", argv)
     with pytest.raises(SystemExit) as e:
         tool.main()

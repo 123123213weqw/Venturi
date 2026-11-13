@@ -5,9 +5,9 @@ from dataclasses import asdict
 import json
 from pathlib import Path
 
-from .generation import generate_text, generate_tokens
+from venturi.engine.generation import generate_text, generate_tokens
 from .text import LocalTokenizer
-from .loader import load_checkpoint
+from venturi.container.loader import load_checkpoint
 from .models.llama import LlamaWeights
 from .ops import CudaBackend, TorchBackend
 
@@ -19,7 +19,7 @@ def main(argv=None):
     parser.add_argument(
         "--backend", choices=("cuda", "torch-reference"), default="cuda"
     )
-    parser.add_argument("--blocks-library")
+    parser.add_argument("--ops-library")
     parser.add_argument("--device", default="cuda:0")
     prompts = parser.add_mutually_exclusive_group()
     prompts.add_argument("--prompt")
@@ -43,11 +43,11 @@ def main(argv=None):
         if args.prompt is None and args.token_ids is None:
             raise ValueError("generate requires --prompt or --token-ids")
         if args.backend == "cuda":
-            if not args.blocks_library:
+            if not args.ops_library:
                 raise ValueError(
-                    "Native generation requires an explicit --blocks-library; build separately"
+                    "Native generation requires an explicit --ops-library; build separately"
                 )
-            backend = CudaBackend(args.blocks_library)
+            backend = CudaBackend(args.ops_library)
         else:
             backend = TorchBackend()
         model = bound.upload(backend, device=args.device)

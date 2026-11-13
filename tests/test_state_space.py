@@ -12,7 +12,7 @@ from venturi.ops import CudaBackend, TorchBackend
 def engine(request):
     if request.param == "fp64":
         return TorchBackend(), torch.float64, torch.device("cpu")
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native library required")
     return CudaBackend(library), getattr(torch, request.param), torch.device("cuda:0")
@@ -40,9 +40,9 @@ def conv_oracle(x, weight, history):
         # Independent window-by-window reduction, not the production tap loop.
         accum = (joined[token : token + weight.shape[0]] * weight).sum(0)
         out[token] = silu64(accum.to(dtype).double())
-    return out, joined[-history.shape[0] :].to(dtype) if history.shape[
-        0
-    ] else history.to(dtype)
+    return out, (
+        joined[-history.shape[0] :].to(dtype) if history.shape[0] else history.to(dtype)
+    )
 
 
 def assert_qualified(actual, ideal, floor=2e-5):
@@ -202,7 +202,7 @@ def test_validation_aliases_and_failed_preparation(engine):
 
 @pytest.mark.cuda
 def test_new_native_ops_capture_and_no_numerical_fallback(monkeypatch):
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native library required")
     backend, dtype, device = CudaBackend(library), torch.bfloat16, "cuda:0"

@@ -1,5 +1,7 @@
 """Sharing is byte-exact to a pinned unshared binary within each compute profile."""
 
+from qwen_native_runtime import native_runtime
+
 import os
 
 import pytest
@@ -26,7 +28,7 @@ def test_shared_inputs_exact_to_unshared_chunks_heads_resets_and_private_batch(
     models = [
         NativeQwenModel.from_q8(
             weights,
-            CudaBackend(library),
+            native_runtime(CudaBackend(library)),
             weight_mode="resident",
             dtype=torch.float16,
             max_tokens=8,

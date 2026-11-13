@@ -26,7 +26,7 @@ def args(tmp_path, status):
     )
     return SimpleNamespace(
         source=str(source),
-        output=str(tmp_path / "q8.ninfer"),
+        output=str(tmp_path / "q8.safetensors"),
         report=str(tmp_path / "report.json"),
         job_directory=str(tmp_path / "job"),
         source_pid=1234,
@@ -87,7 +87,7 @@ def test_complete_dependency_starts_exactly_one_converter(tmp_path, monkeypatch)
                     dict(
                         output=a.output,
                         file_bytes=8,
-                        artifact_id="0" * 32,
+                        header_sha256="0" * 32,
                         sha256=hashlib.sha256(b"artifact").hexdigest(),
                     )
                 )

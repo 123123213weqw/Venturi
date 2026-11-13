@@ -14,22 +14,20 @@ import weakref
 
 import torch
 
-from venturi.ninfer import NInferArtifact, row_geometry
-from venturi.ops import CudaBackend, DenseWeight
 from venturi.ops.vocabulary import _ids
-from venturi.models.qwen.gdn_frontend import GDNFrontendWeights
-from venturi.models.qwen.qwen_weights import QwenQ8Weights
+from venturi.models.qwen.qwen_weights import QwenWeights
 from venturi.models.qwen.qwen_metadata import LoadedQwenSource, source_digest
-from venturi.models.qwen.qwen_rope import QwenTextRoPE
-from venturi.models.qwen.qwen_model import _memory_guard, qwen_resident_bytes
 from venturi.models.decoder_layer import _outside_capture
 
-from venturi.models.qwen_load.abi import Config, Span, Matrix, Layer, _bind, _digest
-from venturi.models.qwen_load.budget import _head_gdn_workspace, plan_budget
-from venturi.models.qwen_load.spec import LoadSpec, validate_load_spec
+from venturi.models.qwen_load.budget import plan_budget
+from venturi.models.qwen_load.spec import validate_load_spec
 from venturi.models.qwen_load.planner import prepare_source
 from venturi.models.qwen_load.descriptors import build_descriptors
-from venturi.models.qwen_load.verify import normalized_profile, projection_info, reconcile
+from venturi.models.qwen_load.verify import (
+    normalized_profile,
+    projection_info,
+    reconcile,
+)
 
 
 class NativeQwenModel:
@@ -44,7 +42,7 @@ class NativeQwenModel:
     def from_q8(
         cls,
         weights,
-        backend,
+        runtime,
         *,
         weight_mode,
         dtype=torch.bfloat16,
@@ -60,6 +58,7 @@ class NativeQwenModel:
         kv_gpu_budget_bytes=0,
         kv_ram_budget_bytes=0,
         metadata_mode="checked-json",
+        dequant_resident=False,
     ):
         """Orchestrate the staged load pipeline (qwen_load); order unchanged.
 
@@ -68,7 +67,7 @@ class NativeQwenModel:
         """
         spec = validate_load_spec(
             weights,
-            backend,
+            runtime,
             weight_mode=weight_mode,
             dtype=dtype,
             device=device,
@@ -83,6 +82,7 @@ class NativeQwenModel:
             kv_gpu_budget_bytes=kv_gpu_budget_bytes,
             kv_ram_budget_bytes=kv_ram_budget_bytes,
             metadata_mode=metadata_mode,
+            dequant_resident=dequant_resident,
         )
         owned, cfg = prepare_source(spec)
         budget = plan_budget(spec, owned, cfg)
@@ -107,16 +107,18 @@ class NativeQwenModel:
             *(
                 (spec.experimental_flags,)
                 if spec.experimental_flags
-                else (2,)
-                if spec.profiled_create is not None and not spec.column_profile
-                else (spec.stage_range or ())
+                else (
+                    (2,)
+                    if spec.profiled_create is not None and not spec.column_profile
+                    else (spec.stage_range or ())
+                )
             ),
         )
         if not handle:
-            backend._check(-1)
+            runtime._check(-1)
         if spec.tier_enable is not None:
             try:
-                backend._check(
+                runtime._check(
                     spec.tier_enable(
                         handle, spec.kv_gpu_budget_bytes, spec.kv_ram_budget_bytes
                     )
@@ -126,7 +128,7 @@ class NativeQwenModel:
                 raise
         self = cls()
         self._kv_cache_mode = spec.kv_cache
-        self._handle, self._native, self._backend = handle, desc.native, backend
+        self._handle, self._native, self._runtime = handle, desc.native, runtime
         self._weights, self._cfg, self._dtype, self._device = (
             owned,
             cfg,
@@ -143,7 +145,7 @@ class NativeQwenModel:
         self._projection_info = projection_info(
             spec, cfg, budget.quant_bytes, desc.native
         )
-        reconcile(spec, backend, handle, cfg, owned, budget, self._projection_info)
+        reconcile(spec, runtime, handle, cfg, owned, budget, self._projection_info)
         self._max_tokens, self._mode, self._digest, self._stamps = (
             spec.max_tokens,
             spec.weight_mode,
@@ -151,7 +153,9 @@ class NativeQwenModel:
             desc.initial_stamps,
         )
         self._lock = threading.RLock()
-        self._finalizer = weakref.finalize(self, desc.native.venturi_qwen_destroy, handle)
+        self._finalizer = weakref.finalize(
+            self, desc.native.venturi_qwen_destroy, handle
+        )
         try:
             self._metadata_seal = None
             if spec.metadata_mode == "sealed":
@@ -164,7 +168,6 @@ class NativeQwenModel:
             self.close()
             raise
         return self
-
 
     @property
     def config(self):
@@ -212,12 +215,27 @@ class NativeQwenModel:
             query.argtypes = [C.c_void_p, C.POINTER(C.c_uint64)]
             query.restype = C.c_int
             values = (C.c_uint64 * 18)()
-            self._backend._check(query(self._handle, values))
-            names = ("enabled", "page_bytes", "gpu_pool_bytes", "gpu_mapped_bytes",
-                     "virtual_reserved_bytes", "cpu_backing_bytes", "logical_valid_bytes",
-                     "evictions", "reloads", "device_to_host_bytes", "host_to_device_bytes",
-                     "allocation_ooms", "preflights", "peak_gpu_pool_bytes", "peak_cpu_backing_bytes",
-                     "gpu_budget_bytes", "ram_budget_bytes", "entries")
+            self._runtime._check(query(self._handle, values))
+            names = (
+                "enabled",
+                "page_bytes",
+                "gpu_pool_bytes",
+                "gpu_mapped_bytes",
+                "virtual_reserved_bytes",
+                "cpu_backing_bytes",
+                "logical_valid_bytes",
+                "evictions",
+                "reloads",
+                "device_to_host_bytes",
+                "host_to_device_bytes",
+                "allocation_ooms",
+                "preflights",
+                "peak_gpu_pool_bytes",
+                "peak_cpu_backing_bytes",
+                "gpu_budget_bytes",
+                "ram_budget_bytes",
+                "entries",
+            )
             return dict(mode="vram-first", **dict(zip(names, values)))
 
     def _kv_cache_info_for_request(self):
@@ -226,24 +244,23 @@ class NativeQwenModel:
         with self._lock:
             if self._finalizer.alive:
                 return self.kv_cache_info()
-            return dict(mode=getattr(self, "_kv_cache_mode", "static"),
-                        model_owner_closed=True, stats_available=False,
-                        scope="Request retains native KV ownership; model-handle diagnostics unavailable after owner close")
+            return dict(
+                mode=getattr(self, "_kv_cache_mode", "static"),
+                model_owner_closed=True,
+                stats_available=False,
+                scope="Request retains native KV ownership; model-handle diagnostics unavailable after owner close",
+            )
 
     def _metadata(self):
         # The detached loaded descriptor has no mutable nested maps/lists. Check
         # its identity rather than reserializing hundreds of roles per token.
-        if (self._metadata_seal is None and _digest(self._weights) != self._digest) or (
+        if (
+            self._metadata_seal is None and source_digest(self._weights) != self._digest
+        ) or (
             self._metadata_seal is not None and self._weights is not self._metadata_seal
         ):
             raise RuntimeError("Native Qwen metadata changed; recreate model")
-        stamps = []
-        for file in self._weights.artifact.files:
-            stat = file.path.stat()
-            stamps.append((stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns))
-        stamps = tuple(stamps)
-        if stamps != self._stamps:
-            raise RuntimeError("Native Qwen source changed; recreate and verify model")
+        self._weights.source.check_source()
         _outside_capture(self.device)
 
     def _binding_weights(self):
@@ -254,11 +271,13 @@ class NativeQwenModel:
         guards; no model weight planes are materialized or reread here.
         """
         self._metadata()
-        if isinstance(self._weights, QwenQ8Weights):
+        if isinstance(self._weights, QwenWeights):
             return self._weights
-        weights = QwenQ8Weights.from_ninfer(NInferArtifact(self._weights.artifact.path))
-        if _digest(weights) != self._weights.digest:
-            raise RuntimeError("Native Qwen binding metadata differs from loaded source")
+        weights = QwenWeights.open(self._weights.source.path)
+        if source_digest(weights) != self._weights.digest:
+            raise RuntimeError(
+                "Native Qwen binding metadata differs from loaded source"
+            )
         self._metadata()
         return weights
 
@@ -274,7 +293,7 @@ class NativeQwenModel:
             self._metadata()
             h = self._native.venturi_qwen_session(self._handle, capacity)
             if not h:
-                self._backend._check(-1)
+                self._runtime._check(-1)
             return NativeQwenSession(self, h, capacity)
 
     def create_batch(self, capacities):
@@ -308,7 +327,7 @@ class NativeQwenSession:
             if not self._finalizer.alive:
                 raise RuntimeError("Native Qwen session closed")
             out = (C.c_uint64 * 8)()
-            self.model._backend._check(
+            self.model._runtime._check(
                 self.model._native.venturi_qwen_info(self._handle, out)
             )
             result = dict(
@@ -327,7 +346,7 @@ class NativeQwenSession:
                 )
             )
             peer = (C.c_uint64 * 4)()
-            self.model._backend._check(
+            self.model._runtime._check(
                 self.model._native.venturi_qwen_parallel_info(self._handle, peer)
             )
             result.update(
@@ -340,7 +359,7 @@ class NativeQwenSession:
             )
             if result.get("head_gdn_enabled"):
                 peer_request = (C.c_uint64 * 1)()
-                self.model._backend._check(
+                self.model._runtime._check(
                     self.model._native.venturi_qwen_head_gdn_session_info(
                         self._handle, peer_request
                     )
@@ -350,7 +369,9 @@ class NativeQwenSession:
                     "request_device_bytes is primary; peer_request_device_bytes is additional private distributed GDN cache, excluding shared model workspaces"
                 )
             if getattr(self.model, "_kv_cache_mode", "static") != "static":
-                result["shared_model_kv_cache"] = self.model._kv_cache_info_for_request()
+                result["shared_model_kv_cache"] = (
+                    self.model._kv_cache_info_for_request()
+                )
             return result
 
     def generation_timings(self):
@@ -358,7 +379,7 @@ class NativeQwenSession:
         with self._lock:
             self._check()
             values = (C.c_double * 2)()
-            self.model._backend._check(
+            self.model._runtime._check(
                 self.model._native.venturi_qwen_timings(self._handle, values)
             )
             return dict(
@@ -419,7 +440,7 @@ class NativeQwenSession:
                 else None
             )
             ids = (C.c_int64 * n)(*token_ids)
-            self.model._backend._check(
+            self.model._runtime._check(
                 self.model._native.venturi_qwen_forward(
                     self._handle,
                     ids,
@@ -474,7 +495,7 @@ class NativeQwenSession:
             count = C.c_int()
             if entry is None:
                 entry = self.model._native.venturi_qwen_generate
-            self.model._backend._check(
+            self.model._runtime._check(
                 entry(
                     self._handle,
                     prompt,
@@ -515,12 +536,14 @@ class NativeQwenSession:
                 for j, shape in enumerate(shapes):
                     tensor = torch.empty(
                         shape,
-                        dtype=torch.float32
-                        if kind == "linear_attention" and j == 1
-                        else self.model.dtype,
+                        dtype=(
+                            torch.float32
+                            if kind == "linear_attention" and j == 1
+                            else self.model.dtype
+                        ),
                         device="cpu",
                     )
-                    self.model._backend._check(
+                    self.model._runtime._check(
                         self.model._native.venturi_qwen_snapshot(
                             self._handle,
                             i,
@@ -541,14 +564,14 @@ class NativeQwenSession:
     def reset(self):
         with self._lock:
             self._check()
-            self.model._backend._check(
+            self.model._runtime._check(
                 self.model._native.venturi_qwen_reset(self._handle)
             )
 
     def _inject_failure(self, *, layer, position):
         with self._lock:
             self._check()
-            self.model._backend._check(
+            self.model._runtime._check(
                 self.model._native.venturi_qwen_debug_failure(
                     self._handle, layer, position
                 )

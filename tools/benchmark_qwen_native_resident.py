@@ -8,6 +8,8 @@ Load, warmup, reset and diagnostics are outside request timing. No Python model
 or per-token generation loop is used. Profiler timings are labelled separately.
 """
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 import hashlib
 import json
@@ -20,8 +22,8 @@ from contextlib import nullcontext
 
 import torch
 
-from venturi.models import NativeQwenModel, QwenQ8Weights
-from venturi.ninfer import NInferArtifact
+from venturi.models import NativeQwenModel, QwenWeights
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 
 
@@ -78,6 +80,7 @@ def main():
     )
     p.add_argument("--peer-gpu-index", type=int)
     p.add_argument("--profile-nvtx", action="store_true")
+    p.add_argument("--qwen-library", required=True)
     args = p.parse_args()
     if not 2 <= args.new_tokens <= 256 or not 1 <= args.repeats <= 8:
         p.error("Use 2..256 output tokens and 1..8 repeats")
@@ -147,14 +150,14 @@ def main():
                 stdout=peer_log,
                 stderr=subprocess.STDOUT,
             )
-        weights = QwenQ8Weights.from_ninfer(NInferArtifact(args.artifact))
-        report["artifact_id"] = weights.artifact.artifact_id
+        weights = QwenWeights.open(args.artifact)
+        report["header_sha256"] = weights.source.header_sha256
         dtype = torch.float16 if args.dtype == "fp16" else torch.bfloat16
 
         def load():
             return NativeQwenModel.from_q8(
                 weights,
-                CudaBackend(args.library),
+                QwenRuntime(args.qwen_library, CudaBackend(args.library)),
                 weight_mode=args.weight_mode,
                 dtype=dtype,
                 device="cuda:0",

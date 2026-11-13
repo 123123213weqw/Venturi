@@ -22,8 +22,8 @@ import torch
 from safetensors import safe_open
 
 from gdn_head_pilot import Parts, Pilot
-from venturi.models import QwenQ8Weights
-from venturi.ninfer import NInferArtifact
+from venturi.models import QwenWeights
+from venturi.container.safetensors import SafetensorsContainer
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests"))
 from qwen_gdn_reference import gdn_layer_oracle  # noqa: E402
@@ -59,7 +59,7 @@ def main():
     out = Path(a.output_directory)
     out.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(4)
-    w = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
+    w = QwenWeights.open(a.artifact)
     layers = [
         i
         for i, kind in enumerate(w.config["layer_types"])
@@ -74,7 +74,7 @@ def main():
         model_integration=False,
         model_tps_claim=False,
         achieved_hardware_counters=None,
-        artifact_id=w.artifact.artifact_id,
+        header_sha256=w.source.header_sha256,
         blocks_sha256=hashlib.sha256(Path(a.blocks).read_bytes()).hexdigest(),
         host_library_sha256=hashlib.sha256(
             Path(a.host_library).read_bytes()
@@ -169,9 +169,9 @@ def main():
                                 dim=0,
                             )
                         )
-                        assert l2 <= 0.02 and cosine >= 0.999, (
-                            "Original-source block quality gate failed"
-                        )
+                        assert (
+                            l2 <= 0.02 and cosine >= 0.999
+                        ), "Original-source block quality gate failed"
                         comparisons.append(
                             dict(
                                 relative_l2=l2,

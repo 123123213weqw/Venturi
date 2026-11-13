@@ -1,5 +1,7 @@
 """Separate native MTP1/2 timeline; not unprofiled serving throughput."""
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 import hashlib
@@ -11,17 +13,17 @@ from benchmark_qwen_native_parallel import run_wave
 from venturi.models import (
     NativeQwenModel,
     NativeQwenMTPModel,
-    QwenQ8Weights,
+    QwenWeights,
     QwenMTPWeights,
 )
-from venturi.ninfer import NInferArtifact
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("artifact")
-    p.add_argument("--mtp-artifact", required=True)
+    p.add_argument("--mtp-checkpoint", required=True)
     p.add_argument("--library", required=True)
     p.add_argument("--case", required=True)
     p.add_argument("--depth", type=int, choices=(1, 2), required=True)
@@ -43,6 +45,7 @@ def main():
         choices=("fp16", "q8-residual"),
         default="fp16",
     )
+    p.add_argument("--qwen-library", required=True)
     a = p.parse_args()
     if a.target_layer_graph and (a.depth != 2 or a.recovery != "prefix"):
         p.error("Target layer graph requires depth two and prefix recovery")
@@ -51,8 +54,8 @@ def main():
     prompt = case["prompt_token_ids"]
     expected = case["expected_generated_ids"]
     target = NativeQwenModel.from_q8(
-        QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact)),
-        CudaBackend(a.library),
+        QwenWeights.open(a.artifact),
+        QwenRuntime(a.qwen_library, CudaBackend(a.library)),
         weight_mode="resident",
         dtype=torch.float16,
         device="cuda:0",
@@ -66,7 +69,7 @@ def main():
     try:
         model = NativeQwenMTPModel.from_q8(
             target,
-            QwenMTPWeights.from_ninfer(NInferArtifact(a.mtp_artifact)),
+            QwenMTPWeights.open(a.mtp_checkpoint),
             draft_projection_profile=a.mtp_draft_projection_profile,
         )
         sessions = [model.create_session(256) for _ in range(8)]

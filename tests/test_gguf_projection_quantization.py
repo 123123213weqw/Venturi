@@ -4,7 +4,7 @@ import struct
 import pytest
 import torch
 
-from venturi.gguf_quantization import decode_bf16_rows,decode_q5_k_rows
+from venturi.container.gguf.gguf_quantization import decode_bf16_rows, decode_q5_k_rows
 
 
 def q5_block(d=.5,dmin=.25,scales=None,mins=None,values=None):

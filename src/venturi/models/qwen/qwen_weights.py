@@ -1,70 +1,123 @@
-"""Complete text-role preflight and bounded, encoded Q8 layer-weight access.
-
-This is checkpoint binding, not hybrid model forward/session implementation.
-Readers return owned CPU descriptors for explicit native uploads; they never
-materialize Q8 matrices as dense floats or execute an external model backend.
-"""
+"""Qwen role admission over standard safetensors tensor names, not a container ABI."""
 
 from dataclasses import dataclass
-
+import json
+from types import MappingProxyType
 import torch
-
-from venturi.quantization.codecs import codec_for, dequant_row_reference
-from venturi.ninfer import NInferArtifact
-from venturi.ops import DenseWeight, Q8RowSplitWeight, Q8VocabularyWeights
+from venturi.container.safetensors import SafetensorsContainer
+from venturi.quantization.codecs import codec_for
+from venturi.ops.weights import DenseWeight, Q8RowSplitWeight
 from venturi.models.qwen.qwen_source import QwenSourcePlan
+
+FLOAT_DTYPES = {
+    "fp16": ("float16", torch.float16),
+    "bf16": ("bfloat16", torch.bfloat16),
+    "fp32": ("float32", torch.float32),
+}
 
 
 @dataclass(frozen=True)
-class QwenQ8Weights:
-    artifact: NInferArtifact
-    plan: QwenSourcePlan
+class QwenTensor:
+    role: str
+    source: str
+    shape: tuple
+    format: str
+    planes: tuple
+
+    @property
+    def nbytes(self):
+        return sum(p.byte_size for p in self.planes)
+
+
+@dataclass(frozen=True)
+class QwenWeights:
+    source: SafetensorsContainer
+    plan: object
+    tensors: object
+    provenance: object
+    component: str = "text"
 
     @classmethod
-    def from_ninfer(cls, artifact, *, matrix_format="q8_g32_fp16"):
-        if not isinstance(artifact, NInferArtifact):
-            raise TypeError("Expected validated NInferArtifact")
-        plan = QwenSourcePlan.from_config(
-            artifact.manifest["components"]["text"]["config"],
-            matrix_format=matrix_format,
-        )
-        expected = {s.binding: s for s in plan.bindings}
-        if plan.tied_embeddings:
-            expected["text/output_head"] = expected["text/token_embedding"]
-        bindings = artifact.manifest["bindings"]
-        if bindings.keys() != expected.keys():
-            raise ValueError(
-                "Qwen Q8 requires exactly the complete unfused text binding set"
+    def open(cls, path):
+        source = SafetensorsContainer(path)
+        meta = source.metadata()
+        if meta.get("venturi.component") != "text":
+            raise ValueError("Expected a Qwen text checkpoint")
+        if not {"venturi.config", "venturi.matrix_format"} <= meta.keys():
+            raise ValueError("Missing Qwen checkpoint metadata")
+        cfg = json.loads(meta["venturi.config"])
+        fmt = meta["venturi.matrix_format"]
+        plan = QwenSourcePlan.from_config(cfg, matrix_format=fmt)
+        return cls._admit(source, plan, "text")
+
+    @classmethod
+    def _admit(cls, source, plan, component):
+        available = set(source.list_tensors())
+        expected = set()
+        tensors = {}
+        for spec in plan.bindings:
+            codec = codec_for(spec.format)
+            planes = []
+            if codec.quantized:
+                n, k = spec.shape
+                groups = ((k + 127) // 128 * 128) // codec.group
+                want = [
+                    (
+                        spec.source + ".codes",
+                        (n, groups * 32),
+                        "int8" if codec.bits == 8 else "uint8",
+                    )
+                ]
+                if codec.high_plane:
+                    want.append(
+                        (
+                            spec.source + ".high",
+                            (n, groups * 8 * (codec.bits - 4)),
+                            "uint8",
+                        )
+                    )
+                want.append((spec.source + ".scales", (n, groups), "float16"))
+            else:
+                want = [(spec.source, spec.shape, FLOAT_DTYPES[spec.format][0])]
+            for name, shape, dtype in want:
+                if name not in available:
+                    raise ValueError("Missing Qwen tensor: " + name)
+                info = source.tensor_info(name)
+                if info.shape != tuple(shape) or info.dtype != dtype:
+                    raise ValueError("Qwen tensor shape/dtype mismatch: " + name)
+                if not codec.quantized and info.byte_size > 8 << 20 and len(shape) != 2:
+                    raise ValueError("Small parameter read bound exceeded")
+                planes.append(info)
+                expected.add(name)
+            tensors[spec.binding] = QwenTensor(
+                spec.binding, spec.source, tuple(spec.shape), spec.format, tuple(planes)
             )
-        seen = {}
-        # Preflight ALL roles before any payload read or device allocation.
-        for name, spec in expected.items():
-            binding = bindings[name]
-            if binding.keys() != {"object"}:
-                raise ValueError(f"Qwen Q8 role requires a direct object: {name}")
-            obj = artifact.objects[binding["object"]]
-            layout = codec_for(spec.format).layout
-            if (
-                obj["shape"] != list(spec.shape)
-                or obj.get("format") != spec.format
-                or obj.get("layout") != layout
-            ):
-                raise ValueError(f"Qwen Q8 role shape/format/layout mismatch: {name}")
-            if layout == "contiguous_le_v1" and len(spec.shape) != 2 and obj["bytes"] > 8 * 2**20:
-                raise ValueError(f"Floating Qwen role exceeds the read bound: {name}")
-            previous = seen.get(obj["id"])
-            if previous is not None and not (
-                plan.tied_embeddings
-                and previous == "text/token_embedding"
-                and name == "text/output_head"
-            ):
-                raise ValueError(f"Unexpected weight tying: {previous} and {name}")
-            seen[obj["id"]] = name
-        return cls(artifact, plan)
+        if available != expected:
+            raise ValueError(
+                "Unexpected Qwen tensors: " + str(sorted(available - expected)[:5])
+            )
+        if plan.tied_embeddings:
+            tensors["text/output_head"] = tensors["text/token_embedding"]
+        provenance = json.loads(source.metadata().get("venturi.source", "null"))
+        if provenance is not None and not isinstance(provenance, dict):
+            raise ValueError("Invalid Qwen source provenance")
+        return cls(source, plan, MappingProxyType(tensors), provenance, component)
 
     @property
     def config(self):
         return self.plan.config
+
+    def descriptor(self, role):
+        if role not in self.tensors:
+            raise ValueError("Unknown Qwen role: " + role)
+        return self.tensors[role]
+
+    def plane_offset(self, role, plane="codes"):
+        desc = self.descriptor(role)
+        name = desc.source + ("." + plane if codec_for(desc.format).quantized else "")
+        if name not in {p.name for p in desc.planes}:
+            raise ValueError("Unknown matrix plane")
+        return self.source.logical_offset(name)
 
     def layer_bindings(self, layer):
         if type(layer) is not int or not 0 <= layer < self.config["num_hidden_layers"]:
@@ -74,62 +127,99 @@ class QwenQ8Weights:
             s.binding for s in self.plan.bindings if s.binding.startswith(prefix)
         )
 
-    def _object(self, binding):
-        spec = self.artifact.manifest["bindings"].get(binding)
-        if not isinstance(spec, dict) or spec.keys() != {"object"}:
-            raise ValueError(f"Unknown direct Qwen role: {binding}")
-        return self.artifact.objects[spec["object"]]
-
-    def read_float(self, binding):
-        """Own one bounded parameter; raw norm gamma is NOT offset here."""
-        obj = self._object(binding)
-        if obj["format"] not in ("fp16", "bf16", "fp32") or obj["layout"] != "contiguous_le_v1":
-            raise ValueError("Floating role access never silently dequantizes Q8")
-        raw = bytearray(self.artifact.read_object(obj["id"], max_bytes=8 * 2**20))
+    def _read(self, info, *, max_bytes=8 << 20):
+        data = self.source.read_bytes(info.name, max_bytes=max_bytes)
         dtype = {
-            "fp16": torch.float16,
-            "bf16": torch.bfloat16,
-            "fp32": torch.float32,
-        }[obj["format"]]
-        value = torch.frombuffer(raw, dtype=dtype).reshape(obj["shape"])
+            "float16": torch.float16,
+            "bfloat16": torch.bfloat16,
+            "float32": torch.float32,
+            "int8": torch.int8,
+            "uint8": torch.uint8,
+        }[info.dtype]
+        return torch.frombuffer(bytearray(data), dtype=dtype).reshape(info.shape)
+
+    def read_float(self, role):
+        desc = self.descriptor(role)
+        if codec_for(desc.format).quantized:
+            raise ValueError("Floating read never dequantizes a matrix")
+        value = self._read(desc.planes[0])
         if not bool(torch.isfinite(value).all()):
-            raise ValueError(f"Nonfinite Qwen parameter: {binding}")
+            raise ValueError("Nonfinite Qwen parameter: " + role)
         return value
 
-    def read_linear(self, binding):
-        """One encoded matrix at a time, including preserved BF16 a/b projections."""
-        obj = self._object(binding)
-        if len(obj["shape"]) != 2:
-            raise ValueError("Linear role requires a matrix")
-        if obj["format"] == "q8_g32_fp16":
-            weight = Q8VocabularyWeights.from_ninfer(self.artifact, binding)
-            return Q8RowSplitWeight(weight.codes, weight.scales, weight.hidden_size)
-        if obj["format"] in ("q4_g64_fp16", "q5_g64_fp16", "q6_g64_fp16"):
-            # Explicit reference dequantization (decode_row contract, vectorized);
-            # used by reference/qualification paths, never silently substituted
-            # for native execution.
-            return DenseWeight(dequant_row_reference(self.artifact, obj))
-        if obj["layout"] == "row_split_k128_v1" and obj["format"] != "q8_g32_fp16":
-            # Row codecs beyond q8 go through the reference dequant below;
-            # the native execution gate lives in the codec qualification table.
-            pass
-        # bf16 roles (including the preserved a/b projections) and fp32 smalls
-        # keep the historical bounded read_float path; dense declared matrices
-        # read their full admitted size.
-        small_role = obj["format"] == "bf16" or (
-            obj["format"] == "fp32" and len(obj["shape"]) != 2
+    def read_plane(self, role, plane):
+        desc = self.descriptor(role)
+        codec = codec_for(desc.format)
+        labels = (
+            ("codes", "high", "scales") if codec.high_plane else ("codes", "scales")
         )
-        if small_role:
-            return DenseWeight(self.read_float(binding))
-        raw = bytearray(
-            self.artifact.read_object(obj["id"], max_bytes=obj["bytes"])
-        )
-        dtype = {
-            "fp16": torch.float16,
-            "bf16": torch.bfloat16,
-            "fp32": torch.float32,
-        }[obj["format"]]
-        value = torch.frombuffer(raw, dtype=dtype).reshape(obj["shape"])
+        if not codec.quantized or plane not in labels:
+            raise ValueError("Unknown quantized plane")
+        info = desc.planes[labels.index(plane)]
+        # One owned plane; bounded physical reads avoid a second multi-GB bytes copy.
+        dtype = {"int8": torch.int8, "uint8": torch.uint8, "float16": torch.float16}[
+            info.dtype
+        ]
+        out = torch.empty(info.shape, dtype=dtype)
+        raw = out.view(torch.uint8).view(-1)
+        for start in range(0, info.byte_size, 16 << 20):
+            size = min(16 << 20, info.byte_size - start)
+            raw[start : start + size].copy_(
+                torch.frombuffer(
+                    bytearray(
+                        self.source.read_bytes(
+                            info.name, start, size, max_bytes=16 << 20
+                        )
+                    ),
+                    dtype=torch.uint8,
+                )
+            )
+        return out
+
+    def read_linear(self, role):
+        desc = self.descriptor(role)
+        codec = codec_for(desc.format)
+        if codec.bits == 8:
+            codes = self.read_plane(role, "codes")
+            scales = self.read_plane(role, "scales")
+            if (
+                bool((codes == -128).any())
+                or not bool(torch.isfinite(scales).all())
+                or bool((scales < 0).any())
+            ):
+                raise ValueError("Invalid Q8 stored values")
+            return Q8RowSplitWeight(codes, scales, desc.shape[1])
+        if codec.quantized:
+            from venturi.quantization.codecs import dequantize_planes
+
+            codes = self.read_plane(role, "codes")
+            scales = self.read_plane(role, "scales")
+            high = self.read_plane(role, "high") if codec.high_plane else None
+            return DenseWeight(
+                dequantize_planes(codes, scales, high, desc.shape, desc.format)
+            )
+        info = desc.planes[0]
+        value = self._read(info, max_bytes=info.byte_size)
         if not bool(torch.isfinite(value).all()):
-            raise ValueError(f"Nonfinite Qwen parameter: {binding}")
+            raise ValueError("Nonfinite dense Qwen matrix")
         return DenseWeight(value)
+
+    def signature(self):
+        return {
+            "source": self.source.signature(),
+            "config": self.config,
+            "component": self.component,
+            "tensors": [
+                (
+                    r,
+                    d.source,
+                    d.shape,
+                    d.format,
+                    tuple(
+                        (p.name, p.dtype, p.shape, p.byte_offset, p.byte_size)
+                        for p in d.planes
+                    ),
+                )
+                for r, d in sorted(self.tensors.items())
+            ],
+        }

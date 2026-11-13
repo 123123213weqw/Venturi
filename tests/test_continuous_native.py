@@ -1,4 +1,7 @@
 """Opt-in tiny native Q8 continuous scheduling versus scalar trajectories/state."""
+
+from qwen_native_runtime import native_runtime
+
 import pytest
 import torch
 
@@ -9,27 +12,43 @@ from venturi.runtime import ContinuousScheduler, ContinuousWorker
 
 @pytest.mark.cuda
 @pytest.mark.parametrize("metadata_mode", ["checked-json", "sealed"])
-@pytest.mark.parametrize("prefill_policy", ["round-robin", "balanced", "balanced-short"])
-@pytest.mark.parametrize("tp,profile", [
-    (False, "fp16"), (True, "fp16"),
-    (False, "q8-residual"), (True, "q8-residual"),
-    (True, "q8-residual-column-mlp"),
-    (True, "q8-residual-column-mlp-head-gdn"),
-])
-def test_native_continuous_completion_refill_and_long_prefill_private_states(tmp_path, batch_engine, tp, profile, metadata_mode, prefill_policy, monkeypatch):
+@pytest.mark.parametrize(
+    "prefill_policy", ["round-robin", "balanced", "balanced-short"]
+)
+@pytest.mark.parametrize(
+    "tp,profile",
+    [
+        (False, "fp16"),
+        (True, "fp16"),
+        (False, "q8-residual"),
+        (True, "q8-residual"),
+        (True, "q8-residual-column-mlp"),
+        (True, "q8-residual-column-mlp-head-gdn"),
+    ],
+)
+def test_native_continuous_completion_refill_and_long_prefill_private_states(
+    tmp_path, batch_engine, tp, profile, metadata_mode, prefill_policy, monkeypatch
+):
     if profile.endswith("head-gdn"):
         from test_native_head_gdn import eligible_mtp, load as head_load
+
         weights, _, _, _ = eligible_mtp(tmp_path / "eligible-head")
         model = head_load(weights, batch_engine, metadata_mode=metadata_mode)
     else:
-        model = load(tmp_path, batch_engine, tp, profile=profile, metadata_mode=metadata_mode)
+        model = load(
+            tmp_path, batch_engine, tp, profile=profile, metadata_mode=metadata_mode
+        )
     batch = model.create_batch([64] * 2)
-    scheduler = ContinuousScheduler(batch, token_budget=8, prefill_chunk_size=3, prefill_policy=prefill_policy)
+    scheduler = ContinuousScheduler(
+        batch, token_budget=8, prefill_chunk_size=3, prefill_policy=prefill_policy
+    )
     cases = [([1, 2], 2), ([3, 4, 5, 6, 7, 1, 2], 9), ([6, 5, 4, 3, 2], 3)]
     refs = [model.create_session(64) for _ in cases]
     try:
-        expected = [s.generate(ids, max_new_tokens=n, eos_token_ids=[])
-                    for s, (ids, n) in zip(refs, cases)]
+        expected = [
+            s.generate(ids, max_new_tokens=n, eos_token_ids=[])
+            for s, (ids, n) in zip(refs, cases)
+        ]
         a = scheduler.submit(cases[0][0], max_new_tokens=cases[0][1])
         b = scheduler.submit(cases[1][0], max_new_tokens=cases[1][1])
         events = []
@@ -43,7 +62,9 @@ def test_native_continuous_completion_refill_and_long_prefill_private_states(tmp
         c = scheduler.submit(cases[2][0], max_new_tokens=cases[2][1])
 
         def forbidden(*args, **kwargs):
-            raise AssertionError("Continuous native scheduling used Torch allocation/math")
+            raise AssertionError(
+                "Continuous native scheduling used Torch allocation/math"
+            )
 
         for _ in range(30):
             with monkeypatch.context() as m:
@@ -63,7 +84,9 @@ def test_native_continuous_completion_refill_and_long_prefill_private_states(tmp
         assert scheduler.info()["completed_requests"] == 3
         assert scheduler.info()["emitted_tokens"] == sum(n for _, n in cases)
         for ticket, output in zip((a, b, c), expected):
-            assert [e.token_id for e in events if e.request_id == ticket.request_id] == output
+            assert [
+                e.token_id for e in events if e.request_id == ticket.request_id
+            ] == output
     finally:
         scheduler.close()
         batch.close()
@@ -74,25 +97,39 @@ def test_native_continuous_completion_refill_and_long_prefill_private_states(tmp
 
 @pytest.mark.cuda
 @pytest.mark.parametrize("metadata_mode", ["checked-json", "sealed"])
-@pytest.mark.parametrize("prefill_policy", ["round-robin", "balanced", "balanced-short"])
-@pytest.mark.parametrize("tp,profile", [
-    (False, "fp16"), (True, "fp16"),
-    (False, "q8-residual"), (True, "q8-residual"),
-    (True, "q8-residual-column-mlp"),
-    (True, "q8-residual-column-mlp-head-gdn"),
-])
-def test_native_worker_thread_owns_device_and_private_state(tmp_path, batch_engine, tp, profile, metadata_mode, prefill_policy, monkeypatch):
+@pytest.mark.parametrize(
+    "prefill_policy", ["round-robin", "balanced", "balanced-short"]
+)
+@pytest.mark.parametrize(
+    "tp,profile",
+    [
+        (False, "fp16"),
+        (True, "fp16"),
+        (False, "q8-residual"),
+        (True, "q8-residual"),
+        (True, "q8-residual-column-mlp"),
+        (True, "q8-residual-column-mlp-head-gdn"),
+    ],
+)
+def test_native_worker_thread_owns_device_and_private_state(
+    tmp_path, batch_engine, tp, profile, metadata_mode, prefill_policy, monkeypatch
+):
     import threading
 
     if profile.endswith("head-gdn"):
         from test_native_head_gdn import eligible_mtp, load as head_load
+
         weights, _, _, _ = eligible_mtp(tmp_path / "eligible-head")
         model = head_load(weights, batch_engine, metadata_mode=metadata_mode)
     else:
-        model = load(tmp_path, batch_engine, tp, profile=profile, metadata_mode=metadata_mode)
+        model = load(
+            tmp_path, batch_engine, tp, profile=profile, metadata_mode=metadata_mode
+        )
     batch = model.create_batch([64] * 2)
     refs = [model.create_session(64) for _ in range(2)]
-    scheduler = ContinuousScheduler(batch, token_budget=8, prefill_chunk_size=3, prefill_policy=prefill_policy)
+    scheduler = ContinuousScheduler(
+        batch, token_budget=8, prefill_chunk_size=3, prefill_policy=prefill_policy
+    )
     worker = ContinuousWorker(scheduler)
     prompts = [[1, 2], [3, 4, 5, 6, 7, 1, 2]]
     owner_ids = set()
@@ -104,7 +141,10 @@ def test_native_worker_thread_owns_device_and_private_state(tmp_path, batch_engi
 
     monkeypatch.setattr(batch, "step", owned)
     try:
-        expected = [s.generate(p, max_new_tokens=5, eos_token_ids=[]) for s, p in zip(refs, prompts)]
+        expected = [
+            s.generate(p, max_new_tokens=5, eos_token_ids=[])
+            for s, p in zip(refs, prompts)
+        ]
         # Queue before explicit start to fix slot assignment for private-state
         # checks; the worker still exclusively owns all resets and steps.
         tickets = [scheduler.submit(p, max_new_tokens=5) for p in prompts]
@@ -131,7 +171,9 @@ def test_native_worker_thread_owns_device_and_private_state(tmp_path, batch_engi
 
 @pytest.mark.cuda
 @pytest.mark.parametrize("head", [False, True])
-def test_sealed_target_preserves_mtp_binding_and_private_state(tmp_path, batch_engine, head):
+def test_sealed_target_preserves_mtp_binding_and_private_state(
+    tmp_path, batch_engine, head
+):
     from test_native_head_gdn import eligible_mtp, load as head_load
     from test_qwen_mtp import mtp_fixture
     from venturi.models import NativeQwenMTPModel
@@ -142,10 +184,18 @@ def test_sealed_target_preserves_mtp_binding_and_private_state(tmp_path, batch_e
     else:
         weights, draft, _, _ = mtp_fixture(tmp_path)
         from venturi.models import NativeQwenModel
+
         backend, dtype, device = batch_engine
-        target = NativeQwenModel.from_q8(weights, backend, weight_mode="resident",
-                    dtype=dtype, device=device, max_tokens=8, reserve_bytes=0,
-                    metadata_mode="sealed")
+        target = NativeQwenModel.from_q8(
+            weights,
+            native_runtime(backend),
+            weight_mode="resident",
+            dtype=dtype,
+            device=device,
+            max_tokens=8,
+            reserve_bytes=0,
+            metadata_mode="sealed",
+        )
     model = request = reference = None
     try:
         model = NativeQwenMTPModel.from_q8(target, draft, reserve_bytes=0)
@@ -154,7 +204,7 @@ def test_sealed_target_preserves_mtp_binding_and_private_state(tmp_path, batch_e
         actual = request.generate([1, 2, 3], max_new_tokens=6, eos_token_ids=[])
         assert actual == expected
         same_state(request.snapshot(), reference.snapshot())
-        target._weights.artifact.path.touch()
+        target._weights.source.path.touch()
         with pytest.raises(RuntimeError, match="source changed"):
             request.generate([1], max_new_tokens=1)
     finally:

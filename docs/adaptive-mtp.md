@@ -1,3 +1,6 @@
+> Current Qwen storage/API contract: [direct safetensors](qwen-safetensors.md).
+> Historical measurements below retain their original scope; `.ninfer` is no longer a supported input.
+
 # Adaptive MTP: measured-cost fresh-cohort routing
 
 This opt-in layer selects among existing native paths without changing Q8 codes,
@@ -88,7 +91,7 @@ the caller-owned target or MTP model. Calls on one owner are serialized.
 
 `tools/serve_native_benchmark.py --adaptive-mtp` enables persistent policy learning
 inside the existing loopback-only, token-ID, fixed-greedy benchmark adapter. It
-requires `--mtp-artifact` and TP, and rejects conflicting fixed-mode switches.
+requires `--mtp-checkpoint` and TP, and rejects conflicting fixed-mode switches.
 `--mtp-probe-interval 0` disables automatic probes. Responses include the actual
 `adaptive_mtp.decision`, selected depth, preparation/execution costs and acceptance
 counters. Those totals are **shared per cohort**, not additive across responses.

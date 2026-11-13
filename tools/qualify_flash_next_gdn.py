@@ -19,8 +19,8 @@ import torch
 from collect_hf_headers import fetch_range
 from qualify_flash_next_delta import oracle
 from qualify_flash_next_qsa import REVISION, UPSTREAM_SHA256
-from venturi.checkpoint import inspect_checkpoint
-from venturi.models.flash_next_gdn import FlashNextGDN, GDNGeometry, GDNState
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_gdn import FlashNextGDN, GDNGeometry, GDNState
 
 
 PREFIX = "model.language_model.layers.0.linear_attn"

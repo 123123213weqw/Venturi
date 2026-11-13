@@ -1,154 +1,309 @@
-"""Safetensors-based weight container (primary, HuggingFace standard).
+"""Strict bounded safetensors storage, independent of models and tensor frameworks."""
 
-Quantized weights are stored as regular safetensors tensors with a naming
-convention (`.codes` / `.scales` suffixes) and file-level metadata carrying
-the quantization config. Any safetensors-compatible tool can open and
-inspect these files.
-
-File layout (safetensors standard):
-    [8B header_length][JSON header][tensor data blocks]
-
-The JSON header maps tensor names to {dtype, shape, data_offsets: [begin, end]}.
-data_offsets are relative to the start of the data section. This container
-computes absolute file offsets for each tensor and exposes them via
-byte_spans() for the C++ WeightSource mmap path.
-"""
-
+import hashlib
 import json
-import struct
+import math
+import os
 from pathlib import Path
-from typing import Any
-
+import stat
+from types import MappingProxyType
 from .base import ByteSpan, TensorInfo
 
-_DTYPE_SIZES = {
-    "BOOL": 1, "U8": 1, "I8": 1,
-    "F16": 2, "BF16": 2,
-    "I16": 2, "U16": 2,
-    "F32": 4, "I32": 4, "U32": 4,
-    "F64": 8, "I64": 8, "U64": 8,
+DTYPES = {
+    "BOOL": ("bool", 1),
+    "U8": ("uint8", 1),
+    "I8": ("int8", 1),
+    "F16": ("float16", 2),
+    "BF16": ("bfloat16", 2),
+    "F32": ("float32", 4),
+    "F64": ("float64", 8),
+    "I16": ("int16", 2),
+    "U16": ("uint16", 2),
+    "I32": ("int32", 4),
+    "U32": ("uint32", 4),
+    "I64": ("int64", 8),
+    "U64": ("uint64", 8),
 }
 
-# Map safetensors dtype strings to our dtype names
-_DTYPE_MAP = {
-    "U8": "uint8", "I8": "int8",
-    "F16": "float16", "BF16": "bfloat16", "F32": "float32",
-}
+
+def _pairs(items):
+    out = {}
+    for k, v in items:
+        if k in out:
+            raise ValueError("Duplicate JSON key: " + k)
+        out[k] = v
+    return out
+
+
+def _stamp(s):
+    return (s.st_dev, s.st_ino, s.st_size, s.st_mtime_ns, s.st_ctime_ns)
 
 
 class SafetensorsContainer:
-    """Read quantized weights from a safetensors file."""
+    """One standard file. No role directory, format guessing or model policy.
 
-    def __init__(self, path: str | Path):
-        self.path = Path(path).resolve(strict=True)
-        self._tensors: dict[str, TensorInfo] = {}
-        self._metadata: dict[str, Any] = {}
-        self._data_start: int = 0
-        self._logical_offsets: dict[str, int] = {}
-        self._total_payload: int = 0
-        self._parse()
+    Tensor offsets are coordinates in the physical data section. Shape/dtype,
+    interval coverage and file identity are validated before any tensor read.
+    """
 
-    def _parse(self):
-        """Parse the safetensors header and compute tensor offsets."""
-        with open(self.path, "rb") as f:
-            header_len_bytes = f.read(8)
-            if len(header_len_bytes) != 8:
+    def __init__(self, path, *, max_header_bytes=64 << 20):
+        self.path = Path(path).expanduser().absolute()
+        if self.path.is_symlink():
+            raise ValueError("Weight source must not be a symlink")
+        if type(max_header_bytes) is not int or max_header_bytes < 2:
+            raise ValueError("Invalid header budget")
+        before = self.path.stat()
+        if not stat.S_ISREG(before.st_mode):
+            raise ValueError("Weight source must be a regular file")
+        self.stamp = _stamp(before)
+        with self.path.open("rb") as stream:
+            if _stamp(os.fstat(stream.fileno())) != self.stamp:
+                raise ValueError("Source changed during open")
+            prefix = stream.read(8)
+            if len(prefix) != 8:
                 raise ValueError("Truncated safetensors header length")
-            header_len = struct.unpack("<Q", header_len_bytes)[0]
-            if header_len > 512 * 1024 * 1024:
-                raise ValueError("Safetensors header exceeds 512MB bound")
-            header_json = f.read(header_len)
-            if len(header_json) != header_len:
-                raise ValueError("Truncated safetensors header")
-            self._data_start = 8 + header_len
-
-        header = json.loads(header_json)
-        self._metadata = header.pop("__metadata__", {})
-
-        # Build TensorInfo for each tensor, computing absolute file offsets.
-        # Also compute logical offsets (concatenated payload coordinates).
-        logical = 0
-        for name, spec in sorted(header.items()):
-            dtype = spec["dtype"]
-            shape = tuple(spec["shape"])
-            begin, end = spec["data_offsets"]
-            nbytes = end - begin
-            self._tensors[name] = TensorInfo(
-                name=name,
-                dtype=_DTYPE_MAP.get(dtype, dtype.lower()),
-                shape=shape,
-                byte_offset=self._data_start + begin,
-                byte_size=nbytes,
+            length = int.from_bytes(prefix, "little")
+            if not 2 <= length <= min(max_header_bytes, before.st_size - 8):
+                raise ValueError("Invalid or oversized safetensors header")
+            encoded = stream.read(length)
+        header = json.loads(
+            encoded,
+            object_pairs_hook=_pairs,
+            parse_constant=lambda _: (_ for _ in ()).throw(
+                ValueError("Nonfinite JSON")
+            ),
+        )
+        if not isinstance(header, dict):
+            raise ValueError("Safetensors header must be an object")
+        metadata = header.pop("__metadata__", {})
+        if not isinstance(metadata, dict) or any(
+            not isinstance(v, str) for v in metadata.values()
+        ):
+            raise ValueError("Safetensors metadata must contain strings")
+        self._metadata = MappingProxyType(metadata)
+        self.header_sha256 = hashlib.sha256(encoded).hexdigest()
+        self.data_start = 8 + length
+        payload = before.st_size - self.data_start
+        tensors = {}
+        intervals = []
+        for name, spec in header.items():
+            if not isinstance(name, str) or not name or "\x00" in name:
+                raise ValueError("Invalid tensor name")
+            if not isinstance(spec, dict) or spec.keys() != {
+                "dtype",
+                "shape",
+                "data_offsets",
+            }:
+                raise ValueError("Invalid tensor descriptor: " + name)
+            if not isinstance(spec["dtype"], str) or spec["dtype"] not in DTYPES:
+                raise ValueError("Unsupported safetensors dtype")
+            shape = spec["shape"]
+            offsets = spec["data_offsets"]
+            if (
+                not isinstance(shape, list)
+                or len(shape) > 16
+                or any(type(n) is not int or not 0 <= n < 2**63 for n in shape)
+            ):
+                raise ValueError("Invalid tensor shape")
+            if (
+                not isinstance(offsets, list)
+                or len(offsets) != 2
+                or any(type(n) is not int for n in offsets)
+            ):
+                raise ValueError("Invalid tensor offsets")
+            a, b = offsets
+            dtype, itemsize = DTYPES[spec["dtype"]]
+            if not 0 <= a <= b <= payload or math.prod(shape) * itemsize != b - a:
+                raise ValueError("Tensor shape/dtype/byte range mismatch: " + name)
+            tensors[name] = TensorInfo(
+                name, dtype, tuple(shape), self.data_start + a, b - a
             )
-            self._logical_offsets[name] = logical
-            logical += nbytes
-        self._total_payload = logical
+            if a != b:
+                intervals.append((a, b))
+        cursor = 0
+        for a, b in sorted(intervals):
+            if a != cursor:
+                raise ValueError("Tensor ranges overlap or leave holes")
+            cursor = b
+        if cursor != payload:
+            raise ValueError("Unaccounted safetensors data bytes")
+        self._tensors = MappingProxyType(tensors)
+        self._payload = payload
+        self.check_source()
 
-    def list_tensors(self) -> list[str]:
-        return list(self._tensors.keys())
+    def check_source(self):
+        if self.path.is_symlink() or _stamp(self.path.stat()) != self.stamp:
+            raise RuntimeError("Weight source changed; reopen after verification")
 
-    def tensor_info(self, name: str) -> TensorInfo:
-        if name not in self._tensors:
-            raise KeyError(f"Tensor {name!r} not in {self.path.name}")
+    def list_tensors(self):
+        return list(self._tensors)
+
+    def tensor_info(self, name):
         return self._tensors[name]
 
-    def metadata(self) -> dict[str, Any]:
+    def metadata(self):
         return dict(self._metadata)
 
-    def logical_offset(self, name: str) -> int:
-        """Offset of this tensor in the logical concatenated payload."""
-        return self._logical_offsets[name]
+    def logical_offset(self, name):
+        return self.tensor_info(name).byte_offset - self.data_start
 
-    def byte_spans(self) -> list[ByteSpan]:
-        """One span per tensor, sorted by file offset (for C++ mmap).
+    def byte_spans(self):
+        return [
+            ByteSpan(str(self.path), 0, self.data_start, self._payload, self.stamp[2])
+        ]
 
-        Note: safetensors stores tensors sorted by name, but their data
-        offsets may not be contiguous. Each tensor gets its own span.
-        """
-        total = self.path.stat().st_size
-        spans = []
-        sorted_by_offset = sorted(self._tensors.values(), key=lambda t: t.byte_offset)
-        for info in sorted_by_offset:
-            spans.append(ByteSpan(
-                path=str(self.path),
-                logical_start=self._logical_offsets[info.name],
-                file_offset=info.byte_offset,
-                bytes=info.byte_size,
-                file_bytes=total,
-            ))
-        return spans
+    def total_payload_bytes(self):
+        return self._payload
 
-    def read_bytes(self, tensor_name: str, offset: int, size: int) -> bytes:
-        info = self.tensor_info(tensor_name)
-        if offset < 0 or size < 0 or offset + size > info.byte_size:
-            raise ValueError(
-                f"Read [{offset}:{offset+size}) exceeds {tensor_name!r} "
-                f"size {info.byte_size}"
-            )
-        with open(self.path, "rb") as f:
-            f.seek(info.byte_offset + offset)
-            data = f.read(size)
-        if len(data) != size:
-            raise ValueError(f"Truncated read from {tensor_name!r}")
+    def read_bytes(self, name, offset=0, size=None, *, max_bytes=64 << 20):
+        info = self.tensor_info(name)
+        size = info.byte_size - offset if size is None else size
+        if (
+            any(type(x) is not int for x in (offset, size, max_bytes))
+            or offset < 0
+            or size < 0
+            or offset + size > info.byte_size
+            or size > max_bytes
+        ):
+            raise ValueError("Tensor read exceeds range or budget")
+        self.check_source()
+        with self.path.open("rb") as stream:
+            if _stamp(os.fstat(stream.fileno())) != self.stamp:
+                raise RuntimeError("Weight source changed during open")
+            stream.seek(info.byte_offset + offset)
+            data = stream.read(size)
+            if len(data) != size or _stamp(os.fstat(stream.fileno())) != self.stamp:
+                raise RuntimeError("Weight source changed during read")
+        self.check_source()
         return data
 
-    def total_payload_bytes(self) -> int:
-        return self._total_payload
+    def signature(self):
+        return {
+            "path": str(self.path),
+            "stamp": self.stamp,
+            "header_sha256": self.header_sha256,
+        }
 
-    def model_config(self) -> dict:
-        """Read config.json from the same directory (HuggingFace convention)."""
-        config_path = self.path.parent / "config.json"
-        if not config_path.exists():
-            raise FileNotFoundError(
-                f"config.json not found alongside {self.path.name}"
+
+class SafetensorsWriter:
+    """Bounded per-tensor writes and atomic no-clobber publication.
+
+    Each tensor is written sequentially, but different tensors may interleave.
+    Only standard safetensors fields are serialized; no virtual object directory.
+    """
+
+    def __init__(self, path, tensors, metadata):
+        import tempfile
+        import shutil
+
+        self.path = Path(path).expanduser().absolute()
+        if self.path.exists() or self.path.is_symlink():
+            raise FileExistsError(self.path)
+        if self.path.suffix != ".safetensors":
+            raise ValueError("Output must use .safetensors")
+        if not self.path.parent.is_dir():
+            raise ValueError("Output parent must exist")
+        if not isinstance(metadata, dict) or any(
+            not isinstance(k, str) or not isinstance(v, str)
+            for k, v in metadata.items()
+        ):
+            raise ValueError("Metadata must contain strings")
+        header = {"__metadata__": dict(metadata)}
+        self.offsets = {}
+        self.sizes = {}
+        self.next = {}
+        cursor = 0
+        for name, (dtype, shape) in tensors.items():
+            if (
+                not isinstance(name, str)
+                or name == "__metadata__"
+                or not name
+                or "\x00" in name
+                or not isinstance(dtype, str)
+                or dtype not in DTYPES
+            ):
+                raise ValueError("Invalid tensor name/dtype")
+            if (
+                not isinstance(shape, (tuple, list))
+                or len(shape) > 16
+                or any(type(n) is not int or not 0 <= n < 2**63 for n in shape)
+            ):
+                raise ValueError("Invalid tensor shape")
+            size = math.prod(shape) * DTYPES[dtype][1]
+            header[name] = {
+                "dtype": dtype,
+                "shape": list(shape),
+                "data_offsets": [cursor, cursor + size],
+            }
+            self.offsets[name] = cursor
+            self.sizes[name] = size
+            self.next[name] = 0
+            cursor += size
+        encoded = json.dumps(
+            header, sort_keys=True, separators=(",", ":"), allow_nan=False
+        ).encode()
+        length = (len(encoded) + 7) // 8 * 8
+        if length > 64 << 20:
+            raise ValueError("Safetensors header budget exceeded")
+        self.data_start = 8 + length
+        self.total_bytes = self.data_start + cursor
+        if shutil.disk_usage(self.path.parent).free < self.total_bytes + (64 << 20):
+            raise OSError("Insufficient disk space for output plus reserve")
+        self.stream = tempfile.NamedTemporaryFile(
+            prefix=".venturi-safetensors-",
+            suffix=".partial",
+            dir=self.path.parent,
+            delete=False,
+        )
+        self.temporary = Path(self.stream.name)
+        self.published = False
+        try:
+            header_bytes = (
+                length.to_bytes(8, "little") + encoded + b" " * (length - len(encoded))
             )
-        return json.loads(config_path.read_text())
+            if self.stream.write(header_bytes) != len(header_bytes):
+                raise OSError("Short safetensors header write")
+            self.stream.truncate(self.total_bytes)
+        except BaseException:
+            self.close()
+            raise
 
-    def binding_map(self) -> dict[str, str]:
-        """Identity mapping: safetensors tensor names ARE the binding names.
+    def write_slice(self, name, data, offset=0):
+        if self.published or self.stream.closed:
+            raise ValueError("Writer is closed or already published")
+        if (
+            type(offset) is not int
+            or offset != self.next[name]
+            or offset + memoryview(data).nbytes > self.sizes[name]
+        ):
+            raise ValueError("Out-of-order or oversized tensor write")
+        self.stream.seek(self.data_start + self.offsets[name] + offset)
+        view = memoryview(data).cast("B")
+        while view:
+            n = self.stream.write(view)
+            if not n:
+                raise OSError("Short safetensors write")
+            view = view[n:]
+        self.next[name] += memoryview(data).nbytes
 
-        For quantized matrices, each logical weight is stored as two tensors:
-        "{source}.codes" and "{source}.scales". The admission layer knows
-        to look for both when the plan declares a quantized format.
-        """
-        return {name: name for name in self._tensors}
+    def finish(self):
+        if self.next != self.sizes:
+            raise ValueError("Not all tensor bytes were written")
+        self.stream.flush()
+        os.fsync(self.stream.fileno())
+        SafetensorsContainer(self.temporary)
+
+    def publish(self):
+        self.finish()
+        os.link(self.temporary, self.path)
+        self.published = True
+
+    def close(self):
+        self.stream.close()
+        self.temporary.unlink(missing_ok=True)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()

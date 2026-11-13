@@ -6,8 +6,8 @@ import sys
 
 import pytest
 
-from venturi.model_assets import ModelAsset
-from venturi.model_config import read_verified_json_asset
+from venturi.container.model_assets import ModelAsset
+from venturi.container.model_config import read_verified_json_asset
 
 
 def asset(root,raw=b'{"a":1}'):
@@ -48,4 +48,4 @@ def test_symlink_fifo_and_partial_are_refused(tmp_path):
 
 
 def test_torch_free_json_import():
-    subprocess.check_call([sys.executable,'-c','import sys;import venturi.model_config;assert "torch" not in sys.modules'])
+    subprocess.check_call([sys.executable,'-c','import sys;import venturi.container.model_config;assert "torch" not in sys.modules'])

@@ -9,7 +9,7 @@ from dataclasses import dataclass
 
 from venturi.models.qwen.qwen_model import _memory_guard, qwen_resident_bytes
 from venturi.models.qwen.qwen_rope import QwenTextRoPE
-from ...codecs import codec_for
+from venturi.quantization.codecs import codec_for
 
 
 def _head_gdn_workspace(cfg, rows):
@@ -46,9 +46,7 @@ def plan_budget(spec, owned, cfg):
     ep = (cfg["hidden_size"] + 127) // 128 * 128
     peak = max(*q8_bytes, max_tokens * (ep + ep // 32 * 2))
     max_projection_k = max(
-        s.shape[1]
-        for s in owned.plan.bindings
-        if codec_for(s.format).quantized
+        s.shape[1] for s in owned.plan.bindings if codec_for(s.format).quantized
     )
     quant_bytes = (
         max_tokens * ((max_projection_k + 31) // 32) * 36 * 2
@@ -80,12 +78,10 @@ def plan_budget(spec, owned, cfg):
                 and first <= int(role.split("/")[2]) < last
             )
             if include:
-                obj = owned._object(role)
+                desc = owned.descriptor(role)
                 n, k = binding.shape
-                selected[obj["offset"]] = codec_for(binding.format).upload_bytes(n, k)
-        required = (
-            sum(selected.values()) + 2 * small + 4 * 2**20 + rope.rotary_dim * 2
-        )
+                selected[desc.source] = codec_for(binding.format).upload_bytes(n, k)
+        required = sum(selected.values()) + 2 * small + 4 * 2**20 + rope.rotary_dim * 2
     if peer is not None:
         primary = secondary = max_k = max_rows = 0
         for binding in owned.plan.bindings:

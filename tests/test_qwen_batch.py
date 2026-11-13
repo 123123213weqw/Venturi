@@ -1,5 +1,7 @@
 """Grouped projections must never merge independent recurrent/attention sequences."""
 
+from qwen_native_runtime import native_runtime
+
 import ctypes as C
 import os
 from concurrent.futures import ThreadPoolExecutor
@@ -50,14 +52,16 @@ def batch_engine(request):
     return base_port.__wrapped__(request)
 
 
-def load(tmp_path, engine, tp, *, tied=False, profile="fp16", metadata_mode="checked-json"):
+def load(
+    tmp_path, engine, tp, *, tied=False, profile="fp16", metadata_mode="checked-json"
+):
     backend, dtype, device = engine
     if tp and torch.cuda.device_count() < 2:
         pytest.skip("two devices required")
     weights, _ = hybrid_fixture(tmp_path, tied=tied)
     model = NativeQwenModel.from_q8(
         weights,
-        backend,
+        native_runtime(backend),
         weight_mode="resident",
         dtype=dtype,
         device=device,
@@ -272,7 +276,7 @@ def test_two_batches_share_only_immutable_model_and_source_guard(
         for i in range(2):
             same_state(a.snapshot(i), b.snapshot(i))
         a.reset()
-        with model._weights.artifact.files[0].path.open("ab") as f:
+        with model._weights.source.path.open("ab") as f:
             f.write(b"changed")
         with pytest.raises(RuntimeError, match="source changed"):
             a.generate([[1]], max_new_tokens=2)

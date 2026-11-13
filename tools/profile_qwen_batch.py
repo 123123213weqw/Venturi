@@ -4,6 +4,8 @@ Batch has one native_unsplit C-call range for eight logical requests. Scalar has
 eight native_unsplit submitting-thread ranges. Do not equate range/request count.
 """
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 import json
@@ -12,8 +14,8 @@ from pathlib import Path
 import torch
 
 from benchmark_qwen_native_parallel import run_wave
-from venturi.models import NativeQwenModel, QwenQ8Weights
-from venturi.ninfer import NInferArtifact
+from venturi.models import NativeQwenModel, QwenWeights
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 
 
@@ -37,13 +39,14 @@ def main():
     )
     p.add_argument("--count", type=int, default=8, choices=(1, 2, 4, 8))
     p.add_argument("--output", required=True)
+    p.add_argument("--qwen-library", required=True)
     a = p.parse_args()
     torch.set_num_threads(4)
     case = json.loads(Path(a.case).read_text())
     prompt, expected = case["prompt_token_ids"], case["expected_generated_ids"]
     model = NativeQwenModel.from_q8(
-        QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact)),
-        CudaBackend(a.library),
+        QwenWeights.open(a.artifact),
+        QwenRuntime(a.qwen_library, CudaBackend(a.library)),
         weight_mode="resident",
         dtype=torch.float16,
         device="cuda:0",

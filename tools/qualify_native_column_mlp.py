@@ -6,6 +6,8 @@ teacher quality limits. New-profile scalar/batch/reset states must agree exactly
 This does not establish original BF16 or broad corpus quality.
 """
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 import gc
 import hashlib
@@ -17,8 +19,8 @@ import torch
 from qualify_qwen_projection_profile import native_generate
 from qualify_qwen_projection_variant import state_signature, tensor_signature
 from qualify_qwen_streaming import logits_comparison
-from venturi.models import NativeQwenModel, QwenQ8Weights
-from venturi.ninfer import NInferArtifact
+from venturi.models import NativeQwenModel, QwenWeights
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 
 PROFILE = "q8-residual-column-mlp"
@@ -39,6 +41,7 @@ def main():
     p.add_argument("--projection-rows", type=int, choices=(32, 256), default=32)
     p.add_argument("--reuse-qualified-report")
     p.add_argument("--reuse-qualified-report-sha256")
+    p.add_argument("--qwen-library", required=True)
     a = p.parse_args()
     out = Path(a.output_directory)
     out.mkdir(parents=True, exist_ok=False)
@@ -53,8 +56,8 @@ def main():
     )
     cases = json.loads(Path(a.cases).read_text())
     assert len(cases) == len(reference["cases"]) == 4
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
-    assert weights.artifact.artifact_id == prior["artifact_id"]
+    weights = QwenWeights.open(a.artifact)
+    assert weights.source.header_sha256 == prior["header_sha256"]
     qualified = None
     teacher_base = out
     if bool(a.reuse_qualified_report) != bool(a.reuse_qualified_report_sha256):
@@ -63,7 +66,7 @@ def main():
         assert sha(a.reuse_qualified_report) == a.reuse_qualified_report_sha256
         qualified = json.loads(Path(a.reuse_qualified_report).read_text())
         assert qualified["completed"] and qualified["library_sha256"] == sha(a.library)
-        assert qualified["artifact_id"] == weights.artifact.artifact_id
+        assert qualified["header_sha256"] == weights.source.header_sha256
         assert qualified["profiles"]["fp16"]["candidate"]["passed"]
         assert qualified["profiles"][PROFILE]["candidate"]["passed"]
         teacher_base = Path(a.reuse_qualified_report).parent
@@ -73,7 +76,7 @@ def main():
         scope=__doc__,
         completed=False,
         profiled=False,
-        artifact_id=weights.artifact.artifact_id,
+        header_sha256=weights.source.header_sha256,
         library_sha256=sha(a.library),
         prior_teacher_report_sha256=a.prior_teacher_report_sha256,
         artifact_hash_scope="Pinned prior payload/official-source validation reused; current artifact ID matches. No new full payload SHA256 scan or original BF16 corpus claim.",
@@ -107,7 +110,7 @@ def main():
     for profile in ["fp16", PROFILE] if qualified is None else [PROFILE]:
         model = NativeQwenModel.from_q8(
             weights,
-            CudaBackend(a.library),
+            QwenRuntime(a.qwen_library, CudaBackend(a.library)),
             weight_mode="resident",
             dtype=torch.float16,
             device="cuda:0",
@@ -154,9 +157,9 @@ def main():
                         else:
                             check = logits_comparison(logits, teacher[step])
                             checks.append(check)
-                            assert check["passed"], (
-                                "Unchanged represented teacher quality gate failed"
-                            )
+                            assert check[
+                                "passed"
+                            ], "Unchanged represented teacher quality gate failed"
                         assert ids[-1] == wanted, "Original teacher trajectory changed"
                     state = state_signature(r.snapshot())
                     if profile == "fp16":
@@ -177,9 +180,9 @@ def main():
                         eos_token_ids=case.get("eos_token_ids", []),
                     )
                     assert generated == ids == expected
-                    assert state_signature(r.snapshot()) == state, (
-                        "Same-profile ordinary diagnostic/generate state changed"
-                    )
+                    assert (
+                        state_signature(r.snapshot()) == state
+                    ), "Same-profile ordinary diagnostic/generate state changed"
                     record["cases"].append(
                         dict(
                             name=case["name"],
@@ -202,9 +205,9 @@ def main():
                             "committed_private_state",
                             "committed_position",
                         ]:
-                            assert record["cases"][-1][field] == previous[field], (
-                                "Row budget changed new-profile trajectory/state bytes"
-                            )
+                            assert (
+                                record["cases"][-1][field] == previous[field]
+                            ), "Row budget changed new-profile trajectory/state bytes"
                     save()
                     del rows, teacher
                 finally:

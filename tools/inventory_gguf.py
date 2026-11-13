@@ -11,8 +11,8 @@ import hashlib
 import json
 from pathlib import Path
 
-from venturi.gguf_inventory import inspect_gguf
-from venturi.model_assets import ModelBundle
+from venturi.container.gguf.gguf_inventory import inspect_gguf
+from venturi.container.model_assets import ModelBundle
 
 
 def inventory_bundle(bundle, root, *, allow_partial=False, verify_assets=False):

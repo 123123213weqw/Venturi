@@ -133,7 +133,7 @@ class Q4RowSplitWeight:
     def from_payload(
         cls, payload: torch.Tensor, *, out_features: int, in_features: int
     ):
-        """View an encoded Q4 tensor payload, not an entire .ninfer container.
+        """View an encoded Q4 tensor payload, not an entire checkpoint.
 
         Codes precede a 256-byte-aligned FP16 scale plane. Views share payload
         storage; prepare_linear takes owned copies for execution.

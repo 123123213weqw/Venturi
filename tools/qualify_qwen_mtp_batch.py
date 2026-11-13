@@ -1,5 +1,7 @@
 """Fresh trained MTP-batch state/identity gates with pinned target quality reuse."""
 
+from venturi.models.qwen.native_runtime import QwenRuntime
+
 import argparse
 from contextlib import ExitStack
 import gc
@@ -12,10 +14,10 @@ from qualify_qwen_projection_variant import state_signature, tensor_signature
 from venturi.models import (
     NativeQwenModel,
     NativeQwenMTPModel,
-    QwenQ8Weights,
+    QwenWeights,
     QwenMTPWeights,
 )
-from venturi.ninfer import NInferArtifact
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 
 
@@ -34,7 +36,7 @@ def draft_signature(s):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("artifact")
-    p.add_argument("--mtp-artifact", required=True)
+    p.add_argument("--mtp-checkpoint", required=True)
     p.add_argument("--library", required=True)
     p.add_argument("--cases", required=True)
     p.add_argument("--prior-target-report", required=True)
@@ -54,6 +56,7 @@ def main():
         choices=("fp16", "q8-residual"),
         default="fp16",
     )
+    p.add_argument("--qwen-library", required=True)
     a = p.parse_args()
     out = Path(a.output_directory)
     out.mkdir(parents=True, exist_ok=False)
@@ -63,15 +66,15 @@ def main():
     assert prior["completed"]
     pinned = prior["profiles"][a.projection_profile]["candidate"]
     assert sum(len(c["all_logit_bytes"]) for c in pinned["cases"]) == 98
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
+    weights = QwenWeights.open(a.artifact)
     cases = json.loads(Path(a.cases).read_text())
     assert len(cases) == 4
     report = dict(
         scope=__doc__,
         completed=False,
         library_sha256=sha(a.library),
-        target_artifact_id=weights.artifact.artifact_id,
-        mtp_artifact_sha256=sha(a.mtp_artifact),
+        target_header_sha256=weights.source.header_sha256,
+        mtp_checkpoint_sha256=sha(a.mtp_checkpoint),
         prior_target_report_sha256=a.prior_target_report_sha256,
         projection_rows=32,
         capacity_per_slot=256,
@@ -89,7 +92,7 @@ def main():
 
     target = NativeQwenModel.from_q8(
         weights,
-        CudaBackend(a.library),
+        QwenRuntime(a.qwen_library, CudaBackend(a.library)),
         weight_mode="resident",
         dtype=torch.float16,
         device="cuda:0",
@@ -178,7 +181,7 @@ def main():
     try:
         model = NativeQwenMTPModel.from_q8(
             target,
-            QwenMTPWeights.from_ninfer(NInferArtifact(a.mtp_artifact)),
+            QwenMTPWeights.open(a.mtp_checkpoint),
             draft_projection_profile=a.mtp_draft_projection_profile,
         )
         batch = model.create_batch([256] * 8)

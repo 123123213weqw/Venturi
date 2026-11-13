@@ -11,28 +11,27 @@ from importlib.util import resolve_name
 import json
 from pathlib import Path
 
-
 METADATA = frozenset(
     {
-        "venturi.checkpoint",
+        "venturi.container.checkpoint",
         "venturi.container.checkpoint",
         "venturi.dtypes",
-        "venturi.model_assets",
+        "venturi.container.model_assets",
         "venturi.container.assets",
-        "venturi.model_config",
+        "venturi.container.model_config",
         "venturi.container.config",
-        "venturi.tokenizer_assets",
+        "venturi.container.tokenizer_assets",
         "venturi.container.tokenizer",
-        "venturi.ninfer",
-        "venturi.gguf_inventory",
+        "venturi.container.safetensors",
+        "venturi.container.gguf.gguf_inventory",
         "venturi.container.gguf.inventory",
-        "venturi.gguf_metadata",
+        "venturi.container.gguf.gguf_metadata",
         "venturi.container.gguf.metadata",
-        "venturi.flash_next",
+        "venturi.models.flash_next.flash_next",
         "venturi.models.flash_next.model",
-        "venturi.adaptive_mtp",
         "venturi.models.qwen.adaptive_mtp",
-        "venturi.staging",
+        "venturi.models.qwen.adaptive_mtp",
+        "venturi.container.staging",
         "venturi.container.staging",
     }
 )
@@ -112,7 +111,7 @@ def check_edge(module, edge):
         rules.append("native-runtime-does-not-import-external-engines")
     higher = ("venturi.models", "venturi.commands", "venturi.backends", "venturi.cli")
     if within(module, ("venturi.ops",)) and within(
-        target, higher + ("venturi.generation",)
+        target, higher + ("venturi.engine.generation",)
     ):
         rules.append("operators-do-not-import-models-or-commands")
     if within(module, ("venturi.models", "venturi.backends")) and within(
@@ -124,15 +123,17 @@ def check_edge(module, edge):
         higher
         + (
             "venturi.ops",
-            "venturi.loader",
-            "venturi.generation",
+            "venturi.container.loader",
+            "venturi.engine.generation",
             "torch",
             "safetensors",
         ),
     ):
         rules.append("shared-text-is-model-and-framework-independent")
     if module in METADATA and within(
-        target, higher + ("venturi.ops", "venturi.loader", "venturi.generation")
+        target,
+        higher
+        + ("venturi.ops", "venturi.container.loader", "venturi.engine.generation"),
     ):
         rules.append("metadata-does-not-depend-on-execution")
     if module in METADATA and edge["eager"] and within(target, ("torch",)):
@@ -145,8 +146,8 @@ def check_edge(module, edge):
             higher
             + (
                 "venturi.ops",
-                "venturi.loader",
-                "venturi.generation",
+                "venturi.container.loader",
+                "venturi.engine.generation",
                 "torch",
                 "safetensors",
             ),

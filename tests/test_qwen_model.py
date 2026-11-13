@@ -10,14 +10,14 @@ from attention_reference import attention_reference
 from qwen_gdn_reference import gdn_layer_oracle, q8_source_oracle
 from test_qwen_attention_layer import fixture_weights
 from venturi.models import (
-    QwenQ8Weights,
+    QwenWeights,
     ResidentQwenModel,
     qwen_resident_bytes,
 )
-from venturi.ninfer import NInferArtifact
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend, TorchBackend
-from venturi.qwen_export import export_qwen_q8
-from test_qwen_source import write_source
+from venturi.models.qwen.qwen_export import export_qwen_q8
+from qwen_fixtures import write_source
 
 
 def hybrid_fixture(root, *, tied=False):
@@ -45,8 +45,8 @@ def hybrid_fixture(root, *, tied=False):
             )
             raw[dest] = (value * 0.875).to(value.dtype)
     source = write_source(root / "hybrid-source", raw=cfg, tensors=raw)
-    artifact = export_qwen_q8(source, root / "hybrid-q8.ninfer")
-    return QwenQ8Weights.from_ninfer(NInferArtifact(artifact["output"])), raw
+    artifact = export_qwen_q8(source, root / "hybrid-q8.safetensors")
+    return QwenWeights.open(artifact["output"]), raw
 
 
 @pytest.fixture(params=["fp64", "cpu-bf16", "cuda"])
@@ -57,7 +57,7 @@ def engine(request):
             torch.float64 if request.param == "fp64" else torch.bfloat16,
             "cpu",
         )
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native library required")
     return CudaBackend(library), torch.bfloat16, "cuda:0"

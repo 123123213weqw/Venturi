@@ -33,9 +33,7 @@ def make_weights(h, intermediate, dtype=torch.float64, q4=False):
 @pytest.mark.parametrize("q4", [False, True])
 def test_shared_block_against_independent_staged_fp64(h, intermediate, tokens, q4):
     weights = make_weights(h, intermediate, q4=q4)
-    plan = weights.prepare(
-        TorchBackend(), tokens=tokens, dtype=torch.float64, device="cpu"
-    )
+    plan = weights.upload(TorchBackend(), dtype=torch.float64, device='cpu').prepare(tokens=tokens)
     workspace = plan.empty_workspace()
     x = torch.randn(tokens, h, dtype=torch.float64)
     out = torch.empty_like(x)
@@ -50,7 +48,7 @@ def test_shared_block_against_independent_staged_fp64(h, intermediate, tokens, q
 
 def test_preparation_owns_weights_and_workspaces_are_independent():
     weights = make_weights(16, 32)
-    plan = weights.prepare(TorchBackend(), tokens=2, dtype=torch.float64, device="cpu")
+    plan = weights.upload(TorchBackend(), dtype=torch.float64, device='cpu').prepare(tokens=2)
     a, b = plan.empty_workspace(), plan.empty_workspace()
     x = torch.randn(2, 16, dtype=torch.float64)
     out = torch.empty_like(x)
@@ -68,9 +66,7 @@ def test_preparation_owns_weights_and_workspaces_are_independent():
 
 
 def test_workspace_shape_alias_and_autograd_rejected_before_execution():
-    plan = make_weights(16, 32).prepare(
-        TorchBackend(), tokens=2, dtype=torch.float64, device="cpu"
-    )
+    plan = make_weights(16, 32).upload(TorchBackend(), dtype=torch.float64, device='cpu').prepare(tokens=2)
     x = torch.randn(2, 16, dtype=torch.float64)
     out = torch.full_like(x, 123)
     ws = plan.empty_workspace()
@@ -105,9 +101,7 @@ def test_binding_rejects_incompatible_projection_shapes():
 @pytest.mark.parametrize("epsilon", [0, -1, float("nan"), float("inf"), True, 1e-50])
 def test_invalid_epsilon_rejected(epsilon):
     with pytest.raises(ValueError, match="epsilon"):
-        make_weights(8, 16).prepare(
-            TorchBackend(), tokens=1, dtype=torch.float64, device="cpu", epsilon=epsilon
-        )
+        make_weights(8, 16).upload(TorchBackend(), dtype=torch.float64, device='cpu', epsilon=epsilon).prepare(tokens=1)
 
 
 @pytest.mark.parametrize(

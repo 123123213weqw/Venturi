@@ -17,9 +17,9 @@ from torch import nn
 from torch.nn import functional as F
 
 from collect_hf_headers import fetch_range
-from venturi.checkpoint import inspect_checkpoint
-from venturi.flash_next import FlashNextConfig
-from venturi.models.flash_next_residual import FlashNextGatedResidual
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next import FlashNextConfig
+from venturi.models.flash_next.flash_next_residual import FlashNextGatedResidual
 
 
 UPSTREAM_SHA256 = "e57b3617e71e81ecb7e5ae3b420c45b5aee80d76a07aa8c88b797c2642f1f5df"

@@ -7,11 +7,11 @@ import pytest
 import torch
 
 from qwen_gdn_reference import gdn_layer_oracle, qualify_layer_operations
-from test_qwen_source import fixture_tensors, source_config, write_source
-from venturi.models import QwenQ8Weights, ResidentQwenGDNLayer
-from venturi.ninfer import NInferArtifact
+from qwen_fixtures import fixture_tensors, source_config, write_source
+from venturi.models import QwenWeights, ResidentQwenGDNLayer
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend, TorchBackend
-from venturi.qwen_export import export_qwen_q8
+from venturi.models.qwen.qwen_export import export_qwen_q8
 
 
 def fixture_weights(tmp_path, hv=4):
@@ -49,9 +49,9 @@ def fixture_weights(tmp_path, hv=4):
             else torch.bfloat16
         )
     source = write_source(tmp_path / "source", raw=cfg, tensors=raw)
-    result = export_qwen_q8(source, tmp_path / "test-q8.ninfer", rows_per_chunk=7)
+    result = export_qwen_q8(source, tmp_path / "test-q8.safetensors", rows_per_chunk=7)
     return (
-        QwenQ8Weights.from_ninfer(NInferArtifact(result["output"])),
+        QwenWeights.open(result["output"]),
         raw,
         cfg["text_config"],
     )
@@ -65,7 +65,7 @@ def engine(request):
             torch.float64 if request.param == "fp64" else torch.bfloat16,
             "cpu",
         )
-    path = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    path = os.environ.get("VENTURI_OPS_LIBRARY")
     if not path:
         pytest.skip("explicit native blocks library required")
     return CudaBackend(path), torch.bfloat16, "cuda:0"
@@ -300,7 +300,7 @@ def test_invalid_layer_or_precision_rejected_before_payload_reads(
     def forbidden(*args, **kwargs):
         raise AssertionError("Invalid layer started reading weights")
 
-    monkeypatch.setattr(weights.artifact, "read_object", forbidden)
+    monkeypatch.setattr(weights.source, "read_bytes", forbidden)
     for layer in (-1, True, 1, 2):
         with pytest.raises(ValueError):
             ResidentQwenGDNLayer.from_q8(
@@ -316,7 +316,7 @@ def test_invalid_layer_or_precision_rejected_before_payload_reads(
 def test_native_layer_graph_has_no_tensor_fallback_or_runtime_views(
     tmp_path, monkeypatch
 ):
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native library required")
     weights, _, _ = fixture_weights(tmp_path)
@@ -383,7 +383,7 @@ def test_native_layer_graph_has_no_tensor_fallback_or_runtime_views(
 
 @pytest.mark.cuda
 def test_native_layer_independent_streams_and_closed_projection_preflight(tmp_path):
-    library = os.environ.get("VENTURI_BLOCKS_LIBRARY")
+    library = os.environ.get("VENTURI_OPS_LIBRARY")
     if not library:
         pytest.skip("explicit native library required")
     weights, _, _ = fixture_weights(tmp_path, hv=6)

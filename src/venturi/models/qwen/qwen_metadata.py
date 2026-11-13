@@ -1,65 +1,47 @@
-"""Immutable loaded descriptors, distinct from the mutable checkpoint loader.
+"""Immutable loaded source identity, not an alternate weight container."""
 
-Native model creation already copies constants and owns encoded weight mappings.
-Seal the detached Python descriptor once so each step need not JSON-serialize a
-whole model directory. Source-file identity/size/timestamps are still checked on
-every entry, in addition to the native mapping's existing source guards.
-"""
 from dataclasses import dataclass
-import hashlib
-import json
+import hashlib, json
 from types import MappingProxyType
 
-from venturi.ninfer import PayloadFile
 
-
-def source_digest(config, manifest):
-    return hashlib.sha256(json.dumps([config, manifest], sort_keys=True).encode()).digest()
+def source_digest(weights):
+    return hashlib.sha256(
+        json.dumps(weights.signature(), sort_keys=True).encode()
+    ).digest()
 
 
 def _freeze(value):
     if type(value) is dict:
-        if any(type(key) is not str for key in value):
-            raise TypeError("Loaded source directory requires JSON string keys")
-        return MappingProxyType({key: _freeze(item) for key, item in value.items()})
+        return MappingProxyType({k: _freeze(v) for k, v in value.items()})
     if type(value) is list:
-        return tuple(_freeze(item) for item in value)
-    if type(value) in (str, int, float, bool, type(None)):
-        return value
-    raise TypeError("Loaded source directory requires JSON metadata values")
+        return tuple(_freeze(v) for v in value)
+    return value
 
 
 @dataclass(frozen=True, slots=True)
-class _ArtifactMetadata:
+class SourceIdentity:
     path: object
-    manifest: object
-    objects: object
-    files: tuple
-    artifact_id: str
-    payload_bytes: int
+    stamp: tuple
+
+    def check_source(self):
+        s = self.path.stat()
+        if (s.st_dev, s.st_ino, s.st_size, s.st_mtime_ns, s.st_ctime_ns) != self.stamp:
+            raise RuntimeError("Weight source changed; recreate and verify model")
 
 
 @dataclass(frozen=True, slots=True)
 class LoadedQwenSource:
-    """Private immutable metadata capsule; not a checkpoint/weight reader."""
     config: object
-    artifact: _ArtifactMetadata
+    source: SourceIdentity
     digest: bytes
 
     @classmethod
     def capture(cls, weights, expected_digest):
-        encoded = json.dumps([weights.config, weights.artifact.manifest], sort_keys=True).encode()
-        actual = hashlib.sha256(encoded).digest()
+        actual = source_digest(weights)
         if actual != expected_digest:
-            raise RuntimeError("Native Qwen metadata changed during creation; recreate model")
-        source = weights.artifact
-        config, directory = json.loads(encoded)
-        manifest = _freeze(directory)
-        # Fresh immutable values, not aliases to the loader's mutable lists/maps.
-        files = tuple(PayloadFile(f.path, f.logical_start, f.payload_start, f.payload_bytes) for f in source.files)
-        artifact = _ArtifactMetadata(
-            source.path, manifest,
-            MappingProxyType({obj["id"]: obj for obj in manifest["objects"]}),
-            files, source.artifact_id, source.payload_bytes,
+            raise RuntimeError("Qwen metadata changed during creation")
+        config = _freeze(json.loads(json.dumps(weights.config)))
+        return cls(
+            config, SourceIdentity(weights.source.path, weights.source.stamp), actual
         )
-        return cls(_freeze(config), artifact, actual)

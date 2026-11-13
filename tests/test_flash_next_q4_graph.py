@@ -1,8 +1,8 @@
 """CPU contracts only; actual SM70 graph/model gates run separately."""
 import pytest
 import torch
-from venturi.models.flash_next_q4 import quantize_q4_rtn,decode_q4_fp16
-from venturi.models.flash_next_q4_graph import PairLayout,one_route,CoalescedQ4
+from venturi.models.flash_next.flash_next_q4 import quantize_q4_rtn, decode_q4_fp16
+from venturi.models.flash_next.flash_next_q4_graph import PairLayout, one_route, CoalescedQ4
 
 @pytest.mark.parametrize('shape',[(8,6),(128,64),(131,129),(2560,640)])
 def test_coalesced_pair_roundtrip_exact_owned(shape):

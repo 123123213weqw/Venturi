@@ -5,7 +5,7 @@ import os
 import pytest
 import torch
 
-from venturi.adaptive_mtp import AdaptiveMTPPolicy
+from venturi.models.qwen.adaptive_mtp import AdaptiveMTPPolicy
 from venturi.models import AdaptiveQwenMTPBatch
 from venturi.ops import CudaBackend
 from test_qwen_mtp_batch import models
@@ -171,11 +171,11 @@ def test_adaptive_benchmark_http_with_native_fixture(tmp_path, engine):
     command = [
         sys.executable,
         str(tool),
-        str(weights.artifact.path),
+        str(weights.source.path),
         "--library",
         os.environ["VENTURI_ADAPTIVE_MTP_LIBRARY"],
-        "--mtp-artifact",
-        str(draft.artifact.path),
+        "--mtp-checkpoint",
+        str(draft.source.path),
         "--mode",
         "tp",
         "--port",

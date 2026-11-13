@@ -7,13 +7,13 @@ import torch
 from torch.nn.attention import SDPBackend, sdpa_kernel
 
 from test_flash_next_attention import inputs
-from venturi.models.flash_next_attention import FlashNextQSAAttention, QSAAttentionGeometry
-from venturi.models.flash_next_gdn import FlashNextGDN, GDNGeometry
-from venturi.models.flash_next_layer import FlashNextDecoderLayer
-from venturi.models.flash_next_moe import FlashNextMoE, MoEGeometry, TensorExpertStore
-from venturi.models.flash_next_ple import FlashNextPLE, PLEGeometry
-from venturi.models.flash_next_qsa import QSAIndexerGeometry
-from venturi.models.flash_next_residual import FlashNextGatedResidual
+from venturi.models.flash_next.flash_next_attention import FlashNextQSAAttention, QSAAttentionGeometry
+from venturi.models.flash_next.flash_next_gdn import FlashNextGDN, GDNGeometry
+from venturi.models.flash_next.flash_next_layer import FlashNextDecoderLayer
+from venturi.models.flash_next.flash_next_moe import FlashNextMoE, MoEGeometry, TensorExpertStore
+from venturi.models.flash_next.flash_next_ple import FlashNextPLE, PLEGeometry
+from venturi.models.flash_next.flash_next_qsa import QSAIndexerGeometry
+from venturi.models.flash_next.flash_next_residual import FlashNextGatedResidual
 
 
 def module(kind="gdn", ple=True, dtype=torch.float32):

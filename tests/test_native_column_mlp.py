@@ -1,5 +1,7 @@
 """New FP32 association requires model/state gates, not old-profile byte claims."""
 
+from qwen_native_runtime import native_runtime
+
 import ctypes as C
 import os
 from types import SimpleNamespace
@@ -34,7 +36,7 @@ def load(weights, engine, rows=8):
     b, dtype, device = engine
     return NativeQwenModel.from_q8(
         weights,
-        b,
+        native_runtime(b),
         weight_mode="resident",
         dtype=dtype,
         device=device,
@@ -49,20 +51,20 @@ def load(weights, engine, rows=8):
 def test_column_profile_rejects_missing_tp_and_old_export_before_device_allocation(
     monkeypatch,
 ):
-    from venturi.models.qwen_weights import QwenQ8Weights
+    from venturi.models.qwen.qwen_weights import QwenWeights
 
-    weights = object.__new__(QwenQ8Weights)
+    weights = object.__new__(QwenWeights)
     backend = object.__new__(CudaBackend)
     backend._native = SimpleNamespace()
     kwargs = dict(
         weight_mode="resident", dtype=torch.float16, projection_profile=PROFILE
     )
     with pytest.raises(ValueError, match="two-device host TP"):
-        NativeQwenModel.from_q8(weights, backend, **kwargs)
+        NativeQwenModel.from_q8(weights, native_runtime(backend), **kwargs)
     with pytest.raises(RuntimeError, match="exports absent"):
         NativeQwenModel.from_q8(
             weights,
-            backend,
+            native_runtime(backend),
             tensor_parallel_device="cuda:1",
             tensor_parallel_transport="host",
             **kwargs,
@@ -70,7 +72,7 @@ def test_column_profile_rejects_missing_tp_and_old_export_before_device_allocati
     with pytest.raises(ValueError, match="complete resident FP16"):
         NativeQwenModel.from_q8(
             weights,
-            backend,
+            native_runtime(backend),
             tensor_parallel_device="cuda:1",
             tensor_parallel_transport="host",
             **{**kwargs, "weight_mode": "streaming"},
@@ -98,7 +100,7 @@ def test_native_full_mlp_against_independent_fp64_and_actual_fp32_partials(
         fn.argtypes = [C.c_void_p, C.c_int, C.c_void_p, C.c_int] + [C.c_void_p] * 3
         fn.restype = C.c_int
         for layer in [0, 1]:
-            model._backend._check(
+            model._runtime._check(
                 fn(
                     r._handle,
                     layer,
@@ -223,7 +225,7 @@ def test_column_failure_reset_closed_owner_and_source_mutation(
                 == expected
             )
         r.reset()
-        source = weights.artifact.files[0].path
+        source = weights.source.path
         stamp = source.stat()
         os.utime(source, ns=(stamp.st_atime_ns, stamp.st_mtime_ns + 1000000))
         with pytest.raises(RuntimeError, match="source changed"):

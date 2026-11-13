@@ -1,3 +1,13 @@
+> **Native library split:** the active Qwen path uses an explicit ops library
+> (ABI 17) and Qwen runtime library (ABI 1). No plugin system or universal model
+> interface. Start with [build/load instructions](docs/native-library-split.md).
+> **Cleanup branch (2026-11-13):** Qwen now loads standard safetensors tensors
+> directly; the `.ninfer` reader, old APIs, forwarding shims and vendor CUDA Q4
+> source are removed. Start with [the current loading contract](docs/qwen-safetensors.md).
+> Star is the validation target. The owned SIMT Q4 baseline is deliberately
+> slower than historical vendor MMA; this is not a performance/production promotion.
+> Older milestone numbers below describe their recorded revisions, not this migration.
+
 # Venturi
 
 A specialized, high-performance inference engine.
@@ -77,7 +87,7 @@ model-specific execution components.
 
 The loader supports byte-aligned safetensors dtypes available in the installed
 PyTorch/safetensors stack. Backend/device support still applies. This safetensors
-loader does not read `.ninfer`; the separate Qwen path below does. Sub-byte
+loader and the separate Qwen path both use safetensors; neither reads `.ninfer`. Sub-byte
 floating-point formats, original `.pth` files, GGUF, checkpoint conversion and
 automatic downloads are not implemented here.
 
@@ -580,16 +590,16 @@ not supported commands or current native performance claims.
 Use the existing **owned Q8 runtime** explicitly with a supported Qwen Q8 export:
 
 ```bash
-venturi qwen-native inspect /absolute/path/to/qwen-q8.ninfer
-venturi qwen-native generate /absolute/path/to/qwen-q8.ninfer \
-  --blocks-library /absolute/path/to/libventuri_blocks.so \
+venturi qwen-native inspect /absolute/path/to/qwen-q8.safetensors
+venturi qwen-native generate /absolute/path/to/qwen-q8.safetensors \
+  --ops-library /absolute/path/to/libventuri_ops.so --qwen-library /absolute/path/to/libventuri_qwen.so \
   --weight-mode resident --device cuda:0 --dtype fp16 \
   --token-ids 1,2,3 --max-tokens 256 --max-new-tokens 32
 ```
 
 The library must be built and qualified separately for the target architecture.
-NInfer here is an **artifact format**, not a linked external model engine. This
-command does not make unsupported model families or checkpoint layouts runnable.
+The checkpoint is standard safetensors with explicit Q8 planes. This command
+does not make unsupported model families or checkpoint layouts runnable.
 It preserves explicit residency, precision, state and capacity requirements.
 See [the architecture contract](docs/architecture.md) and the retained native Q8
 milestones below. No production service was switched by this repository change.
@@ -1150,147 +1160,39 @@ answer quality.
 
 ## Reusable Ada Q4 Linear backend
 
-This is a standalone operator plugin, not a Qwen runner or a universal 4-bit
-reader. It takes a weight matrix and activations without consulting layer names,
-model configs, attention implementations, or speculative decoders.
+The independent ABI-2 plugin owns its SIMT implementation; it does not include
+vendor kernel source, a model runner, or a universal weight reader. It accepts
+`q4_g64_fp16`: low-nibble-first signed Q4, group 64, FP16 scales and K padded to
+128, with explicit FP16/BF16 activations. Only `auto` and `generic` routes remain;
+`tuned` and `mma` are removed, not redirected to another implementation.
 
-### Supported contract
-
-- Linux CUDA, compute capability **8.9**. RTX 4090D is the validation target;
-  another RTX 4090 still needs a portability smoke test and its own measurements.
-- Signed two's-complement Q4 codes in `[-8, 7]`, low nibble first, group size 64,
-  FP16 scales, no zero points, K padded to 128: `q4_g64_fp16` /
-  `row_split_k128_v1`. Scale multiplication and accumulation use FP32.
-- Contiguous FP16 or BF16 activations `x[T,K]`, same-dtype output `out[T,N]`;
-  computes `out = x @ W.T`, without bias or activation fusion.
-- General SIMT route handles arbitrary positive N/K, including partial groups,
-  row tails, and T up to 262,140. It is a functional baseline, **not a tuned
-  high-throughput prefill implementation**.
-- Retained Ada MMA small-token schedule: BF16, T=2..16, N divisible by 40,
-  K in {5120, 6144, 25600}. Unsupported tuned requests fail explicitly; `auto`
-  preserves this route where applicable.
-- Dimension-independent MMA route: BF16, N divisible by 32, K divisible by 512,
-  arbitrary supported T, using runtime dimensions and 16-token tiles. No model
-  shape table is used. `auto` selects it for T>=2 when the retained route does
-  not apply; `route="mma"` selects it explicitly, including T=1. Other operands
-  use SIMT. Neither selection policy promises the fastest route on every card.
-
-AWQ, GPTQ, GGUF, FP4, and other group sizes/packing conventions are **not**
-interchangeable with this contract. They require explicit format adapters.
-The current adapter can view a single encoded Q4 payload, but cannot open a
-complete `.ninfer` artifact. No quantizer or model conversion is implicit.
-
-### Build explicitly on the CUDA server
-
-The loader and CPU tests do not compile CUDA. The optional backend uses a small
-C ABI, avoiding a dependency on PyTorch's C++ ABI or Ninja. A CUDA toolkit with
-Ada support and a compatible C++20 host compiler are required.
+Build explicitly **on the remote CUDA host**, never as an import side effect:
 
 ```bash
-python -m venturi.ops.build --output-dir /absolute/path/to/venturi-native
-# Prints the versioned path to libventuri_ada.so.
+python -m venturi.ops.build --component ada --architecture sm89 \
+  --output-dir /absolute/path/to/new-build
 ```
 
-Compiler output and source/binary hashes are retained alongside the library in
-`build.log` and `build.json`. Native `sm_89` code and `compute_89` PTX are included.
-Building is never triggered by importing Venturi or by running an operator.
-
-### Prepare once, execute without device allocations
-
 ```python
-import torch
 from venturi.ops import AdaBackend, Q4RowSplitWeight
-
-# Obtain these planes from an explicit compatible checkpoint adapter.
-# uint8 codes: [N, padded_K/2]; float16 scales: [N, padded_K/64].
-weight = Q4RowSplitWeight(codes, scales, in_features=K)
 backend = AdaBackend("/absolute/path/to/libventuri_ada.so")
-plan = backend.prepare_linear(weight, tokens=8, dtype=torch.bfloat16, device="cuda:0")
-
-x = torch.randn(8, K, dtype=torch.bfloat16, device="cuda:0")
-out = plan.empty_output()  # Explicit allocation, before timing/capture.
+weight = Q4RowSplitWeight(codes, scales, in_features=K)  # Caller-owned encoded planes.
+resident = backend.upload_linear(weight, device="cuda:0")
+plan = resident.prepare(tokens=T, dtype=x.dtype, route="generic")
 plan.run(x, out=out)
 ```
 
-`Q4RowSplitWeight.from_codes(integer_codes, fp16_scales)` packs CPU integer codes
-exactly for tests/converters; it does not quantize floating-point weights.
-`from_payload(uint8_payload, out_features=N, in_features=K)` views the code plane
-followed by its 256-byte-aligned scale plane, validating the exact byte count.
-This can wrap a compatible tensor loaded through Siphon without coupling its I/O
-to native execution.
+Residency, execution plans and caller buffers have separate lifetimes. The native
+call never reads checkpoint metadata or guesses a codec. Rebuild old ABI-1
+libraries; there is no compatibility loader. The independent SIMT baseline is
+numerically checked but measured multi-token latency regresses **6.2–16.3x**
+against the former vendor MMA on the recorded Star shapes. This is an accepted
+correctness/maintainability tradeoff, not a throughput or production promotion.
+The rejected independent WMMA prototype is not retained in active source.
 
-Preparation owns independent device copies, checks finite scales, initializes
-the selected native route, and synchronizes preparation. It must run outside
-CUDA graph capture. A plan has fixed T, dtype, and weight dimensions; its GPU
-workspace requirement is zero bytes. Plans retain their backend library.
-
-`run` writes the caller's output on PyTorch's **current stream for the plan's
-device**. It performs no tensor allocation, full-weight dequantization, implicit
-cast, synchronization, or shape-dependent compilation. It rejects noncontiguous
-operands and output aliasing. Both MMA routes require 16-byte-aligned input.
-There is no autograd implementation. Prepare and warm up before timing/capture.
-
-The caller owns stream dependencies and lifetimes: keep the plan, inputs, and
-outputs alive until asynchronous work finishes, and keep captured operands and
-the plan alive across graph replays. When handing tensors between streams, use
-PyTorch's `wait_stream`/events and `record_stream` or retain them explicitly;
-Venturi does not silently synchronize every invocation. Do not mutate weight
-contents or resize operands while they are in use. Independent outputs can be
-used with the same prepared read-only weights on different streams.
-
-Python is the orchestration layer, not a claim that per-layer Python dispatch is
-free. A future model runner should capture its steady-state execution or use a
-native execution plan. The benchmark reports eager and graph latencies separately
-so Python launch overhead is not hidden behind kernel-only numbers.
-
-### Native correctness and operator benchmarks
-
-```bash
-VENTURI_ADA_LIBRARY=/absolute/path/to/libventuri_ada.so python -m pytest -q
-python tools/benchmark_q4_linear.py \
-  --library /absolute/path/to/libventuri_ada.so \
-  --output /absolute/path/to/q4-linear.json
-```
-
-Tests independently decode the signed codes and stored scales into FP64 and
-compare native outputs, including non-Qwen dimensions, K/row/token tails, route
-boundaries, full-size operators, nondefault streams, CUDA graph replay, owned
-weight preparation, and execution allocation checks. Without the environment
-variable, native tests skip and never invoke a compiler or allocate CUDA weights.
-
-The benchmark uses **synthetic weights** and reports eager event latency and
-amortized CUDA-graph operator latency, alternating `auto`/`generic` ordering.
-It is not a tokens/second measurement, an inference benchmark, or evidence of
-a speedup against llama.cpp. A full-model comparison also needs matched target
-weights/quality, prompts, context, output length, and speculative settings.
-
-### RTX 4090D validation
-
-At the Q4 operator milestone, all **145 tests passed** on the RTX 4090D, including the Siphon/FP16
-loader acceptance tests. Native tests cover all three operator routes. The local
-CPU suite passes 107 tests and skips the 38 opt-in CUDA cases. Packaged native
-sources and attribution files were checked against the source tree.
-
-Selected BF16 graph operator latencies (synthetic Q4 weights, five repetitions):
-
-| N | K | T | Route | Median latency |
-|---:|---:|---:|---|---:|
-| 4096 | 4096 | 8 | Dimension-independent MMA | 12.18 microseconds |
-| 5120 | 25600 | 8 | Retained small-token MMA | 76.97 microseconds |
-| 5120 | 25600 | 128 | Dimension-independent MMA | 412.70 microseconds |
-
-Execution showed zero additional PyTorch device allocations in the measured
-routes. These are **operator microbenchmarks**, not model throughput; graph
-latency excludes ordinary per-operator Python launch gaps. Raw eager/graph samples,
-toolchain information, correctness/test scope, and tested source hashes are in
-[`benchmarks/q4/validation.json`](benchmarks/q4/validation.json) and
-[`benchmarks/q4/rtx4090d-linear.json`](benchmarks/q4/rtx4090d-linear.json).
-The second physical RTX 4090 portability test has not been run.
-
-Selected native schedules/helpers originate in NInfer, Cinference, and the Ada
-research code on the 4090D. Their scoped Apache-2.0 license, notices, source
-hashes, and adaptation notes are retained under
-`src/venturi/ops/csrc/third_party/ninfer/`; no repository-wide license is added.
+Historical implementation timings and attribution remain in immutable evidence
+under `benchmarks/q4/`; those timings do not characterize the current plugin.
+See [the current architecture](docs/architecture.md).
 
 ## Install
 
@@ -1531,13 +1433,11 @@ require `VENTURI_GENERATION_MODEL` and a matching local `tokenizer.json`.
 ## Layout
 
 ```text
-src/venturi/checkpoint.py   Header/index inspection and opaque metadata
+src/venturi/container/      Physical tensor storage, bounded reads and checkpoint metadata
 src/venturi/dtypes.py       Storage dtype descriptions, without conversion
-src/venturi/loader.py       Siphon/reference loading and owned tensor container
-src/venturi/verification.py Bounded, exact byte comparison with source tensors
 src/venturi/ops/            Optional reusable Ada quantized Linear backend
 src/venturi/models/         Explicit model adapters and per-request KV state
-src/venturi/generation.py   Local tokenizer and bounded greedy generation
+src/venturi/text/           Tokenizer, token IDs and shared text contracts
 src/venturi/cli.py          inspect / load / verify / generate
 tools/                     Loader, operator, and generation acceptance tools
 tests/                     Storage, operator, model/oracle, and opt-in CUDA tests
@@ -1552,29 +1452,28 @@ external Qwen runner remains unchanged by this milestone.
 
 ### Bind the actual Qwen vocabulary without dense expansion
 
-Inspection of the current 27B artifact finds Q8/group-32 embedding and output
-matrices, both `[248320,5120]`, not Q4. `NInferVocabulary` validates both named
-bindings, shapes and physical formats before upload. Reads are bounded to 16 MiB;
-signed codes and FP16 scale planes are preserved. Shared object IDs are uploaded
-once, so tied vocabulary storage is not duplicated. Each actual untied matrix
-uses 1,350,860,800 bytes (codes plus scales); lookup and projection plans share it.
-There is no full-vocabulary BF16/FP32 materialization on the native path.
+Q8/group-32 embedding and head planes remain quantized during native execution.
+`QwenWeights.open` admits their exact names/shapes/dtypes; operator weights no
+longer parse a file container. Tied storage is deduplicated by the model loader.
+For an explicit vocabulary-only diagnostic:
 
 ```python
 import torch
-from venturi.ninfer import NInferArtifact
-from venturi.ops import CudaBackend, NInferVocabulary
+from venturi.models.qwen.qwen_weights import QwenWeights
+from venturi.ops import CudaBackend, Q8VocabularyWeights
 
-backend = CudaBackend("/absolute/path/to/rebuilt/libventuri_blocks.so")
-artifact = NInferArtifact("/absolute/path/to/qwen3_8_27b.ninfer")
-vocabulary = NInferVocabulary.upload_from_ninfer(artifact, backend)
-lookup = vocabulary.embedding.prepare_embedding([1, 42])  # Host-validated IDs.
-embedding = torch.empty((2, 5120), dtype=torch.bfloat16, device="cuda:0")
+weights = QwenWeights.open("/absolute/path/to/text-q8.safetensors")
+backend = CudaBackend("/absolute/path/to/rebuilt/libventuri_ops.so")
+encoded = weights.read_linear("text/token_embedding")
+embedding_weights = Q8VocabularyWeights(encoded.codes, encoded.scales, encoded.in_features)
+resident = embedding_weights.upload(backend, dtype=torch.bfloat16, device="cuda:0")
+lookup = resident.prepare_embedding([1, 42])
+embedding = torch.empty((2, resident.hidden_size), dtype=torch.bfloat16, device="cuda:0")
 lookup.run(out=embedding)
-head = vocabulary.head.prepare(tokens=1)
-logits = torch.empty((1, 248320), dtype=torch.bfloat16, device="cuda:0")
-head.run(embedding[-1:], out=logits)  # Vocabulary plumbing test, NOT model output.
 ```
+
+This is a vocabulary diagnostic, not decoder hidden states or model output.
+Use the model loader for full execution and shared embedding/head ownership.
 
 Dense `ResidentLinear.prepare_embedding(ids)` likewise shares its owned matrix
 with output-head plans. IDs are uploaded during preparation; native `run()` is
@@ -1627,7 +1526,7 @@ independent full-sequence FP64 oracle and a Transformers tiny-model fixture.
 ```bash
 PYTHONPATH=src python -m venturi llama inspect /absolute/path/to/classic-bf16-llama
 PYTHONPATH=src python -m venturi llama generate /absolute/path/to/classic-bf16-llama \
-  --blocks-library /absolute/path/to/rebuilt/libventuri_blocks.so \
+  --ops-library /absolute/path/to/rebuilt/libventuri_ops.so \
   --token-ids 1,42 --max-new-tokens 8
 ```
 
@@ -1643,7 +1542,7 @@ as classic Llama. The generic checkpoint loader remains architecture-independent
 
 Build the blocks library explicitly on the target Linux SM89 GPU host. That milestone used **ABI 4**; the active native-Q8
 work requires **ABI 8**, so rebuild before using the new frontend operators. No CUDA/Rust compilation was
-performed on the Mac. Run the opt-in native tests with `VENTURI_BLOCKS_LIBRARY`
+performed on the Mac. Run the opt-in native tests with `VENTURI_OPS_LIBRARY`
 (and `VENTURI_ADA_LIBRARY` for existing Q4 decoder regression tests).
 
 `tools/qualify_checkpoint_gdn.py` tests actual Qwen Q8 bytes against independent
@@ -1728,7 +1627,7 @@ encoded Q8 artifact, preserving raw norms and head-interleaved Q/gate rows.
 Sensitive small a/b projections remain BF16; recurrent gate constants are FP32.
 It requires a complete, hash-checked source by default, rechecks hashes, refuses
 existing outputs and never uses the mixed-Q4 artifact as a source substitute.
-`QwenQ8Weights` preflights all runtime roles and reads one encoded matrix or
+`QwenWeights` preflights all runtime roles and reads one encoded matrix or
 bounded floating parameter at a time. This is checkpoint binding/storage work,
 not yet native full-model generation or an inference-speed improvement.
 See `docs/native-q8-goal.md` and `benchmarks/qwen-source-bindings/summary.md`.
@@ -1862,13 +1761,12 @@ rebound to unrelated weights. Errors poison the request until reset.
 
 ```python
 import torch
-from venturi.models import QwenQ8Weights, StreamingQwenModel
-from venturi.ninfer import NInferArtifact
+from venturi.models import QwenWeights, StreamingQwenModel
 from venturi.ops import CudaBackend
 
-weights = QwenQ8Weights.from_ninfer(NInferArtifact("/absolute/path/to/model.ninfer"))
+weights = QwenWeights.open("/absolute/path/to/model.safetensors")
 model = StreamingQwenModel.from_q8(
-    weights, CudaBackend("/absolute/path/to/libventuri_blocks.so"),
+    weights, CudaBackend("/absolute/path/to/libventuri_ops.so"),
     dtype=torch.float16, device="cuda:0",
 )
 session = model.create_session(128, max_tokens=32)
@@ -1965,8 +1863,8 @@ Build on the remote CUDA host, never implicitly during inference:
 ```bash
 LIB=$(python -m venturi.ops.build --component blocks --architecture sm70 \
   --output-dir "$HOME/codex-build/Venturi/blocks-sm70")
-python -m venturi qwen-native generate /path/to/model.ninfer \
-  --blocks-library "$LIB" --weight-mode resident --dtype fp16 \
+python -m venturi qwen-native generate /path/to/model.safetensors \
+  --ops-library "$LIB" --qwen-library "$QWEN_LIB" --weight-mode resident --dtype fp16 \
   --token-ids "$TOKEN_IDS" --max-new-tokens 32
 ```
 
@@ -2004,8 +1902,8 @@ separate opt-in wrapper described below. Single-device execution remains the
 default. This feature originated with ABI 13; current source requires ABI 15.
 
 ```bash
-CUDA_VISIBLE_DEVICES=1,0 python -m venturi qwen-native generate /path/to/model.ninfer \
-  --blocks-library "$LIB" --weight-mode resident --dtype fp16 \
+CUDA_VISIBLE_DEVICES=1,0 python -m venturi qwen-native generate /path/to/model.safetensors \
+  --ops-library "$LIB" --qwen-library "$QWEN_LIB" --weight-mode resident --dtype fp16 \
   --tensor-parallel-device cuda:1 --tensor-parallel-transport host \
   --token-ids "$TOKEN_IDS" --max-new-tokens 32
 ```
@@ -2052,8 +1950,8 @@ Rebuild the remote blocks library for **ABI 15**, including `qwen_pipeline.cuh`
 and `qwen_mtp.cuh`. Older libraries are rejected. On the tested V100 pair:
 
 ```bash
-CUDA_VISIBLE_DEVICES=1,0 python -m venturi qwen-native generate /path/to/model.ninfer \
-  --blocks-library "$LIB" --weight-mode resident --dtype fp16 \
+CUDA_VISIBLE_DEVICES=1,0 python -m venturi qwen-native generate /path/to/model.safetensors \
+  --ops-library "$LIB" --qwen-library "$QWEN_LIB" --weight-mode resident --dtype fp16 \
   --pipeline-device cuda:1 --pipeline-split-layer 32 \
   --pipeline-transport host --token-ids "$TOKEN_IDS" --max-new-tokens 32
 ```
@@ -2128,16 +2026,16 @@ Export the separate draft payload from the same verified original BF16 source:
 
 ```python
 from venturi.qwen_export import export_qwen_mtp_q8
-export_qwen_mtp_q8("/path/to/verified-bf16", "/path/to/mtp-q8.ninfer")
+export_qwen_mtp_q8("/path/to/verified-bf16", "/path/to/mtp-q8.safetensors")
 ```
 
 After rebuilding the remote blocks library for the current ABI (16), enable it explicitly:
 
 ```bash
-CUDA_VISIBLE_DEVICES=1,0 python -m venturi qwen-native generate /path/to/model.ninfer \
-  --blocks-library "$LIB" --weight-mode resident --dtype fp16 \
+CUDA_VISIBLE_DEVICES=1,0 python -m venturi qwen-native generate /path/to/model.safetensors \
+  --ops-library "$LIB" --qwen-library "$QWEN_LIB" --weight-mode resident --dtype fp16 \
   --tensor-parallel-device cuda:1 --tensor-parallel-transport host \
-  --mtp-artifact /path/to/mtp-q8.ninfer \
+  --mtp-checkpoint /path/to/mtp-q8.safetensors \
   --token-ids "$TOKEN_IDS" --max-new-tokens 32
 ```
 
@@ -2210,7 +2108,7 @@ Shared model/workspace counters count once per cohort, not once per response.
 This first version is **fixed-cohort target batching**, not continuous admission,
 paged KV, PP batching or batched MTP. Short prompts currently wait for the whole
 cohort's prefill. The loopback benchmark adapter enables it with `--batch-target`
-(TP only, without `--mtp-artifact`); its admission window defaults to 5 ms and is
+(TP only, without `--mtp-checkpoint`); its admission window defaults to 5 ms and is
 included in client wall time. Rebuild the library remotely for ABI 16; older
 libraries are deliberately rejected. V100 qualification does not qualify SM89.
 
@@ -2245,8 +2143,8 @@ Rebuild the native library to expose the additive ABI-16 profile exports. Select
 `projection_profile="q8-residual"` in `NativeQwenModel.from_q8()`, or:
 
 ```bash
-venturi qwen-native generate /path/to/text-q8.ninfer \
-  --blocks-library /path/to/libventuri_blocks.so \
+venturi qwen-native generate /path/to/text-q8.safetensors \
+  --ops-library /path/to/libventuri_ops.so --qwen-library /path/to/libventuri_qwen.so \
   --weight-mode resident --dtype fp16 --projection-profile q8-residual \
   --tensor-parallel-device cuda:1 --tensor-parallel-transport host \
   --token-ids 248045,846,198 --max-new-tokens 32
@@ -2434,7 +2332,7 @@ byte-exact; V100 **1679 passed / 440 skipped**, local **769 / 1350**.
 An explicit additive ABI16 path now drafts two tokens, verifies three target
 inputs, restores intermediate GDN/history state without target replay, and repairs
 speculative draft KV with verified target hidden. Depth one remains the default.
-Select `--mtp-artifact ... --mtp-draft-tokens 2 --mtp-recovery prefix` for
+Select `--mtp-checkpoint ... --mtp-draft-tokens 2 --mtp-recovery prefix` for
 `venturi qwen-native generate`; the API uses `draft_tokens=2, recovery="prefix"`.
 Call `session.prepare_prefix()` before timing on a fresh/reset request. Rebuild
 for the optional new exports; no external forward or Python token loop is used.

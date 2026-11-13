@@ -6,7 +6,7 @@ import sys
 import pytest
 
 
-@pytest.mark.parametrize("module", ["venturi", "venturi.model_assets", "venturi.text"])
+@pytest.mark.parametrize("module", ["venturi", "venturi.container.model_assets", "venturi.text"])
 def test_metadata_import_does_not_load_tensor_framework(module):
     code = f"""import importlib,sys,json
 importlib.import_module({module!r})

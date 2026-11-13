@@ -17,8 +17,8 @@ from torch.nn.attention import SDPBackend, sdpa_kernel
 
 from qualify_flash_next_attention import attention_reference, cases
 from qualify_flash_next_qsa import INDEX_ABI_SHIM, REVISION, UPSTREAM_SHA256, positions
-from venturi.models.flash_next_attention import FlashNextQSAAttention, QSAAttentionGeometry, QSAState
-from venturi.models.flash_next_qsa import QSAIndexerGeometry
+from venturi.models.flash_next.flash_next_attention import FlashNextQSAAttention, QSAAttentionGeometry, QSAState
+from venturi.models.flash_next.flash_next_qsa import QSAIndexerGeometry
 from qualify_flash_next_attention import Cache
 
 

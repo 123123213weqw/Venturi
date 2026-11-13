@@ -65,7 +65,7 @@ class NativeQwenBatchSession:
             for c in capacities
         ):
             raise ValueError("Batch capacities exceed the model context")
-        native = _bind(model._backend)
+        native = _bind(model._runtime)
         with model._lock:
             if not model._finalizer.alive:
                 raise RuntimeError("Native Qwen model closed")
@@ -73,7 +73,7 @@ class NativeQwenBatchSession:
             cap = (C.c_int * len(capacities))(*capacities)
             handle = native.create(model._handle, cap, len(capacities))
             if not handle:
-                model._backend._check(-1)
+                model._runtime._check(-1)
         self = cls()
         self.model, self.capacities, self._handle, self._native = (
             model,
@@ -158,18 +158,32 @@ class NativeQwenBatchSession:
             self._check()
             fn = getattr(self, "_step_fn", None)
             if fn is None:
-                fn = getattr(self.model._backend._native, "venturi_qwen_batch_step", None)
+                fn = getattr(
+                    self.model._runtime._native, "venturi_qwen_batch_step", None
+                )
                 if fn is None:
-                    raise RuntimeError("Native batch step export absent; rebuild explicitly")
+                    raise RuntimeError(
+                        "Native batch step export absent; rebuild explicitly"
+                    )
                 p, i = C.c_void_p, C.c_int
                 fn.argtypes = [p, p, i, p, p, p, i, p, i, p, C.c_uint64]
                 fn.restype = i
                 self._step_fn = fn
-            self.model._backend._check(fn(
-                self._handle, selected, len(selected), tokens, offsets,
-                sample_ids, len(samples), decode_ids, len(decode_slots),
-                output, len(samples),
-            ))
+            self.model._runtime._check(
+                fn(
+                    self._handle,
+                    selected,
+                    len(selected),
+                    tokens,
+                    offsets,
+                    sample_ids,
+                    len(samples),
+                    decode_ids,
+                    len(decode_slots),
+                    output,
+                    len(samples),
+                )
+            )
         return list(output)
 
     def forward(self, prompts, *, slots=None):
@@ -182,7 +196,7 @@ class NativeQwenBatchSession:
                 dtype=torch.float32,
                 device="cpu",
             )
-            self.model._backend._check(
+            self.model._runtime._check(
                 self._native.forward(
                     self._handle,
                     selected,
@@ -244,7 +258,7 @@ class NativeQwenBatchSession:
                 ):
                     raise ValueError("Batch generation exceeds slot capacity")
             out, counts = (C.c_int64 * (stride * count))(), (C.c_int * count)()
-            self.model._backend._check(
+            self.model._runtime._check(
                 self._native.generate(
                     self._handle,
                     selected,
@@ -276,7 +290,7 @@ class NativeQwenBatchSession:
                 (C.c_uint64 * (4 * len(self.capacities)))(),
                 (C.c_double * (2 * len(self.capacities)))(),
             )
-            self.model._backend._check(
+            self.model._runtime._check(
                 self._native.info(self._handle, shared, rows, times)
             )
             result = dict(
@@ -319,20 +333,22 @@ class NativeQwenBatchSession:
                     if hasattr(self.model, "_mtp_weights")
                     else "venturi_qwen_batch_head_gdn_memory"
                 )
-                query = getattr(self.model._backend._native, name)
+                query = getattr(self.model._runtime._native, name)
                 query.argtypes, query.restype = (
                     [C.c_void_p, C.POINTER(C.c_uint64)],
                     C.c_int,
                 )
                 memory = (C.c_uint64 * 2)()
-                self.model._backend._check(query(self._handle, memory))
+                self.model._runtime._check(query(self._handle, memory))
                 result.update(
                     all_peer_request_device_bytes=int(memory[0]),
                     all_peer_target_backup_device_bytes=int(memory[1]),
                     distributed_memory_scope="all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
                 )
             if getattr(self.model, "_kv_cache_mode", "static") != "static":
-                result["shared_model_kv_cache"] = self.model._kv_cache_info_for_request()
+                result["shared_model_kv_cache"] = (
+                    self.model._kv_cache_info_for_request()
+                )
             result["scope"] = (
                 "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
             )
@@ -344,7 +360,7 @@ class NativeQwenBatchSession:
         )
         with self._lock:
             self._check()
-            self.model._backend._check(
+            self.model._runtime._check(
                 self._native.reset(self._handle, selected, len(selected))
             )
 
@@ -359,7 +375,7 @@ class NativeQwenBatchSession:
             raise ValueError("Invalid batch failure hook")
         with self._lock:
             self._check()
-            self.model._backend._check(
+            self.model._runtime._check(
                 self._native.debug_failure(self._handle, slot, layer, position)
             )
 
@@ -391,12 +407,14 @@ class NativeQwenBatchSession:
                 for j, shape in enumerate(shapes):
                     tensor = torch.empty(
                         shape,
-                        dtype=torch.float32
-                        if kind == "linear_attention" and j == 1
-                        else self.model.dtype,
+                        dtype=(
+                            torch.float32
+                            if kind == "linear_attention" and j == 1
+                            else self.model.dtype
+                        ),
                         device="cpu",
                     )
-                    self.model._backend._check(
+                    self.model._runtime._check(
                         self._native.snapshot(
                             self._handle,
                             slot,

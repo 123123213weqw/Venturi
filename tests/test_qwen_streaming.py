@@ -145,7 +145,7 @@ def test_manifest_isolation_change_detection_and_metadata_errors(
 ):
     weights, _ = hybrid_fixture(tmp_path)
     _, m = models(weights, stream_engine)
-    weights.artifact.manifest["components"]["text"]["config"]["hidden_size"] = 1
+    weights.config["hidden_size"] = 1
     s = m.create_session(16, max_tokens=3)
     with pytest.raises(ValueError, match="Vocabulary"):
         s.forward([True])
@@ -193,7 +193,7 @@ def test_streaming_source_file_change_never_commits(tmp_path):
     )
     s = m.create_session(16, max_tokens=3)
     # Same-length file change must still be detected (including mtime/ctime).
-    path = weights.artifact.path
+    path = weights.source.path
     with path.open("r+b") as f:
         f.seek(-1, 2)
         byte = f.read(1)

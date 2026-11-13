@@ -7,9 +7,9 @@ import pytest
 from safetensors.torch import save_file
 import torch
 
-from venturi.checkpoint import inspect_checkpoint
-from venturi.models.flash_next_attention import FlashNextQSAAttention, QSAAttentionGeometry, QSAState
-from venturi.models.flash_next_qsa import QSAIndexerGeometry
+from venturi.container.checkpoint import inspect_checkpoint
+from venturi.models.flash_next.flash_next_attention import FlashNextQSAAttention, QSAAttentionGeometry, QSAState
+from venturi.models.flash_next.flash_next_qsa import QSAIndexerGeometry
 
 
 def module(dtype=torch.float32):

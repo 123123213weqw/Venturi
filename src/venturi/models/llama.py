@@ -12,7 +12,7 @@ import threading
 
 import torch
 
-from ..loader import LoadedCheckpoint
+from venturi.container.loader import LoadedCheckpoint
 from ..ops.blocks import _epsilon
 from ..ops.weights import DenseWeight
 from .decoder_layer import (

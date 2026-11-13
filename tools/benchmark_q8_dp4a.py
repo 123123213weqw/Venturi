@@ -20,8 +20,8 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tests"))
 from q8_dp4a_reference import projection_reference  # noqa: E402
-from venturi.models import QwenQ8Weights  # noqa: E402
-from venturi.ninfer import NInferArtifact  # noqa: E402
+from venturi.models import QwenWeights  # noqa: E402
+from venturi.container.safetensors import SafetensorsContainer  # noqa: E402
 from venturi.ops import CudaBackend, prepare_q8_dp4a  # noqa: E402
 
 
@@ -53,14 +53,14 @@ def main():
     out.mkdir(parents=True, exist_ok=False)
     torch.set_num_threads(4)
     backend = CudaBackend(a.library)
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
+    weights = QwenWeights.open(a.artifact)
     roles = {
         s.shape: s.binding for s in weights.plan.bindings if s.format == "q8_g32_fp16"
     }
     report = dict(
         scope=__doc__,
         library_sha256=hashlib.sha256(Path(a.library).read_bytes()).hexdigest(),
-        artifact_id=weights.artifact.artifact_id,
+        header_sha256=weights.source.header_sha256,
         dtype="FP16 input/output; explicit new A8 group32 FP32 scales, optional residual A8 compensation",
         profiles=[
             "original-fp16",
@@ -147,9 +147,9 @@ def main():
                     for passes in (1, 2)
                 ]
                 checks = [error(v[:, rows], ref) for v, ref in zip(values, ideals)]
-                assert all(c["relative_l2"] < 0.001 for c in checks), (
-                    "Independent per-profile sampled-row gate failed"
-                )
+                assert all(
+                    c["relative_l2"] < 0.001 for c in checks
+                ), "Independent per-profile sampled-row gate failed"
                 case = dict(
                     shape=shape,
                     role=role,

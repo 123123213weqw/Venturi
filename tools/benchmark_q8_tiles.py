@@ -21,8 +21,8 @@ from time import perf_counter
 
 import torch
 
-from venturi.models import QwenQ8Weights
-from venturi.ninfer import NInferArtifact
+from venturi.models import QwenWeights
+from venturi.container.safetensors import SafetensorsContainer
 from venturi.ops import CudaBackend
 
 
@@ -81,7 +81,7 @@ def main():
     backends = [CudaBackend(e["library"]) for e in entries]
     for e in entries:
         e["sha256"] = hashlib.sha256(Path(e["library"]).read_bytes()).hexdigest()
-    weights = QwenQ8Weights.from_ninfer(NInferArtifact(args.artifact))
+    weights = QwenWeights.open(args.artifact)
     counts = Counter(
         s.shape for s in weights.plan.bindings if s.format == "q8_g32_fp16"
     )
@@ -91,7 +91,7 @@ def main():
             roles[spec.shape] = spec.binding
     report = dict(
         scope=__doc__,
-        artifact_id=weights.artifact.artifact_id,
+        header_sha256=weights.source.header_sha256,
         gpu=torch.cuda.get_device_name(),
         dtype="fp16",
         libraries=entries,

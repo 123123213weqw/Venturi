@@ -16,12 +16,15 @@ import threading
 
 import torch
 
-from venturi.ninfer import NInferArtifact
 from venturi.ops.blocks import _shape
 from venturi.ops.vocabulary import _ids
 from venturi.models.decoder_layer import _outside_capture, _owner_stream, _stream
-from venturi.models.qwen.qwen_model import _memory_guard, qwen_resident_bytes, qwen_request_bytes
-from venturi.models.qwen.qwen_weights import QwenQ8Weights
+from venturi.models.qwen.qwen_model import (
+    _memory_guard,
+    qwen_resident_bytes,
+    qwen_request_bytes,
+)
+from venturi.models.qwen.qwen_weights import QwenWeights
 from venturi.models.qwen.qwen_rope import QwenTextRoPE
 from venturi.models.qwen.qwen_gdn_layer import ResidentQwenGDNLayer, GDNLayerState
 from venturi.models.qwen.qwen_attention_layer import ResidentQwenAttentionLayer
@@ -90,8 +93,8 @@ class StreamingQwenModel:
     def __init__(
         self, weights, backend, *, dtype, device, reserve_bytes, memory_budget_bytes
     ):
-        if not isinstance(weights, QwenQ8Weights):
-            raise TypeError("Expected complete preflighted QwenQ8Weights")
+        if not isinstance(weights, QwenWeights):
+            raise TypeError("Expected complete preflighted QwenWeights")
         if dtype not in (torch.float16, torch.bfloat16) and not (
             backend.capabilities.reference and dtype == torch.float64
         ):
@@ -100,7 +103,7 @@ class StreamingQwenModel:
             )
         # Reopen validated metadata so mutating the caller's manifest cannot
         # change which objects are streamed on a later request.
-        self._weights = QwenQ8Weights.from_ninfer(NInferArtifact(weights.artifact.path))
+        self._weights = QwenWeights.open(weights.source.path)
         self.backend, self.dtype = backend, dtype
         self.config = copy.deepcopy(self._weights.config)
         self.rope = QwenTextRoPE.from_config(self.config)
@@ -113,9 +116,9 @@ class StreamingQwenModel:
             reserve_bytes,
             memory_budget_bytes,
         )
-        self._files = tuple(f.path for f in self._weights.artifact.files)
+        self._files = (self._weights.source.path,)
         self._stamps = tuple(_stamp(f) for f in self._files)
-        self._metadata_digest = _digest_config(self._weights.artifact.manifest)
+        self._metadata_digest = _digest_config(self._weights.signature())
         self._config_digest = _digest_config(self.config)
         self._weight_lock = threading.RLock()
         # Reference mode can use substantially more CPU conversion scratch
@@ -150,8 +153,8 @@ class StreamingQwenModel:
         return self.norm.storage_nbytes
 
     def _role_bytes(self, role):
-        obj = self._weights._object(role)
-        n, k = obj["shape"]
+        desc = self._weights.descriptor(role)
+        n, k = desc.shape
         if self.backend.capabilities.reference:
             return n * k * (8 if self.dtype == torch.float64 else 4)
         padded = (k + 127) // 128 * 128
@@ -173,7 +176,7 @@ class StreamingQwenModel:
         if (
             _digest_config(self.config) != self._config_digest
             or _digest_config(self._weights.config) != self._config_digest
-            or _digest_config(self._weights.artifact.manifest) != self._metadata_digest
+            or _digest_config(self._weights.signature()) != self._metadata_digest
         ):
             raise RuntimeError("Streaming config/metadata changed; create a new model")
 
@@ -238,27 +241,35 @@ class StreamingQwenSession:
             + c["linear_num_value_heads"] * c["linear_value_head_dim"]
         )
         self._states = tuple(
-            GDNLayerState(
-                torch.zeros(c["linear_conv_kernel_dim"] - 1, channels, **opt),
-                torch.zeros(
-                    c["linear_num_value_heads"],
-                    c["linear_value_head_dim"],
-                    c["linear_key_head_dim"],
-                    dtype=state_dtype,
-                    device=model.device,
-                ),
+            (
+                GDNLayerState(
+                    torch.zeros(c["linear_conv_kernel_dim"] - 1, channels, **opt),
+                    torch.zeros(
+                        c["linear_num_value_heads"],
+                        c["linear_value_head_dim"],
+                        c["linear_key_head_dim"],
+                        dtype=state_dtype,
+                        device=model.device,
+                    ),
+                )
+                if kind == "linear_attention"
+                else None
             )
-            if kind == "linear_attention"
-            else None
             for kind in c["layer_types"]
         )
         self._kv = tuple(
-            _StagedKV(
-                torch.empty(capacity, c["num_key_value_heads"], c["head_dim"], **opt),
-                torch.empty(capacity, c["num_key_value_heads"], c["head_dim"], **opt),
+            (
+                _StagedKV(
+                    torch.empty(
+                        capacity, c["num_key_value_heads"], c["head_dim"], **opt
+                    ),
+                    torch.empty(
+                        capacity, c["num_key_value_heads"], c["head_dim"], **opt
+                    ),
+                )
+                if kind == "full_attention"
+                else None
             )
-            if kind == "full_attention"
-            else None
             for kind in c["layer_types"]
         )
         self._sync()

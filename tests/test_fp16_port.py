@@ -1,6 +1,6 @@
 """Explicit FP16 port: independent numeric checks, architecture and ABI guards.
 
-SM70 tests opt in with VENTURI_SM70_LIBRARY. SM89 uses VENTURI_BLOCKS_LIBRARY.
+SM70 tests opt in with VENTURI_SM70_LIBRARY. SM89 uses VENTURI_OPS_LIBRARY.
 Neither variable starts compilation or changes a GPU service.
 """
 
@@ -28,7 +28,7 @@ def port(request):
     if request.param == "cpu-fp16":
         return TorchBackend(), torch.float16, "cpu"
     library = os.environ.get("VENTURI_SM70_LIBRARY") or os.environ.get(
-        "VENTURI_BLOCKS_LIBRARY"
+        "VENTURI_OPS_LIBRARY"
     )
     if not library:
         pytest.skip("explicit SM70 or SM89 native library required")
@@ -45,12 +45,12 @@ def test_architecture_guard_without_gpu(monkeypatch):
     monkeypatch.setattr(torch.cuda, "current_device", lambda: 0)
     monkeypatch.setattr(torch.cuda, "is_current_stream_capturing", lambda: False)
     monkeypatch.setattr(torch.cuda, "get_device_capability", lambda _: (7, 0))
-    assert backend._device(torch.float16, "cuda:0") == torch.device("cuda:0")
+    assert backend.validate_device(torch.float16, "cuda:0") == torch.device("cuda:0")
     with pytest.raises(ValueError, match="not native BF16"):
-        backend._device(torch.bfloat16, "cuda:0")
+        backend.validate_device(torch.bfloat16, "cuda:0")
     backend.architecture = 89
     with pytest.raises(ValueError, match="requires SM89"):
-        backend._device(torch.float16, "cuda:0")
+        backend.validate_device(torch.float16, "cuda:0")
 
 
 @pytest.mark.parametrize("k", [65, 129, 5120])
@@ -249,7 +249,7 @@ def test_sm70_cabi_rejects_bf16_before_launch(port):
     backend, _, device = port
     if device == "cpu" or backend.architecture != 70:
         pytest.skip("SM70-only direct C ABI guard")
-    assert not backend._native.venturi_dense_create(1, 1, 1, 1)
+    assert not backend._native.venturi_dense_create(1)
     assert b"SM70" in backend._native.venturi_blocks_error()
     # Rejection occurs on the host before any pointer is dereferenced/launched.
     assert backend._native.venturi_add_run(None, None, None, 1, 1, None) == -1

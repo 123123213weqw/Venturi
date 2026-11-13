@@ -1,5 +1,7 @@
 """Two-device row shards preserve complete dot products and request state."""
 
+from qwen_native_runtime import native_runtime
+
 import os
 from concurrent.futures import ThreadPoolExecutor
 
@@ -37,10 +39,10 @@ def test_parallel_logits_tails_chunks_and_exact_state(tmp_path, parallel_engine,
     kwargs = dict(
         weight_mode="resident", dtype=dtype, device=dev, max_tokens=3, reserve_bytes=0
     )
-    first = NativeQwenModel.from_q8(weights, b, **kwargs)
+    first = NativeQwenModel.from_q8(weights, native_runtime(b), **kwargs)
     second = NativeQwenModel.from_q8(
         weights,
-        b,
+        native_runtime(b),
         tensor_parallel_device="cuda:1",
         tensor_parallel_transport="host",
         **kwargs,
@@ -94,10 +96,10 @@ def test_parallel_failure_reset_lifetime_and_no_torch(
     kwargs = dict(
         weight_mode="resident", dtype=dtype, device=dev, max_tokens=3, reserve_bytes=0
     )
-    reference = NativeQwenModel.from_q8(weights, b, **kwargs)
+    reference = NativeQwenModel.from_q8(weights, native_runtime(b), **kwargs)
     model = NativeQwenModel.from_q8(
         weights,
-        b,
+        native_runtime(b),
         tensor_parallel_device="cuda:1",
         tensor_parallel_transport="host",
         **kwargs,
@@ -147,17 +149,19 @@ def test_parallel_shared_scratch_threaded_requests_and_invalid_peer(
         weight_mode="resident", dtype=dtype, device=dev, max_tokens=3, reserve_bytes=0
     )
     with pytest.raises(ValueError, match="different"):
-        NativeQwenModel.from_q8(weights, b, tensor_parallel_device="cuda:0", **kwargs)
+        NativeQwenModel.from_q8(
+            weights, native_runtime(b), tensor_parallel_device="cuda:0", **kwargs
+        )
     with pytest.raises(ValueError, match="resident"):
         NativeQwenModel.from_q8(
             weights,
-            b,
+            native_runtime(b),
             tensor_parallel_device="cuda:1",
             **{**kwargs, "weight_mode": "streaming"},
         )
     model = NativeQwenModel.from_q8(
         weights,
-        b,
+        native_runtime(b),
         tensor_parallel_device="cuda:1",
         tensor_parallel_transport="host",
         **kwargs,
@@ -192,7 +196,7 @@ def test_parallel_peer_fails_fast_when_copy_probe_is_known_broken(
     with pytest.raises(RuntimeError, match="byte probe failed"):
         NativeQwenModel.from_q8(
             weights,
-            b,
+            native_runtime(b),
             weight_mode="resident",
             dtype=dtype,
             device=dev,

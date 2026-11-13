@@ -21,7 +21,7 @@ class AdaBackend:
     """Optional native plugin. Loading does not compile code or allocate GPU weights."""
 
     name = "venturi-ada"
-    abi_version = 1
+    abi_version = 2
 
     def __init__(self, library: str | Path):
         self.library = Path(library).expanduser().resolve(strict=True)
@@ -71,14 +71,6 @@ class AdaBackend:
                 )
         return target
 
-    def prepare_linear(
-        self, weight, *, tokens, dtype=torch.bfloat16, device="cuda:0", route="auto"
-    ):
-        """Compatibility helper: upload once, then bind one fixed token shape."""
-        _configuration(tokens, dtype, route)
-        return self.upload_linear(weight, device=device).prepare(
-            tokens=tokens, dtype=dtype, route=route
-        )
 
 
 def _configuration(tokens, dtype, route):
@@ -86,8 +78,8 @@ def _configuration(tokens, dtype, route):
         raise ValueError("tokens must be an integer in [1, 262140]")
     if dtype not in (torch.float16, torch.bfloat16):
         raise ValueError("activations and output must be float16 or bfloat16")
-    if route not in ("auto", "generic", "tuned", "mma"):
-        raise ValueError("route must be auto, generic, tuned, or mma")
+    if route not in ("auto", "generic"):
+        raise ValueError("route must be auto or generic; tuned/mma were removed")
 
 
 @dataclass(frozen=True)
@@ -118,7 +110,7 @@ class ResidentQ4Weight:
                 self._weight.in_features,
                 tokens,
                 int(dtype == torch.bfloat16),
-                {"auto": -1, "generic": 0, "tuned": 1, "mma": 2}[route],
+                {"auto": -1, "generic": 0}[route],
             )
             if native_route < 0:
                 raise self._backend._error()
@@ -156,9 +148,9 @@ class PreparedLinear:
 
     @property
     def route(self):
-        return {0: "generic-simt", 1: "ada-mma-small-t", 2: "ada-mma-general"}[
-            self._native_route
-        ]
+        if self._native_route != 0:
+            raise RuntimeError("Unexpected native Q4 implementation")
+        return "generic-simt"
 
     def empty_output(self) -> torch.Tensor:
         """Explicit allocation helper; call before timing or graph capture."""
@@ -186,7 +178,7 @@ class PreparedLinear:
                 raise ValueError(
                     f"{name} must be contiguous; no implicit copy is performed"
                 )
-            alignment = 16 if self._native_route in (1, 2) and name == "x" else 2
+            alignment = 2
             if tensor.data_ptr() % alignment:
                 raise ValueError(f"{name} requires {alignment}-byte alignment")
         for operand in (x, self._weight.codes, self._weight.scales):

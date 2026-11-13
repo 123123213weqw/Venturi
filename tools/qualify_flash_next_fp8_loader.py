@@ -16,8 +16,8 @@ from qualify_flash_next_text import (
     text_references, make_text_oracle, run_case, request_trajectory, partial_trajectory,
     UPSTREAM_SHA256, CACHE_SHA256, SDPA_SHA256,
 )
-from venturi.models.flash_next_loader import load_weight_decoded_fp8_text
-from venturi.models.flash_next_ngram import PreparedNGramTable
+from venturi.models.flash_next.flash_next_loader import load_weight_decoded_fp8_text
+from venturi.models.flash_next.flash_next_ngram import PreparedNGramTable
 
 
 def main():

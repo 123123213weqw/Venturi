@@ -14,7 +14,7 @@ from pathlib import Path
 
 from venturi.container.checkpoint import _read_json
 from venturi.dtypes import DTYPE_INFO
-from venturi.ninfer import row_geometry
+from venturi.quantization.layout import row_geometry
 
 
 def _positive(value, name):

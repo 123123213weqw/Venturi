@@ -8,7 +8,7 @@ import subprocess
 import sys
 
 import pytest
-
+from import_budget import framework_import_timeout
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "tools/check_architecture.py"
@@ -16,7 +16,10 @@ TOOL = ROOT / "tools/check_architecture.py"
 
 def isolated(code):
     result = subprocess.run(
-        [sys.executable, "-c", code], capture_output=True, text=True, timeout=30
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        timeout=framework_import_timeout(),
     )
     assert result.returncode == 0, result.stderr
     return json.loads(result.stdout)
@@ -42,25 +45,22 @@ sys.meta_path.insert(0, BlockFrameworks())
         "venturi.ops",
         "venturi.text",
         "venturi.text.contracts",
-        "venturi.checkpoint",
+        "venturi.container.checkpoint",
         "venturi.dtypes",
-        "venturi.flash_next",
-        "venturi.ninfer",
-        "venturi.model_assets",
-        "venturi.model_config",
-        "venturi.tokenizer_assets",
-        "venturi.gguf_inventory",
-        "venturi.gguf_metadata",
+        "venturi.models.flash_next.flash_next",
+        "venturi.container.safetensors",
+        "venturi.container.model_assets",
+        "venturi.container.model_config",
+        "venturi.container.tokenizer_assets",
+        "venturi.container.gguf.gguf_inventory",
+        "venturi.container.gguf.gguf_metadata",
     ],
 )
 def test_namespace_and_metadata_import_without_tensor_framework(module):
-    report = isolated(
-        BLOCK_FRAMEWORKS
-        + f"""
+    report = isolated(BLOCK_FRAMEWORKS + f"""
 importlib.import_module({module!r})
 print(json.dumps({{'torch': 'torch' in sys.modules}}))
-"""
-    )
+""")
     assert report == {"torch": False}
 
 
@@ -80,9 +80,7 @@ print(json.dumps({{'torch': 'torch' in sys.modules}}))
     ],
 )
 def test_help_and_dispatch_errors_do_not_import_a_runtime(arguments, exit_code):
-    report = isolated(
-        BLOCK_FRAMEWORKS
-        + f"""
+    report = isolated(BLOCK_FRAMEWORKS + f"""
 import contextlib, io
 from venturi.cli import main
 output, error = io.StringIO(), io.StringIO()
@@ -92,8 +90,7 @@ with contextlib.redirect_stdout(output), contextlib.redirect_stderr(error):
     except SystemExit as e:
         code = e.code
 print(json.dumps(dict(code=code, output=output.getvalue(), error=error.getvalue())))
-"""
-    )
+""")
     assert report["code"] == exit_code
     assert "usage:" in report["output"] + report["error"]
 
@@ -104,14 +101,18 @@ print(json.dumps(dict(code=code, output=output.getvalue(), error=error.getvalue(
         (
             "venturi.models",
             "GPTNeoXConfig",
-            ("venturi.models.qwen_native", "venturi.models.llama", "venturi.ops"),
+            ("venturi.models.qwen.qwen_native", "venturi.models.llama", "venturi.ops"),
         ),
         (
             "venturi.ops",
             "DenseWeight",
             ("venturi.ops.blocks", "venturi.ops.ada", "venturi.models"),
         ),
-        ("venturi.generation", "LocalTokenizer", ("venturi.models", "venturi.ops")),
+        (
+            "venturi.engine.generation",
+            "LocalTokenizer",
+            ("venturi.models", "venturi.ops"),
+        ),
     ],
 )
 def test_selected_symbol_does_not_import_unrelated_implementations(
@@ -139,15 +140,6 @@ def test_public_exports_keep_identities_and_unknown_attributes_fail():
             namespace.this_public_symbol_does_not_exist
 
 
-def test_shared_text_keeps_legacy_aliases():
-    from venturi.generation import LocalTokenizer as old_tokenizer
-    from venturi.models.gpt_neox import validate_token_ids as old_validator
-    from venturi.text import LocalTokenizer, validate_token_ids
-
-    assert old_tokenizer is LocalTokenizer
-    assert old_validator is validate_token_ids
-
-
 def test_registry_is_closed_immutable_and_has_no_duplicate_names():
     from venturi.commands.registry import COMMANDS, COMMAND_BY_NAME
 
@@ -172,28 +164,10 @@ def test_command_dispatch_forwards_only_the_selected_route(monkeypatch):
     arguments = ["flash-next", "inspect", "somewhere", "--json"]
     assert cli.main(arguments) == 17
     assert arguments[0] == "flash-next"
-    assert calls == [("module", "venturi.flash_next_cli"), ((arguments[1:],), {})]
-
-
-def test_dense_dispatch_retains_legacy_injected_hook(monkeypatch):
-    from types import SimpleNamespace
-    from venturi import cli
-
-    observed = {}
-
-    def replacement(*args, **kwargs):
-        return None
-
-    def handler(argv, **kwargs):
-        observed.update(kwargs)
-        return 19
-
-    monkeypatch.setattr(cli, "load_checkpoint", replacement)
-    monkeypatch.setattr(
-        cli, "import_module", lambda module: SimpleNamespace(main=handler)
-    )
-    assert cli.main(["load", "somewhere"]) == 19
-    assert observed["load"] is replacement
+    assert calls == [
+        ("module", "venturi.models.flash_next.flash_next_cli"),
+        ((arguments[1:],), {}),
+    ]
 
 
 def test_real_source_dependency_guard():
@@ -217,9 +191,13 @@ def test_real_source_dependency_guard():
         ),
         ("models.bad", "from ..cli import main", "implementations-do-not-import-cli"),
         ("text.bad", "import torch", "shared-text-is-model-and-framework-independent"),
-        ("checkpoint", "import torch", "metadata-does-not-eagerly-import-torch"),
         (
-            "model_assets",
+            "container.checkpoint",
+            "import torch",
+            "metadata-does-not-eagerly-import-torch",
+        ),
+        (
+            "container.model_assets",
             "from .loader import load_checkpoint",
             "metadata-does-not-depend-on-execution",
         ),
@@ -253,110 +231,3 @@ def test_guard_distinguishes_deferred_and_type_only_tensor_imports(tmp_path):
     assert not report["violations"]
     edges = [e for e in report["modules"][0]["imports"] if e["target"] == "torch"]
     assert len(edges) == 1 and edges[0]["eager"] is False
-
-
-# Frozen pre-refactor public names: new exports may be added, old ones stay.
-LEGACY_PUBLIC_NAMES = {
-    "venturi.models": (
-        "AdaptiveQwenMTPBatch",
-        "NativeQwenBatchSession",
-        "NativeQwenMTPBatchSession",
-        "QwenMTPPlan",
-        "QwenMTPWeights",
-        "NativeQwenMTPModel",
-        "NativeQwenMTPSession",
-        "NativeQwenModel",
-        "NativeQwenPipelineModel",
-        "NativeQwenPipelineSession",
-        "NativeQwenSession",
-        "StreamingQwenModel",
-        "StreamingQwenSession",
-        "qwen_request_bytes",
-        "ResidentQwenModel",
-        "QwenSession",
-        "qwen_resident_bytes",
-        "ResidentQwenAttentionLayer",
-        "PreparedQwenAttentionLayer",
-        "QwenAttentionWorkspace",
-        "QwenAttentionStep",
-        "QwenTextRoPE",
-        "GDNLayerState",
-        "PreparedQwenGDNLayer",
-        "QwenGDNWorkspace",
-        "ResidentQwenGDNLayer",
-        "QwenSourceBinding",
-        "QwenSourcePlan",
-        "QwenQ8Weights",
-        "GDNFrontendWeights",
-        "GDNMixerWorkspace",
-        "PreparedGDNMixerCore",
-        "ResidentGDNFrontend",
-        "LlamaConfig",
-        "LlamaWeights",
-        "LlamaModel",
-        "LlamaSession",
-        "GPTNeoXConfig",
-        "GPTNeoXModel",
-        "GPTNeoXSession",
-        "GatedMLPWeights",
-        "GatedMLPWorkspace",
-        "PreparedGatedMLP",
-        "ResidentGatedMLP",
-        "AttentionDimensions",
-        "DecoderLayerWeights",
-        "ResidentDecoderLayer",
-        "PreparedDecoderLayer",
-        "DecoderStep",
-        "CapturedDecoderStep",
-        "DecoderWorkspace",
-        "LayerKVCache",
-    ),
-    "venturi.ops": (
-        "Backend",
-        "BackendCapabilities",
-        "LinearPlan",
-        "LinearWeight",
-        "OperatorBackend",
-        "OperatorSupport",
-        "UnsupportedOperationError",
-        "create_backend",
-        "PreparedQ8DP4A",
-        "prepare_q8_dp4a",
-        "PreparedQ8WMMA",
-        "prepare_q8_wmma",
-        "PreparedGreedy",
-        "prepare_greedy",
-        "ResidentQwenQKNorm",
-        "PreparedQwenQKNormRoPE",
-        "PreparedQwenOutputGate",
-        "ResidentCausalConv",
-        "PreparedCausalConv",
-        "ResidentGDNGates",
-        "PreparedGDNGates",
-        "ResidentGatedRMSNorm",
-        "PreparedGatedRMSNorm",
-        "NInferVocabulary",
-        "Q8VocabularyWeights",
-        "ResidentQ8Vocabulary",
-        "PreparedEmbedding",
-        "PreparedGDN",
-        "AdaBackend",
-        "PreparedLinear",
-        "Q4RowSplitWeight",
-        "Q8RowSplitWeight",
-        "DenseWeight",
-        "CudaBackend",
-        "TorchBackend",
-        "ResidentLinear",
-        "ResidentRMSNorm",
-        "ResidentQ4Weight",
-        "PreparedRoPE",
-        "PreparedCausalAttention",
-    ),
-}
-
-
-@pytest.mark.parametrize("package", LEGACY_PUBLIC_NAMES)
-def test_legacy_public_names_are_not_dropped(package):
-    module = importlib.import_module(package)
-    assert set(LEGACY_PUBLIC_NAMES[package]) <= set(module.__all__)

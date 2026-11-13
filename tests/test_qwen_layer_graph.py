@@ -205,7 +205,7 @@ def test_graph_source_mutation_after_launch_never_succeeds(tmp_path, engine):
         s.enable_target_layer_graph()
         s._force_proposals([(v + 1) % a.config["vocab_size"] for v in expected])
         native = model._native
-        model._backend._check(native.venturi_qwen_graph_pause(s._handle, 6, 200))
+        model._runtime._check(native.venturi_qwen_graph_pause(s._handle, 6, 200))
         with ThreadPoolExecutor(max_workers=1) as pool:
             future = pool.submit(
                 s.generate, prompt, max_new_tokens=13, draft_tokens=2, recovery="prefix"
@@ -213,21 +213,21 @@ def test_graph_source_mutation_after_launch_never_succeeds(tmp_path, engine):
             paused = C.c_int()
             deadline = time.monotonic() + 15
             while not paused.value:
-                model._backend._check(
+                model._runtime._check(
                     native.venturi_qwen_graph_pause_status(s._handle, C.byref(paused))
                 )
-                assert not future.done(), (
-                    "Generation ended before diagnostic graph pause"
-                )
+                assert (
+                    not future.done()
+                ), "Generation ended before diagnostic graph pause"
                 assert time.monotonic() < deadline, "Diagnostic pause not reached"
                 time.sleep(0.001)
-            path = a.artifact.files[0].path
+            path = a.source.path
             stat = path.stat()
             os.utime(path, ns=(stat.st_atime_ns, stat.st_mtime_ns + 1_000_000))
             with pytest.raises(RuntimeError, match="source changed"):
                 future.result(timeout=15)
         info = (C.c_uint64 * 8)()
-        model._backend._check(native.venturi_qwen_info(s._handle, info))
+        model._runtime._check(native.venturi_qwen_info(s._handle, info))
         assert info[1] == 1
     finally:
         ref.close()
