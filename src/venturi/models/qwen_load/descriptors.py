@@ -14,9 +14,9 @@ import torch
 
 from ...ninfer import row_geometry
 from ...ops import DenseWeight
-from ..gdn_frontend import GDNFrontendWeights
+from venturi.models.gdn_frontend import GDNFrontendWeights
 from ... import codecs
-from .abi import Config, Layer, Matrix, Span, _bind, _digest
+from venturi.models.qwen_load.abi import Config, Layer, Matrix, Span, _bind, _digest
 
 
 @dataclass

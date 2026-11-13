@@ -7,8 +7,8 @@ No allocation happens here; the guards fail closed with no implicit fallback.
 
 from dataclasses import dataclass
 
-from ..qwen_model import _memory_guard, qwen_resident_bytes
-from ..qwen_rope import QwenTextRoPE
+from venturi.models.qwen.qwen_model import _memory_guard, qwen_resident_bytes
+from venturi.models.qwen.qwen_rope import QwenTextRoPE
 from ...codecs import codec_for
 
 

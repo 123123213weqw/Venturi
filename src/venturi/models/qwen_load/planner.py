@@ -8,8 +8,8 @@ enforced against the freshly copied config, in the historical order.
 import copy
 
 from ...ninfer import NInferArtifact
-from ..decoder_layer import _outside_capture
-from ..qwen_weights import QwenQ8Weights
+from venturi.models.decoder_layer import _outside_capture
+from venturi.models.qwen.qwen_weights import QwenQ8Weights
 
 
 def prepare_source(spec):
