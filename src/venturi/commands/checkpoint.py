@@ -17,11 +17,17 @@ def main(argv: list[str] | None = None) -> int:
         if command in ("load", "verify", "generate", "benchmark"):
             child.add_argument("--device", default="cuda:0")
             child.add_argument(
-                "--loader", choices=("siphon", "safetensors"), default="siphon"
+                "--loader", choices=("staged", "safetensors"), default="staged"
             )
-            child.add_argument("--siphon-backend")
             child.add_argument(
-                "--buffer-size", type=int, help="Siphon GPU ring-buffer size in bytes"
+                "--buffer-size",
+                type=int,
+                help="Staged loader pinned slot size in bytes (default 32 MiB)",
+            )
+            child.add_argument(
+                "--slots",
+                type=int,
+                help="Staged loader pinned slot count (default 4)",
             )
             child.add_argument(
                 "--require-float-dtype",
@@ -102,8 +108,8 @@ def main(argv: list[str] | None = None) -> int:
                 args.path,
                 device=args.device,
                 loader=args.loader,
-                siphon_backend=args.siphon_backend,
                 buffer_size=args.buffer_size,
+                slots=args.slots,
                 require_float_dtype=args.require_float_dtype,
             )
             summary = model.summary()

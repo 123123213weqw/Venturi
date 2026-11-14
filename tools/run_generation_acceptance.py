@@ -301,7 +301,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("path", type=Path)
     parser.add_argument("--device", default="cuda:0")
-    parser.add_argument("--loader", choices=("siphon", "safetensors"), default="siphon")
+    parser.add_argument("--loader", choices=("staged", "safetensors"), default="staged")
     parser.add_argument("--tokenizer", type=Path)
     parser.add_argument("--max-new-tokens", type=int, default=16)
     parser.add_argument("--output", type=Path, required=True)

@@ -36,7 +36,7 @@ METADATA = frozenset(
     }
 )
 
-# These are model engines/adapters, not CUDA/cuBLAS, format readers, Siphon or
+# These are model engines/adapters, not CUDA/cuBLAS, format readers or
 # attributed individual operators. Offline comparator tools are outside src/.
 EXTERNAL_ENGINES = (
     "venturi.backends",

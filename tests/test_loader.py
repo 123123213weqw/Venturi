@@ -1,10 +1,6 @@
 import importlib
 import json
 import os
-from contextlib import nullcontext
-from enum import Enum
-from types import SimpleNamespace
-import sys
 
 import pytest
 import torch
@@ -17,6 +13,7 @@ from venturi import (
     verify_loaded_checkpoint,
 )
 from venturi.cli import main
+from venturi.container.staged_transfer import plan_chunks
 
 
 @pytest.mark.parametrize("sharded", [False, True])
@@ -257,10 +254,12 @@ def test_malformed_checkpoint(make_checkpoint, tmp_path, case, match):
     "kwargs,match",
     [
         ({"loader": "unknown"}, "Unknown loader"),
-        ({"device": "cpu"}, "Siphon requires CUDA"),
+        ({"device": "cpu"}, "staged loader requires CUDA"),
         ({"loader": "safetensors", "device": "mps"}, "Only CUDA"),
         ({"buffer_size": 0}, "positive integer"),
-        ({"loader": "safetensors", "buffer_size": 1024}, "Siphon options"),
+        ({"slots": 0}, "positive integer"),
+        ({"loader": "safetensors", "buffer_size": 1024}, "Staging options"),
+        ({"loader": "safetensors", "slots": 2}, "Staging options"),
     ],
 )
 def test_explicit_backend_errors(make_checkpoint, kwargs, match):
@@ -268,19 +267,30 @@ def test_explicit_backend_errors(make_checkpoint, kwargs, match):
         load_checkpoint(make_checkpoint(), **kwargs)
 
 
+@pytest.mark.parametrize(
+    "total,chunk,expected",
+    [
+        (0, 4096, []),
+        (1, 4096, [(0, 1)]),
+        (4096, 4096, [(0, 4096)]),
+        (4097, 4096, [(0, 4096), (4096, 1)]),
+        (8192, 4096, [(0, 4096), (4096, 4096)]),
+    ],
+)
+def test_plan_chunks(total, chunk, expected):
+    assert plan_chunks(total, chunk) == expected
+
+
+@pytest.mark.parametrize("total,chunk", [(-1, 4096), (8, 0), (8, -1)])
+def test_plan_chunks_rejects_bad_bounds(total, chunk):
+    with pytest.raises(ValueError, match="nonnegative"):
+        plan_chunks(total, chunk)
+
+
 def test_cuda_unavailable_does_not_fallback(make_checkpoint, monkeypatch):
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
     with pytest.raises(RuntimeError, match="no automatic CPU fallback"):
         load_checkpoint(make_checkpoint())
-
-
-def test_missing_siphon_has_install_message(make_checkpoint, monkeypatch):
-    from venturi.container.loader import _siphon_tensors
-
-    monkeypatch.setitem(sys.modules, "siphon", None)
-    checkpoint = inspect_checkpoint(make_checkpoint())
-    with pytest.raises(RuntimeError, match="Siphon native loader"):
-        dict(_siphon_tensors(checkpoint, torch.device("cuda:0"), None, None))
 
 
 def test_unavailable_dtype_fails_before_cuda(make_checkpoint, monkeypatch):
@@ -296,62 +306,6 @@ def test_unavailable_dtype_fails_before_cuda(make_checkpoint, monkeypatch):
     monkeypatch.setattr(torch.cuda, "is_available", must_not_initialize)
     with pytest.raises(ValueError, match="does not support"):
         load_checkpoint(make_checkpoint())
-
-
-@pytest.mark.parametrize(
-    "requested", [None, "MMAP", "mmap", "BUFFERED", "URING,MMAP", "invalid"]
-)
-def test_siphon_adapter_contract(make_checkpoint, weights, monkeypatch, requested):
-    from venturi.container.loader import _siphon_tensors
-
-    calls = []
-
-    class FakeReader:
-        def __init__(self, filenames, **kwargs):
-            calls.append((filenames, kwargs))
-
-        def __enter__(self):
-            return self
-
-        def __exit__(self, *args):
-            calls.append("closed")
-
-        def tensors(self):
-            yield from weights.items()
-
-    backend = Enum("Backend", ["MMAP", "URING"])
-    policy = Enum("BackendPolicy", ["BUFFERED"])
-    monkeypatch.setitem(
-        sys.modules,
-        "siphon",
-        SimpleNamespace(safe_open=FakeReader, Backend=backend, BackendPolicy=policy),
-    )
-    monkeypatch.setattr(torch.cuda, "device", lambda device: nullcontext())
-    checkpoint = inspect_checkpoint(make_checkpoint(sharded=True))
-    if requested == "invalid":
-        with pytest.raises(ValueError, match="Unknown Siphon backend"):
-            dict(_siphon_tensors(checkpoint, torch.device("cuda:1"), requested, 8192))
-        assert not calls
-        return
-    result = dict(_siphon_tensors(checkpoint, torch.device("cuda:1"), requested, 8192))
-    assert result.keys() == weights.keys()
-    files, kwargs = calls[0]
-    assert len(files) == 2
-    expected = {
-        "framework": "pt",
-        "device": "cuda:1",
-        "copy": True,
-        "buffer_size": 8192,
-    }
-    if requested is not None:
-        expected["backend"] = {
-            "MMAP": backend.MMAP,
-            "mmap": backend.MMAP,
-            "BUFFERED": policy.BUFFERED,
-            "URING,MMAP": [backend.URING, backend.MMAP],
-        }[requested]
-    assert kwargs == expected
-    assert calls[-1] == "closed"
 
 
 @pytest.mark.parametrize(
@@ -406,22 +360,23 @@ def test_cli(make_checkpoint, capsys):
 
 
 @pytest.mark.cuda
-@pytest.mark.parametrize("io_backend", [None, "MMAP", "BUFFERED"])
-def test_real_siphon_cuda_round_trip(make_checkpoint, weights, io_backend):
+@pytest.mark.parametrize("buffer_size,slots", [(None, None), (2 * 2**20, 2), (7, 1)])
+def test_real_staged_cuda_round_trip(make_checkpoint, weights, buffer_size, slots):
     if os.environ.get("VENTURI_TEST_CUDA") != "1":
-        pytest.skip("Set VENTURI_TEST_CUDA=1 on a CUDA host with Siphon installed")
+        pytest.skip("Set VENTURI_TEST_CUDA=1 on a CUDA host")
     assert torch.cuda.is_available(), (
         "CUDA integration was requested but CUDA is unavailable"
     )
-    importlib.import_module("siphon")
     directory = make_checkpoint(sharded=True)
     loaded = load_checkpoint(
-        directory, device="cuda:0", siphon_backend=io_backend, buffer_size=8 * 2**20
+        directory, device="cuda:0", buffer_size=buffer_size, slots=slots
     )
+    assert loaded.stats.loader == "staged"
     assert loaded.stats.cuda_allocated_bytes_delta > 0
     for name, expected in weights.items():
         torch.testing.assert_close(loaded.weights[name].cpu(), expected, rtol=0, atol=0)
-    # Returned tensors must remain valid after Siphon closes and allocations recur.
+    # Returned tensors must remain valid after the loader closes and
+    # allocations recur, and stay correct after later device work.
     scratch = torch.full((2**20,), 42, dtype=torch.float16, device="cuda:0")
     for name, expected in weights.items():
         torch.testing.assert_close(loaded.weights[name].cpu(), expected, rtol=0, atol=0)
