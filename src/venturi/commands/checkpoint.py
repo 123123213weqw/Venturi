@@ -32,7 +32,7 @@ def main(argv: list[str] | None = None) -> int:
             child.add_argument(
                 "--readers",
                 type=int,
-                help="Staged loader concurrent reader threads (default 2)",
+                help="Staged loader concurrent reader threads (default 1; raise on fast NVMe)",
             )
             child.add_argument(
                 "--require-float-dtype",
