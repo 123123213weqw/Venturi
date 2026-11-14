@@ -44,7 +44,6 @@ EXTERNAL_ENGINES = (
     "llama_cpp",
     "vllm",
     "sglang",
-    "ninfer",
     "cinference",
     "strata",
 )

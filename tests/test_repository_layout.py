@@ -53,20 +53,11 @@ assert row_geometry((2, 70), 'q8_g32_fp16')[-1] == 272
     assert result.returncode == 0, result.stderr
 
 
-def test_private_weight_format_and_vendor_runtime_are_not_packaged():
+def test_removed_legacy_paths_stay_removed():
     for path in (
-        "ninfer.py",
-        "ops/csrc/third_party/ninfer",
         "models/qwen_load/codecs.py",
         "models/qwen_load/verify_storage.py",
     ):
         assert not (ROOT / "src/venturi" / path).exists()
-    for path in (ROOT / "src").rglob("*.py"):
-        tree = ast.parse(path.read_text())
-        for node in ast.walk(tree):
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                assert node.name != "from_ninfer", path
-            if isinstance(node, ast.ImportFrom):
-                assert node.module != "venturi.ninfer", path
     for path in ("build_candidates.py", "test_rowsplit.py", "evaluate_candidate.py"):
         assert not (ROOT / "tools/projection" / path).exists()

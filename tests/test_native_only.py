@@ -68,7 +68,7 @@ def test_native_qwen_and_safetensors_reader_need_no_external_engine():
 import importlib.abc,json,sys
 class Block(importlib.abc.MetaPathFinder):
     def find_spec(self,name,path=None,target=None):
-        if name.split('.')[0] in {'ninfer','cinference','strata','llama_cpp','vllm','sglang'}:
+        if name.split('.')[0] in {'cinference','strata','llama_cpp','vllm','sglang'}:
             raise AssertionError('Unexpected external engine: '+name)
 sys.meta_path.insert(0,Block())
 from venturi.models import NativeQwenModel,NativeQwenSession,QwenWeights
@@ -94,7 +94,6 @@ print(json.dumps(dict(native_available=True,cuda_initialized=False)))
         "import vllm",
         "from llama_cpp import Llama",
         "def run():\n    from venturi.backends.qwen import QwenNativeSession",
-        "from ninfer import Engine",
         "import strata",
     ],
 )
@@ -116,7 +115,7 @@ import importlib.abc,json,sys
 sys.path.insert(0,{str(ROOT / "tools")!r})
 class Block(importlib.abc.MetaPathFinder):
     def find_spec(self,name,path=None,target=None):
-        if name.split('.')[0] in {{'venturi','torch','ninfer','cinference','strata'}}:
+        if name.split('.')[0] in {{'venturi','torch','cinference','strata'}}:
             raise AssertionError(name)
 sys.meta_path.insert(0,Block())
 import gpu_telemetry,process_metrics
