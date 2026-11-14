@@ -140,6 +140,3 @@ The benchmark is a CLI utility, not a production API. It does not establish that
 2P+6D, 4P+4D and workload-specific splits under the same latency goals. Initial
 implementation/validation evidence lives in `operations/pd-native-20261029-v1/`;
 transport-only L40 evidence is separately frozen in `pd-l40-intake-20261029-v1`.
-
-Public CPU/GPU qualification and outstanding limits are recorded in
-[the PD v1 qualification report](pd-qualification.md).

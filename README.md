@@ -32,9 +32,8 @@ services were not stopped, reconfigured or migrated.
   ownership and native/reference execution boundaries.
 - [Explicit native PD pools](docs/pd-disaggregation.md): request-state handoff,
   prefill/decode worker ownership, supported scope and qualification limits.
-- [Flash-Next status](docs/qwen38-flash-next.md) and
-  [DeepSeek V4.1 qualification](docs/deepseek41-4090.md): experimental support,
-  real-model limits and separate evidence, not implied support for every model.
+- Flash-Next and DeepSeek V4.1: experimental support only, with real-model
+  limits; not implied support for every model.
 
 The detailed milestones and measurements below are retained historical records;
 their model/hardware/precision/scope limitations still apply.
@@ -51,7 +50,7 @@ and can generate text with its first **dense GPT-NeoX model adapter** (Pythia).
 The independent Qwen Q8 runtime implements its own model execution. The separate
 Ada Q4 operator still contains explicitly attributed upstream kernel code.
 Other architectures are not executable merely because their weights can load.
-DeepSeek V4.1 qualification is [tracked separately](docs/deepseek41-4090.md):
+DeepSeek V4.1 qualification is tracked separately:
 asset admission and CPU semantic oracles do **not** imply a complete
 Venturi-native DeepSeek executor or measured TPS. The former external adapter
 was removed; unsupported architectures fail rather than switching engines.
@@ -1567,9 +1566,7 @@ Do not infer Qwen generation correctness from vocabulary lookups or synthetic GD
 ## Active native Q8 Qwen goal
 
 The implementation goal is active; full independent Qwen inference and matched
-single/parallel-serving wins are **not complete**. See
-[`docs/native-q8-goal.md`](docs/native-q8-goal.md) for the acceptance matrix,
-source acquisition, hardware capacity and ordered milestones.
+single/parallel-serving wins are **not complete**.
 
 Current additions include `Q8RowSplitWeight.from_dense` (explicit bounded-row
 source quantization), generic native Q8 projection/embedding residency, native
@@ -1630,7 +1627,7 @@ existing outputs and never uses the mixed-Q4 artifact as a source substitute.
 `QwenWeights` preflights all runtime roles and reads one encoded matrix or
 bounded floating parameter at a time. This is checkpoint binding/storage work,
 not yet native full-model generation or an inference-speed improvement.
-See `docs/native-q8-goal.md` and `benchmarks/qwen-source-bindings/summary.md`.
+See `benchmarks/qwen-source-bindings/summary.md`.
 
 
 ### Complete GDN decoder-layer operator composition
@@ -2060,9 +2057,9 @@ implemented state transaction, acceptance gates and remaining limitations.
 The next acceptance target is a **same-original-checkpoint llama.cpp comparison**
 and measured end-to-end optimization, not another Venturi-only speed claim.
 Screen 1/8 requests first, then promote with repeated 1/2/4/8-request tests,
-correctness gates and explicit speculation/precision/timing scopes. See the
-revised target in `docs/native-q8-goal.md`. Equal Q8 weight labels do not imply
-identical encoded tensors or engine-internal activation math. The old uncensored
+correctness gates and explicit speculation/precision/timing scopes. Equal Q8
+weight labels do not imply identical encoded tensors or engine-internal
+activation math. The old uncensored
 Qwen3.8 service's 50 TPS is not a same-checkpoint Qwen3.5 baseline.
 
 `tools/serve_native_benchmark.py` is a loopback-only fixed-greedy benchmark adapter,
