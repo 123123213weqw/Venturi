@@ -1233,22 +1233,23 @@ Empty shards are rejected; empty tensors are valid on the reference backend.
 venturi load /absolute/path/to/checkpoint --device cuda:0 --json
 ```
 
-The staged loader is the default CUDA path. It reads each shard sequentially into
-a ring of pinned host slots and issues non-blocking device copies on a dedicated
-stream, so disk reads overlap with in-flight transfers. Every returned tensor
-owns its storage; nothing aliases a rotating buffer. Explicit options override
-matching defaults:
+The staged loader is the default CUDA path. Reader threads prefetch shard chunks
+into a ring of pinned host slots while non-blocking device copies run on a
+dedicated stream, so several disk reads and in-flight transfers overlap. Every
+returned tensor owns its storage; nothing aliases a rotating buffer. Explicit
+options override matching defaults:
 
 ```bash
 venturi load /absolute/path/to/checkpoint --device cuda:0 \
-  --buffer-size 268435456 --slots 4 --json
+  --buffer-size 268435456 --slots 4 --readers 2 --json
 ```
 
 `--buffer-size` is the pinned slot size in bytes (default 32 MiB); `--slots` is
-the slot count (default 4). The ring is host-side staging only, not a cap on
-total model memory: allow headroom for the complete tensors **and** the pinned
-ring. Shard files are identity-checked before and after loading; a shard that
-changes mid-load fails rather than returning mixed bytes. No automatic CPU
+the slot count (default 4); `--readers` is the concurrent reader thread count
+(default 2), clamped to the slot count. The ring is host-side staging only, not
+a cap on total model memory: allow headroom for the complete tensors **and** the
+pinned ring. Shard files are identity-checked before and after loading; a shard
+that changes mid-load fails rather than returning mixed bytes. No automatic CPU
 fallback, offloading, or eviction of other workloads occurs.
 
 The CLI loads, reports, and exits. Keep weights resident with the Python API:

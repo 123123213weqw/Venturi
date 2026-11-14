@@ -30,6 +30,11 @@ def main(argv: list[str] | None = None) -> int:
                 help="Staged loader pinned slot count (default 4)",
             )
             child.add_argument(
+                "--readers",
+                type=int,
+                help="Staged loader concurrent reader threads (default 2)",
+            )
+            child.add_argument(
                 "--require-float-dtype",
                 choices=("F16", "BF16", "F32", "F64"),
                 help="Require this dtype for floating-point tensors; preserve integer/bool buffers",
@@ -110,6 +115,7 @@ def main(argv: list[str] | None = None) -> int:
                 loader=args.loader,
                 buffer_size=args.buffer_size,
                 slots=args.slots,
+                readers=args.readers,
                 require_float_dtype=args.require_float_dtype,
             )
             summary = model.summary()

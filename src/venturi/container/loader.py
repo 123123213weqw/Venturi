@@ -50,9 +50,11 @@ def _staged_tensors(
     device: torch.device,
     buffer_size: int | None,
     slots: int | None,
+    readers: int | None,
 ) -> Iterator[tuple[str, torch.Tensor]]:
     from venturi.container.safetensors import SafetensorsContainer
     from venturi.container.staged_transfer import (
+        DEFAULT_READERS,
         DEFAULT_SLOTS,
         DEFAULT_SLOT_BYTES,
         StagedTransfer,
@@ -63,6 +65,7 @@ def _staged_tensors(
         device,
         slot_bytes=DEFAULT_SLOT_BYTES if buffer_size is None else buffer_size,
         slots=DEFAULT_SLOTS if slots is None else slots,
+        readers=DEFAULT_READERS if readers is None else readers,
     )
     for path in checkpoint.files:
         container = SafetensorsContainer(path)
@@ -104,6 +107,7 @@ def _staged_tensors(
             ) != identity:
                 raise CheckpointError(f"Shard changed while loading: {path}")
         finally:
+            transfer.close()
             os.close(fd)
 
 
@@ -125,11 +129,12 @@ def load_checkpoint(
     loader: str = "staged",
     buffer_size: int | None = None,
     slots: int | None = None,
+    readers: int | None = None,
     require_float_dtype: str | None = None,
 ) -> LoadedCheckpoint:
     """Load a storage-validated checkpoint without interpreting model semantics.
 
-    The staged loader is the production CUDA path: sequential shard reads into
+    The staged loader is the production CUDA path: concurrent shard reads into
     a pinned slot ring with non-blocking device copies. The explicit
     safetensors backend allows CPU tests and reference comparisons; it is
     never an automatic fallback.
@@ -141,7 +146,9 @@ def load_checkpoint(
         raise ValueError("buffer_size must be a positive integer")
     if slots is not None and (type(slots) is not int or slots <= 0):
         raise ValueError("slots must be a positive integer")
-    if loader != "staged" and (buffer_size is not None or slots is not None):
+    if readers is not None and (type(readers) is not int or readers <= 0):
+        raise ValueError("readers must be a positive integer")
+    if loader != "staged" and (buffer_size is not None or slots is not None or readers is not None):
         raise ValueError("Staging options cannot be used with the safetensors loader")
     target = torch.device(device)
     if target.type not in ("cuda", "cpu"):
@@ -184,7 +191,7 @@ def load_checkpoint(
 
     weights: dict[str, torch.Tensor] = {}
     iterator = (
-        _staged_tensors(checkpoint, target, buffer_size, slots)
+        _staged_tensors(checkpoint, target, buffer_size, slots, readers)
         if loader == "staged"
         else _reference_tensors(checkpoint, target)
     )

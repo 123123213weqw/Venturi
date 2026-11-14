@@ -258,8 +258,10 @@ def test_malformed_checkpoint(make_checkpoint, tmp_path, case, match):
         ({"loader": "safetensors", "device": "mps"}, "Only CUDA"),
         ({"buffer_size": 0}, "positive integer"),
         ({"slots": 0}, "positive integer"),
+        ({"readers": 0}, "positive integer"),
         ({"loader": "safetensors", "buffer_size": 1024}, "Staging options"),
         ({"loader": "safetensors", "slots": 2}, "Staging options"),
+        ({"loader": "safetensors", "readers": 2}, "Staging options"),
     ],
 )
 def test_explicit_backend_errors(make_checkpoint, kwargs, match):
@@ -360,8 +362,11 @@ def test_cli(make_checkpoint, capsys):
 
 
 @pytest.mark.cuda
-@pytest.mark.parametrize("buffer_size,slots", [(None, None), (2 * 2**20, 2), (7, 1)])
-def test_real_staged_cuda_round_trip(make_checkpoint, weights, buffer_size, slots):
+@pytest.mark.parametrize(
+    "buffer_size,slots,readers",
+    [(None, None, None), (2 * 2**20, 2, 4), (7, 1, 1), (None, None, 8)],
+)
+def test_real_staged_cuda_round_trip(make_checkpoint, weights, buffer_size, slots, readers):
     if os.environ.get("VENTURI_TEST_CUDA") != "1":
         pytest.skip("Set VENTURI_TEST_CUDA=1 on a CUDA host")
     assert torch.cuda.is_available(), (
@@ -369,7 +374,7 @@ def test_real_staged_cuda_round_trip(make_checkpoint, weights, buffer_size, slot
     )
     directory = make_checkpoint(sharded=True)
     loaded = load_checkpoint(
-        directory, device="cuda:0", buffer_size=buffer_size, slots=slots
+        directory, device="cuda:0", buffer_size=buffer_size, slots=slots, readers=readers
     )
     assert loaded.stats.loader == "staged"
     assert loaded.stats.cuda_allocated_bytes_delta > 0
