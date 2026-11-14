@@ -96,8 +96,10 @@ struct Dense {
     void allocate(int dtype) { check(cudaGetDevice(&device));ptr=venturi_dense_create(dtype);if (!ptr) throw std::runtime_error(venturi_blocks_error()); }
     ~Dense() { if (ptr) { int old=0;(void)cudaGetDevice(&old);(void)cudaSetDevice(device);venturi_dense_destroy(ptr);(void)cudaSetDevice(old); } }
 };
-#include "qwen_kv_tier.cuh"
+#include "../../../ops/csrc/kv/kv_pool.cuh"
+#include "../../../ops/csrc/kv/kv_prefix.cuh"
 #include "weight_source.cuh"
+using KVTier = vkv::Pool;  // unified model-agnostic KV storage (ops/csrc/kv)
 
 inline int padded(const VRMatrix& m) { return ((m.k+127)/128)*128; }
 // Legacy q8 geometry (group32, one int8 code per weight): the fused q8 kernel
@@ -787,6 +789,7 @@ struct Session {
     std::map<std::string,std::unique_ptr<Buffer>> w;
     std::vector<std::unique_ptr<Buffer>> history,state,keys,values,peer_history,peer_state;
     std::vector<std::unique_ptr<KVTier::Entry>> tiered_kv;
+    std::vector<int> next_attn;  // next full-attention layer index for KV prefetch, -1 when none
     std::vector<std::uint16_t> host_logits;
     std::vector<std::int64_t> ids;
     std::uint64_t device_bytes=0,peer_device_bytes=0;
@@ -829,6 +832,7 @@ struct Session {
         if (md.row_codec() && !md.c.dequant_resident) { alloc("ids2",mul(t,8));alloc("q4_rows_out",mul(mul(t,c.hidden),2)); }
         alloc("cos",mul(mul(cap,c.rotary/2),4));alloc("sin",mul(mul(cap,c.rotary/2),4));
         tiered_kv.resize(c.layers);history.resize(c.layers);state.resize(c.layers);keys.resize(c.layers);values.resize(c.layers);peer_history.resize(c.layers);peer_state.resize(c.layers);
+        next_attn.assign(c.layers,-1);for(int i=c.layers-2;i>=0;--i)next_attn[i]=md.layers[i+1].kind!=0?i+1:next_attn[i+1];
         auto statebuf=[&](std::unique_ptr<Buffer>& dst,std::uint64_t bytes,bool zero) { dst=std::make_unique<Buffer>();dst->allocate(bytes);device_bytes=add(device_bytes,bytes);if (zero && bytes) check(cudaMemsetAsync(dst->ptr,0,bytes,md.stream.ptr)); };
         for (int i=md.begin;caches && i<md.end;++i) {
             if (md.layers[i].kind==0) {
@@ -860,7 +864,8 @@ struct Session {
     void kv_goals(std::vector<std::pair<KVTier::Entry*,std::uint64_t>>& goals,int end) {
         if(model->kv_tier)for(auto& e:tiered_kv)if(e)goals.push_back({e.get(),mul(end,e->row)});
     }
-    void kv_ensure(int layer,int end){if(tiered_kv[layer])model->kv_tier->ensure(*tiered_kv[layer],mul(end,tiered_kv[layer]->row));}
+    void kv_ensure(int layer,int end){if(tiered_kv[layer]){model->kv_tier->ensure(*tiered_kv[layer],mul(end,tiered_kv[layer]->row));model->kv_tier->attach(*tiered_kv[layer]);}}
+    void kv_prefetch(int layer,int end){if(tiered_kv[layer])model->kv_tier->ensure(*tiered_kv[layer],mul(end,tiered_kv[layer]->row));}
     void* kv_ptr(int layer,int kind,std::uint64_t offset=0){return tiered_kv[layer]?tiered_kv[layer]->ptr(kind,offset):(kind?values:keys)[layer]->at(offset);}
     void kv_written(int layer,int end){if(tiered_kv[layer])model->kv_tier->written(*tiered_kv[layer],mul(end,tiered_kv[layer]->row));}
     void snapshot(int layer,int kind,void* target,std::uint64_t bytes) {
@@ -943,6 +948,7 @@ struct Session {
             auto* cos=static_cast<const float*>(p("cos"))+mul(pos,c.rotary/2);auto* sin=static_cast<const float*>(p("sin"))+mul(pos,c.rotary/2);
             op(venturi_qwen_qk_run(p("qg"),p("key"),static_cast<const float*>(l.qgamma),static_cast<const float*>(l.kgamma),cos,sin,p("query"),kt,t,c.hq,c.hkv,c.dim,c.rotary,c.dtype,c.epsilon,s));
             op(venturi_attention_run(p("query"),kv_ptr(index,0),kv_ptr(index,1),p("attended"),t,pos+t,c.hq,c.hkv,c.dim,c.dtype,c.attention_scale,s));kv_written(index,pos+t);
+            if(next_attn[index]>=0)kv_prefetch(next_attn[index],pos+t);
             op(venturi_qwen_gate_run(p("attended"),p("qg"),p("attended"),t,c.hq,c.dim,c.dtype,s));
             m.linear(l.matrix[3],p("attended"),p("projected"),t);
         }
@@ -1167,7 +1173,7 @@ extern "C" VENTURI_EXPORT int venturi_qwen_experiment_info(void* h,std::uint64_t
 extern "C" VENTURI_EXPORT int venturi_qwen_enable_kv_tier(void* h,std::uint64_t gpu,std::uint64_t ram) {
     try{vr::require(h,"null KV tier model");auto m=*static_cast<vr::Handle*>(h);std::lock_guard<std::mutex> lock(m->mutex);vr::Device d(m->c.device);
         vr::require(!m->session_created && !m->kv_tier && !m->stage && m->c.resident,"KV tier requires a complete resident model before creating requests");
-        m->kv_tier=std::make_unique<vr::KVTier>(m->c.device,m->stream.ptr,m->staging.ptr,m->stage_bytes,m->c.reserve,gpu,ram);return 0;
+        m->kv_tier=std::make_unique<vr::KVTier>(m->c.device,m->stream.ptr,m->c.reserve,gpu,ram);return 0;
     }catch(const std::exception& e){error_text=e.what();return -1;}
 }
 extern "C" VENTURI_EXPORT int venturi_qwen_kv_tier_info(void* h,std::uint64_t* out) {
