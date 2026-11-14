@@ -31,7 +31,6 @@ def test_remote_launcher_quotes_prompt_and_paths(tmp_path):
         "VENTURI_REMOTE_DIR": str(directory),
         "VENTURI_REMOTE_PYTHON": str(python),
         "VENTURI_REMOTE_MODEL": "/model with spaces",
-        "VENTURI_REMOTE_SIPHON": "/siphon",
         "VENTURI_SSH_HOST": "test-host",
     }
     result = subprocess.run(
@@ -58,5 +57,5 @@ def test_remote_launcher_quotes_prompt_and_paths(tmp_path):
         "--prompt",
         prompt,
     ]
-    assert payload["path"] == f"{directory}/src" + ":/siphon"
+    assert payload["path"] == f"{directory}/src"
     assert not (directory / "UNWANTED").exists()

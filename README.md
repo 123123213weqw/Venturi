@@ -19,7 +19,7 @@ Venturi does not package or select external whole-model engines. The legacy
 Q8 architecture and formats. There is no external fallback for missing models.
 
 This does **not** mean zero dependencies or every kernel is original: PyTorch,
-safetensors, tokenizers, CUDA/cuBLAS, the explicit Siphon loader, and attributed
+safetensors, tokenizers, CUDA/cuBLAS, and attributed
 Ada Q4 operator code remain. Offline numerical/reference comparisons and frozen
 historical measurements are not product inference backends. Existing production
 services were not stopped, reconfigured or migrated.
@@ -38,7 +38,7 @@ services were not stopped, reconfigured or migrated.
 The detailed milestones and measurements below are retained historical records;
 their model/hardware/precision/scope limitations still apply.
 
-**Siphon loads the weights; Venturi runs the model.**
+**Venturi loads the weights and runs the model.**
 
 That is the dense safetensors path. The separate Qwen Q8 path uses Venturi-owned
 C++/CUDA execution. External whole-model engine adapters are no longer shipped.
@@ -61,8 +61,8 @@ execution kernels are separate components, not part of checkpoint loading.
 ### What it does
 
 - Loads a local safetensors file or single/sharded checkpoint directory.
-- Uses Siphon for multi-file CUDA loading, with an explicit safetensors reference
-  path for CPU tests and CUDA cross-checks.
+- Loads through a Venturi-owned pinned staged transfer on CUDA, with an explicit
+  safetensors reference path for CPU tests and CUDA cross-checks.
 - Inspects headers and validates shard indexes before allocating GPU weights.
 - Preserves tensor names, physical shapes, storage dtypes, and packed integers.
 - Retains optional `config.json`, including quantization descriptions, safetensors
@@ -628,7 +628,7 @@ venturi generate /absolute/path/to/pythia-70m \
 
 The checkpoint directory needs its original `config.json`, safetensors weights,
 and `tokenizer.json`. Generation never downloads files. The default CUDA loader
-is Siphon, with the same explicit backend and buffer options as `venturi load`.
+is the staged loader, with the same buffer options as `venturi load`.
 Use `--tokenizer /absolute/path/to/tokenizer.json` to select the tokenizer
 explicitly, and `--json` for token IDs, stop reason, timing, and loader/runtime
 information. Without `--json`, the CLI prints only the generated continuation.
@@ -818,7 +818,7 @@ repeatability, not reference-model correctness.
 CUDA peaks are reset before each measured request, after synchronizing the
 request stream. Warmup allocations may remain reserved. The report distinguishes
 baseline, total peak, and extra peak allocated bytes. These counters cover only
-this process's PyTorch allocator on the device, not total GPU VRAM or Siphon/CUDA
+this process's PyTorch allocator on the device, not total GPU VRAM or CUDA
 native allocations. Do not profile concurrent work in the same process/device:
 peak counter resets are process/device-wide. CPU allocator memory is not
 measured. Loading and model preparation are reported separately from warmed
@@ -875,7 +875,7 @@ python tools/compare_llamacpp.py --checkpoint "$MODEL_DIR" \
 
 The reported commit must match the checkout actually built; the example pins
 the revision selected for this comparison. The caller supplies an environment
-with Siphon and the conversion dependencies; the tool does not install packages,
+with the conversion dependencies; the tool does not install packages,
 download checkpoints, or build anything. Run from this repository, with Venturi
 installed or `src` on `PYTHONPATH`. Use a new output directory each time to retain
 failed/previous evidence instead of overwriting it.
@@ -1204,16 +1204,8 @@ cd Venturi
 python -m pip install -e '.[test]'
 ```
 
-For production loading, install Siphon from this repository, not an unrelated
-package with the same name. Follow its platform/build prerequisites:
-
-```bash
-git clone --recurse-submodules https://github.com/123123213weqw/siphon.git
-python -m pip install ./siphon
-```
-
-Siphon is imported only when its backend is selected. It is not vendored or
-installed automatically. See [Siphon's installation instructions](https://github.com/123123213weqw/siphon#install).
+Checkpoint loading needs no separate component: the staged CUDA loader and the
+safetensors reference path are part of this package.
 
 ## Inspect without loading GPU weights
 
@@ -1235,30 +1227,44 @@ ambiguous and rejected. HF cache symlinks are supported. An explicitly selected
 file loads only that file, even if a sibling index describes other shards.
 Empty shards are rejected; empty tensors are valid on the reference backend.
 
-## Load through Siphon
+## Load through the staged loader
 
 ```bash
 venturi load /absolute/path/to/checkpoint --device cuda:0 --json
 ```
 
-Siphon is the default. Its automatic I/O selection and `SIPHON_*` environment
-settings remain available. Explicit options override matching defaults:
+The staged loader is the default CUDA path. Reader threads prefetch shard chunks
+into a ring of pinned host slots while non-blocking device copies run on a
+dedicated stream, so several disk reads and in-flight transfers overlap. Every
+returned tensor owns its storage; nothing aliases a rotating buffer. Explicit
+options override matching defaults:
 
 ```bash
 venturi load /absolute/path/to/checkpoint --device cuda:0 \
-  --siphon-backend URING --buffer-size 268435456 --json
+  --buffer-size 268435456 --slots 4 --readers 2 --json
 ```
 
-Backend names are translated into Siphon's public enums. Comma-separated
-candidates and the `BUFFERED` policy are accepted. Siphon is opened once for the
-whole shard group, on the selected CUDA device, with `copy=True`: retained weights
-must not alias a temporary rotating buffer.
+`--buffer-size` is the pinned slot size in bytes (default 32 MiB); `--slots` is
+the slot count (default 4); `--readers` is the concurrent reader thread count
+(default 2; 1 keeps cold reads strictly sequential), clamped to the slot count.
+The ring is host-side staging only, not
+a cap on total model memory: allow headroom for the complete tensors **and** the
+pinned ring. Inspection records each shard's resolved blob path and stat identity
+(device, inode, size, mtime, ctime). HF snapshot symlinks keep their original
+names/config location, but reads use the inspected blob and reject changed
+targets. The actual tensor set, shapes, dtypes and byte sizes are checked again
+before copying; file-descriptor and path identities are checked around reads and
+all shards are rechecked at load completion. These guards detect ordinary file
+changes, not cryptographic integrity or adversarial mutation between checks.
 
-The buffer option controls Siphon's ring allocation, not a cap on total model
-memory. Allow headroom for the complete tensors **and** loader buffers; Siphon can
-round or enlarge its buffer. No automatic CPU fallback, offloading, or eviction of
-other workloads occurs. Device/storage types unsupported by the selected backend
-fail rather than being converted.
+The upload stream waits for the caller's current stream before writing a target,
+and the caller's stream waits for upload completion before consuming it. Slot
+events prevent host overwrite; target allocations are recorded on the upload
+stream. Failed uploads drain reader threads and partial DMAs before releasing
+borrowed storage/descriptors, then close rather than silently reusing the ring.
+No automatic CPU fallback, offloading, or eviction of other workloads occurs.
+This is the generic `load_checkpoint` path; the native Qwen C++ uploader and its
+strict no-symlink input policy are independent and unchanged.
 
 The CLI loads, reports, and exits. Keep weights resident with the Python API:
 
@@ -1379,7 +1385,7 @@ python tools/run_fp16_acceptance.py "$MODEL_DIR" --runs 3 \
 
 The download commands target a new fixture directory; existing model weights do
 not need to be overwritten or converted. On macOS, use `shasum -a 256 -c -` in
-place of `sha256sum -c -` for the checksum step. Use a configured CUDA/Siphon
+place of `sha256sum -c -` for the checksum step. Use a configured CUDA
 environment for GPU acceptance.
 
 ## Tests
@@ -1390,20 +1396,21 @@ python -m pytest -q
 
 The default suite uses architecture-independent synthetic tensors, with mixed
 floating-point, integer-packed quantized, boolean, scalar, and empty storage. It
-requires no model download, GPU, Siphon extension, or Rust compilation. Tests
+requires no model download, GPU, or Rust compilation. Tests
 cover exact contents and metadata, shard/index validation, lifetime, and CLI.
 With the `generate` and `reference` extras installed, it also exercises local
 tokenization and model/oracle tests without downloading any model checkpoint.
 
-On a GPU host with Siphon installed:
+On a GPU host:
 
 ```bash
-VENTURI_TEST_CUDA=1 python -m pytest -q -m cuda -k real_siphon
+VENTURI_TEST_CUDA=1 python -m pytest -q -m cuda -k real_staged
 ```
 
-This runs mixed-dtype round trips through Siphon's automatic, `MMAP`, and
-`BUFFERED` paths and verifies every tensor against the CPU originals after the
-loader closes. This is a storage correctness test, not a model benchmark.
+This runs mixed-dtype round trips through the staged loader (default ring,
+small slots, and single-slot configurations) and verifies every tensor against
+the CPU originals after the loader closes. This is a storage correctness test,
+not a model benchmark.
 
 Optional acceptance for any existing checkpoint with sufficient free VRAM:
 
