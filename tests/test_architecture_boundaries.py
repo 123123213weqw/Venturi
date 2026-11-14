@@ -29,7 +29,7 @@ BLOCK_FRAMEWORKS = """
 import importlib.abc, importlib, json, sys
 class BlockFrameworks(importlib.abc.MetaPathFinder):
     def find_spec(self, fullname, path=None, target=None):
-        if fullname.split('.')[0] in {'torch', 'transformers', 'siphon'}:
+        if fullname.split('.')[0] in {'torch', 'transformers'}:
             raise AssertionError('Unexpected framework import: ' + fullname)
 sys.meta_path.insert(0, BlockFrameworks())
 """

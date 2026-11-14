@@ -71,7 +71,7 @@ source or the wheel. A new dependency guard rejects external engine imports.
 Format support and infrastructure are independent: the `.ninfer` format reader
 is removed entirely — safetensors (primary) and GGUF are the supported
 containers, and nothing imports the external NInfer engine. CUDA/cuBLAS,
-PyTorch, safetensors, tokenizers and the separate Siphon loading path remain.
+PyTorch, safetensors, tokenizers and the owned staged loading path remain.
 The SM89 Ada Q4 plugin still contains attributed upstream kernel code and its
 LICENSE/NOTICE/provenance. Removing an engine adapter does not make that code
 original or replace it with an unqualified kernel.
@@ -201,7 +201,7 @@ The stdlib-only AST guard scans `src/` without importing the engine or probing a
 device. CI runs it before the full tests. It records eager/deferred imports and
 enforces the boundaries above. Type-only imports are excluded. It does **not**
 prove absence of every dynamic import or legacy cycle; fresh-process tests also
-block Torch/Transformers/Siphon imports to catch real transitive regressions.
+block Torch/Transformers imports to catch real transitive regressions.
 
 Regression tests cover export identities, selection isolation, command forwarding,
 compatibility hooks and numerical/CLI behavior. Evidence for this pass is under

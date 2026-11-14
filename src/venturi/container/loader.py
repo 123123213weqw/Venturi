@@ -1,5 +1,6 @@
-"""Owned, architecture-independent checkpoint tensors loaded through Siphon or a reference."""
+"""Owned, architecture-independent checkpoint tensors loaded through a staged transfer or a reference."""
 
+import os
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from time import perf_counter
@@ -9,7 +10,7 @@ from typing import Any, Iterator, Mapping
 import torch
 
 from venturi.container.checkpoint import CheckpointError, Checkpoint, inspect_checkpoint
-from venturi.dtypes import torch_dtype
+from venturi.dtypes import DTYPE_INFO, torch_dtype
 
 
 @dataclass(frozen=True)
@@ -44,42 +45,85 @@ class LoadedCheckpoint:
         return self.checkpoint.summary() | {"load": asdict(self.stats)}
 
 
-def _siphon_tensors(
+def _staged_tensors(
     checkpoint: Checkpoint,
     device: torch.device,
-    backend: str | None,
     buffer_size: int | None,
+    slots: int | None,
+    readers: int | None,
 ) -> Iterator[tuple[str, torch.Tensor]]:
+    from venturi.container.safetensors import SafetensorsContainer
+    from venturi.container.staged_transfer import (
+        DEFAULT_READERS,
+        DEFAULT_SLOTS,
+        DEFAULT_SLOT_BYTES,
+        StagedTransfer,
+        pread_fill,
+    )
+
+    checkpoint.check_sources()
+    transfer = StagedTransfer(
+        device,
+        slot_bytes=DEFAULT_SLOT_BYTES if buffer_size is None else buffer_size,
+        slots=DEFAULT_SLOTS if slots is None else slots,
+        readers=DEFAULT_READERS if readers is None else readers,
+    )
     try:
-        from siphon import Backend, BackendPolicy, safe_open
-    except ImportError as error:
-        raise RuntimeError(
-            "Install the user's Siphon native loader from https://github.com/123123213weqw/siphon; see README.md"
-        ) from error
-    options: dict[str, Any] = {"copy": True}
-    if backend is not None:
-        available = Backend.__members__ | BackendPolicy.__members__
-        names = [name.strip().upper() for name in backend.split(",")]
-        if any(name not in available for name in names):
-            raise ValueError(
-                f"Unknown Siphon backend {backend!r}; choose from {sorted(available)}"
-            )
-        candidates = [available[name] for name in names]
-        options["backend"] = candidates[0] if len(candidates) == 1 else candidates
-    if buffer_size is not None:
-        options["buffer_size"] = buffer_size
-    # One multi-file open lets Siphon schedule all shards together. copy=True is
-    # essential: copy=False tensors alias a rotating buffer that closes here.
-    with (
-        torch.cuda.device(device),
-        safe_open(
-            [str(path) for path in checkpoint.files],
-            framework="pt",
-            device=str(device),
-            **options,
-        ) as reader,
-    ):
-        yield from reader.tensors()
+        for path in checkpoint.files:
+            identity = checkpoint.shard_identities[path]
+            identity.check(path)
+            # Only the generic HF loader resolves snapshot links. The strict
+            # Qwen container still refuses symlinked inputs.
+            container = SafetensorsContainer(identity.resolved)
+            if container.stamp != identity.stamp:
+                raise CheckpointError(f"Shard changed since inspection: {path}")
+            names = {
+                name for name, spec in checkpoint.tensors.items() if spec.file == path
+            }
+            if set(container.list_tensors()) != names:
+                raise CheckpointError(
+                    f"Shard tensor set changed since inspection: {path}"
+                )
+            for name in names:
+                info, spec = container.tensor_info(name), checkpoint.tensors[name]
+                if (info.shape, info.dtype, info.byte_size) != (
+                    spec.shape,
+                    DTYPE_INFO[spec.dtype][0],
+                    spec.nbytes,
+                ):
+                    raise CheckpointError(
+                        f"Shard tensor disagrees with inspection: {name}"
+                    )
+            fd = os.open(identity.resolved, os.O_RDONLY | os.O_CLOEXEC)
+            try:
+                identity.check(path, fd)
+                for name in sorted(
+                    names, key=lambda n: container.tensor_info(n).byte_offset
+                ):
+                    info = container.tensor_info(name)
+                    spec = checkpoint.tensors[name]
+                    tensor = torch.empty(
+                        spec.shape, dtype=torch_dtype(spec.dtype), device=device
+                    )
+
+                    def read_chunk(offset, count, dest, fd=fd, base=info.byte_offset):
+                        return pread_fill(fd, base + offset, count, dest)
+
+                    transfer.upload(tensor, read_chunk)
+                    yield name, tensor
+                identity.check(path, fd)
+            except BaseException:
+                # A cancelled generator or failed transfer must stop borrowed
+                # descriptor readers before the descriptor itself is closed.
+                transfer.close()
+                raise
+            finally:
+                os.close(fd)
+        checkpoint.check_sources()
+    finally:
+        # Successful uploads have consumed their read futures; finish any
+        # remaining device copies before releasing pinned storage as well.
+        transfer.close()
 
 
 def _reference_tensors(
@@ -87,40 +131,55 @@ def _reference_tensors(
 ) -> Iterator[tuple[str, torch.Tensor]]:
     from safetensors import safe_open
 
+    checkpoint.check_sources()
     for path in checkpoint.files:
-        with safe_open(str(path), framework="pt", device=str(device)) as reader:
+        identity = checkpoint.shard_identities[path]
+        identity.check(path)
+        with safe_open(
+            str(identity.resolved), framework="pt", device=str(device)
+        ) as reader:
             for name in reader.keys():
                 yield name, reader.get_tensor(name)
+        identity.check(path)
+    checkpoint.check_sources()
 
 
 def load_checkpoint(
     path: str | Path,
     *,
     device: str | torch.device = "cuda:0",
-    loader: str = "siphon",
-    siphon_backend: str | None = None,
+    loader: str = "staged",
     buffer_size: int | None = None,
+    slots: int | None = None,
+    readers: int | None = None,
     require_float_dtype: str | None = None,
 ) -> LoadedCheckpoint:
     """Load a storage-validated checkpoint without interpreting model semantics.
 
-    Siphon is the production CUDA path. The explicit safetensors backend allows
-    CPU tests and reference comparisons; it is never an automatic fallback.
-    Siphon environment variables retain their normal meaning unless overridden.
+    The staged loader is the production CUDA path: concurrent shard reads into
+    a pinned slot ring with non-blocking device copies. The explicit
+    safetensors backend allows CPU tests and reference comparisons; it is
+    never an automatic fallback.
     """
     started = perf_counter()
-    if loader not in ("siphon", "safetensors"):
+    if loader not in ("staged", "safetensors"):
         raise ValueError(f"Unknown loader: {loader!r}")
     if buffer_size is not None and (type(buffer_size) is not int or buffer_size <= 0):
         raise ValueError("buffer_size must be a positive integer")
-    if loader != "siphon" and (siphon_backend is not None or buffer_size is not None):
-        raise ValueError("Siphon options cannot be used with the safetensors loader")
+    if slots is not None and (type(slots) is not int or slots <= 0):
+        raise ValueError("slots must be a positive integer")
+    if readers is not None and (type(readers) is not int or readers <= 0):
+        raise ValueError("readers must be a positive integer")
+    if loader != "staged" and (
+        buffer_size is not None or slots is not None or readers is not None
+    ):
+        raise ValueError("Staging options cannot be used with the safetensors loader")
     target = torch.device(device)
     if target.type not in ("cuda", "cpu"):
         raise ValueError("Only CUDA devices and the CPU reference path are supported")
-    if loader == "siphon" and target.type != "cuda":
+    if loader == "staged" and target.type != "cuda":
         raise ValueError(
-            "Siphon requires CUDA; use loader='safetensors' explicitly for CPU"
+            "The staged loader requires CUDA; use loader='safetensors' explicitly for CPU"
         )
     if target.type == "cpu":
         target = torch.device("cpu")
@@ -156,11 +215,11 @@ def load_checkpoint(
 
     weights: dict[str, torch.Tensor] = {}
     iterator = (
-        _siphon_tensors(checkpoint, target, siphon_backend, buffer_size)
-        if loader == "siphon"
+        _staged_tensors(checkpoint, target, buffer_size, slots, readers)
+        if loader == "staged"
         else _reference_tensors(checkpoint, target)
     )
-    # Explicitly close the generator on failure to release the native loader.
+    # Explicitly close the generator on failure to release shard descriptors.
     try:
         for name, tensor in iterator:
             spec = checkpoint.tensors.get(name)

@@ -18,8 +18,8 @@ def main():
     parser.add_argument(
         "--loaders",
         nargs="+",
-        choices=("siphon", "safetensors"),
-        default=["siphon", "safetensors"],
+        choices=("staged", "safetensors"),
+        default=["staged", "safetensors"],
     )
     parser.add_argument("--buffer-size", type=int, default=64 * 2**20)
     parser.add_argument("--chunk-bytes", type=int, default=16 * 2**20)
@@ -33,9 +33,9 @@ def main():
         )
     if len(set(args.loaders)) != len(args.loaders):
         parser.error("duplicate loaders are not allowed")
-    if args.device.startswith("cpu") and "siphon" in args.loaders:
+    if args.device.startswith("cpu") and "staged" in args.loaders:
         parser.error("CPU acceptance requires --loaders safetensors")
-    environment = dict(os.environ, SIPHON_DEBUG="0")
+    environment = dict(os.environ)
     report = {
         "schema_version": 1,
         "measurement": {
@@ -70,7 +70,7 @@ def main():
                 str(args.chunk_bytes),
                 "--json",
             ]
-            if loader == "siphon":
+            if loader == "staged":
                 command += ["--buffer-size", str(args.buffer_size)]
             result = subprocess.run(
                 command,
