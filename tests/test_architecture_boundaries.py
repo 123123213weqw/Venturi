@@ -51,7 +51,6 @@ sys.meta_path.insert(0, BlockFrameworks())
         "venturi.container.safetensors",
         "venturi.container.model_assets",
         "venturi.container.model_config",
-        "venturi.container.tokenizer_assets",
         "venturi.container.gguf.gguf_inventory",
         "venturi.container.gguf.gguf_metadata",
     ],

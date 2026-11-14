@@ -20,7 +20,6 @@ METADATA = frozenset(
         "venturi.container.assets",
         "venturi.container.model_config",
         "venturi.container.config",
-        "venturi.container.tokenizer_assets",
         "venturi.container.tokenizer",
         "venturi.container.safetensors",
         "venturi.container.gguf.gguf_inventory",

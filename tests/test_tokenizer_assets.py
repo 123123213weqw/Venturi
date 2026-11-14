@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-from venturi.container.tokenizer_assets import inspect_deepseek41_tokenizer, verify_deepseek41_token_map
+from venturi.models.deepseek.tokenizer_map import inspect_deepseek41_tokenizer, verify_deepseek41_token_map
 
 
 TOKENS=['<unk>',' The','the','THE',' ','','é','Ｅ','e','E','\ufffdA','\ufffda','<special>','ß','ss','\t','\n',' \t \n','\ue000']
@@ -40,4 +40,4 @@ def test_token_map_identity_failures(stored,count):
 
 
 def test_import_is_torch_and_optional_tokenizers_free():
-    subprocess.check_call([sys.executable,'-c','import sys;import venturi.container.tokenizer_assets;assert "torch" not in sys.modules;assert "tokenizers" not in sys.modules'])
+    subprocess.check_call([sys.executable,'-c','import sys;import venturi.models.deepseek.tokenizer_map;assert "torch" not in sys.modules;assert "tokenizers" not in sys.modules'])

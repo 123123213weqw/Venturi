@@ -14,7 +14,7 @@ import struct
 
 from venturi.container.model_assets import ModelAsset
 from venturi.container.model_config import read_verified_json_asset
-from venturi.container.tokenizer_assets import _compressed_lookup
+from venturi.models.deepseek.tokenizer_map import _compressed_lookup
 
 
 REPOSITORY = 'deepseek-ai/DeepSeek-V4.1-Flash-1017'

@@ -13,7 +13,7 @@ import struct
 from venturi.container.gguf.gguf_metadata import read_verified_integer_metadata
 from venturi.container.model_assets import ModelAsset, ModelBundle
 from venturi.container.model_config import read_verified_json_asset
-from venturi.container.tokenizer_assets import CompressedTokenIdentity, verify_deepseek41_token_map
+from venturi.models.deepseek.tokenizer_map import CompressedTokenIdentity, verify_deepseek41_token_map
 from venturi.models.deepseek.engram_hash import EngramHashSpec, bind_engram_hash_metadata
 
 
