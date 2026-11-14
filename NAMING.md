@@ -35,7 +35,7 @@
 
 | 项 | 规则 | 示例 |
 |---|---|---|
-| 模块名 | 小写,无架构名 | `codecs.py`, `storage_verify.py`, `ninfer.py` |
+| 模块名 | 小写,无架构名 | `codecs.py`, `storage_verify.py`, `safetensors.py` |
 | 常量 | UPPER_CASE | `CODECS`, `EXECUTION_QUALIFIED`, `MAGIC` |
 | dataclass | PascalCase | `Codec`, `LoadSpec`, `Budget` |
 | 函数 | snake_case | `codec_for()`, `dequant_row_reference()` |

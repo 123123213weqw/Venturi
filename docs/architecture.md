@@ -68,8 +68,9 @@ user's request. Native `qwen-native` execution is unchanged and is not an alias
 for the old command. The `backends` directory no longer exists in supported
 source or the wheel. A new dependency guard rejects external engine imports.
 
-Format support and infrastructure are independent: `venturi.ninfer` remains an
-owned format reader, not an import of the external NInfer engine. CUDA/cuBLAS,
+Format support and infrastructure are independent: the `.ninfer` format reader
+is removed entirely — safetensors (primary) and GGUF are the supported
+containers, and nothing imports the external NInfer engine. CUDA/cuBLAS,
 PyTorch, safetensors, tokenizers and the separate Siphon loading path remain.
 The SM89 Ada Q4 plugin still contains attributed upstream kernel code and its
 LICENSE/NOTICE/provenance. Removing an engine adapter does not make that code
@@ -94,7 +95,7 @@ whole-model execution remains unfinished and must fail explicitly, not use Strat
 | `src/venturi/` | Reusable implementation and compatibility entry points | A reader of experiment directories or production configuration |
 | `src/venturi/commands/` | Explicit built-in command metadata and command execution | Automatic model/plugin/device discovery |
 | `src/venturi/text/` | Local tokenizer, token IDs and greedy-loop structural contracts | A model family, serving scheduler or Torch-dependent package |
-| Root storage modules | Safetensors/NInfer/GGUF metadata and explicit asset admission | Native model support or automatic weight conversion |
+| Root storage modules | Safetensors/GGUF metadata and explicit asset admission | Native model support or automatic weight conversion |
 | `src/venturi/models/` | Architecture bindings, resident weights, sessions and composition | A CLI, model download service or import-time model registry |
 | `src/venturi/ops/` | Prepared operators, ownership, native bindings and kernels | Model-family policy or request routing |
 | External whole-model adapters | **Removed**; no supported runtime package or CLI | A hidden fallback for unsupported native models |
@@ -217,7 +218,7 @@ not merge PD into the existing single-target scheduler or make every backend,
 model, TP/PP layout or cross-host transport supported. See its dated qualification
 evidence and limits before treating it as a serving capability.
 
-1. **Storage namespaces:** move safetensors/GGUF/NInfer readers into explicit
+1. **Storage namespaces:** move safetensors/GGUF readers into explicit
    format modules behind old-path re-exports; retain exact SHA, fingerprint,
    shape/layout, bounded-I/O and checkpoint admission contracts.
 2. **Model families:** group GPT-NeoX, Llama, dense Qwen, qwen4_exp/Flash-Next and
