@@ -1246,8 +1246,8 @@ venturi load /absolute/path/to/checkpoint --device cuda:0 \
 
 `--buffer-size` is the pinned slot size in bytes (default 32 MiB); `--slots` is
 the slot count (default 4); `--readers` is the concurrent reader thread count
-(default 1; raise it on fast NVMe storage), clamped to the slot count. The
-ring is host-side staging only, not
+(default 2; 1 keeps cold reads strictly sequential), clamped to the slot count.
+The ring is host-side staging only, not
 a cap on total model memory: allow headroom for the complete tensors **and** the
 pinned ring. Shard files are identity-checked before and after loading; a shard
 that changes mid-load fails rather than returning mixed bytes. No automatic CPU

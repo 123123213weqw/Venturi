@@ -20,7 +20,7 @@ import torch
 
 DEFAULT_SLOT_BYTES = 32 * 1024 * 1024
 DEFAULT_SLOTS = 4
-DEFAULT_READERS = 1
+DEFAULT_READERS = 2
 
 _PREADV = hasattr(os, "preadv")
 
