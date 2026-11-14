@@ -1249,9 +1249,22 @@ the slot count (default 4); `--readers` is the concurrent reader thread count
 (default 2; 1 keeps cold reads strictly sequential), clamped to the slot count.
 The ring is host-side staging only, not
 a cap on total model memory: allow headroom for the complete tensors **and** the
-pinned ring. Shard files are identity-checked before and after loading; a shard
-that changes mid-load fails rather than returning mixed bytes. No automatic CPU
-fallback, offloading, or eviction of other workloads occurs.
+pinned ring. Inspection records each shard's resolved blob path and stat identity
+(device, inode, size, mtime, ctime). HF snapshot symlinks keep their original
+names/config location, but reads use the inspected blob and reject changed
+targets. The actual tensor set, shapes, dtypes and byte sizes are checked again
+before copying; file-descriptor and path identities are checked around reads and
+all shards are rechecked at load completion. These guards detect ordinary file
+changes, not cryptographic integrity or adversarial mutation between checks.
+
+The upload stream waits for the caller's current stream before writing a target,
+and the caller's stream waits for upload completion before consuming it. Slot
+events prevent host overwrite; target allocations are recorded on the upload
+stream. Failed uploads drain reader threads and partial DMAs before releasing
+borrowed storage/descriptors, then close rather than silently reusing the ring.
+No automatic CPU fallback, offloading, or eviction of other workloads occurs.
+This is the generic `load_checkpoint` path; the native Qwen C++ uploader and its
+strict no-symlink input policy are independent and unchanged.
 
 The CLI loads, reports, and exits. Keep weights resident with the Python API:
 

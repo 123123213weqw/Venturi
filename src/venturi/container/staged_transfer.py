@@ -30,7 +30,9 @@ def _writable_region(bytes_tensor: torch.Tensor):
     count = bytes_tensor.numel()
     if count == 0:
         return memoryview(b"")
-    return memoryview((ctypes.c_char * count).from_address(bytes_tensor.data_ptr()))
+    return memoryview(
+        (ctypes.c_char * count).from_address(bytes_tensor.data_ptr())
+    ).cast("B")
 
 
 def plan_chunks(total: int, chunk_bytes: int) -> list[tuple[int, int]]:
@@ -75,7 +77,9 @@ class StagedTransfer:
     free slots (optionally by reader threads), copied on a dedicated stream
     with non_blocking=True, and a slot is never overwritten on the host until
     its previous copy completed. The target tensor is safe to consume on the
-    device's current stream as soon as upload() returns.
+    device's current stream as soon as upload() returns. The caller must make
+    the target ready on that stream before calling upload(). Calls are serial;
+    a failed upload drains and closes the transfer rather than reusing slots.
     """
 
     def __init__(
@@ -93,24 +97,38 @@ class StagedTransfer:
         if type(readers) is not int or readers <= 0:
             raise ValueError("readers must be a positive integer")
         self.device = torch.device(device)
+        if self.device.type != "cuda":
+            raise ValueError("StagedTransfer requires a CUDA device")
+        if self.device.index is None:
+            self.device = torch.device("cuda", torch.cuda.current_device())
         self.slot_bytes = slot_bytes
         self.slots = slots
         self.readers = readers
         # In-flight reads are bounded by the ring: a slot's previous copy is
         # guaranteed issued before its next read is submitted.
         self._window = min(readers, slots)
-        self._pinned = torch.empty(slots * slot_bytes, dtype=torch.uint8, pin_memory=True)
+        self._pinned = torch.empty(
+            slots * slot_bytes, dtype=torch.uint8, pin_memory=True
+        )
         self._stream = torch.cuda.Stream(device=self.device)
         self._slot_done = [torch.cuda.Event() for _ in range(slots)]
         self._used = [False] * slots
-        self._cursor = 0
         self._pool = None
+        self._closed = False
 
     def close(self) -> None:
-        """Stop reader threads. Safe to call more than once."""
-        if self._pool is not None:
-            self._pool.shutdown(wait=True)
-            self._pool = None
+        """Drain readers and device copies. Safe to call more than once."""
+        if self._closed:
+            return
+        try:
+            if self._pool is not None:
+                self._pool.shutdown(wait=True, cancel_futures=True)
+                self._pool = None
+        finally:
+            try:
+                self._stream.synchronize()
+            finally:
+                self._closed = True
 
     def _submit(self, entry, offset, count, read_chunk):
         index = entry % self.slots
@@ -132,20 +150,32 @@ class StagedTransfer:
         read_chunk: Callable[[int, int, object], int],
     ) -> None:
         """Fill the device tensor via read_chunk(offset, count, dest) -> int."""
+        if self._closed:
+            raise RuntimeError("StagedTransfer is closed")
+        if target.device != self.device or not target.is_contiguous():
+            raise ValueError("Upload target must be contiguous on the transfer device")
         payload = target.reshape(-1).view(torch.uint8)
         chunks = plan_chunks(payload.numel(), self.slot_bytes)
-        self._cursor += len(chunks)
-        with torch.cuda.stream(self._stream):
-            if self._window > 1:
-                self._pipelined(payload, chunks, read_chunk)
-            else:
-                self._sequential(payload, chunks, read_chunk)
-        if chunks:
-            done = torch.cuda.Event()
-            done.record(self._stream)
-            # The consumer runs on the current stream: order it after every
-            # copy of this tensor issued on the staging stream.
-            torch.cuda.current_stream(self.device).wait_event(done)
+        consumer = torch.cuda.current_stream(self.device)
+        # The allocator may reuse memory with pending work on its allocation
+        # stream, even for an empty tensor. Order the private writer after it.
+        self._stream.wait_stream(consumer)
+        target.record_stream(self._stream)
+        try:
+            with torch.cuda.stream(self._stream):
+                if self._window > 1:
+                    self._pipelined(payload, chunks, read_chunk)
+                else:
+                    self._sequential(payload, chunks, read_chunk)
+            if chunks:
+                done = torch.cuda.Event()
+                done.record(self._stream)
+                consumer.wait_event(done)
+        except BaseException:
+            # No consumer event is guaranteed on failure. Join queued readers
+            # and finish partial DMAs before releasing any borrowed storage.
+            self.close()
+            raise
 
     def _pipelined(self, payload, chunks, read_chunk):
         if self._pool is None:
@@ -156,7 +186,14 @@ class StagedTransfer:
         while consumed < len(chunks):
             while len(pending) < self._window and submitted < len(chunks):
                 offset, count = chunks[submitted]
-                pending.append((submitted, *self._submit(submitted, offset, count, read_chunk), offset, count))
+                pending.append(
+                    (
+                        submitted,
+                        *self._submit(submitted, offset, count, read_chunk),
+                        offset,
+                        count,
+                    )
+                )
                 submitted += 1
             entry, index, future, offset, count = pending.popleft()
             got = future.result()

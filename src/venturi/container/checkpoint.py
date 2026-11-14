@@ -4,7 +4,9 @@ from collections import Counter
 from dataclasses import dataclass
 import json
 import math
+import os
 from pathlib import Path
+import stat
 from types import MappingProxyType
 from typing import Any, Mapping
 
@@ -54,6 +56,50 @@ class TensorSpec:
         return self.numel * DTYPE_INFO[self.dtype][1]
 
 
+def _file_stamp(status):
+    return (
+        status.st_dev,
+        status.st_ino,
+        status.st_size,
+        status.st_mtime_ns,
+        status.st_ctime_ns,
+    )
+
+
+@dataclass(frozen=True)
+class ShardIdentity:
+    """Resolved HF blob and stat identity captured during header inspection.
+
+    Bookend guards detect ordinary replacement/mutation, not cryptographic
+    integrity or adversarial changes hidden between checks.
+    """
+
+    resolved: Path
+    stamp: tuple[int, ...]
+
+    @classmethod
+    def capture(cls, path: Path):
+        resolved = path.resolve(strict=True)
+        status = resolved.stat()
+        if not stat.S_ISREG(status.st_mode):
+            raise CheckpointError(f"Checkpoint shard is not a regular file: {path}")
+        identity = cls(resolved, _file_stamp(status))
+        identity.check(path)
+        return identity
+
+    def check(self, path: Path, fd: int | None = None):
+        try:
+            changed = (
+                path.resolve(strict=True) != self.resolved
+                or _file_stamp(path.stat()) != self.stamp
+                or (fd is not None and _file_stamp(os.fstat(fd)) != self.stamp)
+            )
+        except OSError as error:
+            raise CheckpointError(f"Shard changed since inspection: {path}") from error
+        if changed:
+            raise CheckpointError(f"Shard changed since inspection: {path}")
+
+
 @dataclass(frozen=True)
 class Checkpoint:
     directory: Path
@@ -62,6 +108,11 @@ class Checkpoint:
     config: Mapping[str, Any]
     file_metadata: Mapping[str, Mapping[str, str]]
     index_metadata: Mapping[str, Any]
+    shard_identities: Mapping[Path, ShardIdentity]
+
+    def check_sources(self):
+        for path in self.files:
+            self.shard_identities[path].check(path)
 
     @property
     def tensor_bytes(self) -> int:
@@ -151,11 +202,15 @@ def inspect_checkpoint(path: str | Path) -> Checkpoint:
 
     specs: dict[str, TensorSpec] = {}
     file_metadata: dict[str, Mapping[str, str]] = {}
+    identities: dict[Path, ShardIdentity] = {}
     for shard in files:
         if not shard.is_file():
             raise CheckpointError(f"Missing checkpoint shard: {shard.name}")
         try:
-            with safe_open(str(shard), framework="pt", device="cpu") as reader:
+            identity = ShardIdentity.capture(shard)
+            with safe_open(
+                str(identity.resolved), framework="pt", device="cpu"
+            ) as reader:
                 file_metadata[shard.name] = MappingProxyType(reader.metadata() or {})
                 keys = reader.keys()
                 if not keys:
@@ -178,6 +233,8 @@ def inspect_checkpoint(path: str | Path) -> Checkpoint:
                     specs[name] = TensorSpec(
                         name, tuple(view.get_shape()), dtype, shard
                     )
+            identity.check(shard)
+            identities[shard] = identity
         except (OSError, SafetensorError) as error:
             raise CheckpointError(f"Cannot inspect {shard.name}: {error}") from error
     if weight_map is not None and set(weight_map) != set(specs):
@@ -190,4 +247,5 @@ def inspect_checkpoint(path: str | Path) -> Checkpoint:
         MappingProxyType(config),
         MappingProxyType(file_metadata),
         MappingProxyType(index_metadata),
+        MappingProxyType(identities),
     )

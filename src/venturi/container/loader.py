@@ -10,7 +10,7 @@ from typing import Any, Iterator, Mapping
 import torch
 
 from venturi.container.checkpoint import CheckpointError, Checkpoint, inspect_checkpoint
-from venturi.dtypes import torch_dtype
+from venturi.dtypes import DTYPE_INFO, torch_dtype
 
 
 @dataclass(frozen=True)
@@ -61,54 +61,69 @@ def _staged_tensors(
         pread_fill,
     )
 
+    checkpoint.check_sources()
     transfer = StagedTransfer(
         device,
         slot_bytes=DEFAULT_SLOT_BYTES if buffer_size is None else buffer_size,
         slots=DEFAULT_SLOTS if slots is None else slots,
         readers=DEFAULT_READERS if readers is None else readers,
     )
-    for path in checkpoint.files:
-        container = SafetensorsContainer(path)
-        names = sorted(
-            (name for name, spec in checkpoint.tensors.items() if spec.file == path),
-            key=lambda name: container.tensor_info(name).byte_offset,
-        )
-        fd = os.open(str(path), os.O_RDONLY)
-        try:
-            identity = container.stamp
-            status = os.fstat(fd)
-            if (
-                status.st_dev,
-                status.st_ino,
-                status.st_size,
-                status.st_mtime_ns,
-                status.st_ctime_ns,
-            ) != identity:
-                raise CheckpointError(f"Shard changed while loading: {path}")
-            for name in names:
-                info = container.tensor_info(name)
-                spec = checkpoint.tensors[name]
-                tensor = torch.empty(
-                    spec.shape, dtype=torch_dtype(spec.dtype), device=device
+    try:
+        for path in checkpoint.files:
+            identity = checkpoint.shard_identities[path]
+            identity.check(path)
+            # Only the generic HF loader resolves snapshot links. The strict
+            # Qwen container still refuses symlinked inputs.
+            container = SafetensorsContainer(identity.resolved)
+            if container.stamp != identity.stamp:
+                raise CheckpointError(f"Shard changed since inspection: {path}")
+            names = {
+                name for name, spec in checkpoint.tensors.items() if spec.file == path
+            }
+            if set(container.list_tensors()) != names:
+                raise CheckpointError(
+                    f"Shard tensor set changed since inspection: {path}"
                 )
+            for name in names:
+                info, spec = container.tensor_info(name), checkpoint.tensors[name]
+                if (info.shape, info.dtype, info.byte_size) != (
+                    spec.shape,
+                    DTYPE_INFO[spec.dtype][0],
+                    spec.nbytes,
+                ):
+                    raise CheckpointError(
+                        f"Shard tensor disagrees with inspection: {name}"
+                    )
+            fd = os.open(identity.resolved, os.O_RDONLY | os.O_CLOEXEC)
+            try:
+                identity.check(path, fd)
+                for name in sorted(
+                    names, key=lambda n: container.tensor_info(n).byte_offset
+                ):
+                    info = container.tensor_info(name)
+                    spec = checkpoint.tensors[name]
+                    tensor = torch.empty(
+                        spec.shape, dtype=torch_dtype(spec.dtype), device=device
+                    )
 
-                def read_chunk(offset, count, dest, fd=fd, base=info.byte_offset):
-                    return pread_fill(fd, base + offset, count, dest)
+                    def read_chunk(offset, count, dest, fd=fd, base=info.byte_offset):
+                        return pread_fill(fd, base + offset, count, dest)
 
-                transfer.upload(tensor, read_chunk)
-                yield name, tensor
-            status = os.fstat(fd)
-            if (
-                status.st_dev,
-                status.st_ino,
-                status.st_size,
-                status.st_mtime_ns,
-                status.st_ctime_ns,
-            ) != identity:
-                raise CheckpointError(f"Shard changed while loading: {path}")
-        finally:
-            transfer.close()
-            os.close(fd)
+                    transfer.upload(tensor, read_chunk)
+                    yield name, tensor
+                identity.check(path, fd)
+            except BaseException:
+                # A cancelled generator or failed transfer must stop borrowed
+                # descriptor readers before the descriptor itself is closed.
+                transfer.close()
+                raise
+            finally:
+                os.close(fd)
+        checkpoint.check_sources()
+    finally:
+        # Successful uploads have consumed their read futures; finish any
+        # remaining device copies before releasing pinned storage as well.
+        transfer.close()
 
 
 def _reference_tensors(
@@ -116,10 +131,17 @@ def _reference_tensors(
 ) -> Iterator[tuple[str, torch.Tensor]]:
     from safetensors import safe_open
 
+    checkpoint.check_sources()
     for path in checkpoint.files:
-        with safe_open(str(path), framework="pt", device=str(device)) as reader:
+        identity = checkpoint.shard_identities[path]
+        identity.check(path)
+        with safe_open(
+            str(identity.resolved), framework="pt", device=str(device)
+        ) as reader:
             for name in reader.keys():
                 yield name, reader.get_tensor(name)
+        identity.check(path)
+    checkpoint.check_sources()
 
 
 def load_checkpoint(
@@ -148,7 +170,9 @@ def load_checkpoint(
         raise ValueError("slots must be a positive integer")
     if readers is not None and (type(readers) is not int or readers <= 0):
         raise ValueError("readers must be a positive integer")
-    if loader != "staged" and (buffer_size is not None or slots is not None or readers is not None):
+    if loader != "staged" and (
+        buffer_size is not None or slots is not None or readers is not None
+    ):
         raise ValueError("Staging options cannot be used with the safetensors loader")
     target = torch.device(device)
     if target.type not in ("cuda", "cpu"):
