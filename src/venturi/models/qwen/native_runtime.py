@@ -25,6 +25,14 @@ class QwenRuntime:
         error.argtypes, error.restype = [], C.c_char_p
         identity = self._native.venturi_qwen_ops_identity
         identity.argtypes, identity.restype = [], C.c_void_p
+        # Additive optional ABI: prefix sharing; absent on older libraries.
+        publish = getattr(self._native, "venturi_qwen_kv_publish", None)
+        if publish is not None:
+            publish.argtypes, publish.restype = [C.c_void_p, C.c_uint64, C.c_int], C.c_int
+        with_prefix = getattr(self._native, "venturi_qwen_session_with_prefix", None)
+        if with_prefix is not None:
+            with_prefix.argtypes = [C.c_void_p, C.c_int, C.c_uint64, C.c_int]
+            with_prefix.restype = C.c_void_p
         if self._native.venturi_qwen_abi() != 1:
             raise RuntimeError("Qwen runtime ABI mismatch; rebuild explicitly")
         if self._native.venturi_qwen_arch() != operators.architecture:
