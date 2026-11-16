@@ -28,6 +28,9 @@ def test_qwen_includes_only_operator_contract_and_stateless_helpers():
     assert {name for name in files if name.startswith("ops/")} == {
         "ops/csrc/ops_api.h",
         "ops/csrc/cuda_common.cuh",
+        # Unified model-agnostic KV storage: contract-shared mechanism headers.
+        "ops/csrc/kv/kv_pool.cuh",
+        "ops/csrc/kv/kv_prefix.cuh",
     }
     assert "models/qwen/csrc/qwen_runtime.cuh" in files
     text = "\n".join(

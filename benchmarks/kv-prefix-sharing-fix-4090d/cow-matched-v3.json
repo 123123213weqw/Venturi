@@ -1,0 +1,259 @@
+{
+  "scope": "Explicit paired KV-append libraries, not a model/TPS benchmark.",
+  "libraries": {
+    "baseline": {
+      "file": "/data/wangyue/codex-build/Venturi-pr11-fix-20261116/build-cow/baseline.so",
+      "SHA256": "6a6d63314bf755addf926435821f08241c9802fd48a0c4e2b080d58056a3e24d"
+    },
+    "candidate": {
+      "file": "/data/wangyue/codex-build/Venturi-pr11-fix-20261116/build-cow/candidate-v3.so",
+      "SHA256": "49e2f04d35bfa7837093240f658bbfbf06631ada7d3e0cbcdc412f1bad079776"
+    }
+  },
+  "warmups": [
+    {
+      "rep": 0,
+      "mode": "baseline",
+      "wall_seconds": 0.695264793,
+      "CPU_seconds": 0.700602,
+      "page_bytes": 2097152,
+      "prefix_bytes_per_plane": 16777248,
+      "changed_pages": 18,
+      "physical_pool_bytes": 75497472,
+      "reported_d2h": 0,
+      "reported_h2d": 0,
+      "derived_bounce_bytes_both_directions": 75497472,
+      "unix_started": 1794801259.080633,
+      "unix_ended": 1794801262.442715,
+      "unix_window_scope": "Entire C function invocation incl setup and byte checks; NOT the returned COW critical-region wall/CPU interval",
+      "correctness": "byte-exact donor/borrower, both planes, verified OUTSIDE timing"
+    },
+    {
+      "rep": 0,
+      "mode": "candidate",
+      "wall_seconds": 0.074249261,
+      "CPU_seconds": 0.074336,
+      "page_bytes": 2097152,
+      "prefix_bytes_per_plane": 16777248,
+      "changed_pages": 2,
+      "physical_pool_bytes": 41943040,
+      "reported_d2h": 4194304,
+      "reported_h2d": 4194304,
+      "derived_bounce_bytes_both_directions": 8388608,
+      "unix_started": 1794801264.8419633,
+      "unix_ended": 1794801266.256151,
+      "unix_window_scope": "Entire C function invocation incl setup and byte checks; NOT the returned COW critical-region wall/CPU interval",
+      "correctness": "byte-exact donor/borrower, both planes, verified OUTSIDE timing"
+    },
+    {
+      "rep": 1,
+      "mode": "candidate",
+      "wall_seconds": 0.058598057,
+      "CPU_seconds": 0.058597,
+      "page_bytes": 2097152,
+      "prefix_bytes_per_plane": 16777248,
+      "changed_pages": 2,
+      "physical_pool_bytes": 41943040,
+      "reported_d2h": 4194304,
+      "reported_h2d": 4194304,
+      "derived_bounce_bytes_both_directions": 8388608,
+      "unix_started": 1794801267.366066,
+      "unix_ended": 1794801268.3986747,
+      "unix_window_scope": "Entire C function invocation incl setup and byte checks; NOT the returned COW critical-region wall/CPU interval",
+      "correctness": "byte-exact donor/borrower, both planes, verified OUTSIDE timing"
+    },
+    {
+      "rep": 1,
+      "mode": "baseline",
+      "wall_seconds": 0.709384849,
+      "CPU_seconds": 0.709343,
+      "page_bytes": 2097152,
+      "prefix_bytes_per_plane": 16777248,
+      "changed_pages": 18,
+      "physical_pool_bytes": 75497472,
+      "reported_d2h": 0,
+      "reported_h2d": 0,
+      "derived_bounce_bytes_both_directions": 75497472,
+      "unix_started": 1794801269.8035746,
+      "unix_ended": 1794801271.3367243,
+      "unix_window_scope": "Entire C function invocation incl setup and byte checks; NOT the returned COW critical-region wall/CPU interval",
+      "correctness": "byte-exact donor/borrower, both planes, verified OUTSIDE timing"
+    },
+    {
+      "rep": 2,
+      "mode": "baseline",
+      "wall_seconds": 0.685445183,
+      "CPU_seconds": 0.69081,
+      "page_bytes": 2097152,
+      "prefix_bytes_per_plane": 16777248,
+      "changed_pages": 18,
+      "physical_pool_bytes": 75497472,
+      "reported_d2h": 0,
+      "reported_h2d": 0,
+      "derived_bounce_bytes_both_directions": 75497472,
+      "unix_started": 1794801273.519074,
+      "unix_ended": 1794801275.5831254,
+      "unix_window_scope": "Entire C function invocation incl setup and byte checks; NOT the returned COW critical-region wall/CPU interval",
+      "correctness": "byte-exact donor/borrower, both planes, verified OUTSIDE timing"
+    },
+    {
+      "rep": 2,
+      "mode": "candidate",
+      "wall_seconds": 0.209711611,
+      "CPU_seconds": 0.210429,
+      "page_bytes": 2097152,
+      "prefix_bytes_per_plane": 16777248,
+      "changed_pages": 2,
+      "physical_pool_bytes": 41943040,
+      "reported_d2h": 4194304,
+      "reported_h2d": 4194304,
+      "derived_bounce_bytes_both_directions": 8388608,
+      "unix_started": 1794801277.8345184,
+      "unix_ended": 1794801279.0251622,
+      "unix_window_scope": "Entire C function invocation incl setup and byte checks; NOT the returned COW critical-region wall/CPU interval",
+      "correctness": "byte-exact donor/borrower, both planes, verified OUTSIDE timing"
+    }
+  ],
+  "groups": [
+    {
+      "rep": 0,
+      "mode": "baseline",
+      "wall_seconds": 1.063219282,
+      "CPU_seconds": 1.067098,
+      "page_bytes": 2097152,
+      "prefix_bytes_per_plane": 16777248,
+      "changed_pages": 18,
+      "physical_pool_bytes": 75497472,
+      "reported_d2h": 0,
+      "reported_h2d": 0,
+      "derived_bounce_bytes_both_directions": 75497472,
+      "unix_started": 1794801262.4430501,
+      "unix_ended": 1794801264.8411136,
+      "unix_window_scope": "Entire C function invocation incl setup and byte checks; NOT the returned COW critical-region wall/CPU interval",
+      "correctness": "byte-exact donor/borrower, both planes, verified OUTSIDE timing"
+    },
+    {
+      "rep": 0,
+      "mode": "candidate",
+      "wall_seconds": 0.137768675,
+      "CPU_seconds": 0.138139,
+      "page_bytes": 2097152,
+      "prefix_bytes_per_plane": 16777248,
+      "changed_pages": 2,
+      "physical_pool_bytes": 41943040,
+      "reported_d2h": 4194304,
+      "reported_h2d": 4194304,
+      "derived_bounce_bytes_both_directions": 8388608,
+      "unix_started": 1794801266.257872,
+      "unix_ended": 1794801267.3659337,
+      "unix_window_scope": "Entire C function invocation incl setup and byte checks; NOT the returned COW critical-region wall/CPU interval",
+      "correctness": "byte-exact donor/borrower, both planes, verified OUTSIDE timing"
+    },
+    {
+      "rep": 1,
+      "mode": "candidate",
+      "wall_seconds": 0.096085893,
+      "CPU_seconds": 0.096377,
+      "page_bytes": 2097152,
+      "prefix_bytes_per_plane": 16777248,
+      "changed_pages": 2,
+      "physical_pool_bytes": 41943040,
+      "reported_d2h": 4194304,
+      "reported_h2d": 4194304,
+      "derived_bounce_bytes_both_directions": 8388608,
+      "unix_started": 1794801268.3999004,
+      "unix_ended": 1794801269.8028553,
+      "unix_window_scope": "Entire C function invocation incl setup and byte checks; NOT the returned COW critical-region wall/CPU interval",
+      "correctness": "byte-exact donor/borrower, both planes, verified OUTSIDE timing"
+    },
+    {
+      "rep": 1,
+      "mode": "baseline",
+      "wall_seconds": 0.759009098,
+      "CPU_seconds": 0.766527,
+      "page_bytes": 2097152,
+      "prefix_bytes_per_plane": 16777248,
+      "changed_pages": 18,
+      "physical_pool_bytes": 75497472,
+      "reported_d2h": 0,
+      "reported_h2d": 0,
+      "derived_bounce_bytes_both_directions": 75497472,
+      "unix_started": 1794801271.336957,
+      "unix_ended": 1794801273.5179307,
+      "unix_window_scope": "Entire C function invocation incl setup and byte checks; NOT the returned COW critical-region wall/CPU interval",
+      "correctness": "byte-exact donor/borrower, both planes, verified OUTSIDE timing"
+    },
+    {
+      "rep": 2,
+      "mode": "baseline",
+      "wall_seconds": 0.865870462,
+      "CPU_seconds": 0.868573,
+      "page_bytes": 2097152,
+      "prefix_bytes_per_plane": 16777248,
+      "changed_pages": 18,
+      "physical_pool_bytes": 75497472,
+      "reported_d2h": 0,
+      "reported_h2d": 0,
+      "derived_bounce_bytes_both_directions": 75497472,
+      "unix_started": 1794801275.584414,
+      "unix_ended": 1794801277.8332875,
+      "unix_window_scope": "Entire C function invocation incl setup and byte checks; NOT the returned COW critical-region wall/CPU interval",
+      "correctness": "byte-exact donor/borrower, both planes, verified OUTSIDE timing"
+    },
+    {
+      "rep": 2,
+      "mode": "candidate",
+      "wall_seconds": 0.096571815,
+      "CPU_seconds": 0.096912,
+      "page_bytes": 2097152,
+      "prefix_bytes_per_plane": 16777248,
+      "changed_pages": 2,
+      "physical_pool_bytes": 41943040,
+      "reported_d2h": 4194304,
+      "reported_h2d": 4194304,
+      "derived_bounce_bytes_both_directions": 8388608,
+      "unix_started": 1794801279.025315,
+      "unix_ended": 1794801280.5931292,
+      "unix_window_scope": "Entire C function invocation incl setup and byte checks; NOT the returned COW critical-region wall/CPU interval",
+      "correctness": "byte-exact donor/borrower, both planes, verified OUTSIDE timing"
+    }
+  ],
+  "repetitions": 3,
+  "medians": {
+    "baseline": {
+      "wall_seconds": 0.865870462,
+      "CPU_seconds": 0.868573,
+      "physical_pool_bytes": 75497472,
+      "derived_bounce_bytes_both_directions": 75497472
+    },
+    "candidate": {
+      "wall_seconds": 0.096571815,
+      "CPU_seconds": 0.096912,
+      "physical_pool_bytes": 41943040,
+      "derived_bounce_bytes_both_directions": 8388608
+    }
+  },
+  "model_TPS": null,
+  "achieved_SM_occupancy": null,
+  "DRAM_bandwidth": null,
+  "timing": "ONLY prepare/admission + ensure/COW + 8-byte append/plane + GPU fence; fresh pool/prefix/map setup and byte checks OUTSIDE",
+  "limits": [
+    "No attention/model/logits/quality/TPS measurement",
+    "Original counters omit COW copies; derived bytes are NOT measured bandwidth",
+    "3 matched unprofiled repetitions, not a statistical significance claim"
+  ],
+  "profiles": [
+    {
+      "mode": "baseline",
+      "file": "cow-matched-v3-baseline-profile.json",
+      "SHA256": "98ce5e035703d732ae2741803014d0bd2d5501d6d9e0dcebb07f3748741cda18",
+      "scope": "Separate entire mechanism invocation; NEVER used for timed medians"
+    },
+    {
+      "mode": "candidate",
+      "file": "cow-matched-v3-candidate-profile.json",
+      "SHA256": "cc65049224b01e2792f5aa6f4cf9cb2f58a188ec5069bc5f3ba193a97e3d9123",
+      "scope": "Separate entire mechanism invocation; NEVER used for timed medians"
+    }
+  ]
+}

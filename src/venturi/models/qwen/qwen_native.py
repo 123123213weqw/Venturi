@@ -281,17 +281,37 @@ class NativeQwenModel:
         self._metadata()
         return weights
 
-    def create_session(self, capacity):
+    def create_session(self, capacity, *, prefix_key=None, prefix_tokens=0):
+        """Independent request cursor; optionally attach a shared KV prefix.
+
+        The unified KV layer owns the sharing orchestration; scheduling here
+        only passes the caller's explicit prefix key/length. A session created
+        with a prefix resumes decoding at `prefix_tokens`.
+        """
         if (
             type(capacity) is not int
             or not 0 < capacity <= self._cfg["max_position_embeddings"]
         ):
             raise ValueError("Native Qwen capacity exceeds context")
+        if prefix_key is None:
+            if prefix_tokens:
+                raise ValueError("prefix_tokens requires prefix_key")
+        else:
+            if type(prefix_key) is not int or not 0 < prefix_key < 2**64:
+                raise ValueError("prefix_key must be an explicit positive integer")
+            if type(prefix_tokens) is not int or not 0 < prefix_tokens < capacity:
+                raise ValueError("prefix_tokens must fit inside the session capacity")
         with self._lock:
             if not self._finalizer.alive:
                 raise RuntimeError("Native Qwen model closed")
             self._metadata()
-            h = self._native.venturi_qwen_session(self._handle, capacity)
+            with_prefix = getattr(self._native, "venturi_qwen_session_with_prefix", None)
+            if prefix_key is not None and with_prefix is not None:
+                h = with_prefix(self._handle, capacity, prefix_key, prefix_tokens)
+            elif prefix_key is not None:
+                raise RuntimeError("prefix sharing requires a rebuilt Qwen library")
+            else:
+                h = self._native.venturi_qwen_session(self._handle, capacity)
             if not h:
                 self._runtime._check(-1)
             return NativeQwenSession(self, h, capacity)
@@ -560,6 +580,24 @@ class NativeQwenSession:
                     tuple(tensors) if kind == "full_attention" else None
                 )
             return result
+
+    def publish_prefix(self, key, tokens):
+        """Publish this session's first `tokens` as a shareable KV prefix.
+
+        Freezes the full-attention KV entries and the GDN recurrent state into
+        the unified KV layer's prefix registry; later sessions created with the
+        same `prefix_key`/`prefix_tokens` reuse them instead of recomputing.
+        """
+        if type(key) is not int or not 0 < key < 2**64:
+            raise ValueError("prefix key must be an explicit positive integer")
+        if type(tokens) is not int or tokens <= 0:
+            raise ValueError("prefix tokens must be positive")
+        publish = getattr(self.model._runtime._native, "venturi_qwen_kv_publish", None)
+        if publish is None:
+            raise RuntimeError("prefix sharing requires a rebuilt Qwen library")
+        with self._lock:
+            self._check()
+            self.model._runtime._check(publish(self._handle, key, tokens))
 
     def reset(self):
         with self._lock:
