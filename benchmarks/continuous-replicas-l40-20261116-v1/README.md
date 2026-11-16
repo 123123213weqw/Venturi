@@ -47,8 +47,10 @@ Aggregate output TPS = actual output tokens / **one common fenced wall interval*
 including prefill/admission. This is NOT decode-only TPS or HTTP/streaming TTFT.
 Both policies use the same resident models, input/output budgets, capacities and
 precision, alternating AB/BA/AB order with fresh scheduler warmups. No profiler
-in timing runs. Process load/preparation took 7.65 s with warm filesystem cache;
-it is not disk-cold startup. Exact recorded value is in `results.json`.
+in timing runs. Native model load/batch preparation took 7.65 s after framework
+imports, checkpoint hashing and source admission, with warm filesystem cache.
+This is neither whole-process startup nor disk-cold startup. Exact value and
+scope are in `results.json`.
 
 | Concurrency | Default round-robin output TPS | Opt-in least-work output TPS | RR TTFT p50 (s) | RR process CPU (s) |
 |---:|---:|---:|---:|---:|
