@@ -10,10 +10,13 @@ from .continuous import ContinuousScheduler
 
 
 class ContinuousWorker:
-    def __init__(self, scheduler):
+    def __init__(self, scheduler, *, on_boundary=None):
         if not isinstance(scheduler, ContinuousScheduler):
             raise TypeError("An explicitly prepared ContinuousScheduler is required")
+        if on_boundary is not None and not callable(on_boundary):
+            raise TypeError("Optional nonblocking boundary callback must be callable")
         self.scheduler = scheduler
+        self._on_boundary = on_boundary
         self._condition = threading.Condition()
         self._thread = None
         self._stopping, self._closed, self._error = False, False, None
@@ -64,6 +67,8 @@ class ContinuousWorker:
                     if self._stopping:
                         break
                 self.scheduler.tick()
+                if self._on_boundary is not None:
+                    self._on_boundary()
         except BaseException as exc:
             with self._condition:
                 self._error = exc
@@ -75,9 +80,19 @@ class ContinuousWorker:
                     if self._error is None:
                         self._error = exc
             finally:
-                with self._condition:
-                    self._closed = True
-                    self._condition.notify_all()
+                try:
+                    # A failed reset also retires scheduler metadata. Notify
+                    # cancellation bookkeeping without disguising that failure.
+                    if self._on_boundary is not None:
+                        self._on_boundary()
+                except BaseException as exc:
+                    with self._condition:
+                        if self._error is None:
+                            self._error = exc
+                finally:
+                    with self._condition:
+                        self._closed = True
+                        self._condition.notify_all()
 
     def info(self):
         with self._condition:
@@ -86,6 +101,12 @@ class ContinuousWorker:
                         stopping=self._stopping, closed=self._closed,
                         error=repr(self._error) if self._error is not None else None,
                         scheduling=self.scheduler.info())
+
+    def request_stop(self):
+        """Signal a safe-boundary stop without joining or releasing live buffers."""
+        with self._condition:
+            self._stopping = True
+            self._condition.notify_all()
 
     def close(self, *, timeout=180):
         """Stop at a safe boundary, cancel/reset the lease, then join its owner.

@@ -32,6 +32,8 @@ services were not stopped, reconfigured or migrated.
   ownership and native/reference execution boundaries.
 - [Explicit native PD pools](docs/pd-disaggregation.md): request-state handoff,
   prefill/decode worker ownership, supported scope and qualification limits.
+- [Continuous replica routing](docs/continuous-replicas.md): bounded whole-request
+  routing over private continuous batches, explicit ownership and qualification.
 - Flash-Next and DeepSeek V4.1: experimental support only, with real-model
   limits; not implied support for every model.
 

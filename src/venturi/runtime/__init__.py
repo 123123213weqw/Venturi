@@ -4,6 +4,8 @@ from .continuous import ContinuousScheduler, Completion, RequestTicket, TokenEve
 from .worker import ContinuousWorker
 from .pd import PDScheduler, PDWorkerPool
 from .state import StateIdentity, StateComponent, RequestState, TransferReceipt
+from .replicas import ContinuousReplica, ContinuousReplicaPool, ReplicaTicket
 
 __all__ = ["ContinuousScheduler", "ContinuousWorker", "Completion", "RequestTicket", "TokenEvent",
-           "PDScheduler", "PDWorkerPool", "StateIdentity", "StateComponent", "RequestState", "TransferReceipt"]
+           "PDScheduler", "PDWorkerPool", "StateIdentity", "StateComponent", "RequestState", "TransferReceipt",
+           "ContinuousReplica", "ContinuousReplicaPool", "ReplicaTicket"]
