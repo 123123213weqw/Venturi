@@ -1,0 +1,315 @@
+{
+  "schema": 1,
+  "PR": "https://github.com/123123213weqw/Venturi/pull/11",
+  "base_head": "490bd31459fcb9b014ba0bc26c83797abbcff8b4",
+  "work_branch": "fix/kv-prefix-lifecycle-20261116",
+  "source_state": "Uncommitted isolated fix worktree; not pushed or merged",
+  "host": "Star_4090D / star-Super-Server",
+  "device": "RTX 4090 D 24GiB",
+  "final_physical_GPU": 2,
+  "GPU_UUID": "GPU-9e023bca-ff79-833d-193c-9909f99e2ff5",
+  "compiler": "Existing /data/wangyue/cuda-12.9/bin/nvcc 12.9.86; sm89; no system toolchain changes",
+  "build": {
+    "architecture": "sm89",
+    "source_sha256": {
+      "models/qwen/csrc/qwen.cu": "d76e983b3f9852378aabf968bd93681c6cd1a9d76ce6c4161ff21b5657fb9db2",
+      "models/qwen/csrc/qwen_batch.cuh": "6c9dc29f756378fac028e380f680450f6969308e671f54f9c1ff6f15c2e6582b",
+      "models/qwen/csrc/qwen_experiments.cuh": "866abefaa69e7916de52d35a80ef8d6b3744e370c2df849eff5ac52ed2473c5a",
+      "models/qwen/csrc/qwen_handoff.cuh": "f90c7cf92e15c354a0b8e786a2b077fe42842ddbca893790507a13a6cc00a8a0",
+      "models/qwen/csrc/qwen_head_gdn.cuh": "da269e31ed6c3a537ce1da693faf6732c371e939116f7c133322a6dc8aaf5ce5",
+      "models/qwen/csrc/qwen_mtp.cuh": "f491868cb857524da2a5fa7607e3e070d6204bd483645b9739d6927a5f21261e",
+      "models/qwen/csrc/qwen_pipeline.cuh": "80852376e04becf72e616e253884765532041682cb82f7e3d4901321a8b557c1",
+      "models/qwen/csrc/qwen_runtime.cuh": "a13260e025194360c223f1ce4440aaa551882951bb4a4f47ed17fc8d14345634",
+      "models/qwen/csrc/staged_uploader.cuh": "53835a8fd8384bf92d91e53f4c370e052e9c4213ad9dca12473f506cd74855f6",
+      "models/qwen/csrc/weight_source.cuh": "b44a0c4259094750d88fed10555396658dd1374b9b00f488be83abe7458a8262",
+      "models/qwen/csrc/weight_validate.cuh": "5d38773878a06fb5d5af989f4ae441a4e89e02eb90361be9c9c9b72a2ae576b8",
+      "ops/csrc/cuda_common.cuh": "087a7e9444440945edd423a616e8bae55f10a70ff071a2e36f16fac9a74f0843",
+      "ops/csrc/kv/kv_pool.cuh": "ca8225d10b1b1db97db35a32d90ba25ea7b53b5b9e3bebacaa191dc5776b36e4",
+      "ops/csrc/kv/kv_prefix.cuh": "60d3f715480c462d0deb4ad57043071f6817d13d043728a20a2f49e2ef721837",
+      "ops/csrc/ops_api.h": "eb0b7b2feda0f41f3e25906f6bfbe9aa3a5952f0f63e15feda6ea6c1eb547eb9"
+    },
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Tue_May_27_02:21:03_PDT_2025\nCuda compilation tools, release 12.9, V12.9.86\nBuild cuda_12.9.r12.9/compiler.36037853_0\n",
+    "command": [
+      "/data/wangyue/cuda-12.9/bin/nvcc",
+      "-O3",
+      "-std=c++20",
+      "-lineinfo",
+      "-shared",
+      "--cudart=static",
+      "-Xcompiler=-fPIC",
+      "-Xcompiler=-fvisibility=hidden",
+      "-Xlinker=-z",
+      "-Xlinker=defs",
+      "-DVENTURI_BLOCKS_ARCH=89",
+      "-gencode=arch=compute_89,code=sm_89",
+      "-gencode=arch=compute_89,code=compute_89",
+      "/data/wangyue/codex-build/Venturi-pr11-fix-20261116/build-ops/39c2f359c871c106/libventuri_ops.so",
+      "-lcuda",
+      "-lcublas",
+      "-Xlinker=-rpath",
+      "-Xlinker=$ORIGIN",
+      "-Xlinker=-soname",
+      "-Xlinker=libventuri_qwen.so",
+      "/data/wangyue/codex-build/Venturi-pr11-fix-20261116/source/src/venturi/models/qwen/csrc/qwen.cu",
+      "-o",
+      "/data/wangyue/codex-build/Venturi-pr11-fix-20261116/build-qwen/17f27db1da86b25e/build-tjaqewem/libventuri_qwen.so"
+    ],
+    "dependencies": {
+      "ops_sha256": "74c9ddda4db0780433c435fc32a029a5f6817b6858032183cbc5713ca4972f0c"
+    },
+    "soname": "libventuri_qwen.so",
+    "library_sha256": "0556c39f1317561025ace402b64cb412295800650ad25815ea0fb9e3323fd3aa"
+  },
+  "CPU": {
+    "passed": 1888,
+    "skipped": 2902,
+    "failed": 0,
+    "JUnit_SHA256": "2dc1b6ff29ce30acd85828d754a546c72a2437e0015beaa254473993f94bfa78",
+    "scope": "Local CPU/source/packaging suite, not GPU math"
+  },
+  "GPU_validation": {
+    "passed": 24,
+    "skipped": 0,
+    "failed": 0,
+    "KV_mechanism": 7,
+    "Qwen_generated_hybrid_e2e": 9,
+    "ABI_and_split": 7,
+    "numeric_checker_CPU": 1,
+    "precision": "Q8 generated weights, FP16 native/KV path; F32 recurrent state",
+    "numerical_check": "Finite, byte-exact logits/state against same-weight full-prefill native path; signed-zero checked",
+    "original_model_quality": false
+  },
+  "final_run": {
+    "unprofiled_medians": {
+      "baseline": {
+        "wall_seconds": 0.865870462,
+        "CPU_seconds": 0.868573,
+        "physical_pool_bytes": 75497472,
+        "derived_bounce_bytes_both_directions": 75497472
+      },
+      "candidate": {
+        "wall_seconds": 0.096571815,
+        "CPU_seconds": 0.096912,
+        "physical_pool_bytes": 41943040,
+        "derived_bounce_bytes_both_directions": 8388608
+      }
+    },
+    "timing": "ONLY prepare/admission + ensure/COW + 8-byte append/plane + GPU fence; fresh pool/prefix/map setup and byte checks OUTSIDE",
+    "groups_file": "cow-matched-v3.json",
+    "profiles": [
+      {
+        "mode": "baseline",
+        "categories": {
+          "overhead": 1,
+          "cuda_runtime": 100,
+          "ac2g": 144,
+          "gpu_memset": 4,
+          "gpu_memcpy": 40,
+          "unspecified": 56,
+          "Trace": 1
+        },
+        "scope": "Separate entire mechanism invocation; NEVER used for timed medians"
+      },
+      {
+        "mode": "candidate",
+        "categories": {
+          "overhead": 1,
+          "cuda_runtime": 44,
+          "ac2g": 56,
+          "gpu_memset": 4,
+          "gpu_memcpy": 8,
+          "unspecified": 56,
+          "Trace": 1
+        },
+        "scope": "Separate entire mechanism invocation; NEVER used for timed medians"
+      }
+    ],
+    "telemetry": {
+      "GPU-correctness-v3": {
+        "samples": 12,
+        "scope": "Entire campaign incl setup, correctness, warmups and separate profiling; NOT isolated COW intervals",
+        "GPU_busy_percent_mean": 0.4166666666666667,
+        "GPU_busy_percent_max": 4.0,
+        "VRAM_MiB_max": 813.0,
+        "power_W_max": 49.01,
+        "SM_clock_MHz_range": [
+          210.0,
+          2520.0
+        ],
+        "temperature_C_max": 35.0,
+        "other_GPU_PIDs_seen": [
+          [
+            "GPU-51ac9d63-ecad-2d92-8394-d1960cc4496c",
+            1506332
+          ],
+          [
+            "GPU-ecbec432-9ba0-01b3-92de-2cd812cb6ee5",
+            1830641
+          ]
+        ]
+      },
+      "COW-matched-v3": {
+        "samples": 43,
+        "scope": "Entire campaign incl setup, correctness, warmups and separate profiling; NOT isolated COW intervals",
+        "GPU_busy_percent_mean": 8.30232558139535,
+        "GPU_busy_percent_max": 44.0,
+        "VRAM_MiB_max": 455.0,
+        "power_W_max": 61.39,
+        "SM_clock_MHz_range": [
+          2520.0,
+          2700.0
+        ],
+        "temperature_C_max": 36.0,
+        "other_GPU_PIDs_seen": [
+          [
+            "GPU-51ac9d63-ecad-2d92-8394-d1960cc4496c",
+            1506332
+          ],
+          [
+            "GPU-ecbec432-9ba0-01b3-92de-2cd812cb6ee5",
+            1830641
+          ],
+          [
+            "GPU-ecbec432-9ba0-01b3-92de-2cd812cb6ee5",
+            1833813
+          ],
+          [
+            "GPU-ecbec432-9ba0-01b3-92de-2cd812cb6ee5",
+            1833898
+          ]
+        ]
+      }
+    }
+  },
+  "separate_runs": [
+    {
+      "run": 1,
+      "physical_GPU": 0,
+      "GPU_UUID": "GPU-ecbec432-9ba0-01b3-92de-2cd812cb6ee5",
+      "source_pool_SHA256": "9fa1fbe3a85a27cbad3383b2dbf379c172b600fbce006893db6ffc05d91222fe",
+      "matched_repetitions": 3,
+      "unprofiled_medians": {
+        "baseline": {
+          "wall_seconds": 0.022205681,
+          "CPU_seconds": 0.022206,
+          "physical_pool_bytes": 75497472,
+          "derived_bounce_bytes_both_directions": 75497472
+        },
+        "candidate": {
+          "wall_seconds": 0.002080672,
+          "CPU_seconds": 0.002081,
+          "physical_pool_bytes": 41943040,
+          "derived_bounce_bytes_both_directions": 8388608
+        }
+      },
+      "status": "earlier-reset-implementation-not-final"
+    },
+    {
+      "run": 2,
+      "physical_GPU": 0,
+      "GPU_UUID": "GPU-ecbec432-9ba0-01b3-92de-2cd812cb6ee5",
+      "source_pool_SHA256": "9fa1fbe3a85a27cbad3383b2dbf379c172b600fbce006893db6ffc05d91222fe",
+      "matched_repetitions": 3,
+      "unprofiled_medians": {
+        "baseline": {
+          "wall_seconds": 0.020959712,
+          "CPU_seconds": 0.020959,
+          "physical_pool_bytes": 75497472,
+          "derived_bounce_bytes_both_directions": 75497472
+        },
+        "candidate": {
+          "wall_seconds": 0.001866403,
+          "CPU_seconds": 0.001866,
+          "physical_pool_bytes": 41943040,
+          "derived_bounce_bytes_both_directions": 8388608
+        }
+      },
+      "status": "earlier-reset-implementation-not-final"
+    },
+    {
+      "run": 3,
+      "physical_GPU": 2,
+      "GPU_UUID": "GPU-9e023bca-ff79-833d-193c-9909f99e2ff5",
+      "source_pool_SHA256": "ca8225d10b1b1db97db35a32d90ba25ea7b53b5b9e3bebacaa191dc5776b36e4",
+      "matched_repetitions": 3,
+      "unprofiled_medians": {
+        "baseline": {
+          "wall_seconds": 0.865870462,
+          "CPU_seconds": 0.868573,
+          "physical_pool_bytes": 75497472,
+          "derived_bounce_bytes_both_directions": 75497472
+        },
+        "candidate": {
+          "wall_seconds": 0.096571815,
+          "CPU_seconds": 0.096912,
+          "physical_pool_bytes": 41943040,
+          "derived_bounce_bytes_both_directions": 8388608
+        }
+      },
+      "status": "final-source"
+    }
+  ],
+  "performance_conclusion": "Fewer copied pages and smaller physical pool confirmed. Final GPU2 latencies are much worse than earlier GPU0 runs; shared-host/device effects not isolated. No stable cross-run speedup, whole-model TPS or TTFT qualification.",
+  "copy_scope": {
+    "prefix_bytes_per_plane": 16777248,
+    "append_bytes_per_plane": 8,
+    "granule_bytes": 2097152,
+    "baseline_changed_pages": 18,
+    "candidate_changed_pages": 2,
+    "baseline_physical_pool_bytes": 75497472,
+    "candidate_physical_pool_bytes": 41943040,
+    "baseline_derived_bounce_bytes": 75497472,
+    "candidate_recorded_bounce_bytes": 8388608
+  },
+  "achieved_SM_occupancy": null,
+  "DRAM_bandwidth": null,
+  "whole_model_TPS": null,
+  "TTFT": null,
+  "cleanup": {
+    "guard_success": true,
+    "own_processes_gone_verified": true,
+    "advisory_lease_free_verified": true,
+    "services_stopped": [],
+    "production_changed": false,
+    "other_GPU_processes_untouched": true,
+    "driver_firmware_registers_permissions_changed": false
+  },
+  "limits": [
+    "Generated hybrid fixture is not the full 27B checkpoint or held-out quality validation",
+    "CUDA/head-GDN two-device SM70 path remains unqualified on Ada",
+    "Boundary COW remains synchronous per-page CPU bounce; no async/D2D replacement",
+    "Auxiliary snapshot device bytes are not covered by KV page budget; separate byte quota deferred",
+    "Original baseline omits COW copy counters: its byte volume is derived, not measured bandwidth",
+    "Profiler covers whole fresh invocation; cuda_runtime/memcpy events do not provide VMM driver timing or critical-region occupancy",
+    "NVML sampled windows are coarse; cannot attribute them to the short critical timer",
+    "v1/v2 and v3 differ by physical GPU and private-reset implementation; no pooled medians or stable whole-model claim"
+  ],
+  "fixes": [
+    "Incarnation prevents reset/reuse/pointer-ABA stale keys",
+    "Healthy exact committed publication boundary and exact attach length",
+    "RAII snapshots with capacity check before allocation and failure rollback",
+    "Lease-based LRU pins released on borrower reset/close",
+    "Append-only COW, alias-aware admission and last-alias pressure recovery",
+    "Preserve unshared hot reset mappings and no-sharing O(entries) admission",
+    "Package KV .cuh dependencies in wheel and exercise installed dependency walker"
+  ],
+  "tested_source_hashes": {
+    "docs/vram-first-kv.md": "826c752f3fc58cabee9d329b146acda5f19061f6ae2458d27fcc634ead5475df",
+    "pyproject.toml": "67c82c354863f200faebb81e8c3a81af41357eb394b1d3827d608d69e7614593",
+    "src/venturi/models/qwen/csrc/qwen_runtime.cuh": "a13260e025194360c223f1ce4440aaa551882951bb4a4f47ed17fc8d14345634",
+    "src/venturi/ops/csrc/kv/kv_pool.cuh": "ca8225d10b1b1db97db35a32d90ba25ea7b53b5b9e3bebacaa191dc5776b36e4",
+    "src/venturi/ops/csrc/kv/kv_prefix.cuh": "60d3f715480c462d0deb4ad57043071f6817d13d043728a20a2f49e2ef721837",
+    "tests/kv_harness.cu": "3d387689050b65e294a93f1dd913630945f59a4fe876b9d02f905c4f4472e563",
+    "tests/test_kv_pool.py": "11cf9e10793fc9f1202bf612ca203ecf84acd6ee56aa1f52713e551faae022f0",
+    "tests/test_qwen_kv_prefix_e2e.py": "3437d4c322e10c034ce663e336b3c2e73b69a2770c82e2f530e52bcf614bd78f",
+    "tests/kv_cow_benchmark.cu": "a6fe4d9c4ba0d308767d4f1c62019628234bf8aea2ccb40b63506b595775c9d1",
+    "tests/kv_host/cuda.h": "8b704032908bc67fda2d5d3bc9fb7b19f1257ee5655a1eddc8f9375715bbda7d",
+    "tests/kv_host/cuda_runtime.h": "7ed9540a94aaba81d52c2b5e105cc9fb7b010635d96921108c3cde6a556daedd",
+    "tests/kv_host/regressions.cpp": "03fb8ea7adac30747b1b0b07fb74be8e3f4d02e37a8b94446a5a19e85cad5b05",
+    "tests/test_kv_host_regressions.py": "fb25ff79833f18e2ce750a17d565fb9854cbdcdb1169eaf19e5db914e85160ee",
+    "tests/test_kv_wheel.py": "b2ccd400a84ef86ea8da82387ff3eca12744187b5e55a50108d022400f9981a4",
+    "tools/benchmark_kv_cow.py": "a29444b8d8a68591865af795cad2fd85eb12f6baccc2a91688e536d127c8ea20"
+  },
+  "full_terminal_evidence_files": 38,
+  "full_terminal_evidence_manifest_SHA256": "4ea569e3a72e91818befae317f6f8bcb8bf1960c8987bb7add9f072aba38d0e9"
+}

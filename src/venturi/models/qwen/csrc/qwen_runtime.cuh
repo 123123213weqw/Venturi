@@ -870,7 +870,7 @@ struct Session {
             require(history[i] && state[i],"GDN history/state buffers absent for prefix restore");
             dests.push_back(history[i]->ptr);dests.push_back(state[i]->ptr);
         }
-        require(md.kv_prefix->borrow(*md.kv_tier,key,entries,dests),"no usable prefix record for the requested key/length");
+        require(md.kv_prefix->borrow(*md.kv_tier,key,entries,dests,mul(static_cast<std::uint64_t>(tokens),entries.front()->row)),"no usable prefix record for the requested key/length");
         position=tokens;
     }
     // Donor side scheduling: freeze the shared prefix (KV entries + GDN state).
@@ -879,7 +879,8 @@ struct Session {
         std::lock_guard<std::mutex> lock(mutex);
         require(md.kv_tier && md.kv_prefix,"prefix sharing requires the VRAM-first KV tier");
         require(!md.head_gdn_enabled,"prefix sharing is not qualified with the head-GDN two-device profile");
-        require(tokens>0 && position>=tokens,"published prefix exceeds the donor position");
+        require(!failed,"failed session cannot publish a prefix; reset required");
+        require(tokens>0 && position==tokens,"published prefix must equal the committed donor position");
         std::vector<KVTier::Entry*> entries;
         for (int i=0;i<c.layers;++i) if(md.layers[i].kind!=0 && tiered_kv[i]) entries.push_back(tiered_kv[i].get());
         require(!entries.empty(),"prefix sharing requires full-attention layers with tiered KV");

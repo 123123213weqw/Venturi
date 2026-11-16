@@ -79,6 +79,20 @@ __attribute__((visibility("default"))) void* kvh_manager_create(int device) {
 __attribute__((visibility("default"))) void kvh_manager_destroy(void* manager) {
     delete static_cast<vkv::PrefixManager*>(manager);
 }
+__attribute__((visibility("default"))) int kvh_manager_capacity(void* manager, std::uint64_t capacity) {
+    KVH_TRY static_cast<vkv::PrefixManager*>(manager)->capacity = capacity; return 0; KVH_CATCH
+}
+__attribute__((visibility("default"))) int kvh_manager_info(void* manager, std::uint64_t* out) {
+    KVH_TRY
+    auto* m = static_cast<vkv::PrefixManager*>(manager);
+    std::lock_guard<std::mutex> lock(m->mutex);
+    out[0] = m->records.size(); out[1] = out[2] = 0;
+    for (const auto& r : m->records) {
+        out[1] += r.borrowed();
+        for (const auto& s : r.snapshots) out[2] += s.bytes;
+    }
+    return 0; KVH_CATCH
+}
 __attribute__((visibility("default"))) int kvh_publish(void* manager, void* pool, std::uint64_t key,
                                                        void** entries, std::uint64_t entry_count,
                                                        std::uint64_t bytes,
@@ -94,13 +108,14 @@ __attribute__((visibility("default"))) int kvh_publish(void* manager, void* pool
 }
 __attribute__((visibility("default"))) int kvh_borrow(void* manager, void* pool, std::uint64_t key,
                                                       void** entries, std::uint64_t entry_count,
-                                                      void** dests, std::uint64_t dest_count) {
+                                                      void** dests, std::uint64_t dest_count,
+                                                      std::uint64_t expected_bytes) {
     KVH_TRY
     std::vector<vkv::Pool::Entry*> owned;
     for (std::uint64_t i = 0; i < entry_count; ++i) owned.push_back(static_cast<vkv::Pool::Entry*>(entries[i]));
     std::vector<void*> targets;
     for (std::uint64_t i = 0; i < dest_count; ++i) targets.push_back(dests[i]);
-    return static_cast<vkv::PrefixManager*>(manager)->borrow(*static_cast<vkv::Pool*>(pool), key, owned, targets) ? 1 : 0;
+    return static_cast<vkv::PrefixManager*>(manager)->borrow(*static_cast<vkv::Pool*>(pool), key, owned, targets, expected_bytes) ? 1 : 0;
     KVH_CATCH
 }
 __attribute__((visibility("default"))) int kvh_forget(void* manager, std::uint64_t key) {
@@ -127,5 +142,16 @@ __attribute__((visibility("default"))) int kvh_state_overwrite(void* buffer, std
     std::vector<unsigned char> pattern(bytes);
     for (std::uint64_t i = 0; i < bytes; ++i) pattern[i] = static_cast<unsigned char>(seed + i);
     return cudaMemcpy(buffer, pattern.data(), bytes, cudaMemcpyHostToDevice) == cudaSuccess ? 0 : -1;
+}
+// Append-only writer, matching model K/V kernels' actual write interval.
+__attribute__((visibility("default"))) int kvh_append(void* p, void* e, std::uint64_t count, unsigned char value) {
+    KVH_TRY
+    auto* pool = static_cast<vkv::Pool*>(p); auto* entry = static_cast<vkv::Pool::Entry*>(e);
+    const auto start = entry->valid, end = vkv::add(start, count);
+    pool->ensure(*entry, end); pool->attach(*entry);
+    std::vector<unsigned char> bytes(count, value);
+    for (int k = 0; k < 2; ++k)
+        vkv::check(cudaMemcpyAsync(entry->ptr(k,start), bytes.data(), count, cudaMemcpyHostToDevice, 0));
+    vkv::check(cudaStreamSynchronize(0)); pool->written(*entry,end); return 0; KVH_CATCH
 }
 }
