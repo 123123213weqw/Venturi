@@ -68,7 +68,28 @@ struct Batch {
                     else {op(venturi_dense_run(m.dense.ptr,w.p("normalized"),weight,output,n,c.gvh,c.hidden,m.blas_workspace.ptr,m.blas_workspace.bytes,stream));}
                 }
                 op(venturi_gates_run(w.p("a"),w.p("b"),static_cast<const float*>(l.rate),static_cast<const float*>(l.bias),static_cast<float*>(w.p("decay")),static_cast<float*>(w.p("beta")),n,c.gvh,c.dtype,1,stream));
-                for(const auto& segment:segments) {
+                bool any_trace=false;for(const auto& s:segments)if(requests[s.slot]->verification_trace)any_trace=true;
+                if(!any_trace && segments.size()>1) {
+                    // night-tps-20261116: per-segment conv+GDN issued on parallel
+                    // streams. Segments touch disjoint workspace rows and their own
+                    // request caches; ordering rides group_ready (after the shared
+                    // projections/gates) and segment_done (before the batched gated
+                    // RMS). Trace-verified cohorts keep the serial reference path.
+                    const auto scount=static_cast<int>(segments.size());
+                    m.ensure_segment_streams(scount);
+                    check(cudaEventRecord(m.group_ready.ptr,stream));
+                    for(int si=0;si<scount;++si) {
+                        const auto& segment=segments[si];auto& request=*requests[segment.slot];
+                        const int r=segment.row,t=segment.count;
+                        cudaStream_t ss=m.segment_streams[si].ptr;
+                        check(cudaStreamWaitEvent(ss,m.group_ready.ptr,0));
+                        op(venturi_conv_run(row("qkv",r,width),l.conv,request.history[index]->ptr,row("convolved",r,width),request.history[index]->ptr,t,width,c.convolution,c.dtype,l.conv_fp32,ss));
+                        auto* q=row("convolved",r,width);const auto stride=mul(c.gqk*c.gkd,2);
+                        op((m.activation_passes==2?venturi_gdn_compact_run:venturi_gdn_run)(q,q+stride,q+2*stride,reinterpret_cast<const float*>(row("decay",r,c.gvh,4)),reinterpret_cast<const float*>(row("beta",r,c.gvh,4)),static_cast<const float*>(request.state[index]->ptr),row("recurrent",r,c.gvh*c.gvd),static_cast<float*>(request.state[index]->ptr),t,c.gqk,c.gvh,c.gkd,c.gvd,1,1,c.dtype,c.gdn_scale,ss));
+                        check(cudaEventRecord(m.segment_done[si].ptr,ss));
+                    }
+                    for(int si=0;si<scount;++si)check(cudaStreamWaitEvent(stream,m.segment_done[si].ptr,0));
+                } else for(const auto& segment:segments) {
                     auto& request=*requests[segment.slot];const int r=segment.row,t=segment.count;
                     auto* trace=request.verification_trace;
                     if(trace) {
@@ -84,7 +105,29 @@ struct Batch {
                 m.linear(l.matrix[2],w.p("mixed"),w.p("projected"),n);
             } else {
                 m.shared_linears(w.p("normalized"),n,{{&l.matrix[0],w.p("qg")},{&l.matrix[1],w.p("key")},{&l.matrix[2],value.ptr}});
-                for(const auto& segment:segments) {
+                if(segments.size()>1) {
+                    // night-tps-20261116: per-segment KV copy + RoPE + attention on
+                    // parallel streams (disjoint KV ranges and workspace rows).
+                    // kv_ensure runs on the main stream first so any pool growth is
+                    // ordered before the parallel section.
+                    const auto scount=static_cast<int>(segments.size());
+                    m.ensure_segment_streams(scount);
+                    for(const auto& segment:segments){auto& request=*requests[segment.slot];request.kv_ensure(index,request.position+segment.count);}
+                    check(cudaEventRecord(m.group_ready.ptr,stream));
+                    for(int si=0;si<scount;++si) {
+                        const auto& segment=segments[si];auto& request=*requests[segment.slot];
+                        const int r=segment.row,t=segment.count,pos=request.position;
+                        cudaStream_t ss=m.segment_streams[si].ptr;
+                        check(cudaStreamWaitEvent(ss,m.group_ready.ptr,0));
+                        auto* kt=request.kv_ptr(index,0,mul(mul(pos,kw),2));auto* vt=request.kv_ptr(index,1,mul(mul(pos,kw),2));
+                        check(cudaMemcpyAsync(vt,value.at(mul(mul(r,kw),2)),mul(mul(t,kw),2),cudaMemcpyDeviceToDevice,ss));
+                        auto* cos=static_cast<const float*>(request.p("cos"))+mul(pos,c.rotary/2);auto* sin=static_cast<const float*>(request.p("sin"))+mul(pos,c.rotary/2);
+                        op(venturi_qwen_qk_run(row("qg",r,2*qw),row("key",r,kw),static_cast<const float*>(l.qgamma),static_cast<const float*>(l.kgamma),cos,sin,row("query",r,qw),kt,t,c.hq,c.hkv,c.dim,c.rotary,c.dtype,c.epsilon,ss));
+                        op(venturi_attention_run(row("query",r,qw),request.kv_ptr(index,0),request.kv_ptr(index,1),row("attended",r,qw),t,pos+t,c.hq,c.hkv,c.dim,c.dtype,c.attention_scale,ss));request.kv_written(index,pos+t);
+                        check(cudaEventRecord(m.segment_done[si].ptr,ss));
+                    }
+                    for(int si=0;si<scount;++si)check(cudaStreamWaitEvent(stream,m.segment_done[si].ptr,0));
+                } else for(const auto& segment:segments) {
                     auto& request=*requests[segment.slot];const int r=segment.row,t=segment.count,pos=request.position;
                     request.kv_ensure(index,pos+t);auto* kt=request.kv_ptr(index,0,mul(mul(pos,kw),2));auto* vt=request.kv_ptr(index,1,mul(mul(pos,kw),2));
                     check(cudaMemcpyAsync(vt,value.at(mul(mul(r,kw),2)),mul(mul(t,kw),2),cudaMemcpyDeviceToDevice,stream));

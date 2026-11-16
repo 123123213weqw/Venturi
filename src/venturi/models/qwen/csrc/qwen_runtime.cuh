@@ -169,6 +169,22 @@ struct Model {
     Stream stream;
     Stream second_stream;
     Event first_ready,second_ready;
+    // night-tps-20261116: per-segment parallel decode streams. Kernels issued
+    // on these streams touch only disjoint workspace rows and their own
+    // request caches; ordering is the group_ready -> segment_done event chain
+    // recorded by the batch group path. Created lazily on the model device.
+    std::vector<Stream> segment_streams;
+    std::vector<Event> segment_done;
+    Event group_ready;
+    void ensure_segment_streams(int count) {
+        if ((int)segment_streams.size()>=count) return;
+        int old=0; check(cudaGetDevice(&old)); check(cudaSetDevice(stream.device));
+        const int have=(int)segment_streams.size();
+        segment_streams.resize(count); segment_done.resize(count);
+        for(int i=have;i<count;++i){ segment_streams[i].create(); segment_done[i].create(); }
+        if (!group_ready.ptr) group_ready.create();
+        check(cudaSetDevice(old));
+    }
     Dense dense;
     const float* norm=nullptr;
     Pinned host_input,host_output;

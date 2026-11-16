@@ -457,6 +457,16 @@ void launch_q8(const void* x,const std::int8_t* codes,const __half* scales,
         q8_tiled<T,2,1><<<n,256,0,stream>>>(
             static_cast<const T*>(x),codes,scales,static_cast<T*>(out),tokens,n,k,padded);
 #endif
+    } else if (tokens>16) {
+        // night-tps-20261116: wide decode cohorts re-read each weight row once
+        // per 8-token tile; 16/32-token tiles make fewer redundant weight passes
+        // (4x fewer at 32 concurrent decodes). Identical FMA/rounding
+        // arithmetic and activation padding; only the tile partitioning moves.
+        q8_tiled<T,32,1><<<n*(1+(tokens-1)/32),256,0,stream>>>(
+            static_cast<const T*>(x),codes,scales,static_cast<T*>(out),tokens,n,k,padded);
+    } else if (tokens>8) {
+        q8_tiled<T,16,1><<<n*(1+(tokens-1)/16),256,0,stream>>>(
+            static_cast<const T*>(x),codes,scales,static_cast<T*>(out),tokens,n,k,padded);
     } else if (tokens>1 && VENTURI_Q8_TOKEN_TILE!=1) {
         q8_tiled<T,VENTURI_Q8_TOKEN_TILE,1><<<n*(1+(tokens-1)/VENTURI_Q8_TOKEN_TILE),256,0,stream>>>(
             static_cast<const T*>(x),codes,scales,static_cast<T*>(out),tokens,n,k,padded);

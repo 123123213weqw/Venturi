@@ -393,8 +393,11 @@ def main():
         p.error(
             "Target layer graphs require scalar resident TP residual MTP2 prefix mode"
         )
-    if not 1 <= args.slots <= 8 or args.capacity < 55:
-        p.error("Use 1..8 slots with capacity >= 55")
+    # Experimental night-tps-20261116 widening: the historically qualified
+    # benchmark surface is 1..8 slots; 9..64 stays opt-in experimental and
+    # requires its own qualification evidence before any promotion.
+    if not 1 <= args.slots <= 64 or args.capacity < 55:
+        p.error("Use 1..64 slots with capacity >= 55")
     if args.batch_mtp and (
         args.batch_target
         or args.mode != "tp"
