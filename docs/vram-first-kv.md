@@ -78,3 +78,31 @@ Existing requests/batches retain native model/KV ownership after the public mode
 handle closes. New requests are rejected. Request `info()` then marks model-wide
 KV diagnostics unavailable instead of querying the freed model handle or claiming
 zero cache bytes. Explicit model diagnostics and model close share a lock.
+
+## Prefix sharing (unified KV layer orchestration, model-side scheduling)
+
+The unified KV layer (`ops/csrc/kv/kv_prefix.cuh`, `PrefixManager`) owns the
+entire sharing orchestration: prefix records, freezing of the donor's
+auxiliary recurrent state into registry-owned device snapshots, read-only
+page mapping into borrowers, LRU capacity with active borrowers pinned, and
+lifetime after the donor closes (reference counts keep shared pages alive).
+Models only schedule: which sessions publish/borrow, which KV entries and
+recurrent buffers participate, and where decoding resumes.
+
+```python
+donor = model.create_session(capacity)
+donor.forward(shared_prefix_tokens, all_logits=True)
+donor.publish_prefix(key=7, tokens=len(shared_prefix_tokens))
+
+later = model.create_session(capacity, prefix_key=7, prefix_tokens=len(shared_prefix_tokens))
+# decoding resumes at the prefix boundary; full-attention layers reuse the
+# donor's physical KV pages read-only, GDN recurrent state is restored from
+# the frozen snapshot, and results match a full prefill bit-for-bit.
+```
+
+Keys are explicit caller-chosen integers; automatic token-prefix detection is
+future work. Sharing requires the VRAM-first tier enabled before requests and
+is rejected (fail-closed) on missing keys, lengths exceeding the donor
+position, non-fresh borrower entries, or the head-GDN two-device profile.
+Borrowers that later spill create their own host copies; shared pages
+themselves are never written (hardware read-only mappings).

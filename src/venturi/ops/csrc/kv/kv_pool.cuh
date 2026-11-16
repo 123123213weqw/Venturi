@@ -66,9 +66,13 @@ struct Pool {
         bool active = false; std::uint64_t mapped = 0;
         cudaEvent_t ready = nullptr;  // signals the latest async reload completion on the copy stream
         std::array<std::vector<Page*>, 2> pages;
+        // Per-plane per-page flag: this slot maps a SHARED read-only page.
+        // The first write attempt copy-on-writes it into a private RW page.
+        std::array<std::vector<bool>, 2> shared;
         std::unique_ptr<unsigned char[]> host;
         Entry(Pool& o, std::uint64_t bytes, std::uint64_t row_bytes) : owner(o), plane(o.round(bytes)), row(row_bytes) {
             for (auto& p : pages) p.resize(plane / o.granule, nullptr);
+            for (auto& f : shared) f.assign(plane / o.granule, false);
             check(cudaEventCreateWithFlags(&ready, cudaEventDisableTiming));
             std::lock_guard<std::mutex> lock(o.mutex);
             o.driver(cuMemAddressReserve(&base, mul(plane, 2), o.granule, 0, 0));
@@ -224,11 +228,42 @@ struct Pool {
     // chain the compute stream onto the completion with attach() right before
     // their first read/write of the entry — issuing ensure() for a LATER
     // layer between two kernels of the current layer cannot serialize them.
+    // Replace one shared read-only page with a private read-write copy of
+    // the same bytes. Runs before any write may touch the page, so the old
+    // mapping is still readable for the copy.
+    void copy_on_write(Entry& e, int k, std::uint64_t p) {
+        while (free_pages.empty()) {
+            Entry* victim = nullptr;
+            for (auto* other : entries)
+                if (other != &e && other->mapped && (!victim || (other->active != victim->active ? !other->active : other->last < victim->last))) victim = other;
+            require(victim, "KV copy-on-write found no eviction victim");
+            evict(*victim);
+        }
+        const auto addr = e.base + mul(k, e.plane) + mul(p, granule);
+        std::vector<unsigned char> image(granule);
+        check(cudaStreamSynchronize(copy));
+        check(cudaMemcpy(image.data(), reinterpret_cast<void*>(addr), granule, cudaMemcpyDeviceToHost));
+        driver(cuMemUnmap(addr, granule));
+        release(*e.pages[k][p]);
+        e.pages[k][p] = nullptr;
+        auto* page = free_pages.back(); free_pages.pop_back(); ++page->refs;
+        e.pages[k][p] = page;
+        driver(cuMemMap(addr, granule, 0, page->handle, 0));
+        driver(cuMemSetAccess(addr, granule, &access, 1));  // read-write
+        check(cudaMemcpy(reinterpret_cast<void*>(addr), image.data(), granule, cudaMemcpyHostToDevice));
+        e.shared[k][p] = false;
+    }
+
     void ensure(Entry& e, std::uint64_t bytes) {
         std::lock_guard<std::mutex> lock(mutex);
         require(!poisoned, "KV VMM driver failure: recreate model");
         const auto n = round(bytes) / granule; e.last = ++serial;
         require(bytes <= e.plane && n <= pool.size() / 2, "KV prefix not admitted");
+        // Writes may land in already-mapped shared pages (a shared prefix
+        // boundary is byte-granular, pages are not): privatize them first.
+        for (int k = 0; k < 2; ++k)
+            for (std::uint64_t p = 0; p < std::min<std::uint64_t>(n, e.mapped); ++p)
+                if (e.shared[k][p]) copy_on_write(e, k, p);
         if (e.mapped >= n) return;
         // Growth only maps NEW pages (no prior readers); eviction synchronizes
         // the compute stream itself before touching a victim's mappings.

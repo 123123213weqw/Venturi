@@ -62,8 +62,13 @@ def harness(tmp_path_factory):
         ("kvh_reset", [ctypes.c_void_p, ctypes.c_void_p], ctypes.c_int),
         ("kvh_info", [ctypes.c_void_p, ctypes.POINTER(u64)], ctypes.c_int),
         ("kvh_fill", [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int, u64, ctypes.c_ubyte], ctypes.c_int),
-        ("kvh_publish", [ctypes.c_void_p, u64, ctypes.c_void_p, u64], ctypes.c_int),
-        ("kvh_borrow", [ctypes.c_void_p, ctypes.c_void_p, u64, ctypes.c_void_p], ctypes.c_int),
+        ("kvh_publish", [ctypes.c_void_p, ctypes.c_void_p, u64, ctypes.POINTER(ctypes.c_void_p), u64, u64, ctypes.c_void_p, u64], ctypes.c_int),
+        ("kvh_borrow", [ctypes.c_void_p, ctypes.c_void_p, u64, ctypes.POINTER(ctypes.c_void_p), u64, ctypes.POINTER(ctypes.c_void_p), u64], ctypes.c_int),
+        ("kvh_forget", [ctypes.c_void_p, u64], ctypes.c_int),
+        ("kvh_state_alloc", [u64, ctypes.c_ubyte], ctypes.c_void_p),
+        ("kvh_state_free", [ctypes.c_void_p], ctypes.c_int),
+        ("kvh_state_read", [ctypes.c_void_p, ctypes.c_void_p, u64], ctypes.c_int),
+        ("kvh_state_overwrite", [ctypes.c_void_p, u64, ctypes.c_ubyte], ctypes.c_int),
     ]:
         fn = getattr(lib, name)
         fn.argtypes = args
@@ -71,9 +76,9 @@ def harness(tmp_path_factory):
     lib.kvh_error.restype = ctypes.c_char_p
     lib.kvh_destroy.argtypes = [ctypes.c_void_p]
     lib.kvh_entry_destroy.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-    lib.kvh_index_create.argtypes = []
-    lib.kvh_index_create.restype = ctypes.c_void_p
-    lib.kvh_index_destroy.argtypes = [ctypes.c_void_p]
+    lib.kvh_manager_create.argtypes = [ctypes.c_int]
+    lib.kvh_manager_create.restype = ctypes.c_void_p
+    lib.kvh_manager_destroy.argtypes = [ctypes.c_void_p]
     yield lib
     torch.cuda.synchronize()
 
@@ -133,8 +138,15 @@ def test_spill_reload_round_trip(harness):
     harness.kvh_destroy(pool)
 
 
-def test_prefix_share_is_read_only_and_stable(harness):
-    index = harness.kvh_index_create()
+class State:
+    """ctypes view over the layout-compatible KvhState array."""
+
+    class Pair(ctypes.Structure):
+        _fields_ = [("src", ctypes.c_void_p), ("bytes", ctypes.c_uint64)]
+
+
+def test_prefix_share_snapshots_and_survives_donor(harness):
+    manager = harness.kvh_manager_create(0)
     pool = harness.kvh_create(0, PLANE * 4, GIB, 1 << 20)
     donor = harness.kvh_entry_create(pool, PLANE, 4096)
     prepare(harness, pool, [(donor, HALF)])
@@ -142,22 +154,56 @@ def test_prefix_share_is_read_only_and_stable(harness):
     assert harness.kvh_attach(pool, donor) == 0
     assert harness.kvh_fill(pool, donor, 0, HALF, 0x33) == 0
     before = info(harness, pool)["physical"]
-    assert harness.kvh_publish(index, 42, donor, HALF) == 0
+
+    # Two auxiliary recurrent states are frozen at publish time.
+    states = (State.Pair * 2)(
+        State.Pair(harness.kvh_state_alloc(4096, 0x55), 4096),
+        State.Pair(harness.kvh_state_alloc(8192, 0x77), 8192),
+    )
+    entries = (ctypes.c_void_p * 1)(donor)
+    assert harness.kvh_publish(manager, pool, 42, entries, 1, HALF, states, 2) == 0, harness.kvh_error().decode()
+
+    # The donor keeps mutating its own auxiliary buffers after publishing.
+    assert harness.kvh_state_overwrite(states[0].src, 4096, 0xEE) == 0
 
     borrower = harness.kvh_entry_create(pool, PLANE, 4096)
-    prepare(harness, pool, [(donor, HALF)])  # borrower not yet a goal: borrow only
-    assert harness.kvh_borrow(pool, index, 42, borrower) == 1
+    prepare(harness, pool, [(donor, HALF)])
+    dest_buffers = (ctypes.c_void_p * 2)(
+        harness.kvh_state_alloc(4096, 0x00), harness.kvh_state_alloc(8192, 0x00)
+    )
+    fresh = (ctypes.c_void_p * 1)(borrower)
+    assert harness.kvh_borrow(manager, pool, 42, fresh, 1, dest_buffers, 2) == 1
     assert snapshot(harness, pool, borrower, 0, HALF) == pattern(0x33, HALF)
     # Shared pages are reused, not duplicated.
     assert info(harness, pool)["physical"] == before
 
-    # The borrower can be dropped without disturbing the donor.
-    harness.kvh_entry_destroy(pool, borrower)
-    assert snapshot(harness, pool, donor, 0, HALF) == pattern(0x33, HALF)
-    # A second borrower with a missing key is rejected.
-    fresh = harness.kvh_entry_create(pool, PLANE, 4096)
-    assert harness.kvh_borrow(pool, index, 999, fresh) == 0
-    harness.kvh_entry_destroy(pool, fresh)
+    # Frozen auxiliary state is restored byte-exactly (pre-mutation values).
+    out = (ctypes.c_ubyte * 4096)()
+    assert harness.kvh_state_read(dest_buffers[0], out, 4096) == 0
+    assert bytes(out) == pattern(0x55, 4096)
+    out = (ctypes.c_ubyte * 8192)()
+    assert harness.kvh_state_read(dest_buffers[1], out, 8192) == 0
+    assert bytes(out) == pattern(0x77, 8192)
+
+    # A borrower against a missing key is rejected without side effects.
+    stranger = harness.kvh_entry_create(pool, PLANE, 4096)
+    stranger_ref = (ctypes.c_void_p * 1)(stranger)
+    assert harness.kvh_borrow(manager, pool, 999, stranger_ref, 1, dest_buffers, 2) == 0
+
+    # After the donor entry is destroyed the record is no longer usable...
     harness.kvh_entry_destroy(pool, donor)
+    again = harness.kvh_entry_create(pool, PLANE, 4096)
+    again_ref = (ctypes.c_void_p * 1)(again)
+    assert harness.kvh_borrow(manager, pool, 42, again_ref, 1, dest_buffers, 2) == 0
+
+    # ...but the earlier borrower keeps its shared pages and data.
+    assert snapshot(harness, pool, borrower, 0, HALF) == pattern(0x33, HALF)
+    harness.kvh_state_free(states[0].src)
+    harness.kvh_state_free(states[1].src)
+    harness.kvh_state_free(dest_buffers[0])
+    harness.kvh_state_free(dest_buffers[1])
+    harness.kvh_entry_destroy(pool, borrower)
+    harness.kvh_entry_destroy(pool, stranger)
+    harness.kvh_entry_destroy(pool, again)
     harness.kvh_destroy(pool)
-    harness.kvh_index_destroy(index)
+    harness.kvh_manager_destroy(manager)

@@ -172,7 +172,7 @@ struct Model {
     Dense dense;
     const float* norm=nullptr;
     Pinned host_input,host_output;
-    std::unique_ptr<KVTier> kv_tier;bool session_created=false;
+    std::unique_ptr<KVTier> kv_tier;std::unique_ptr<vkv::PrefixManager> kv_prefix;bool session_created=false;
     std::uint64_t device_bytes=0,embedding_uploaded=0;
     std::uint64_t second_device_bytes=0,peer_input_bytes=0,peer_output_bytes=0;
     std::mutex mutex;
@@ -816,7 +816,7 @@ struct Session {
         for(int i=m.begin;i<m.end;++i)if(m.layers[i].kind==0)n=add(n,add(mul(mul(c.convolution-1,packed),2),mul(mul(c.gvh*c.gvd,c.gkd),4))/2);return n;
     }
     static int min_tiles(int n) { return std::min((n-1)/4096+1,128); }
-    explicit Session(std::shared_ptr<Model> m,int cap,bool caches=true):model(std::move(m)),capacity(cap) {
+    explicit Session(std::shared_ptr<Model> m,int cap,bool caches=true,std::uint64_t prefix_key=0,int prefix_tokens=0):model(std::move(m)),capacity(cap) {
         auto& md=*model;const auto& c=md.c;md.session_created=true;md.guard(estimate(md,cap,caches));if(md.head_gdn_enabled){Device d(c.second_device);md.guard(estimate_peer(md,caches));}
         const std::uint64_t packed=2*mul(c.gqk,c.gkd)+mul(c.gvh,c.gvd),qw=mul(c.hq,c.dim),kw=mul(c.hkv,c.dim),t=c.max_tokens;
         for (auto name: {"x","out","normalized","projected","residual","mlp_norm","spare"}) alloc(name,mul(mul(t,c.hidden),2));
@@ -852,6 +852,44 @@ struct Session {
         if (c.dtype==0) tables<__half><<<grid,256,0,md.stream.ptr>>>(static_cast<const float*>(md.inverse.ptr),static_cast<float*>(p("cos")),static_cast<float*>(p("sin")),c.rotary/2,count);
         else tables<__nv_bfloat16><<<grid,256,0,md.stream.ptr>>>(static_cast<const float*>(md.inverse.ptr),static_cast<float*>(p("cos")),static_cast<float*>(p("sin")),c.rotary/2,count);
         check(cudaGetLastError());md.sync();require(device_bytes==estimate(md,cap,caches) && peer_device_bytes==estimate_peer(md,caches),"native Qwen memory estimate mismatch");
+        if (prefix_tokens>0) attach_prefix(prefix_key,prefix_tokens);
+    }
+    // Model-side SCHEDULING for prefix sharing: the unified KV layer owns the
+    // record/snapshot/read-only-mapping orchestration; this only decides which
+    // entries and recurrent buffers participate, and where decoding resumes.
+    void attach_prefix(std::uint64_t key,int tokens) {
+        auto& md=*model;const auto& c=md.c;
+        require(md.kv_tier && md.kv_prefix,"prefix sharing requires the VRAM-first KV tier");
+        require(!md.head_gdn_enabled,"prefix sharing is not qualified with the head-GDN two-device profile");
+        require(tokens>0 && tokens<capacity,"prefix length must fit inside the session capacity");
+        std::vector<KVTier::Entry*> entries;
+        for (int i=0;i<c.layers;++i) if(md.layers[i].kind!=0 && tiered_kv[i]) entries.push_back(tiered_kv[i].get());
+        require(!entries.empty(),"prefix sharing requires full-attention layers with tiered KV");
+        std::vector<void*> dests;
+        for (int i=0;i<c.layers;++i) if(md.layers[i].kind==0) {
+            require(history[i] && state[i],"GDN history/state buffers absent for prefix restore");
+            dests.push_back(history[i]->ptr);dests.push_back(state[i]->ptr);
+        }
+        require(md.kv_prefix->borrow(*md.kv_tier,key,entries,dests),"no usable prefix record for the requested key/length");
+        position=tokens;
+    }
+    // Donor side scheduling: freeze the shared prefix (KV entries + GDN state).
+    void publish_prefix(std::uint64_t key,int tokens) {
+        auto& md=*model;const auto& c=md.c;
+        std::lock_guard<std::mutex> lock(mutex);
+        require(md.kv_tier && md.kv_prefix,"prefix sharing requires the VRAM-first KV tier");
+        require(!md.head_gdn_enabled,"prefix sharing is not qualified with the head-GDN two-device profile");
+        require(tokens>0 && position>=tokens,"published prefix exceeds the donor position");
+        std::vector<KVTier::Entry*> entries;
+        for (int i=0;i<c.layers;++i) if(md.layers[i].kind!=0 && tiered_kv[i]) entries.push_back(tiered_kv[i].get());
+        require(!entries.empty(),"prefix sharing requires full-attention layers with tiered KV");
+        std::vector<vkv::PrefixState> extra;
+        for (int i=0;i<c.layers;++i) if(md.layers[i].kind==0) {
+            require(history[i] && state[i],"GDN history/state buffers absent for prefix publication");
+            extra.push_back({history[i]->ptr,history[i]->bytes});
+            extra.push_back({state[i]->ptr,state[i]->bytes});
+        }
+        md.kv_prefix->publish(*md.kv_tier,key,entries,mul(static_cast<std::uint64_t>(tokens),entries.front()->row),extra);
     }
     ~Session(){try{std::lock_guard<std::mutex> graphs(model->graph_mutex);Device d(model->c.device);model->sync();model->rank_graphs.clear();}catch(...){}}
     std::array<Buffer*,4> recurrent_buffers(int layer){return {history[layer].get(),state[layer].get(),peer_history[layer].get(),peer_state[layer].get()};}
@@ -1173,11 +1211,23 @@ extern "C" VENTURI_EXPORT int venturi_qwen_experiment_info(void* h,std::uint64_t
 extern "C" VENTURI_EXPORT int venturi_qwen_enable_kv_tier(void* h,std::uint64_t gpu,std::uint64_t ram) {
     try{vr::require(h,"null KV tier model");auto m=*static_cast<vr::Handle*>(h);std::lock_guard<std::mutex> lock(m->mutex);vr::Device d(m->c.device);
         vr::require(!m->session_created && !m->kv_tier && !m->stage && m->c.resident,"KV tier requires a complete resident model before creating requests");
-        m->kv_tier=std::make_unique<vr::KVTier>(m->c.device,m->stream.ptr,m->c.reserve,gpu,ram);return 0;
+        m->kv_tier=std::make_unique<vr::KVTier>(m->c.device,m->stream.ptr,m->c.reserve,gpu,ram);
+        m->kv_prefix=std::make_unique<vr::vkv::PrefixManager>(m->c.device);return 0;
     }catch(const std::exception& e){error_text=e.what();return -1;}
 }
 extern "C" VENTURI_EXPORT int venturi_qwen_kv_tier_info(void* h,std::uint64_t* out) {
     try{vr::require(h && out,"null KV tier info");auto m=*static_cast<vr::Handle*>(h);std::lock_guard<std::mutex> lock(m->mutex);vr::Device d(m->c.device);
         if(m->kv_tier){const auto a=m->kv_tier->info();std::copy(a.begin(),a.end(),out);}else std::fill(out,out+18,0);return 0;
     }catch(const std::exception& e){error_text=e.what();return -1;}
+}
+// Additive optional ABI: model-side scheduling of unified-KV prefix sharing.
+extern "C" VENTURI_EXPORT int venturi_qwen_kv_publish(void* session,std::uint64_t key,int tokens) {
+    try{vr::require(session,"null prefix donor session");static_cast<vr::Session*>(session)->publish_prefix(key,tokens);return 0;
+    }catch(const std::exception& e){error_text=e.what();return -1;}
+}
+extern "C" VENTURI_EXPORT void* venturi_qwen_session_with_prefix(void* h,int capacity,std::uint64_t key,int prefix_tokens) {
+    try{vr::require(h,"null prefix model");auto m=*static_cast<vr::Handle*>(h);std::lock_guard<std::mutex> lock(m->mutex);vr::Device d(m->c.device);
+        vr::require(m->kv_tier && m->kv_prefix,"prefix sharing requires the VRAM-first KV tier enabled before requests");
+        m->source();return new vr::Session(m,capacity,true,key,prefix_tokens);
+    }catch(const std::exception& e){error_text=e.what();return nullptr;}
 }
