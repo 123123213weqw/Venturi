@@ -52,8 +52,9 @@ observation timeout does not stop native work. Workers are non-daemon and need
 explicit close. No destructor silently frees live GPU state.
 
 Public futures resolve at request completion, not at the end of a cohort.
-Future callbacks execute on the owner and must remain short/nonblocking; they
-must not join that owner or close the pool. Streaming callers should instead
+Future callbacks can execute on the owner, submitting/cancelling thread, or the
+thread registering a callback after completion. Keep them short/nonblocking;
+an owner-thread callback must not join that owner or close the pool. Streaming callers should instead
 own scheduler token events; this pool does not add token streaming/HTTP.
 
 ## Routing and overload
