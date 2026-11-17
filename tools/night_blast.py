@@ -12,13 +12,40 @@ import time
 import urllib.request
 
 
+def qualified_output_ids(report, prompt, n_predict, *, implementation="dequant"):
+    """Only an exact self-described qualified workload can seed timing hashes.
+
+    Legacy reports containing just names/output lengths cannot establish input
+    identity. Never substitute the last semantic case or a shorter trajectory.
+    """
+    if report.get("completed") is not True or report.get("passed") is not True:
+        raise ValueError("Complete passing model qualification required")
+    records = report.get("implementations", {}).get(implementation, {}).get("cases", [])
+    matched = [
+        r
+        for r in records
+        if r.get("prompt_token_ids") == list(prompt)
+        and r.get("max_new_tokens") == n_predict
+    ]
+    if len(matched) != 1:
+        raise ValueError("Exactly one qualified timing input/budget match required")
+    tokens = matched[0].get("generated_ids")
+    if (
+        not isinstance(tokens, list)
+        or len(tokens) != n_predict
+        or any(type(x) is not int or x < 0 for x in tokens)
+    ):
+        raise ValueError("Qualified timing output must be a complete token trajectory")
+    return list(tokens)
+
+
 def blast(port, concurrency, n_predict, prompt_len, vocab, timeout):
-    prompt = [(7 * i + 13) % vocab for i in range(prompt_len)]
     if any(
         type(n) is not int or n <= 0
         for n in (concurrency, n_predict, prompt_len, vocab)
     ):
         raise ValueError("Benchmark dimensions must be positive integers")
+    prompt = [(7 * i + 13) % vocab for i in range(prompt_len)]
     results = [None] * concurrency
     start_gate = threading.Barrier(concurrency)
 

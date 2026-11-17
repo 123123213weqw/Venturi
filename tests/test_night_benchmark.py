@@ -87,3 +87,56 @@ def test_tie_routing_rotates_and_release_is_balanced():
         chosen.append(i)
         b.release(i)
     assert chosen == [0, 1, 0, 1]
+
+
+def test_timing_output_requires_exact_qualified_input_and_budget(monkeypatch):
+    monkeypatch.syspath_prepend(str(Path(__file__).parents[1] / "tools"))
+    from night_blast import qualified_output_ids
+    import copy
+
+    report = dict(
+        completed=True,
+        passed=True,
+        implementations={
+            "dequant": {
+                "cases": [
+                    dict(name="semantic", generated_ids=[9] * 8),
+                    dict(
+                        name="timing",
+                        prompt_token_ids=[1, 2],
+                        max_new_tokens=3,
+                        generated_ids=[4, 5, 6],
+                    ),
+                ]
+            }
+        },
+    )
+    assert qualified_output_ids(report, [1, 2], 3) == [4, 5, 6]
+    for prompt, count in (([2, 1], 3), ([1, 2], 2), ([1, 2], 32)):
+        with pytest.raises(ValueError):
+            qualified_output_ids(report, prompt, count)
+    legacy = copy.deepcopy(report)
+    legacy["implementations"]["dequant"]["cases"].pop()
+    with pytest.raises(ValueError):
+        qualified_output_ids(legacy, [1, 2], 3)
+    report["implementations"]["dequant"]["cases"][-1]["generated_ids"].pop()
+    with pytest.raises(ValueError):
+        qualified_output_ids(report, [1, 2], 3)
+
+
+@pytest.mark.parametrize(
+    "dims",
+    [
+        (0, 32, 16, 100),
+        (1, 0, 16, 100),
+        (1, 32, 0, 100),
+        (1, 32, 16, 0),
+        (True, 32, 16, 100),
+    ],
+)
+def test_blast_rejects_dimensions_before_building_prompt(monkeypatch, dims):
+    monkeypatch.syspath_prepend(str(Path(__file__).parents[1] / "tools"))
+    from night_blast import blast
+
+    with pytest.raises(ValueError):
+        blast(1, *dims, 1)

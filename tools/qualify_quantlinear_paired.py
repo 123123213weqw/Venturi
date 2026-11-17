@@ -101,6 +101,7 @@ def main():
         },
         original_bf16_or_corpus_quality_qualified=False,
         tokenizer_sha256=data["tokenizer_sha256"],
+        cases_sha256=digest(a.cases),
         logit_gates=dict(
             top1_equal=True,
             relative_l2_max=0.02,
@@ -170,7 +171,14 @@ def main():
             sessions = [m.create_session(256) for m in models]
             records = []
             for implementation in ("dequant", "auto"):
-                entry = dict(name=case["name"], generated_ids=[], logits=[], states=[])
+                entry = dict(
+                    name=case["name"],
+                    prompt_token_ids=list(case["prompt_token_ids"]),
+                    max_new_tokens=case["max_new_tokens"],
+                    generated_ids=[],
+                    logits=[],
+                    states=[],
+                )
                 report["implementations"][implementation]["cases"].append(entry)
                 records.append(entry)
             try:
