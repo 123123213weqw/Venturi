@@ -93,6 +93,7 @@ def main():
         tokenizer_sha256=data["tokenizer_sha256"],
         qualification_override=a.qualification_campaign,
         original_bf16_or_corpus_quality_qualified=False,
+        comparison_scope="Same batch size, prompts and native generation schedule. Cross-batch dense state differences are diagnostic, not matched-implementation evidence.",
         logit_gates=dict(
             top1_equal=True,
             relative_l2_max=0.02,
@@ -110,12 +111,50 @@ def main():
 
     save()
     reference = []
+    batch_references = {}
     old = set(codecs.EXECUTION_QUALIFIED.get(arch, set()))
     if a.qualification_campaign:
         assert arch == (7, 0) and all(
             b.format in ("q5_g64_fp16", "bf16", "fp32") for b in weights.plan.bindings
         )
         codecs.EXECUTION_QUALIFIED[arch] = old | {"q5_g64_fp16"}
+    cfg = weights.config
+    packed = (
+        2 * cfg["linear_num_key_heads"] * cfg["linear_key_head_dim"]
+        + cfg["linear_num_value_heads"] * cfg["linear_value_head_dim"]
+    )
+    one_state = cfg["layer_types"].count("linear_attention") * (
+        (cfg["linear_conv_kernel_dim"] - 1) * packed * 2
+        + cfg["linear_num_value_heads"]
+        * cfg["linear_value_head_dim"]
+        * cfg["linear_key_head_dim"]
+        * 4
+    )
+    one_state += (
+        cfg["layer_types"].count("full_attention")
+        * 256
+        * cfg["num_key_value_heads"]
+        * cfg["head_dim"]
+        * 4
+    )
+    reference_budget = one_state * (60 + 2 * len(cases))
+    available = (
+        int(
+            next(
+                x.split()[1]
+                for x in Path("/proc/meminfo").read_text().splitlines()
+                if x.startswith("MemAvailable:")
+            )
+        )
+        * 1024
+    )
+    assert available >= reference_budget + 16 * (
+        1 << 30
+    ), "Insufficient host RAM for shape-matched correctness references"
+    report["validation_reference_ram_budget_bytes"] = reference_budget
+    report["reference_storage_scope"] = (
+        "CPU snapshots for correctness only; not inference weight/KV offload"
+    )
     began = time.perf_counter()
     cpu = time.process_time()
     try:
@@ -258,23 +297,52 @@ def main():
                         assert entry[
                             "tokens_equal"
                         ], "Grouped generation changed reference greedy trajectory"
+                        captured = []
                         for slot, index in zip(slots, selected):
-                            checks = compare_states(
-                                batch.snapshot(slot),
-                                reference[index]["states"][
+                            current = batch.snapshot(slot)
+                            expected_state = (
+                                batch_references[count][slot]
+                                if implementation == "auto"
+                                else reference[index]["states"][
                                     cases[index]["max_new_tokens"] - 1
-                                ],
+                                ]
                             )
+                            checks = compare_states(current, expected_state)
+                            if implementation == "dequant":
+                                captured.append(current)
                             entry["state_components"] += len(checks)
                             entry["state_failures"].extend(
                                 dict(slot=slot, **c) for c in checks if not c["passed"]
                             )
+                        entry["comparison"] = (
+                            "same-batch fused vs dense"
+                            if implementation == "auto"
+                            else "cross-batch dense diagnostic only"
+                        )
+                        entry["state_gate_applied"] = implementation == "auto"
+                        if implementation == "dequant":
+                            batch_references[count] = captured
+                            entry["matched_reference_captured"] = True
+                        else:
+                            assert not entry[
+                                "state_failures"
+                            ], "Matched-batch private-state gate failed"
+                            del batch_references[count]
                         save()
-                        assert not entry[
-                            "state_failures"
-                        ], "Grouped private-state gate failed"
                         print(
-                            json.dumps(dict(stage="batch", count=count, passed=True)),
+                            json.dumps(
+                                dict(
+                                    stage=(
+                                        "batch_matched"
+                                        if implementation == "auto"
+                                        else "batch_reference_capture"
+                                    ),
+                                    count=count,
+                                    tokens_equal=True,
+                                    state_failures=len(entry["state_failures"]),
+                                    state_gate_applied=entry["state_gate_applied"],
+                                )
+                            ),
                             flush=True,
                         )
                 finally:
