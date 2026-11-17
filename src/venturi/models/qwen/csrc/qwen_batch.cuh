@@ -69,7 +69,7 @@ struct Batch {
                 }
                 op(venturi_gates_run(w.p("a"),w.p("b"),static_cast<const float*>(l.rate),static_cast<const float*>(l.bias),static_cast<float*>(w.p("decay")),static_cast<float*>(w.p("beta")),n,c.gvh,c.dtype,1,stream));
                 bool any_trace=false;for(const auto& s:segments)if(requests[s.slot]->verification_trace)any_trace=true;
-                if(!any_trace && segments.size()>1) {
+                if(false && !any_trace && segments.size()>1) {   // night-tps-20261117: disabled pending >=8-segment crash triage
                     // night-tps-20261116: per-segment conv+GDN issued on parallel
                     // streams. Segments touch disjoint workspace rows and their own
                     // request caches; ordering rides group_ready (after the shared
@@ -105,7 +105,7 @@ struct Batch {
                 m.linear(l.matrix[2],w.p("mixed"),w.p("projected"),n);
             } else {
                 m.shared_linears(w.p("normalized"),n,{{&l.matrix[0],w.p("qg")},{&l.matrix[1],w.p("key")},{&l.matrix[2],value.ptr}});
-                if(segments.size()>1) {
+                if(false && segments.size()>1) {   // night-tps-20261117: disabled with the linear path above
                     // night-tps-20261116: per-segment KV copy + RoPE + attention on
                     // parallel streams (disjoint KV ranges and workspace rows).
                     // kv_ensure runs on the main stream first so any pool growth is

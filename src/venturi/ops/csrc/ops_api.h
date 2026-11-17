@@ -55,6 +55,7 @@ VENTURI_EXPORT int venturi_q8_dp4a_quantize(const void* x,void* workspace,std::u
 VENTURI_EXPORT int venturi_q8_dp4a_run(const void* workspace,std::uint64_t available,const std::int8_t* codes,const __half* scales,void* out,int tokens,int n,int k,int padded,int passes,void* stream_ptr);
 VENTURI_EXPORT int venturi_q8_embedding_run(const std::int8_t* codes, const __half* scales,
     const std::int64_t* ids, void* out, int tokens, int vocab, int k, int padded, int dtype, void* raw_stream);
+VENTURI_EXPORT int venturi_q5_hmma_run(const void* x,const void* codes,const void* high,const void* scales,void* out,int tokens,int rows,int k,int padded,void* stream);
 VENTURI_EXPORT int venturi_q5_dp4a_fused_run(const void* workspace,std::uint64_t available,const void* codes,const void* high,const void* scales,void* out,int rows,int stride,int tokens,int k,int padded,void* stream);
 VENTURI_EXPORT int venturi_q5_fused_run(const void* x,const void* codes,const void* high,const void* scales,void* out,int t,int rows,int k,int padded,int dtype,void* stream);
 VENTURI_EXPORT int venturi_q8_fused_run(const void* workspace,std::uint64_t available,const VQFOutput* outputs,int count,int tokens,int k,int padded,int passes,void* stream_ptr);

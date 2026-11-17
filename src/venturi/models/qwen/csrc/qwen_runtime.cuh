@@ -354,7 +354,10 @@ struct Model {
             // Fused W5A8 (night-tps-20261117): quantize activations once (A8),
             // then the dp4a kernel unpacks q5 codes + fifth-bit plane in
             // registers; weight traffic is 20B per 32 columns.
-            if(q5_quant.ptr) {
+            if(t>=8 && (m.k&63)==0 && rows>=16) {
+                // Tensor-core path (wmma 16x16x16) for wide decode cohorts.
+                op(venturi_q5_hmma_run(x,codes,high_ptr(m),scales,out,t,rows,m.k,padded(m),s));
+            } else if(q5_quant.ptr) {
                 op(venturi_q8_dp4a_quantize(x,q5_quant.ptr,q5_quant.bytes,t,m.k,1,s));
                 op(venturi_q5_dp4a_fused_run(q5_quant.ptr,q5_quant.bytes,codes,high_ptr(m),scales,out,
                     rows,rows,t,m.k,padded(m),s));
