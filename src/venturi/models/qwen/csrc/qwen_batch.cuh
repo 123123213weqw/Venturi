@@ -73,8 +73,9 @@ struct Batch {
                 // path. Pure-decode cohorts (every segment one token, no trace,
                 // <=32 segments, gkd 64/128) collapse the per-layer x per-request
                 // serial conv+GDN launches into one conv_segments + one
-                // gdn_segments launch; anything else keeps the serial reference.
-                bool batched=!any_trace && segments.size()>1 && segments.size()<=32 && (c.gkd==64 || c.gkd==128);
+                // gdn_segments launch. These kernels store FP16 and need history: BF16
+                // and kernel-size-one use the unchanged serial reference.
+                bool batched=c.dtype==0 && c.convolution>=2 && !any_trace && segments.size()>1 && segments.size()<=32 && (c.gkd==64 || c.gkd==128);
                 for(const auto& s:segments)batched=batched&&s.count==1;
                 if(batched){
                     DecodeSegments batch{};batch.count=static_cast<int>(segments.size());

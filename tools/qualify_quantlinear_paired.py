@@ -40,6 +40,10 @@ def main():
     p.add_argument("artifact")
     p.add_argument("--library", required=True)
     p.add_argument("--qwen-library", required=True)
+    p.add_argument(
+        "--reference-qwen-library",
+        help="Frozen ABI-compatible serial runtime; defaults to candidate runtime",
+    )
     p.add_argument("--cases", required=True)
     p.add_argument("--output", required=True)
     p.add_argument("--expected-sha256", required=True)
@@ -74,6 +78,7 @@ def main():
         artifact_bytes=Path(a.artifact).stat().st_size,
         ops_sha256=digest(a.library),
         qwen_sha256=digest(a.qwen_library),
+        reference_qwen_sha256=digest(a.reference_qwen_library or a.qwen_library),
         architecture=arch,
         torch_version=torch.__version__,
         model_dimensions={
@@ -110,7 +115,14 @@ def main():
             models.append(
                 NativeQwenModel.from_q8(
                     weights,
-                    QwenRuntime(a.qwen_library, backend),
+                    QwenRuntime(
+                        (
+                            (a.reference_qwen_library or a.qwen_library)
+                            if ordinal == 0
+                            else a.qwen_library
+                        ),
+                        backend,
+                    ),
                     weight_mode="resident",
                     dtype=torch.float16,
                     device=f"cuda:{ordinal}",
