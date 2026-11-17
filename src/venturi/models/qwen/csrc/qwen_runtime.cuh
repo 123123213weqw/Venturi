@@ -163,6 +163,9 @@ struct Model {
     Buffer column_local,column_remote,column_peer,column_gu,column_activation;
     Pinned column_host;
     Buffer first_quant,second_quant;
+    // W5A8 activation workspace (row-codec fp16 profile has activation_passes
+    // 0 and therefore no shared quant buffer); sized at session create.
+    Buffer q5_quant;
     // q4 dense-qualification path: bounded dequant chunks (rows fixed, K-dependent
     // sizing at construction), the chunked GEMM output tile, and the embedding rows.
     Buffer dequant,q4_chunk,q4_embed;int q4_rows=8192;
@@ -348,9 +351,16 @@ struct Model {
             return;
         }
         if (row_codec() && c.weight_bits == 5 && !c.dequant_resident && high_ptr(m)) {
-            // Fused q5 GEMM (night-tps-20261117): read codes + fifth-bit high
-            // plane directly, never materialize FP16 weights.
-            op(venturi_q5_fused_run(x,codes,high_ptr(m),scales,out,t,rows,m.k,padded(m),c.dtype,s));
+            // Fused W5A8 (night-tps-20261117): quantize activations once (A8),
+            // then the dp4a kernel unpacks q5 codes + fifth-bit plane in
+            // registers; weight traffic is 20B per 32 columns.
+            if(q5_quant.ptr) {
+                op(venturi_q8_dp4a_quantize(x,q5_quant.ptr,q5_quant.bytes,t,m.k,1,s));
+                op(venturi_q5_dp4a_fused_run(q5_quant.ptr,q5_quant.bytes,codes,high_ptr(m),scales,out,
+                    rows,rows,t,m.k,padded(m),s));
+            } else {
+                op(venturi_q5_fused_run(x,codes,high_ptr(m),scales,out,t,rows,m.k,padded(m),c.dtype,s));
+            }
             return;
         }
         if (row_codec()) { row_dense_project(m,x,codes,static_cast<const unsigned char*>(high_ptr(m)),scales,out,t,rows);return; }
@@ -839,7 +849,12 @@ struct Session {
     }
     static int min_tiles(int n) { return std::min((n-1)/4096+1,128); }
     explicit Session(std::shared_ptr<Model> m,int cap,bool caches=true,std::uint64_t prefix_key=0,int prefix_tokens=0):model(std::move(m)),capacity(cap) {
-        auto& md=*model;const auto& c=md.c;md.session_created=true;md.guard(estimate(md,cap,caches));if(md.head_gdn_enabled){Device d(c.second_device);md.guard(estimate_peer(md,caches));}
+        auto& md=*model;const auto& c=md.c;
+        if(!md.q5_quant.ptr && md.c.weight_bits==5 && !md.c.dequant_resident && md.c.resident) {
+            std::uint64_t maxk=0;for(const auto& e:md.matrices) maxk=std::max(maxk,static_cast<std::uint64_t>(e.second.k));
+            md.q5_quant.allocate(mul(mul(static_cast<std::uint64_t>(c.max_tokens),maxk),36));
+        }
+        md.session_created=true;md.guard(estimate(md,cap,caches));if(md.head_gdn_enabled){Device d(c.second_device);md.guard(estimate_peer(md,caches));}
         const std::uint64_t packed=2*mul(c.gqk,c.gkd)+mul(c.gvh,c.gvd),qw=mul(c.hq,c.dim),kw=mul(c.hkv,c.dim),t=c.max_tokens;
         for (auto name: {"x","out","normalized","projected","residual","mlp_norm","spare"}) alloc(name,mul(mul(t,c.hidden),2));
         if(!md.head_gdn_enabled) {
