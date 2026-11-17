@@ -9,6 +9,7 @@
 #include <cstring>
 #include <chrono>
 #include <initializer_list>
+#include "../../../ops/csrc/row_codec_dispatch.cuh"
 #include <map>
 #include <set>
 #include <memory>
@@ -29,7 +30,7 @@ struct VRSpan {
     const char* path;
     std::uint64_t logical, file_offset, bytes, file_bytes;
 };
-struct VRMatrix { std::uint64_t offset, high, scales; int n, k; };
+struct VRMatrix { std::uint64_t offset, high, scales; int n, k; int bits=0, group=0; };  // 0 = inherit config (PR-A per-matrix codecs)
 struct VRLayer {
     int kind, conv_fp32, gamma_fp32, ab_fp32;
     // GDN: QKV,z,output,unused. Attention: Q/gate,K,V,O. Then MLP gate/up/down.
@@ -144,6 +145,8 @@ struct Model {
     std::uint64_t& stage_bytes=uploader.stage_bytes;
     std::vector<std::unique_ptr<Buffer>> constants;
     std::map<std::uint64_t,VRMatrix> matrices;
+    // PR-A QuantLinear: per-matrix execution plans resolved at load time.
+    std::map<std::uint64_t,const rowcodec::LinearPlan*> plans;
     std::map<std::uint64_t,std::unique_ptr<Buffer>> resident_weights;
     std::map<std::uint64_t,std::unique_ptr<Buffer>> second_weights;
     Buffer arena, inverse, blas_workspace;
@@ -205,18 +208,22 @@ struct Model {
     std::uint64_t encoded(const VRMatrix& m,int rows) const { return add(plane(m,rows),mul(rows,padded(m)/32*2)); }
     // Codec-aware geometry for generic paths (q8: identical to the two above).
     // Plane order follows row_geometry: codes | 256-align | high(q5/q6) | 256-align | scales.
-    std::uint64_t codes_stride(const VRMatrix& m) const { return mul(padded(m)/c.weight_group,32); }
+    // PR-A: geometry reads the matrix's own codec; bits/group default to the
+    // config-level dominant format until per-matrix values arrive over the ABI.
+    std::uint64_t codes_stride(const VRMatrix& m) const { return mul(padded(m)/matrix_group(m),32); }
     std::uint64_t plane_of(const VRMatrix& m,int rows) const { return mul(rows,codes_stride(m)); }
-    std::uint64_t codes_of(const VRMatrix& m) const { return codes_bytes(m,c.weight_bits,c.weight_group); }
-    std::uint64_t scales_of(const VRMatrix& m) const { return scales_bytes(m,c.weight_group); }
+    std::uint64_t codes_of(const VRMatrix& m) const { return codes_bytes(m,matrix_bits(m),matrix_group(m)); }
+    std::uint64_t scales_of(const VRMatrix& m) const { return scales_bytes(m,matrix_group(m)); }
     static std::uint64_t align256(std::uint64_t n) { return (n+255)/256*256; }
-    std::uint64_t high_stride(const VRMatrix& m) const { return c.weight_bits>=5 && c.weight_bits<=6 ? mul(padded(m)/64,(c.weight_bits-4)*8) : 0; } // per row
+    std::uint64_t high_stride(const VRMatrix& m) const { return matrix_bits(m)>=5 && matrix_bits(m)<=6 ? mul(padded(m)/64,(matrix_bits(m)-4)*8) : 0; } // per row
     std::uint64_t high_bytes(const VRMatrix& m) const { return mul(m.n,high_stride(m)); }
     std::uint64_t scales_abs(const VRMatrix& m) const { return m.scales; }
     std::uint64_t encoded_of(const VRMatrix& m,int rows) const {
-        const auto hp=(c.weight_bits>=5 && c.weight_bits<=6)?mul(rows,high_stride(m)):0;
-        return add(add(plane_of(m,rows),hp),mul(rows,mul(padded(m)/c.weight_group,2)));
+        const auto hp=(matrix_bits(m)>=5 && matrix_bits(m)<=6)?mul(rows,high_stride(m)):0;
+        return add(add(plane_of(m,rows),hp),mul(rows,mul(padded(m)/matrix_group(m),2)));
     }
+    int matrix_bits(const VRMatrix& m) const { return m.bits ? m.bits : c.weight_bits; }
+    int matrix_group(const VRMatrix& m) const { return m.group ? m.group : c.weight_group; }
     bool q4() const { return c.weight_bits==4; }
     bool row_codec() const { return c.weight_bits>=4 && c.weight_bits<=6; }
     void probe_peer() {
@@ -257,17 +264,29 @@ struct Model {
             return add(x,nx)<=y || add(y,ny)<=x;
         };
         require(disjoint(m.offset,a,m.scales,b),"native Qwen matrix planes overlap");
-        if(c.weight_bits>=5 && c.weight_bits<=6) {
+        if(matrix_bits(m)>=5 && matrix_bits(m)<=6) {
             require(m.high<=payload && hb<=payload-m.high,"native Qwen high plane out of bounds");
             require(disjoint(m.offset,a,m.high,hb) && disjoint(m.scales,b,m.high,hb),"native Qwen high plane overlaps");
         }
         auto found=matrices.find(m.offset);
-        if (found!=matrices.end()) require(found->second.n==m.n && found->second.k==m.k && found->second.scales==m.scales && found->second.high==m.high,"inconsistent native Qwen tying");
-        else matrices.emplace(m.offset,m);
+        if (found!=matrices.end()) require(found->second.n==m.n && found->second.k==m.k && found->second.scales==m.scales && found->second.high==m.high && matrix_bits(found->second)==matrix_bits(m),"inconsistent native Qwen tying");
+        else {
+            // PR-A: resolve row-codec linear plans at load time (q8 keeps its
+            // dedicated A8 projection path and registers no plan here). The
+            // precision policy is WxA16 for the plain resident row-codec
+            // profile; an explicit policy switch arrives with the ABI field.
+            const int bits=matrix_bits(m);
+            if (bits>=4 && bits<=6) {
+                const auto* plan=rowcodec::prepare(bits,rowcodec::Precision::WxA16);
+                require(plan,"no registered WxA16 row-codec plan for this matrix's bits");
+                plans.emplace(m.offset,plan);
+            }
+            matrices.emplace(m.offset,m);
+        }
     }
     void validate_codes(const VRMatrix& m) {
         // One bounded CPU validation at load, not a repeated per-token scan.
-        validate_codes_source(src,staging.ptr,stage_bytes,m,c.weight_bits,c.weight_group);
+        validate_codes_source(src,staging.ptr,stage_bytes,m,matrix_bits(m),matrix_group(m));
     }
     const void* copy_constant(const void* p,std::uint64_t bytes) {
         require(p && bytes,"null native Qwen constant");cudaPointerAttributes attr{};check(cudaPointerGetAttributes(&attr,p));
@@ -278,7 +297,7 @@ struct Model {
     }
     // High-plane pointer for row codecs (nullptr for q4/q8 and shadows).
     const unsigned char* high_ptr(const VRMatrix& m) const {
-        if (c.dequant_resident || !(c.weight_bits>=5 && c.weight_bits<=6)) return nullptr;
+        if (c.dequant_resident || !(matrix_bits(m)>=5 && matrix_bits(m)<=6)) return nullptr;
         const Buffer* b=resident_weights.at(m.offset).get();
         return reinterpret_cast<const unsigned char*>(b->at(plane_of(m,first_rows(m))));
     }
@@ -290,37 +309,37 @@ struct Model {
         if (c.dequant_resident)
             return {static_cast<const std::int8_t*>(b->ptr),nullptr};  // b is the FP16 shadow
         const auto cp=c.resident?plane_of(m,first_rows(m)):codes_of(m);
-        const auto hp=(c.weight_bits>=5&&c.weight_bits<=6)?high_bytes(m):0;
+        const auto hp=(matrix_bits(m)>=5&&matrix_bits(m)<=6)?high_bytes(m):0;
         return {static_cast<const std::int8_t*>(b->ptr),reinterpret_cast<const __half*>(b->at(add(cp,hp)))};
     }
     // --- Row-codec helpers (q4/q5/q6, on-demand and shadow modes) ---
     std::uint64_t encoded_total(const VRMatrix& m,int rows) const {
         // codes | 256-align | high | 256-align | scales (row_geometry layout)
         const auto cp=mul(rows,codes_stride(m));
-        if (c.weight_bits<=4) return align256(cp)+mul(rows,mul(padded(m)/c.weight_group,2));
+        if (matrix_bits(m)<=4) return align256(cp)+mul(rows,mul(padded(m)/matrix_group(m),2));
         const auto hp=mul(rows,high_stride(m));
-        return align256(align256(cp)+hp)+mul(rows,mul(padded(m)/c.weight_group,2));
+        return align256(align256(cp)+hp)+mul(rows,mul(padded(m)/matrix_group(m),2));
     }
     void upload_planes(Buffer& temp,const VRMatrix& m,int nf) {
         const auto cp=mul(nf,codes_stride(m));
         uploader.upload(temp.ptr,m.offset,cp);
-        if (c.weight_bits>=5 && c.weight_bits<=6) {
+        if (matrix_bits(m)>=5 && matrix_bits(m)<=6) {
             const auto ho=m.high;
             uploader.upload(temp.at(align256(cp)),ho,mul(nf,high_stride(m)));
-            uploader.upload(temp.at(align256(align256(cp)+mul(nf,high_stride(m)))),m.scales,mul(nf,mul(padded(m)/c.weight_group,2)));
+            uploader.upload(temp.at(align256(align256(cp)+mul(nf,high_stride(m)))),m.scales,mul(nf,mul(padded(m)/matrix_group(m),2)));
         } else {
-            uploader.upload(temp.at(align256(cp)),m.scales,mul(nf,mul(padded(m)/c.weight_group,2)));
+            uploader.upload(temp.at(align256(cp)),m.scales,mul(nf,mul(padded(m)/matrix_group(m),2)));
         }
     }
     void shadow_dequant(const VRMatrix& m,Buffer& shadow,Buffer& temp,int nf) {
         const auto* codes=static_cast<const unsigned char*>(temp.ptr);
         const auto cp=mul(nf,codes_stride(m));
-        const unsigned char* high=c.weight_bits>=5 && c.weight_bits<=6 ? codes+align256(codes_of(m)) : nullptr;
-        const auto* scales=reinterpret_cast<const __half*>(static_cast<const char*>(temp.ptr)+align256(c.weight_bits>=5 && c.weight_bits<=6?align256(cp)+mul(nf,high_stride(m)):cp));
+        const unsigned char* high=matrix_bits(m)>=5 && matrix_bits(m)<=6 ? codes+align256(codes_of(m)) : nullptr;
+        const auto* scales=reinterpret_cast<const __half*>(static_cast<const char*>(temp.ptr)+align256(matrix_bits(m)>=5 && matrix_bits(m)<=6?align256(cp)+mul(nf,high_stride(m)):cp));
         const int chunk=q4_rows;
         for (int begin=0;begin<nf;begin+=chunk) {
             const int rows=std::min(chunk,nf-begin);
-            op(venturi_row_dequant_rows(codes,high,scales,static_cast<__half*>(shadow.ptr),begin,rows,m.k,padded(m),c.weight_bits,stream.ptr));
+            op(venturi_row_dequant_rows(codes,high,scales,static_cast<__half*>(shadow.ptr),begin,rows,m.k,padded(m),matrix_bits(m),stream.ptr));
         }
         sync();
     }
@@ -335,7 +354,7 @@ struct Model {
         const int chunk=q4_rows;
         for (int begin=0;begin<n_rows;begin+=chunk) {
             const int rows=std::min(chunk,n_rows-begin);
-            op(venturi_row_dequant_rows(codes,high,scales,dequant.ptr,begin,rows,m.k,padded(m),c.weight_bits,stream.ptr));
+            op(venturi_row_dequant_rows(codes,high,scales,dequant.ptr,begin,rows,m.k,padded(m),matrix_bits(m),stream.ptr));
             op(venturi_dense_run(dense.ptr,x,dequant.ptr,q4_chunk.ptr,t,rows,m.k,blas_workspace.ptr,blas_workspace.bytes,stream.ptr));
             for (int tok=0;tok<t;++tok)
                 check(cudaMemcpyAsync(static_cast<char*>(out)+mul(add(mul(tok,n_rows),begin),2),
@@ -344,25 +363,23 @@ struct Model {
         }
     }
     void project(const VRMatrix& m,const void* x,const std::int8_t* codes,const __half* scales,void* out,int t,int rows,Buffer& quant,cudaStream_t s,bool packed=false) {
-        if (row_codec() && c.weight_bits == 4 && !c.dequant_resident) {
-            // Fused q4 GEMM: read compressed nibbles directly, compute in
-            // registers, never materialize FP16 weights.
-            op(venturi_q4_fused_run(x,codes,scales,out,t,rows,m.k,padded(m),c.dtype,s));
-            return;
-        }
-        if (row_codec() && c.weight_bits == 5 && !c.dequant_resident && high_ptr(m)) {
-            // Fused W5A8 (night-tps-20261117): quantize activations once (A8),
-            // then the dp4a kernel unpacks q5 codes + fifth-bit plane in
-            // registers; weight traffic is 20B per 32 columns.
-            if(t>=8 && (m.k&63)==0 && rows>=16) {
-                // Tensor-core path (wmma 16x16x16) for wide decode cohorts.
-                op(venturi_q5_hmma_run(x,codes,high_ptr(m),scales,out,t,rows,m.k,padded(m),s));
-            } else if(q5_quant.ptr) {
-                op(venturi_q8_dp4a_quantize(x,q5_quant.ptr,q5_quant.bytes,t,m.k,1,s));
-                op(venturi_q5_dp4a_fused_run(q5_quant.ptr,q5_quant.bytes,codes,high_ptr(m),scales,out,
-                    rows,rows,t,m.k,padded(m),s));
+        // QuantLinear dispatch (PR-A): plans resolve per matrix at load time
+        // (register_matrix); decode-time selection is one threshold test plus
+        // a direct call. A plan only holds kernels sharing its precision
+        // policy, so batch size can never silently change activation
+        // precision. The WxA8 dp4a family stays registered in rowcodec but is
+        // reachable only under an explicit WxA8 policy (future ABI field).
+        if (row_codec() && !c.dequant_resident) {
+            auto pit=plans.find(m.offset);
+            require(pit!=plans.end(),"row-codec matrix has no prepared linear plan");
+            const rowcodec::LinearPlan& plan=*pit->second;
+            require(matrix_bits(m)==4 || high_ptr(m),"row-codec high plane not resident");
+            if (plan.hmma_run && t>=plan.min_hmma_tokens && plan.hmma_k_align &&
+                (m.k & (plan.hmma_k_align-1))==0 && rows>=16) {
+                op(plan.hmma_run(x,codes,high_ptr(m),scales,out,t,rows,m.k,padded(m),s));
             } else {
-                op(venturi_q5_fused_run(x,codes,high_ptr(m),scales,out,t,rows,m.k,padded(m),c.dtype,s));
+                require(plan.scalar_run,"row-codec plan has no kernel for this shape under its precision policy");
+                op(plan.scalar_run(x,codes,high_ptr(m),scales,out,t,rows,m.k,padded(m),c.dtype,s));
             }
             return;
         }
@@ -853,9 +870,15 @@ struct Session {
     static int min_tiles(int n) { return std::min((n-1)/4096+1,128); }
     explicit Session(std::shared_ptr<Model> m,int cap,bool caches=true,std::uint64_t prefix_key=0,int prefix_tokens=0):model(std::move(m)),capacity(cap) {
         auto& md=*model;const auto& c=md.c;
-        if(!md.q5_quant.ptr && md.c.weight_bits==5 && !md.c.dequant_resident && md.c.resident) {
-            std::uint64_t maxk=0;for(const auto& e:md.matrices) maxk=std::max(maxk,static_cast<std::uint64_t>(e.second.k));
-            md.q5_quant.allocate(mul(mul(static_cast<std::uint64_t>(c.max_tokens),maxk),36));
+        // PR-A: activation workspace only when the dominant plan family needs
+        // it (WxA8 policy). Under the current WxA16 policy this stays empty.
+        if(!md.q5_quant.ptr && !md.c.dequant_resident && md.c.resident) {
+            int need=0;
+            for(const auto& p:md.plans) need=std::max(need,p.second->activation_bytes_per_column);
+            if(need>0) {
+                std::uint64_t maxk=0;for(const auto& e:md.matrices) maxk=std::max(maxk,static_cast<std::uint64_t>(e.second.k));
+                md.q5_quant.allocate(mul(mul(static_cast<std::uint64_t>(c.max_tokens),maxk),static_cast<std::uint64_t>(need)));
+            }
         }
         md.session_created=true;md.guard(estimate(md,cap,caches));if(md.head_gdn_enabled){Device d(c.second_device);md.guard(estimate_peer(md,caches));}
         const std::uint64_t packed=2*mul(c.gqk,c.gkd)+mul(c.gvh,c.gvd),qw=mul(c.hq,c.dim),kw=mul(c.hkv,c.dim),t=c.max_tokens;

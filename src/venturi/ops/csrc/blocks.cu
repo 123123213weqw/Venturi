@@ -1052,6 +1052,7 @@ extern "C" int venturi_qwen_gate_run(const void* x, const void* qg, void* out,
 #include "q8_fused.cuh"
 #include "q5_dp4a.cuh"
 #include "q5_hmma.cuh"
+#include "row_codec_dispatch.cuh"
 #include "q8_wmma.cuh"
 #include "q8_projection_dispatch.cuh"
 #include "q8_producer.cuh"
