@@ -139,3 +139,12 @@ def dequantize_planes(codes, scales, high, shape, fmt):
 # the model quality gate. Do not inherit A16 codec qualification for one-pass A8.
 # The independent fixture campaign observed relative L2 0.0553 > fixed 0.02.
 ACTIVATION_INT8_QUALIFIED = {(7, 0): set(), (8, 9): set()}
+
+# Implementation qualification is distinct from storage codec qualification.
+# Real SM70 Q5 fused A16 logits passed but 50 private-state components failed
+# unchanged rtol=.01/atol=.005. Keep fused Q5 closed on BOTH architectures;
+# SM89's existing Q5 qualification was for chunked dense, not this new kernel.
+FUSED_LINEAR_QUALIFIED = {
+    (7, 0): {"q4_g64_fp16", "q8_g32_fp16"},
+    (8, 9): {"q4_g64_fp16", "q8_g32_fp16"},
+}

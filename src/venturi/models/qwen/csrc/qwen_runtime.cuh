@@ -594,7 +594,8 @@ struct Model {
         peer_input_bytes=add(peer_input_bytes,xb);peer_output_bytes=add(peer_output_bytes,partial_bytes);
     }
     Model(const VRConfig& cfg,const VRSpan* spans,int count,const VRLayer* ls,const VRMatrix& emb,const VRMatrix& h,const void* final_norm,const float* inv,int first=0,int last=-1,bool staged=false,const VRMatrix* mtp_input=nullptr,int profile=0,bool columns=false,bool head_gdn=false,int experiment_mask=0):c(cfg),embedding(emb),head(h),begin(first),end(last<0?cfg.layers:last),stage(staged),activation_passes(profile),column_mlp_enabled(columns),head_gdn_enabled(head_gdn),experiments(experiment_mask) {
-        require(c.linear_implementation==0 || c.linear_implementation==1,"invalid linear implementation");
+        require(c.linear_implementation>=0 && c.linear_implementation<=2,"invalid linear implementation");
+        require(c.linear_implementation==0 || (profile==0 && !c.dequant_resident),"explicit linear implementations require A16 without a resident shadow");
         require(experiments>=0 && experiments<=15 && (!experiments || head_gdn),"experiments require explicit head GDN profile and mask 0..15");
         require(begin>=0 && begin<end && end<=c.layers,"invalid native stage range");
         require(!stage || (c.resident==1 && c.second_device==-1),"pipeline stages require resident non-TP weights");
@@ -662,7 +663,7 @@ struct Model {
             }
             validate_matrix(l.matrix[4],c.intermediate,c.hidden);validate_matrix(l.matrix[5],c.intermediate,c.hidden);validate_matrix(l.matrix[6],c.hidden,c.intermediate);
         }
-        require(c.linear_implementation==0 || has_row_weights,"dequant reference requires Q4/Q5/Q6 matrices");
+        require(c.linear_implementation!=1 || has_row_weights,"dequant reference requires Q4/Q5/Q6 matrices");
         if(head_gdn) {
             std::set<std::uint64_t> ordinary{embedding.offset,head.offset};
             for(const auto& l:layers) {
@@ -1127,6 +1128,13 @@ extern "C" VENTURI_EXPORT int venturi_qwen_column_mlp_info(void* h,std::uint64_t
 extern "C" VENTURI_EXPORT int venturi_qwen_projection_info(void* h,std::uint64_t* out) {
     try {vr::require(h && out,"null projection profile info");auto m=*static_cast<vr::Handle*>(h);std::lock_guard<std::mutex> lock(m->mutex);
         out[0]=m->activation_passes;out[1]=m->first_quant.bytes;out[2]=m->second_quant.bytes;return 0;
+    }catch(const std::exception& e){error_text=e.what();return -1;}
+}
+// ABI3: actual prepared family, never a Python guess from checkpoint bits.
+extern "C" VENTURI_EXPORT int venturi_qwen_linear_plan_info(void* h,int bits,std::uint64_t* out) {
+    try {vr::require(h && out && bits>=0 && bits<9,"invalid linear plan info");auto m=*static_cast<vr::Handle*>(h);std::lock_guard<std::mutex> lock(m->mutex);
+        auto* p=m->plans[bits];vr::require(p,"matrix codec has no prepared plan");
+        out[0]=p->bits;out[1]=p->group;out[2]=static_cast<int>(p->precision);out[3]=m->c.dequant_resident?static_cast<int>(rowcodec::Path::ChunkedDense):static_cast<int>(p->path);out[4]=m->c.dequant_resident?0:p->min_hmma_tokens;out[5]=m->c.dequant_resident;return 0;
     }catch(const std::exception& e){error_text=e.what();return -1;}
 }
 extern "C" VENTURI_EXPORT void* venturi_qwen_session(void* h,int capacity) {

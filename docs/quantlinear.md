@@ -13,7 +13,7 @@ artifact matrix descriptor (format, shape, planes)
 ## Formats and mixed checkpoints
 
 `q4_g64_fp16`, `q5_g64_fp16`, `q6_g64_fp16`, `q8_g32_fp16` retain their canonical
-row-split K128 layout. Every ABI-2 matrix carries bits/group, including embedding
+row-split K128 layout. Every ABI-3 matrix carries bits/group, including embedding
 and output head. `venturi.matrix_format` remains the default for old artifacts;
 optional `venturi.matrix_formats` is a JSON object mapping **logical matrix roles**
 to canonical codecs, e.g. `{"text/layers/0/mlp/down":"q6_g64_fp16"}`.
@@ -30,9 +30,10 @@ Capabilities are not execution/quality qualification; the architecture gate in
 ## Explicit numerical policies
 
 - `projection_profile="fp16"` (existing default): activations are never quantized
-  as a function of batch size. Q4/Q5/Q6 decode each integer*FP16-scale into FP16
+  as a function of batch size. Q5/Q6 decode each integer*FP16-scale into FP16
   **before** FP32 dot accumulation, including scalar and WMMA paths. Q8 retains
   its established FP32 scaled-integer dot contract, with FP16 or BF16 activations.
+  Q4 retains its previously qualified FP32 group-scale arithmetic.
   Kernel association may differ: do not promise bit equality across GEMM families.
 - `projection_profile="int8"`: explicit one-pass group32 activation INT8 with
   FP32 activation scales; existing Q8 weights or SM70 Q5 weights only. This changes
@@ -56,9 +57,16 @@ Native MTP remains all-Q8-only: both Python and the native ABI reject row-codec/
 Row-codec/mixed execution currently requires resident, single-device FP16 without
 TP/PP; unsupported combinations reject before weight allocation. This refactor
 is not a claim of Q4/Q5 TP, arbitrary GPU architectures, or cross-host execution.
+Q5 `auto` uses the qualified chunked-dense path on both SM70/SM89. The fused
+Q5 full-model state campaign failed the unchanged elementwise state gate, even
+though logits/top-1 passed; `linear_implementation="fused"` is a separate
+research capability and remains closed by `FUSED_LINEAR_QUALIFIED`. Codec
+qualification alone never admits a new implementation. Actual native selected
+families are exposed in `projection_info["linear_contracts"]`. ABI 3 rejects
+size-compatible ABI-2 runtimes that still selected unqualified Q5 fusion.
 SM89 Q5 WMMA is not selected merely because an SM70 kernel exists. Q6 keeps its
 working chunked-dense implementation instead of requiring a nonexistent fused
-kernel. Qwen runtime ABI is now 2; old DSOs are rejected explicitly, and native
+kernel. Qwen runtime ABI is now 3 (operator ABI 18); old DSOs are rejected explicitly, and native
 Config/Matrix/Layer size checks remain mandatory. PD/PP reject mismatched numerical
 implementation/shadow settings before state transfer.
 
@@ -77,3 +85,23 @@ retained only as a separately named diagnostic. The loopback router has an expli
 without silently retrying generation. These are benchmark tools, not production
 routing defaults. Historical campaign JSON is preserved, including failed runs;
 its advertised historical TPS must not be treated as qualified current results.
+
+### Qualification outcome and compatibility
+
+The real SM70 fused-Q5 campaign retained the unchanged logit gates (top-1,
+relative L2 <= 0.02, cosine >= 0.999, KL <= 0.002) and state gates
+(`rtol=0.01`, `atol=0.005`). The first trained case passed logits but failed
+50 state components, so **fusion is not a qualified model default**. `auto`
+uses chunked dense for Q5 on both supported architectures. Its throughput is
+reported as the safe native baseline, not as a fused-kernel speedup.
+
+A16 describes activation precision, not one universal weight-rounding rule.
+Q4 preserves its previously qualified FP32 group-scale association; Q5/Q6 dense
+materialize FP16 decoded weights. The native plan query reports the selected
+family and shadow status, and loader admission validates that actual family.
+Codec, activation-policy and implementation qualification are separate gates.
+
+Rebuild the explicit library pair: **operator ABI 18, Qwen runtime ABI 3**.
+ABI-2 runtimes are rejected even though their descriptor sizes match, because
+those runtimes could still auto-select unqualified Q5 fusion. Weight-file
+formats are unchanged; no checkpoint re-download/requantization is required.

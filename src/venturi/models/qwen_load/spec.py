@@ -103,10 +103,12 @@ def validate_load_spec(
         "q8-residual-column-mlp",
         "q8-residual-column-mlp-head-gdn",
     )
-    if linear_implementation not in ("auto", "dequant"):
-        raise ValueError("linear_implementation must be explicit auto/dequant")
-    if linear_implementation == "dequant" and projection_profile != "fp16":
-        raise ValueError("dequant reference requires the A16 projection policy")
+    if linear_implementation not in ("auto", "dequant", "fused"):
+        raise ValueError("linear_implementation must be explicit auto/dequant/fused")
+    if linear_implementation != "auto" and projection_profile != "fp16":
+        raise ValueError(
+            "Explicit linear implementations require the A16 projection policy"
+        )
     if projection_profile not in (
         "int8",
         "fp16",
@@ -131,6 +133,10 @@ def validate_load_spec(
         raise ValueError("Experiments require the explicit head-GDN projection profile")
     if type(dequant_resident) is not bool:
         raise ValueError("dequant_resident must be an explicit boolean")
+    if dequant_resident and linear_implementation != "auto":
+        raise ValueError(
+            "FP16 shadow cannot combine with an explicit projection implementation"
+        )
     if dequant_resident:
         quantized = {s.format for s in weights.plan.bindings} - {"bf16", "fp32"}
         if not quantized or not all(

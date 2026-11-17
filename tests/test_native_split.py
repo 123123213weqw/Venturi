@@ -96,7 +96,7 @@ from venturi.ops import CudaBackend
 b=CudaBackend(sys.argv[1])
 assert not any(name.startswith('venturi.models') for name in sys.modules)
 assert 'libventuri_qwen' not in open('/proc/self/maps').read()
-assert b._native.venturi_blocks_abi()==17
+assert b._native.venturi_blocks_abi()==18
 import torch
 from venturi.ops import DenseWeight
 weight=b.upload_linear(DenseWeight(torch.tensor([[3.,4.],[5.,6.]],dtype=torch.float16)),dtype=torch.float16,device='cuda:0')
@@ -152,7 +152,7 @@ import sys
 from venturi.ops import CudaBackend
 from venturi.models.qwen.native_runtime import QwenRuntime
 b=CudaBackend(sys.argv[1]);r=QwenRuntime(sys.argv[2],b)
-assert r._native.venturi_qwen_abi()==2
+assert r._native.venturi_qwen_abi()==3
 """
     subprocess.run(
         [sys.executable, "-c", code, str(moved_ops), str(moved_qwen)],
@@ -160,3 +160,17 @@ assert r._native.venturi_qwen_abi()==2
         env={k: v for k, v in os.environ.items() if k != "LD_LIBRARY_PATH"},
         timeout=framework_import_timeout(),
     )
+
+
+def test_linear_plan_change_is_not_an_operator_implementation_change(tmp_path):
+    root = tmp_path / "venturi"
+    shutil.copytree(ROOT / "ops/csrc", root / "ops/csrc")
+    shutil.copytree(ROOT / "models/qwen/csrc", root / "models/qwen/csrc")
+    op = root / "ops/csrc/blocks.cu"
+    model = root / "models/qwen/csrc/qwen.cu"
+    before = _source_hashes(op, root)
+    model_before = _source_hashes(model, root)
+    with (root / "ops/csrc/row_codec_dispatch.cuh").open("a") as f:
+        f.write("\n// Plan-only capability change\n")
+    assert _source_hashes(op, root) == before
+    assert _source_hashes(model, root) != model_before

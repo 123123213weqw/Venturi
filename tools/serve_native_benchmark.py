@@ -340,7 +340,7 @@ def main():
         default="fp16",
     )
     p.add_argument(
-        "--linear-implementation", choices=("auto", "dequant"), default="auto"
+        "--linear-implementation", choices=("auto", "dequant", "fused"), default="auto"
     )
     p.add_argument("--qwen-library", required=True)
     args = p.parse_args()

@@ -5,7 +5,7 @@
 
 namespace rowcodec {
 enum class Precision : int { WxA16=0, WxA8=1, WxA8Residual=2 };
-enum class Implementation : int { Auto=0, Dequant=1 };
+enum class Implementation : int { Auto=0, Dequant=1, FusedResearch=2 };
 enum class Path : int { Direct, ChunkedDense, Quantized };
 using ScalarRun=int (*)(const void*,const void*,const void*,const void*,void*,int,int,int,int,int,void*);
 using HmmaRun=int (*)(const void*,const void*,const void*,const void*,void*,int,int,int,int,void*);
@@ -44,8 +44,12 @@ inline const LinearPlan* prepare(int bits,int group,Precision precision,int arch
             {4,64,Precision::WxA16,Path::ChunkedDense,nullptr,nullptr,0,0,nullptr},
             {5,64,Precision::WxA16,Path::ChunkedDense,nullptr,nullptr,0,0,nullptr},
             {6,64,Precision::WxA16,Path::ChunkedDense,nullptr,nullptr,0,0,nullptr}};
-        if (implementation==Implementation::Dequant || bits==6) return &dense[bits-4];
-        if (implementation!=Implementation::Auto) return nullptr;
+        if (implementation==Implementation::Dequant ||
+            (implementation==Implementation::Auto && (bits==5 || bits==6))) return &dense[bits-4];
+        // Q5 fused full-model state qualification failed. Auto keeps the safe
+        // FP16 chunked-dense family; explicit research selection is separately
+        // admission-gated, never a shape/OOM/precision fallback.
+        if (bits==6 || (implementation!=Implementation::Auto && implementation!=Implementation::FusedResearch)) return nullptr;
         static const LinearPlan q4{4,64,Precision::WxA16,Path::Direct,q4_adapter,nullptr,0,0,nullptr};
         static const LinearPlan q5{5,64,Precision::WxA16,Path::Direct,venturi_q5_fused_run,nullptr,0,0,nullptr};
         static const LinearPlan q5_sm70{5,64,Precision::WxA16,Path::Direct,venturi_q5_fused_run,venturi_q5_hmma_run,4,64,nullptr};

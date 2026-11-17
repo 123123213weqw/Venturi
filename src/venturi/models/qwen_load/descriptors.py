@@ -168,7 +168,7 @@ def build_descriptors(spec, owned, cfg, budget):
         -1 if peer is None else peer.index,
         int(spec.tensor_parallel_transport == "host"),
         spec.reserve_bytes,
-        int(spec.linear_implementation == "dequant"),
+        {"auto": 0, "dequant": 1, "fused": 2}[spec.linear_implementation],
     )
     span = owned.source.byte_spans()[0]
     spans = (Span * 1)(

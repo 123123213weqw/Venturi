@@ -50,7 +50,7 @@ def test_fused_impulse_keeps_last_valid_column(native_engine, bits, k, t):
 
 @pytest.mark.parametrize("bits", [4, 5])
 @pytest.mark.parametrize("k", [255, 512])
-def test_fused_uses_fp16_decoded_weight_contract(native_engine, bits, k):
+def test_fused_uses_declared_weight_contract(native_engine, bits, k):
     b, dtype, dev = native_engine
     if dtype != torch.float16:
         pytest.skip("FP16 row codec")
@@ -75,6 +75,11 @@ def test_fused_uses_fp16_decoded_weight_contract(native_engine, bits, k):
         (n, k),
         f"q{bits}_g64_fp16",
     )
+    if bits == 4:
+        integers = dequantize_planes(
+            c.cpu(), torch.ones_like(s.cpu()), None, (n, k), "q4_g64_fp16"
+        ).double()
+        w = integers * s.cpu().double().repeat_interleave(64, -1)[:, :k]
     reference = (x.cpu().double() @ w.double().T).half()
     torch.testing.assert_close(y.cpu(), reference, rtol=2e-3, atol=2e-3)
 

@@ -647,7 +647,7 @@ __global__ void greedy_finish(const GreedyCandidate* scratch, std::int64_t* out,
 
 }
 
-extern "C" int venturi_blocks_abi() { return 17; }
+extern "C" int venturi_blocks_abi() { return 18; }
 extern "C" int venturi_blocks_arch() { return VENTURI_BLOCKS_ARCH; }
 extern "C" const char* venturi_blocks_error() { return error_text.c_str(); }
 extern "C" int venturi_greedy_run(const void* logits, std::int64_t* out, void* workspace,

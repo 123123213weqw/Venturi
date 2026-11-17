@@ -48,22 +48,22 @@ __global__ inline void q4_fused_run_kernel(
         {
             int lo = p0 & 0x0F; if (lo >= 8) lo -= 16;
             int hi = p0 >> 4;   if (hi >= 8) hi -= 16;
-            acc += __half2float(__float2half(lo*s0))*__half2float(__low2half(xa)) + __half2float(__float2half(hi*s0))*__half2float(__high2half(xa));
+            acc += s0 * (lo * __half2float(__low2half(xa)) + hi * __half2float(__high2half(xa)));
         }
         {
             int lo = p1 & 0x0F; if (lo >= 8) lo -= 16;
             int hi = p1 >> 4;   if (hi >= 8) hi -= 16;
-            acc += __half2float(__float2half(lo*s1))*__half2float(__low2half(xb)) + __half2float(__float2half(hi*s1))*__half2float(__high2half(xb));
+            acc += s1 * (lo * __half2float(__low2half(xb)) + hi * __half2float(__high2half(xb)));
         }
         {
             int lo = p2 & 0x0F; if (lo >= 8) lo -= 16;
             int hi = p2 >> 4;   if (hi >= 8) hi -= 16;
-            acc += __half2float(__float2half(lo*s2))*__half2float(__low2half(xc)) + __half2float(__float2half(hi*s2))*__half2float(__high2half(xc));
+            acc += s2 * (lo * __half2float(__low2half(xc)) + hi * __half2float(__high2half(xc)));
         }
         {
             int lo = p3 & 0x0F; if (lo >= 8) lo -= 16;
             int hi = p3 >> 4;   if (hi >= 8) hi -= 16;
-            acc += __half2float(__float2half(lo*s3))*__half2float(__low2half(xd)) + __half2float(__float2half(hi*s3))*__half2float(__high2half(xd));
+            acc += s3 * (lo * __half2float(__low2half(xd)) + hi * __half2float(__high2half(xd)));
         }
     }
 
@@ -73,11 +73,10 @@ __global__ inline void q4_fused_run_kernel(
         int lo = packed & 0x0F; if (lo >= 8) lo -= 16;
         int hi = packed >> 4;   if (hi >= 8) hi -= 16;
         const int cl = g * 64 + lane * 2;
-        const float scale=__half2float(srow[g]);
         float ga = 0.0f;
-        if (cl < k)     ga += __half2float(__float2half(lo*scale)) * __half2float(xrow[cl]);
-        if (cl + 1 < k) ga += __half2float(__float2half(hi*scale)) * __half2float(xrow[cl + 1]);
-        acc += ga;
+        if (cl < k)     ga += lo * __half2float(xrow[cl]);
+        if (cl + 1 < k) ga += hi * __half2float(xrow[cl + 1]);
+        acc += ga * __half2float(srow[g]);
     }
 
     // One butterfly reduction per row (5 shuffles).

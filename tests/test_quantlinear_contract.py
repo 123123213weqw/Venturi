@@ -193,3 +193,34 @@ def test_native_mtp_rejects_row_target_before_device_payload(tmp_path, monkeypat
     monkeypatch.setattr(target, "_binding_weights", lambda: row)
     with pytest.raises(ValueError, match="all-Q8 target"):
         NativeQwenMTPModel.from_q8(target, draft)
+
+
+def test_codec_qualification_does_not_imply_fused_qualification(tmp_path, monkeypatch):
+    from venturi.quantization import codecs
+
+    monkeypatch.setattr(torch.cuda, "get_device_capability", lambda *_: (8, 9))
+    monkeypatch.setitem(
+        codecs.FUSED_LINEAR_QUALIFIED, (8, 9), {"q4_g64_fp16", "q8_g32_fp16"}
+    )
+    weights = fixture(tmp_path, matrix_format="q5_g64_fp16")
+    validate_linear_contracts(spec(), weights)
+    with pytest.raises(ValueError, match="Fused model execution qualification pending"):
+        validate_linear_contracts(spec(linear_implementation="fused"), weights)
+
+
+def test_reported_native_family_must_match_numerical_contract(monkeypatch):
+    from venturi.quantization.linear import validate_reported_plan
+    from venturi.quantization import codecs
+
+    monkeypatch.setitem(
+        codecs.FUSED_LINEAR_QUALIFIED, (7, 0), {"q4_g64_fp16", "q8_g32_fp16"}
+    )
+    assert (
+        validate_reported_plan("q5_g64_fp16", "fp16", (7, 0), [5, 64, 0, 1, 0, 0])
+        == "chunked-dense"
+    )
+    with pytest.raises(ValueError, match="unqualified direct/fused"):
+        validate_reported_plan("q5_g64_fp16", "fp16", (7, 0), [5, 64, 0, 0, 4, 0])
+    for values in ([5, 64, 1, 2, 0, 0], [5, 32, 0, 1, 0, 0], [5, 64, 0, 2, 0, 0]):
+        with pytest.raises(RuntimeError):
+            validate_reported_plan("q5_g64_fp16", "fp16", (7, 0), values)

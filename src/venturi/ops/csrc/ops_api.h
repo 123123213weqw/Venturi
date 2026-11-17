@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cuda_fp16.h>
-#define VENTURI_OPS_ABI 17
+#define VENTURI_OPS_ABI 18
 #define VENTURI_EXPORT __attribute__((visibility("default")))
 struct VQFOutput {const std::int8_t* codes;const __half* scales;__half* out;int n,stride;};
 static_assert(sizeof(VQFOutput)==32);

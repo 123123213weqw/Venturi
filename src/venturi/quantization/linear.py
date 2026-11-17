@@ -5,7 +5,12 @@ are deliberately independent. Unsupported policy combinations never fall back.
 """
 
 import torch
-from .codecs import codec_for, EXECUTION_QUALIFIED, ACTIVATION_INT8_QUALIFIED
+from .codecs import (
+    codec_for,
+    EXECUTION_QUALIFIED,
+    ACTIVATION_INT8_QUALIFIED,
+    FUSED_LINEAR_QUALIFIED,
+)
 
 
 def validate_linear_contracts(spec, weights):
@@ -28,6 +33,13 @@ def validate_linear_contracts(spec, weights):
         ):
             raise ValueError(
                 "One-pass int8 model execution qualification pending: " + binding.format
+            )
+        if (
+            spec.linear_implementation == "fused"
+            and binding.format not in FUSED_LINEAR_QUALIFIED.get(arch, ())
+        ):
+            raise ValueError(
+                "Fused model execution qualification pending: " + binding.format
             )
         if codec.bits != 8:
             row.append(binding)
@@ -75,7 +87,7 @@ def describe_linear_contracts(weights, profile):
             "activation_policy": profile,
             "weight_decode": (
                 "fp16-rounded-q-times-scale"
-                if codec_for(fmt).bits in (4, 5, 6) and profile == "fp16"
+                if codec_for(fmt).bits in (5, 6) and profile == "fp16"
                 else "fp32-scaled-integer-products"
             ),
             "accumulation": "fp32; implementation-dependent association",
@@ -84,3 +96,25 @@ def describe_linear_contracts(weights, profile):
             {b.format for b in weights.plan.bindings if codec_for(b.format).quantized}
         )
     }
+
+
+def validate_reported_plan(fmt, profile, architecture, values):
+    """Bind qualification to the ACTUAL native family, not the selector string."""
+    codec = codec_for(fmt)
+    passes = 0 if profile == "fp16" else 1 if profile == "int8" else 2
+    if len(values) != 6 or tuple(values[:3]) != (codec.bits, codec.group, passes):
+        raise RuntimeError("Native QuantLinear numerical/codec contract mismatch")
+    family = int(values[3])
+    if family == 0 and fmt not in FUSED_LINEAR_QUALIFIED.get(tuple(architecture), ()):
+        raise ValueError(
+            "Native backend selected an unqualified direct/fused family: " + fmt
+        )
+    if family == 1 and (codec.bits not in (4, 5, 6) or passes != 0):
+        raise RuntimeError("Native dense row-codec plan contract mismatch")
+    if family == 2 and passes == 0 or family not in (0, 1, 2):
+        raise RuntimeError("Native QuantLinear family/activation-policy mismatch")
+    return (
+        "resident-fp16-shadow"
+        if values[5]
+        else ("direct", "chunked-dense", "activation-int8")[family]
+    )

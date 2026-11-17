@@ -147,11 +147,47 @@ class NativeQwenModel:
         self._projection_info = projection_info(
             spec, cfg, budget.quant_bytes, desc.native
         )
-        from venturi.quantization.linear import describe_linear_contracts
-
-        self._projection_info["linear_contracts"] = describe_linear_contracts(
-            owned, spec.projection_profile
+        from venturi.quantization.linear import (
+            describe_linear_contracts,
+            validate_reported_plan,
         )
+
+        try:
+            contracts = describe_linear_contracts(owned, spec.projection_profile)
+            from venturi.quantization.codecs import codec_for
+
+            for fmt, contract in contracts.items():
+                values = (C.c_uint64 * 6)()
+                runtime._check(
+                    desc.native.venturi_qwen_linear_plan_info(
+                        handle, codec_for(fmt).bits, values
+                    )
+                )
+                contract["native_plan"] = dict(
+                    zip(
+                        (
+                            "bits",
+                            "group",
+                            "activation_passes",
+                            "family_id",
+                            "min_hmma_tokens",
+                            "resident_shadow",
+                        ),
+                        map(int, values),
+                    )
+                )
+                if values[3] == 1:
+                    contract["weight_decode"] = "fp16-rounded-q-times-scale"
+                contract["selected_family"] = validate_reported_plan(
+                    fmt,
+                    spec.projection_profile,
+                    torch.cuda.get_device_capability(spec.target),
+                    list(values),
+                )
+            self._projection_info["linear_contracts"] = contracts
+        except BaseException:
+            desc.native.venturi_qwen_destroy(handle)
+            raise
         reconcile(spec, runtime, handle, cfg, owned, budget, self._projection_info)
         self._max_tokens, self._mode, self._digest, self._stamps = (
             spec.max_tokens,
