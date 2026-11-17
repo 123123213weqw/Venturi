@@ -33,11 +33,14 @@ __global__ __launch_bounds__(256) void q5_wmma_kernel(
     for (int kg = 0; kg < k_groups; ++kg) {
         const int kbase = kg << 6;
         // Cooperatively stage the A tile (16 tokens x 64 k), zero padding.
-        for (int idx = threadIdx.x; idx < 16 * 64; idx += 256) {
-            const int row = idx >> 6, col = idx & 63;
+        for (int idx = threadIdx.x; idx < 16 * 8; idx += 256) {
+            const int row = idx >> 3, col8 = (idx & 7) << 3;
             const int m = m_base + row;
-            a_tile[row][col] =
-                (m < tokens) ? x[(int64_t)m * k + kbase + col] : __float2half(0.f);
+            if (m < tokens)
+                *reinterpret_cast<uint4*>(&a_tile[row][col8]) =
+                    *reinterpret_cast<const uint4*>(&x[(int64_t)m * k + kbase + col8]);
+            else
+                *reinterpret_cast<uint4*>(&a_tile[row][col8]) = make_uint4(0, 0, 0, 0);
         }
         // Each warp unpacks its 16 weight rows x 64 k into fp16 with the
         // group scale folded in (scales are per row per k64 group).
