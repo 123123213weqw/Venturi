@@ -165,3 +165,31 @@ def test_one_pass_a8_cannot_inherit_a16_qualification(tmp_path, monkeypatch):
     validate_linear_contracts(spec(), weights)
     with pytest.raises(ValueError, match="int8 model execution qualification pending"):
         validate_linear_contracts(spec(projection_profile="int8"), weights)
+
+
+def test_mixed_source_plan_can_validate_original_checkpoint(tmp_path):
+    from qwen_fixtures import write_source
+    from venturi.container.checkpoint import inspect_checkpoint
+
+    raw = source_config()
+    source = write_source(tmp_path / "hf")
+    formats = {"text/layers/0/mlp/down": "q6_g64_fp16"}
+    plan = QwenSourcePlan.from_config(raw, matrix_formats=formats)
+    plan.validate_checkpoint(inspect_checkpoint(source), matrix_formats=formats)
+
+
+def test_native_mtp_rejects_row_target_before_device_payload(tmp_path, monkeypatch):
+    from test_qwen_mtp import mtp_fixture
+    from test_row_codec_execution import _codec_artifact_from_q8
+    from venturi.models import NativeQwenModel, NativeQwenMTPModel
+
+    base, draft, _, _ = mtp_fixture(tmp_path)
+    row = QwenWeights.open(
+        _codec_artifact_from_q8(base.source, tmp_path / "q5.safetensors", "q5_g64_fp16")
+    )
+    target = object.__new__(NativeQwenModel)
+    target._mode = "resident"
+    target._max_tokens = 8
+    monkeypatch.setattr(target, "_binding_weights", lambda: row)
+    with pytest.raises(ValueError, match="all-Q8 target"):
+        NativeQwenMTPModel.from_q8(target, draft)

@@ -256,12 +256,16 @@ class QwenSourcePlan:
             )
         return tuple(sorted(ignored))
 
-    def validate_checkpoint(self, checkpoint, *, matrix_format="q8_g32_fp16"):
+    def validate_checkpoint(
+        self, checkpoint, *, matrix_format="q8_g32_fp16", matrix_formats=None
+    ):
         if not isinstance(checkpoint, Checkpoint):
             raise TypeError("Expected inspected Checkpoint")
         if (
             QwenSourcePlan.from_config(
-                dict(checkpoint.config), matrix_format=matrix_format
+                dict(checkpoint.config),
+                matrix_format=matrix_format,
+                matrix_formats=matrix_formats,
             )
             != self
         ):

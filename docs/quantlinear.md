@@ -51,6 +51,8 @@ retain their existing A16 kernel. At least one Q4/Q5/Q6 matrix is required.
 `dequant_resident=True` remains the separate explicit all-Q4/Q5/Q6 FP16-shadow
 mode. Neither option changes automatically on OOM.
 
+Native MTP remains all-Q8-only: both Python and the native ABI reject row-codec/mixed targets before the draft can misinterpret their vocabulary planes.
+
 Row-codec/mixed execution currently requires resident, single-device FP16 without
 TP/PP; unsupported combinations reject before weight allocation. This refactor
 is not a claim of Q4/Q5 TP, arbitrary GPU architectures, or cross-host execution.
