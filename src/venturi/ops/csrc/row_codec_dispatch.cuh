@@ -45,8 +45,8 @@ inline const LinearPlan* prepare(int bits,int group,Precision precision,int arch
             {5,64,Precision::WxA16,Path::ChunkedDense,nullptr,nullptr,0,0,nullptr},
             {6,64,Precision::WxA16,Path::ChunkedDense,nullptr,nullptr,0,0,nullptr}};
         if (implementation==Implementation::Dequant ||
-            (implementation==Implementation::Auto && (bits==5 || bits==6))) return &dense[bits-4];
-        // Q5 fused full-model state qualification failed. Auto keeps the safe
+            implementation==Implementation::Auto) return &dense[bits-4];
+        // Q4/Q5 fused state qualification failed. Auto keeps the safe
         // FP16 chunked-dense family; explicit research selection is separately
         // admission-gated, never a shape/OOM/precision fallback.
         if (bits==6 || (implementation!=Implementation::Auto && implementation!=Implementation::FusedResearch)) return nullptr;

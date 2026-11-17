@@ -33,7 +33,9 @@ Capabilities are not execution/quality qualification; the architecture gate in
   as a function of batch size. Q5/Q6 decode each integer*FP16-scale into FP16
   **before** FP32 dot accumulation, including scalar and WMMA paths. Q8 retains
   its established FP32 scaled-integer dot contract, with FP16 or BF16 activations.
-  Q4 retains its previously qualified FP32 group-scale arithmetic.
+  Q4 canonical auto/reference also materializes FP16 decoded weights. The older
+  Q4 fused research kernel retains FP32 group-scale arithmetic and is not admitted
+  as the same qualified implementation.
   Kernel association may differ: do not promise bit equality across GEMM families.
 - `projection_profile="int8"`: explicit one-pass group32 activation INT8 with
   FP32 activation scales; existing Q8 weights or SM70 Q5 weights only. This changes
@@ -57,7 +59,7 @@ Native MTP remains all-Q8-only: both Python and the native ABI reject row-codec/
 Row-codec/mixed execution currently requires resident, single-device FP16 without
 TP/PP; unsupported combinations reject before weight allocation. This refactor
 is not a claim of Q4/Q5 TP, arbitrary GPU architectures, or cross-host execution.
-Q5 `auto` uses the qualified chunked-dense path on both SM70/SM89. The fused
+Q4/Q5/Q6 `auto` use the safe chunked-dense path on both SM70/SM89. The fused
 Q5 full-model state campaign failed the unchanged elementwise state gate, even
 though logits/top-1 passed; `linear_implementation="fused"` is a separate
 research capability and remains closed by `FUSED_LINEAR_QUALIFIED`. Codec
@@ -92,12 +94,15 @@ The real SM70 fused-Q5 campaign retained the unchanged logit gates (top-1,
 relative L2 <= 0.02, cosine >= 0.999, KL <= 0.002) and state gates
 (`rtol=0.01`, `atol=0.005`). The first trained case passed logits but failed
 50 state components, so **fusion is not a qualified model default**. `auto`
-uses chunked dense for Q5 on both supported architectures. Its throughput is
+uses chunked dense for Q4/Q5/Q6 on both supported architectures. A later L40
+Q4 fixture also failed the unchanged private-state comparison (2/320 elements;
+max absolute error 0.0074463), so its direct family is research-only as well. Its throughput is
 reported as the safe native baseline, not as a fused-kernel speedup.
 
 A16 describes activation precision, not one universal weight-rounding rule.
-Q4 preserves its previously qualified FP32 group-scale association; Q5/Q6 dense
-materialize FP16 decoded weights. The native plan query reports the selected
+Q4/Q5/Q6 auto/reference materialize FP16 decoded weights. The older Q4 fused
+research capability preserves FP32 group-scale association, is separately gated
+and is not a qualified substitute for canonical FP16 decode. The native plan query reports the selected
 family and shadow status, and loader admission validates that actual family.
 Codec, activation-policy and implementation qualification are separate gates.
 

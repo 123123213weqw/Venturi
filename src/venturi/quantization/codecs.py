@@ -143,8 +143,10 @@ ACTIVATION_INT8_QUALIFIED = {(7, 0): set(), (8, 9): set()}
 # Implementation qualification is distinct from storage codec qualification.
 # Real SM70 Q5 fused A16 logits passed but 50 private-state components failed
 # unchanged rtol=.01/atol=.005. Keep fused Q5 closed on BOTH architectures;
+# SM89 Q4 also failed the matched private-state fixture. Preserve its research
+# arithmetic but never auto-admit it; canonical A16 auto uses FP16 dense decode.
 # SM89's existing Q5 qualification was for chunked dense, not this new kernel.
 FUSED_LINEAR_QUALIFIED = {
-    (7, 0): {"q4_g64_fp16", "q8_g32_fp16"},
-    (8, 9): {"q4_g64_fp16", "q8_g32_fp16"},
+    (7, 0): {"q8_g32_fp16"},
+    (8, 9): {"q8_g32_fp16"},
 }

@@ -175,6 +175,11 @@ def test_integrated_plan_chunks_states_and_greedy(tmp_path, native_engine, fmt):
                         linear_implementation=implementation,
                     )
                 )
+        for model in models:
+            for codec, contract in model.projection_info["linear_contracts"].items():
+                if codec != "q8_g32_fp16":
+                    assert contract["selected_family"] == "chunked-dense"
+                    assert contract["weight_decode"] == "fp16-rounded-q-times-scale"
         sessions = [m.create_session(128) for m in models]
         try:
             for ids in ([1], [2, 3, 4, 5], list(range(8)), list(range(16)), [7, 6, 5]):

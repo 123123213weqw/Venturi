@@ -224,3 +224,19 @@ def test_reported_native_family_must_match_numerical_contract(monkeypatch):
     for values in ([5, 64, 1, 2, 0, 0], [5, 32, 0, 1, 0, 0], [5, 64, 0, 2, 0, 0]):
         with pytest.raises(RuntimeError):
             validate_reported_plan("q5_g64_fp16", "fp16", (7, 0), values)
+
+
+@pytest.mark.parametrize("fmt", ["q4_g64_fp16", "q5_g64_fp16"])
+def test_unqualified_fused_cannot_be_admitted_by_auto_or_codec(
+    tmp_path, monkeypatch, fmt
+):
+    from venturi.quantization import codecs
+    from venturi.quantization.linear import validate_reported_plan
+
+    monkeypatch.setattr(torch.cuda, "get_device_capability", lambda *_: (8, 9))
+    weights = fixture(tmp_path, matrix_format=fmt)
+    validate_linear_contracts(spec(), weights)
+    with pytest.raises(ValueError, match="Fused model execution qualification pending"):
+        validate_linear_contracts(spec(linear_implementation="fused"), weights)
+    with pytest.raises(ValueError, match="unqualified direct/fused"):
+        validate_reported_plan(fmt, "fp16", (8, 9), [int(fmt[1]), 64, 0, 0, 0, 0])
