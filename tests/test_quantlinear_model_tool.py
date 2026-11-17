@@ -32,3 +32,12 @@ def test_state_contract_rejects_missing_component(monkeypatch):
     a["gdn"][0] = a["gdn"][0][:1]
     with pytest.raises(AssertionError):
         m.compare_states(a, b)
+
+
+def test_paired_exact_state_rejects_missing_plane(monkeypatch):
+    monkeypatch.syspath_prepend(str(Path(__file__).parents[1] / "tools"))
+    m = importlib.import_module("qualify_quantlinear_paired")
+    a, b = state(1.0), state(1.0)
+    assert m.exact_state(a, b)
+    b["gdn"][0] = b["gdn"][0][:1]
+    assert not m.exact_state(a, b)

@@ -21,13 +21,18 @@ from venturi.quantization import codecs
 
 
 def exact_state(a, b):
-    return all(
-        torch.equal(x, y)
-        for kind in ("gdn", "kv")
-        for left, right in zip(a[kind], b[kind])
-        if left is not None
-        for x, y in zip(left, right)
-    )
+    for kind in ("gdn", "kv"):
+        if kind not in a or kind not in b or len(a[kind]) != len(b[kind]):
+            return False
+        for left, right in zip(a[kind], b[kind]):
+            if (left is None) != (right is None):
+                return False
+            if left is not None and (
+                len(left) != len(right)
+                or not all(torch.equal(x, y) for x, y in zip(left, right))
+            ):
+                return False
+    return True
 
 
 def main():
