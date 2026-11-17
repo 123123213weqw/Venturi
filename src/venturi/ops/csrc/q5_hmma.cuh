@@ -19,7 +19,7 @@ __global__ __launch_bounds__(256) void q5_wmma_kernel(
     const __half* scales, __half* out,
     int tokens, int n_rows, int k, int padded) {
     __shared__ __half a_tile[16][72];
-    __shared__ __half b_tile[8][72][16];
+    __shared__ __half b_tile[8][16][72];
     const int warp = threadIdx.x >> 5, lane = threadIdx.x & 31;
     const int m_base = blockIdx.y * 16;
     const int n_base = blockIdx.x * 128 + warp * 16;
@@ -42,21 +42,34 @@ __global__ __launch_bounds__(256) void q5_wmma_kernel(
         // Each warp unpacks its 16 weight rows x 64 k into fp16 with the
         // group scale folded in (scales are per row per k64 group).
         if (warp_active) {
-            for (int idx = lane; idx < 16 * 64; idx += 32) {
-                const int row = idx >> 6, col = idx & 63;
+            for (int idx = lane; idx < 16 * 8; idx += 32) {
+                const int row = idx >> 3, col8 = (idx & 7) << 3;
                 const int n = n_base + row;
                 if (n < n_rows) {
                     const unsigned char* crow = codes + (int64_t)n * (padded >> 1);
                     const unsigned char* hrow = high + (int64_t)n * (padded >> 3);
-                    const int c0 = kbase + col;
-                    const unsigned char byte = crow[c0 >> 1];
-                    int q = (c0 & 1) ? (byte >> 4) : (byte & 15);
-                    q |= ((hrow[(c0 >> 6) << 3 | ((c0 >> 3) & 7)] >> (c0 & 7)) & 1) << 4;
-                    q = (q ^ 16) - 16;
-                    const float ws = __half2float(scales[(int64_t)n * (padded >> 6) + kg]);
-                    b_tile[warp][col][row] = __float2half(static_cast<float>(q) * ws);
+                    const int c0 = kbase + col8;
+                    const uint32_t cbytes = *reinterpret_cast<const uint32_t*>(&crow[c0 >> 1]);
+                    const unsigned int hbits =
+                        hrow[(c0 >> 6) << 3 | ((c0 >> 3) & 7)] >> (c0 & 7);
+                    const __half2 ws2 = __half2half2(scales[(int64_t)n * (padded >> 6) + kg]);
+                    #pragma unroll
+                    for (int j = 0; j < 4; ++j) {
+                        const unsigned int cb = (cbytes >> (8 * j)) & 0xFFu;
+                        const unsigned int hb = (hbits >> (2 * j)) & 3u;
+                        const int raw0 = static_cast<int>((cb & 15u) | ((hb & 1u) << 4));
+                        const int raw1 = static_cast<int>(((cb >> 4) & 15u) | ((hb >> 1) << 4));
+                        *reinterpret_cast<__half2*>(&b_tile[warp][row][col8 + 2 * j]) = __hmul2(
+                            __halves2half2(
+                                __float2half_rn(static_cast<float>((raw0 ^ 16) - 16)),
+                                __float2half_rn(static_cast<float>((raw1 ^ 16) - 16))),
+                            ws2);
+                    }
                 } else {
-                    b_tile[warp][col][row] = __float2half(0.f);
+                    #pragma unroll
+                    for (int j = 0; j < 4; ++j)
+                        *reinterpret_cast<__half2*>(&b_tile[warp][row][col8 + 2 * j]) =
+                            __half2half2(__float2half(0.f));
                 }
             }
         }
@@ -65,9 +78,9 @@ __global__ __launch_bounds__(256) void q5_wmma_kernel(
             #pragma unroll
             for (int step = 0; step < 4; ++step) {
                 wmma::fragment<wmma::matrix_a, 16, 16, 16, __half, wmma::row_major> a_frag;
-                wmma::fragment<wmma::matrix_b, 16, 16, 16, __half, wmma::row_major> b_frag;
+                wmma::fragment<wmma::matrix_b, 16, 16, 16, __half, wmma::col_major> b_frag;
                 wmma::load_matrix_sync(a_frag, &a_tile[0][step << 4], 72);
-                wmma::load_matrix_sync(b_frag, &b_tile[warp][step << 4][0], 16);
+                wmma::load_matrix_sync(b_frag, &b_tile[warp][0][step << 4], 72);
                 wmma::mma_sync(c_frag, a_frag, b_frag, c_frag);
             }
         }
