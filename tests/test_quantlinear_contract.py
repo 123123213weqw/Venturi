@@ -167,6 +167,22 @@ def test_one_pass_a8_cannot_inherit_a16_qualification(tmp_path, monkeypatch):
         validate_linear_contracts(spec(projection_profile="int8"), weights)
 
 
+def test_qualified_sm70_q5_only_admits_canonical_a16(tmp_path, monkeypatch):
+    from venturi.quantization import codecs
+
+    monkeypatch.setattr(torch.cuda, "get_device_capability", lambda *_: (7, 0))
+    assert "q5_g64_fp16" in codecs.EXECUTION_QUALIFIED[(7, 0)]
+    assert "q5_g64_fp16" not in codecs.FUSED_LINEAR_QUALIFIED[(7, 0)]
+    assert "q5_g64_fp16" not in codecs.ACTIVATION_INT8_QUALIFIED[(7, 0)]
+    weights = fixture(tmp_path, matrix_format="q5_g64_fp16")
+    validate_linear_contracts(spec(), weights)
+    validate_linear_contracts(spec(linear_implementation="dequant"), weights)
+    with pytest.raises(ValueError, match="Fused model execution qualification pending"):
+        validate_linear_contracts(spec(linear_implementation="fused"), weights)
+    with pytest.raises(ValueError, match="int8 model execution qualification pending"):
+        validate_linear_contracts(spec(projection_profile="int8"), weights)
+
+
 def test_mixed_source_plan_can_validate_original_checkpoint(tmp_path):
     from qwen_fixtures import write_source
     from venturi.container.checkpoint import inspect_checkpoint

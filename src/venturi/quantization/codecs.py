@@ -83,8 +83,11 @@ CODECS = {
 # 2026-11-11: kernel bit-tests, synthetic native-vs-reference token equality,
 # and the real 14.38GB artifact resident smoke.
 EXECUTION_QUALIFIED = {
-    # SM70 Q5 remains closed until same-artifact model/state qualification.
-    (7, 0): {"q8_g32_fp16"},
+    # SM70 Q5 canonical FP16 decode: real 27B scalar and C4/8/16/32 output/
+    # private-state parity passed on V100_222, 2026-11-17. Evidence under
+    # operations/pr14-quantlinear-fix-20261117-v1/. This does NOT qualify
+    # fused Q5 or activation INT8; their independent gates remain closed.
+    (7, 0): {"q8_g32_fp16", "q5_g64_fp16"},
     (8, 9): {"q8_g32_fp16", "q4_g64_fp16", "q5_g64_fp16", "q6_g64_fp16"},
     (8, 6): {"q8_g32_fp16"},
 }
