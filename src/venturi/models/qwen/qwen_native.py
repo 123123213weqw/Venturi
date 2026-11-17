@@ -153,7 +153,9 @@ class NativeQwenModel:
         )
 
         try:
-            contracts = describe_linear_contracts(owned, spec.projection_profile)
+            contracts = describe_linear_contracts(
+                owned, spec.projection_profile, spec.linear_implementation
+            )
             from venturi.quantization.codecs import codec_for
 
             for fmt, contract in contracts.items():

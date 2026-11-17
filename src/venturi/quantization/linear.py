@@ -79,7 +79,7 @@ def validate_linear_contracts(spec, weights):
         raise ValueError("FP16 shadow requires only Q4/Q5/Q6 matrices")
 
 
-def describe_linear_contracts(weights, profile):
+def describe_linear_contracts(weights, profile, implementation="auto"):
     """Load-time diagnostics, reusable by other model adapters; no device IO."""
     return {
         fmt: {
@@ -87,7 +87,9 @@ def describe_linear_contracts(weights, profile):
             "activation_policy": profile,
             "weight_decode": (
                 "fp16-rounded-q-times-scale"
-                if codec_for(fmt).bits in (5, 6) and profile == "fp16"
+                if codec_for(fmt).bits in (4, 5, 6)
+                and profile == "fp16"
+                and not (codec_for(fmt).bits == 4 and implementation == "fused")
                 else "fp32-scaled-integer-products"
             ),
             "accumulation": "fp32; implementation-dependent association",

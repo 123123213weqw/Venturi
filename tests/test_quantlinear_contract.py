@@ -240,3 +240,19 @@ def test_unqualified_fused_cannot_be_admitted_by_auto_or_codec(
         validate_linear_contracts(spec(linear_implementation="fused"), weights)
     with pytest.raises(ValueError, match="unqualified direct/fused"):
         validate_reported_plan(fmt, "fp16", (8, 9), [int(fmt[1]), 64, 0, 0, 0, 0])
+
+
+@pytest.mark.parametrize("fmt", ["q4_g64_fp16", "q5_g64_fp16", "q6_g64_fp16"])
+def test_generic_auto_diagnostics_describe_fp16_decoded_weights(tmp_path, fmt):
+    from venturi.quantization.linear import describe_linear_contracts
+
+    weights = fixture(tmp_path, matrix_format=fmt)
+    assert (
+        describe_linear_contracts(weights, "fp16")[fmt]["weight_decode"]
+        == "fp16-rounded-q-times-scale"
+    )
+    if fmt == "q4_g64_fp16":
+        assert (
+            describe_linear_contracts(weights, "fp16", "fused")[fmt]["weight_decode"]
+            == "fp32-scaled-integer-products"
+        )

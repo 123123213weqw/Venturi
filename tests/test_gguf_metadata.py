@@ -81,6 +81,10 @@ def test_changed_file_during_scan_is_retained_as_failure(tmp_path,asset,monkeypa
             self.inner.update(data)
             p=tmp_path/'body.gguf'
             with p.open('r+b') as f:f.seek(-1,2);f.write(b'9')
+            # Some filesystems coalesce writes within one clock tick. Make the
+            # fingerprint change explicit instead of relying on test timing.
+            import os
+            stamp=p.stat();os.utime(p,ns=(stamp.st_atime_ns,stamp.st_mtime_ns+1_000_000_000))
         def hexdigest(self):return self.inner.hexdigest()
     def hasher():
         nonlocal count
