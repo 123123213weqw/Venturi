@@ -66,3 +66,22 @@ TPS is flat beyond 8 concurrent decodes on this TP topology.
    native ceiling; both GPUs fully busy instead of 37-45%.
 3. Adaptive MTP for the 1-4 concurrency band (AdaptiveMTPPolicy exists; continuous
    mode currently rejects MTP).
+
+## Kernel pass3 experiments (2026-11-17 evening, production stopped per owner)
+
+CORRECTION: the earlier "587 GB/s" figure was a transcription error. The pass2
+tool printed **59 GB/s** effective; kernel reality is ~115 GB/s (58.5 MB plane
+in 0.51 ms). D2D copy reference: 751 GB/s aggregate. The kernel sits ~6.5x
+from the hardware limit; projection is the sole end-to-end bottleneck (90.1%
+GPU time, 98.8% busy, fresh nsys on the Q5 single-GPU path).
+
+| Experiment | Result | Decision |
+|---|---|---|
+| exp1 A-tile uint4 loads | 0.996 -> 0.933 ms (+6.7%), A/B PASS | LANDED |
+| exp2b 4-warp blocks (N64) | 1.137 ms (-22%): A-reuse loss > occupancy gain | rejected |
+| exp3 register prefetch | design flaw in first cut, superseded by exp4 plan | deferred |
+| exp4 PTX m8n8k4 direct-feed | cutlass signature confirmed (A{2},B{2},D{8}); probe
+  run: c0/c1 = row g confirmed, c2/c3 = 4g+2 anomaly unresolved; layout needs
+  one-hot scan. No shared/sync design ready once locked. | next session |
+
+exp4 probe evidence: /tmp/ptx_mma_selftest.cu pattern on the server.
