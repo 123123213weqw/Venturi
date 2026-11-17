@@ -96,13 +96,27 @@ def test_hmma_geometry_error_is_negative_and_owned(native_engine):
 
 @pytest.mark.parametrize("t", [1, 4, 8, 17])
 @pytest.mark.parametrize("n", [19, 129])
-def test_hmma_matches_independent_decoded_weight(native_engine, t, n):
+@pytest.mark.parametrize("unaligned", [False, True])
+def test_hmma_matches_independent_decoded_weight(native_engine, t, n, unaligned):
     b, dtype, dev = native_engine
     if dtype != torch.float16:
         pytest.skip("FP16 row codec")
     k = 512
     c, h, s = _random_planes(dev, n, k, "q5_g64_fp16", 971)
     x = (torch.randn(t, k, device=dev) * 0.2).half()
+    if unaligned:
+        x = (
+            torch.empty(x.numel() + 1, device=dev, dtype=x.dtype)[1:]
+            .copy_(x.flatten())
+            .view_as(x)
+        )
+        c = (
+            torch.empty(c.numel() + 1, device=dev, dtype=c.dtype)[1:]
+            .copy_(c.flatten())
+            .view_as(c)
+        )
+        assert x.is_contiguous() and c.is_contiguous()
+        assert x.data_ptr() % 16 == 2 and c.data_ptr() % 4 == 1
     y = torch.empty(t, n, device=dev, dtype=dtype)
     fn = b._native.venturi_q5_hmma_run
     fn.argtypes = [C.c_void_p] * 5 + [C.c_int] * 4 + [C.c_void_p]

@@ -18,8 +18,8 @@ __global__ __launch_bounds__(256) void q5_wmma_kernel(
     const __half* x, const unsigned char* codes, const unsigned char* high,
     const __half* scales, __half* out,
     int tokens, int n_rows, int k, int padded) {
-    __shared__ __half a_tile[16][72];
-    __shared__ __half b_tile[8][16][72];
+    __shared__ __align__(32) __half a_tile[16][72];
+    __shared__ __align__(32) __half b_tile[8][16][72];
     const int warp = threadIdx.x >> 5, lane = threadIdx.x & 31;
     const int m_base = blockIdx.y * 16;
     const int n_base = blockIdx.x * 128 + warp * 16;
@@ -36,10 +36,15 @@ __global__ __launch_bounds__(256) void q5_wmma_kernel(
         for (int idx = threadIdx.x; idx < 16 * 8; idx += 256) {
             const int row = idx >> 3, col8 = (idx & 7) << 3;
             const int m = m_base + row;
-            if (m < tokens)
+            if (m < tokens && (reinterpret_cast<uintptr_t>(x) & 15u)==0)
                 *reinterpret_cast<uint4*>(&a_tile[row][col8]) =
                     *reinterpret_cast<const uint4*>(&x[(int64_t)m * k + kbase + col8]);
-            else
+            else if (m < tokens) {
+                // A contiguous FP16 view may start at a 2-byte storage offset.
+                // Keep its declared arithmetic; only the load width changes.
+                #pragma unroll
+                for (int j=0;j<8;++j) a_tile[row][col8+j]=x[(int64_t)m*k+kbase+col8+j];
+            } else
                 *reinterpret_cast<uint4*>(&a_tile[row][col8]) = make_uint4(0, 0, 0, 0);
         }
         // Each warp unpacks its 16 weight rows x 64 k into fp16 with the
@@ -52,7 +57,10 @@ __global__ __launch_bounds__(256) void q5_wmma_kernel(
                     const unsigned char* crow = codes + (int64_t)n * (padded >> 1);
                     const unsigned char* hrow = high + (int64_t)n * (padded >> 3);
                     const int c0 = kbase + col8;
-                    const uint32_t cbytes = *reinterpret_cast<const uint32_t*>(&crow[c0 >> 1]);
+                    const auto* packed=crow+(c0>>1);
+                    const uint32_t cbytes=(reinterpret_cast<uintptr_t>(packed)&3u)==0
+                        ?*reinterpret_cast<const uint32_t*>(packed)
+                        :uint32_t(packed[0])|(uint32_t(packed[1])<<8)|(uint32_t(packed[2])<<16)|(uint32_t(packed[3])<<24);
                     const unsigned int hbits =
                         hrow[(c0 >> 6) << 3 | ((c0 >> 3) & 7)] >> (c0 & 7);
                     const __half2 ws2 = __half2half2(scales[(int64_t)n * (padded >> 6) + kg]);
@@ -91,7 +99,7 @@ __global__ __launch_bounds__(256) void q5_wmma_kernel(
     }
     if (!warp_active) return;
     // Store through shared to clip token rows below `tokens`.
-    __shared__ float c_stage[8][16][16];
+    __shared__ __align__(32) float c_stage[8][16][16];
     wmma::store_matrix_sync(&c_stage[warp][0][0], c_frag, 16, wmma::mem_row_major);
     __syncthreads();
     for (int idx = lane; idx < 16 * 16; idx += 32) {

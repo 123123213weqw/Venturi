@@ -42,6 +42,10 @@ def main():
     p.add_argument("--library", required=True)
     p.add_argument("--qwen-library", required=True)
     p.add_argument(
+        "--reference-library",
+        help="Explicit operator pair for the frozen reference runtime",
+    )
+    p.add_argument(
         "--reference-qwen-library",
         help="Frozen ABI-compatible serial runtime; defaults to candidate runtime",
     )
@@ -71,6 +75,9 @@ def main():
     data = json.loads(Path(a.cases).read_text())
     cases = data["cases"]
     backend = CudaBackend(a.library)
+    reference_backend = (
+        CudaBackend(a.reference_library) if a.reference_library else backend
+    )
     arch = tuple(torch.cuda.get_device_capability())
     old = set(codecs.EXECUTION_QUALIFIED.get(arch, set()))
     if a.qualification_campaign:
@@ -84,6 +91,7 @@ def main():
         artifact_bytes=Path(a.artifact).stat().st_size,
         ops_sha256=digest(a.library),
         qwen_sha256=digest(a.qwen_library),
+        reference_ops_sha256=digest(a.reference_library or a.library),
         reference_qwen_sha256=digest(a.reference_qwen_library or a.qwen_library),
         architecture=arch,
         torch_version=torch.__version__,
@@ -135,7 +143,7 @@ def main():
                             if ordinal == 0
                             else a.qwen_library
                         ),
-                        backend,
+                        reference_backend if ordinal == 0 else backend,
                     ),
                     weight_mode="resident",
                     dtype=torch.float16,
