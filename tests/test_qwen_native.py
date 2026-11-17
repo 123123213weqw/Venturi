@@ -21,8 +21,8 @@ def test_native_descriptor_layout_and_explicit_backend():
     assert [ctypes.sizeof(t) for t in (Config, Span, Matrix, Layer)] == [
         112,
         40,
-        32,
-        320,
+        40,
+        376,
     ]
     assert (
         Config.second_device.offset == 96
