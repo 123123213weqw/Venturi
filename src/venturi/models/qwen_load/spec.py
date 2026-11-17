@@ -39,6 +39,7 @@ class LoadSpec:
     kv_ram_budget_bytes: int
     metadata_mode: str
     dequant_resident: bool
+    linear_implementation: str
     profiled_create: object | None
     tier_enable: object | None
 
@@ -80,6 +81,7 @@ def validate_load_spec(
     kv_ram_budget_bytes,
     metadata_mode,
     dequant_resident=False,
+    linear_implementation="auto",
 ):
     if not isinstance(weights, QwenWeights) or not isinstance(runtime, QwenRuntime):
         raise TypeError(
@@ -101,14 +103,19 @@ def validate_load_spec(
         "q8-residual-column-mlp",
         "q8-residual-column-mlp-head-gdn",
     )
+    if linear_implementation not in ("auto", "dequant"):
+        raise ValueError("linear_implementation must be explicit auto/dequant")
+    if linear_implementation == "dequant" and projection_profile != "fp16":
+        raise ValueError("dequant reference requires the A16 projection policy")
     if projection_profile not in (
+        "int8",
         "fp16",
         "q8-residual",
         "q8-residual-column-mlp",
         "q8-residual-column-mlp-head-gdn",
     ):
         raise ValueError(
-            "Projection profile must be explicit fp16/q8-residual/q8-residual-column-mlp/q8-residual-column-mlp-head-gdn"
+            "Projection profile must be explicit fp16/int8/q8-residual/q8-residual-column-mlp/q8-residual-column-mlp-head-gdn"
         )
     if column_profile and (
         tensor_parallel_device is None or tensor_parallel_transport != "host"
@@ -229,6 +236,7 @@ def validate_load_spec(
         profiled_create=profiled_create,
         tier_enable=tier_enable,
         dequant_resident=dequant_resident,
+        linear_implementation=linear_implementation,
     )
 
 

@@ -7,7 +7,7 @@
 #include "../../../ops/csrc/cuda_common.cuh"
 #include "../../../ops/csrc/ops_api.h"
 namespace { thread_local std::string error_text; }
-extern "C" VENTURI_EXPORT int venturi_qwen_abi() { return 1; }
+extern "C" VENTURI_EXPORT int venturi_qwen_abi() { return 2; }
 extern "C" VENTURI_EXPORT int venturi_qwen_required_ops_abi() { return VENTURI_OPS_ABI; }
 extern "C" VENTURI_EXPORT int venturi_qwen_arch() { return VENTURI_BLOCKS_ARCH; }
 extern "C" VENTURI_EXPORT const char* venturi_qwen_error() { return error_text.c_str(); }

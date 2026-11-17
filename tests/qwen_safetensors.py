@@ -13,6 +13,7 @@ def write_quantized_checkpoint(
     *,
     config=None,
     matrix_format="q8_g32_fp16",
+    matrix_formats=None,
     updates=None,
     drop=(),
     component="text",
@@ -24,7 +25,9 @@ def write_quantized_checkpoint(
 
         plan = QwenMTPPlan.from_config(cfg)
     else:
-        plan = QwenSourcePlan.from_config(cfg, matrix_format=matrix_format)
+        plan = QwenSourcePlan.from_config(
+            cfg, matrix_format=matrix_format, matrix_formats=matrix_formats
+        )
     tensors = {}
     for spec in plan.bindings:
         codec = codec_for(spec.format)
@@ -60,6 +63,7 @@ def write_quantized_checkpoint(
         "venturi.config": json.dumps(cfg),
         "venturi.component": component,
         "venturi.matrix_format": matrix_format,
+        "venturi.matrix_formats": json.dumps(matrix_formats or {}),
         "venturi.source": json.dumps({"fixture": "synthetic same source"}),
     }
     save_file(tensors, str(path), metadata=metadata)

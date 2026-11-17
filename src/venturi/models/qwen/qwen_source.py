@@ -45,7 +45,7 @@ class QwenSourcePlan:
     tied_embeddings: bool
 
     @classmethod
-    def from_config(cls, raw, *, matrix_format="q8_g32_fp16"):
+    def from_config(cls, raw, *, matrix_format="q8_g32_fp16", matrix_formats=None):
         if not isinstance(raw, dict) or raw.get("quantization_config") is not None:
             raise ValueError("Expected original floating Qwen3.5 source config")
         if raw.get("model_type") == "qwen3_5":
@@ -120,6 +120,15 @@ class QwenSourcePlan:
             raise ValueError("Qwen GDN recurrent state must be FP32")
         cfg["tie_word_embeddings"] = tied
         specs = []
+        overrides = {} if matrix_formats is None else matrix_formats
+        if not isinstance(overrides, dict) or any(
+            not isinstance(k, str) or not isinstance(v, str) or v not in ROW_FORMATS
+            for k, v in overrides.items()
+        ):
+            raise ValueError(
+                "matrix_formats must map logical matrix roles to canonical row codecs"
+            )
+        used = set()
 
         def add(
             source,
@@ -131,7 +140,8 @@ class QwenSourcePlan:
             source_shape=None,
         ):
             if format is None:
-                format = matrix_format
+                format = overrides.get(target, matrix_format)
+                used.add(target)
             if any(
                 type(d) is not int or not 0 < d < 2**31
                 for d in (*shape, *(source_shape or shape))
@@ -216,6 +226,16 @@ class QwenSourcePlan:
         if cfg.get("venturi_gguf_q8_0") is not None:
             raise ValueError(
                 "Historical GGUF bridge parameters are not canonical HF parameters"
+            )
+        if tied and "text/output_head" in overrides:
+            embedding_format = overrides.get("text/token_embedding", matrix_format)
+            if overrides["text/output_head"] != embedding_format:
+                raise ValueError("Tied embedding/head must use the same matrix codec")
+            used.add("text/output_head")
+        if set(overrides) - used:
+            raise ValueError(
+                "Unknown or non-matrix codec override: "
+                + str(sorted(set(overrides) - used))
             )
         return cls(cfg, tuple(specs), prefix, tied)
 

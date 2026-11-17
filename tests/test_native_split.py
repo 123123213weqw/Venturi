@@ -28,6 +28,7 @@ def test_qwen_includes_only_operator_contract_and_stateless_helpers():
     assert {name for name in files if name.startswith("ops/")} == {
         "ops/csrc/ops_api.h",
         "ops/csrc/cuda_common.cuh",
+        "ops/csrc/row_codec_dispatch.cuh",
         # Unified model-agnostic KV storage: contract-shared mechanism headers.
         "ops/csrc/kv/kv_pool.cuh",
         "ops/csrc/kv/kv_prefix.cuh",
@@ -151,7 +152,7 @@ import sys
 from venturi.ops import CudaBackend
 from venturi.models.qwen.native_runtime import QwenRuntime
 b=CudaBackend(sys.argv[1]);r=QwenRuntime(sys.argv[2],b)
-assert r._native.venturi_qwen_abi()==1
+assert r._native.venturi_qwen_abi()==2
 """
     subprocess.run(
         [sys.executable, "-c", code, str(moved_ops), str(moved_qwen)],

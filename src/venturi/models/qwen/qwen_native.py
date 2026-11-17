@@ -59,6 +59,7 @@ class NativeQwenModel:
         kv_ram_budget_bytes=0,
         metadata_mode="checked-json",
         dequant_resident=False,
+        linear_implementation="auto",
     ):
         """Orchestrate the staged load pipeline (qwen_load); order unchanged.
 
@@ -83,6 +84,7 @@ class NativeQwenModel:
             kv_ram_budget_bytes=kv_ram_budget_bytes,
             metadata_mode=metadata_mode,
             dequant_resident=dequant_resident,
+            linear_implementation=linear_implementation,
         )
         owned, cfg = prepare_source(spec)
         budget = plan_budget(spec, owned, cfg)
@@ -108,7 +110,7 @@ class NativeQwenModel:
                 (spec.experimental_flags,)
                 if spec.experimental_flags
                 else (
-                    (2,)
+                    (1 if spec.projection_profile == "int8" else 2,)
                     if spec.profiled_create is not None and not spec.column_profile
                     else (spec.stage_range or ())
                 )
@@ -144,6 +146,11 @@ class NativeQwenModel:
         self._projection_profile = normalized_profile(spec)
         self._projection_info = projection_info(
             spec, cfg, budget.quant_bytes, desc.native
+        )
+        from venturi.quantization.linear import describe_linear_contracts
+
+        self._projection_info["linear_contracts"] = describe_linear_contracts(
+            owned, spec.projection_profile
         )
         reconcile(spec, runtime, handle, cfg, owned, budget, self._projection_info)
         self._max_tokens, self._mode, self._digest, self._stamps = (
@@ -305,7 +312,9 @@ class NativeQwenModel:
             if not self._finalizer.alive:
                 raise RuntimeError("Native Qwen model closed")
             self._metadata()
-            with_prefix = getattr(self._native, "venturi_qwen_session_with_prefix", None)
+            with_prefix = getattr(
+                self._native, "venturi_qwen_session_with_prefix", None
+            )
             if prefix_key is not None and with_prefix is not None:
                 h = with_prefix(self._handle, capacity, prefix_key, prefix_tokens)
             elif prefix_key is not None:

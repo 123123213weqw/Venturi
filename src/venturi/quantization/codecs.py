@@ -83,10 +83,8 @@ CODECS = {
 # 2026-11-11: kernel bit-tests, synthetic native-vs-reference token equality,
 # and the real 14.38GB artifact resident smoke.
 EXECUTION_QUALIFIED = {
-    # q5_g64_fp16 added for night-tps-20261117 single-GPU fused W5A16 path:
-    # bit-tests green (33 codec + kernel A/B vs dequant reference); final
-    # same-artifact fused-vs-dequant-resident trajectory check pending below.
-    (7, 0): {"q8_g32_fp16", "q5_g64_fp16"},
+    # SM70 Q5 remains closed until same-artifact model/state qualification.
+    (7, 0): {"q8_g32_fp16"},
     (8, 9): {"q8_g32_fp16", "q4_g64_fp16", "q5_g64_fp16", "q6_g64_fp16"},
     (8, 6): {"q8_g32_fp16"},
 }
@@ -135,3 +133,9 @@ def dequantize_planes(codes, scales, high, shape, fmt):
         )
     values = (signed * scale[:, :, None]).reshape(n, -1)[:, :k]
     return torch.from_numpy(np.ascontiguousarray(values)).to(torch.float16)
+
+
+# A kernel can be numerically correct for its declared INT8 arithmetic yet fail
+# the model quality gate. Do not inherit A16 codec qualification for one-pass A8.
+# The independent fixture campaign observed relative L2 0.0553 > fixed 0.02.
+ACTIVATION_INT8_QUALIFIED = {(7, 0): set(), (8, 9): set()}

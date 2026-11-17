@@ -103,12 +103,13 @@ __global__ __launch_bounds__(256) void q5_wmma_kernel(
 extern "C" int venturi_q5_hmma_run(
     const void* x, const void* codes, const void* high, const void* scales, void* out,
     int tokens, int rows, int k, int padded, void* stream) {
-    if (!x || !codes || !high || !scales || !out || tokens <= 0 || tokens > 65535 ||
-        rows <= 0 || k % 64 || padded < k || padded % 128)
-        return -1;
-    const dim3 grid((rows + 127) / 128, (tokens + 15) / 16);
-    q5mma::q5_wmma_kernel<<<grid, 256, 0, (cudaStream_t)stream>>>(
-        (const __half*)x, (const unsigned char*)codes, (const unsigned char*)high,
-        (const __half*)scales, (__half*)out, tokens, rows, k, padded);
-    return (int)cudaGetLastError();
+    try {
+        require(x && codes && high && scales && out && tokens>0 && tokens<=65535 && rows>0 && k>0 && k%64==0 && padded>=k && padded%128==0,
+            "invalid q5 HMMA input/geometry");
+        const dim3 grid((rows+127)/128,(tokens+15)/16);
+        q5mma::q5_wmma_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
+            static_cast<const __half*>(x),static_cast<const unsigned char*>(codes),static_cast<const unsigned char*>(high),
+            static_cast<const __half*>(scales),static_cast<__half*>(out),tokens,rows,k,padded);
+        check(cudaGetLastError());return 0;
+    } catch(const std::exception& e) { error_text=e.what();return -1; }
 }

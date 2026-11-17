@@ -40,14 +40,10 @@ __global__ inline void q5_fused_run_kernel(
         const int c1 = (g + 1) * 64 + lane * 2;
         const int c2 = (g + 2) * 64 + lane * 2;
         const int c3 = (g + 3) * 64 + lane * 2;
-        const __half2 xa = c0 + 1 < k ? *reinterpret_cast<const __half2*>(xrow + c0)
-                                      : __half2{__float2half(0), __float2half(0)};
-        const __half2 xb = c1 + 1 < k ? *reinterpret_cast<const __half2*>(xrow + c1)
-                                      : __half2{__float2half(0), __float2half(0)};
-        const __half2 xc = c2 + 1 < k ? *reinterpret_cast<const __half2*>(xrow + c2)
-                                      : __half2{__float2half(0), __float2half(0)};
-        const __half2 xd = c3 + 1 < k ? *reinterpret_cast<const __half2*>(xrow + c3)
-                                      : __half2{__float2half(0), __float2half(0)};
+        const __half2 xa = __halves2half2(c0<k?xrow[c0]:__float2half(0), c0+1<k?xrow[c0+1]:__float2half(0));
+        const __half2 xb = __halves2half2(c1<k?xrow[c1]:__float2half(0), c1+1<k?xrow[c1+1]:__float2half(0));
+        const __half2 xc = __halves2half2(c2<k?xrow[c2]:__float2half(0), c2+1<k?xrow[c2+1]:__float2half(0));
+        const __half2 xd = __halves2half2(c3<k?xrow[c3]:__float2half(0), c3+1<k?xrow[c3+1]:__float2half(0));
         const float s0 = __half2float(srow[g + 0]);
         const float s1 = __half2float(srow[g + 1]);
         const float s2 = __half2float(srow[g + 2]);
@@ -60,7 +56,7 @@ __global__ inline void q5_fused_run_kernel(
             int hi = (p0 >> 4) | ((two >> 1) << 4);
             if (lo >= 16) lo -= 32;
             if (hi >= 16) hi -= 32;
-            acc += s0 * (lo * __half2float(__low2half(xa)) + hi * __half2float(__high2half(xa)));
+            acc += __half2float(__float2half(lo*s0))*__half2float(__low2half(xa)) + __half2float(__float2half(hi*s0))*__half2float(__high2half(xa));
         }
         {
             const int two = (b1 >> ((lane * 2) & 7)) & 3;
@@ -68,7 +64,7 @@ __global__ inline void q5_fused_run_kernel(
             int hi = (p1 >> 4) | ((two >> 1) << 4);
             if (lo >= 16) lo -= 32;
             if (hi >= 16) hi -= 32;
-            acc += s1 * (lo * __half2float(__low2half(xb)) + hi * __half2float(__high2half(xb)));
+            acc += __half2float(__float2half(lo*s1))*__half2float(__low2half(xb)) + __half2float(__float2half(hi*s1))*__half2float(__high2half(xb));
         }
         {
             const int two = (b2 >> ((lane * 2) & 7)) & 3;
@@ -76,7 +72,7 @@ __global__ inline void q5_fused_run_kernel(
             int hi = (p2 >> 4) | ((two >> 1) << 4);
             if (lo >= 16) lo -= 32;
             if (hi >= 16) hi -= 32;
-            acc += s2 * (lo * __half2float(__low2half(xc)) + hi * __half2float(__high2half(xc)));
+            acc += __half2float(__float2half(lo*s2))*__half2float(__low2half(xc)) + __half2float(__float2half(hi*s2))*__half2float(__high2half(xc));
         }
         {
             const int two = (b3 >> ((lane * 2) & 7)) & 3;
@@ -84,7 +80,7 @@ __global__ inline void q5_fused_run_kernel(
             int hi = (p3 >> 4) | ((two >> 1) << 4);
             if (lo >= 16) lo -= 32;
             if (hi >= 16) hi -= 32;
-            acc += s3 * (lo * __half2float(__low2half(xd)) + hi * __half2float(__high2half(xd)));
+            acc += __half2float(__float2half(lo*s3))*__half2float(__low2half(xd)) + __half2float(__float2half(hi*s3))*__half2float(__high2half(xd));
         }
     }
 
@@ -97,10 +93,11 @@ __global__ inline void q5_fused_run_kernel(
         if (lo >= 16) lo -= 32;
         if (hi >= 16) hi -= 32;
         const int cl = g * 64 + lane * 2;
+        const float scale=__half2float(srow[g]);
         float ga = 0.0f;
-        if (cl < k)     ga += lo * __half2float(xrow[cl]);
-        if (cl + 1 < k) ga += hi * __half2float(xrow[cl + 1]);
-        acc += ga * __half2float(srow[g]);
+        if (cl < k)     ga += __half2float(__float2half(lo*scale)) * __half2float(xrow[cl]);
+        if (cl + 1 < k) ga += __half2float(__float2half(hi*scale)) * __half2float(xrow[cl + 1]);
+        acc += ga;
     }
 
     // One butterfly reduction per row (5 shuffles).

@@ -85,7 +85,7 @@ or discover libraries. Two-arm operator benchmarks must provide matching runtime
 paths for both arms rather than binding a candidate runtime to a control library.
 
 This is an intentional interface break: operator ABI **17**, Qwen runtime ABI
-**1**. The old monolithic ABI-16 library, `--blocks-library`,
+**2**. The descriptor size guard also rejects ABI-1 Matrix/Layer layouts. The old monolithic ABI-16 library, `--blocks-library`,
 `VENTURI_BLOCKS_LIBRARY` and `build_blocks_backend` are not compatibility aliases.
 Runtime errors and operator errors have independent thread-local channels;
 model failures must be checked through QwenRuntime, not CudaBackend.

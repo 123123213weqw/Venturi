@@ -30,7 +30,8 @@ CAPABILITY = torch.cuda.get_device_capability() if torch.cuda.is_available() els
 EXECUTABLE_CODECS = ["q4_g64_fp16", "q5_g64_fp16", "q6_g64_fp16"]
 
 pytestmark = pytest.mark.skipif(
-    CAPABILITY != (8, 9), reason="row-codec dense qualification targets SM89"
+    CAPABILITY not in ((7, 0), (8, 9)),
+    reason="row-codec qualification targets SM70/SM89",
 )
 
 
@@ -142,7 +143,7 @@ def _requant(values_f32, fmt):
     return packed, high, scale.astype("<f2")
 
 
-def _codec_artifact_from_q8(q8_source, out_path, fmt):
+def _codec_artifact_from_q8(q8_source, out_path, fmt, matrix_formats=None):
     """Tiny fixture conversion using physical tensors, not a private directory."""
     import json, numpy as np
     from safetensors.torch import save_file
@@ -159,7 +160,10 @@ def _codec_artifact_from_q8(q8_source, out_path, fmt):
             values = codes.astype(np.float32) * np.repeat(
                 scales.astype(np.float32), 32, axis=1
             )
-            packed, high, scale = _requant(values, fmt)
+            target_fmt = (matrix_formats or {}).get(spec.binding, fmt)
+            packed, high, scale = _requant(values, target_fmt)
+            if target_fmt == "q8_g32_fp16":
+                packed = packed.view(np.int8)
             tensors[spec.source + ".codes"] = torch.from_numpy(packed)
             if high is not None:
                 tensors[spec.source + ".high"] = torch.from_numpy(high)
@@ -168,6 +172,7 @@ def _codec_artifact_from_q8(q8_source, out_path, fmt):
             tensors[spec.source] = weights.read_float(spec.binding)
     meta = weights.source.metadata()
     meta["venturi.matrix_format"] = fmt
+    meta["venturi.matrix_formats"] = json.dumps(matrix_formats or {})
     save_file(tensors, str(out_path), metadata=meta)
     return out_path
 

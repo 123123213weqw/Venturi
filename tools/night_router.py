@@ -1,5 +1,6 @@
 """Night dual-instance least-loaded router: two loopback backends, in-flight
 counting, no queueing beyond the backends' own capacity."""
+
 import argparse
 import json
 import threading
@@ -12,10 +13,15 @@ class Backends:
         self.urls = list(urls)
         self.inflight = [0] * len(urls)
         self.lock = threading.Lock()
+        self.cursor = 0
 
     def acquire(self):
         with self.lock:
-            index = min(range(len(self.urls)), key=lambda i: self.inflight[i])
+            index = min(
+                range(len(self.urls)),
+                key=lambda i: (self.inflight[i], (i - self.cursor) % len(self.urls)),
+            )
+            self.cursor = (index + 1) % len(self.urls)
             self.inflight[index] += 1
             return index
 
@@ -40,7 +46,11 @@ def make_handler(backends):
                     backends.urls[index] + self.path,
                     data=body,
                     method=method,
-                    headers={"Content-Type": self.headers.get("Content-Type", "application/json")},
+                    headers={
+                        "Content-Type": self.headers.get(
+                            "Content-Type", "application/json"
+                        )
+                    },
                 )
                 try:
                     with urllib.request.urlopen(req, timeout=3600) as r:
@@ -48,6 +58,13 @@ def make_handler(backends):
                 except urllib.error.HTTPError as exc:
                     payload, status = exc.read(), exc.code
                 self.send_response(status)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+            except (OSError, TimeoutError) as exc:
+                payload = json.dumps({"error": type(exc).__name__}).encode()
+                self.send_response(502)
                 self.send_header("Content-Type", "application/json")
                 self.send_header("Content-Length", str(len(payload)))
                 self.end_headers()
@@ -79,13 +96,18 @@ def make_handler(backends):
     return Handler
 
 
+class BenchmarkRouter(ThreadingHTTPServer):
+    request_queue_size = 128
+    daemon_threads = True
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, required=True)
     parser.add_argument("--backend", action="append", required=True)
     args = parser.parse_args()
     backends = Backends(args.backend)
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), make_handler(backends))
+    server = BenchmarkRouter(("127.0.0.1", args.port), make_handler(backends))
     print(json.dumps({"router": args.port, "backends": args.backend}), flush=True)
     server.serve_forever()
 

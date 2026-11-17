@@ -39,6 +39,7 @@ class Config(C.Structure):
             ("second_device", C.c_int),
             ("peer_transport", C.c_int),
             ("reserve", C.c_uint64),
+            ("linear_implementation", C.c_int),
         ]
     )
 
@@ -50,9 +51,9 @@ class Span(C.Structure):
 
 
 class Matrix(C.Structure):
-    # PR-A per-matrix codecs: bits/group default to 0 = inherit the config's
-    # dominant format; a future exporter can set them per matrix to mix codecs
-    # in one checkpoint. Field order must match VRMatrix in qwen_runtime.cuh.
+    # Every loader descriptor supplies bits/group explicitly; zero is retained
+    # only for native internal descriptors inheriting the validated config.
+    # Field order must match VRMatrix in qwen_runtime.cuh (runtime ABI 2).
     _fields_ = [
         ("offset", C.c_uint64),
         ("high", C.c_uint64),

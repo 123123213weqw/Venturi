@@ -49,7 +49,10 @@ def plan_budget(spec, owned, cfg):
         s.shape[1] for s in owned.plan.bindings if codec_for(s.format).quantized
     )
     quant_bytes = (
-        max_tokens * ((max_projection_k + 31) // 32) * 36 * 2
+        max_tokens
+        * ((max_projection_k + 31) // 32)
+        * 36
+        * (1 if spec.projection_profile == "int8" else 2)
         if spec.projection_profile != "fp16"
         else 0
     )

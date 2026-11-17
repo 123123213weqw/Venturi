@@ -47,7 +47,11 @@ class QwenWeights:
             raise ValueError("Missing Qwen checkpoint metadata")
         cfg = json.loads(meta["venturi.config"])
         fmt = meta["venturi.matrix_format"]
-        plan = QwenSourcePlan.from_config(cfg, matrix_format=fmt)
+        plan = QwenSourcePlan.from_config(
+            cfg,
+            matrix_format=fmt,
+            matrix_formats=json.loads(meta.get("venturi.matrix_formats", "{}")),
+        )
         return cls._admit(source, plan, "text")
 
     @classmethod

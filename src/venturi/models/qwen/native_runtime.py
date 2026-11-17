@@ -33,7 +33,7 @@ class QwenRuntime:
         if with_prefix is not None:
             with_prefix.argtypes = [C.c_void_p, C.c_int, C.c_uint64, C.c_int]
             with_prefix.restype = C.c_void_p
-        if self._native.venturi_qwen_abi() != 1:
+        if self._native.venturi_qwen_abi() != 2:
             raise RuntimeError("Qwen runtime ABI mismatch; rebuild explicitly")
         if self._native.venturi_qwen_arch() != operators.architecture:
             raise RuntimeError("Qwen and operator architectures differ")
