@@ -273,6 +273,48 @@ class Q5RowSplitWeight:
         scale_plane[:, : scales.shape[1]] = scales
         return cls(packed, high, scale_plane, k)
 
+    @classmethod
+    def from_dense(cls, source, *, rows_per_chunk=256):
+        """Explicit nearest-even RTN using the stored FP16 scale.
+
+        scale = FP16(max(abs(group))/15); codes = clip(round(x/scale),-16,15)
+        over K64 groups, padding zero. Mirrors Q8RowSplitWeight.from_dense:
+        creates NEW quantized weights, chunked by rows, sources unchanged.
+        """
+        dense = DenseWeight(source)
+        if source.device.type != "cpu":
+            raise ValueError("Q5 quantization requires an explicit CPU source")
+        if type(rows_per_chunk) is not int or not 0 < rows_per_chunk < 2**31:
+            raise ValueError("rows_per_chunk must be a positive int32")
+        n, k = dense.out_features, dense.in_features
+        padded = (k + 127) // 128 * 128
+        if padded >= 2**31:
+            raise ValueError("Padded Q5 K must fit int32")
+        codes = torch.zeros(n, padded, dtype=torch.int16)
+        scales = torch.zeros(n, padded // 64, dtype=torch.float16)
+        work = torch.float64 if source.dtype == torch.float64 else torch.float32
+        with torch.no_grad():
+            for begin in range(0, n, rows_per_chunk):
+                end = min(n, begin + rows_per_chunk)
+                values = torch.zeros(end - begin, padded, dtype=work)
+                values[:, :k].copy_(source[begin:end].detach())
+                if not bool(torch.isfinite(values).all()):
+                    raise ValueError("Q5 source must be finite")
+                groups = values.view(end - begin, -1, 64)
+                stored = (groups.abs().amax(-1) / 15).to(torch.float16)
+                if not bool(torch.isfinite(stored).all()):
+                    raise ValueError("Q5 group scale overflows FP16")
+                divisor = stored.to(work).unsqueeze(-1)
+                normalized = groups / torch.where(
+                    divisor > 0, divisor, torch.ones_like(divisor)
+                )
+                quantized = torch.where(
+                    divisor > 0, normalized.round().clamp(-16, 15), 0
+                )
+                codes[begin:end].copy_(quantized.reshape(end - begin, padded))
+                scales[begin:end].copy_(stored)
+        return cls.from_codes(codes[:, :k], scales[:, :(k + 63) // 64])
+
     def dequantize_reference(self) -> torch.Tensor:
         """CPU FP64 diagnostic reference, never called by native execution."""
         self.validate()

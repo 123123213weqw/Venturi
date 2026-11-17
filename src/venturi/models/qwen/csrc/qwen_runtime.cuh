@@ -347,6 +347,12 @@ struct Model {
             op(venturi_q4_fused_run(x,codes,scales,out,t,rows,m.k,padded(m),c.dtype,s));
             return;
         }
+        if (row_codec() && c.weight_bits == 5 && !c.dequant_resident && high_ptr(m)) {
+            // Fused q5 GEMM (night-tps-20261117): read codes + fifth-bit high
+            // plane directly, never materialize FP16 weights.
+            op(venturi_q5_fused_run(x,codes,high_ptr(m),scales,out,t,rows,m.k,padded(m),c.dtype,s));
+            return;
+        }
         if (row_codec()) { row_dense_project(m,x,codes,static_cast<const unsigned char*>(high_ptr(m)),scales,out,t,rows);return; }
         if(!activation_passes) {op(venturi_q8_head_run(x,codes,scales,out,t,rows,m.k,padded(m),c.dtype,s));return;}
         if(!packed)op(venturi_q8_dp4a_quantize(x,quant.ptr,quant.bytes,t,m.k,activation_passes,s));

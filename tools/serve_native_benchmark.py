@@ -287,7 +287,7 @@ def main():
     p.add_argument("--target-layer-graph", action="store_true")
     p.add_argument("--mtp-depth", type=int, choices=(1, 2), default=1)
     p.add_argument("--mtp-recovery", choices=("replay", "prefix"), default="replay")
-    p.add_argument("--mode", choices=("tp", "pp"), required=True)
+    p.add_argument("--mode", choices=("tp", "pp", "single"), required=True)
     p.add_argument("--port", type=int, required=True)
     p.add_argument("--slots", type=int, default=8)
     p.add_argument("--capacity", type=int, default=256)
@@ -343,12 +343,12 @@ def main():
     args = p.parse_args()
     if args.prefill_policy != "round-robin" and not args.continuous_target:
         p.error("Balanced prefill requires an explicit continuous target")
-    if args.metadata_mode == "sealed" and args.mode != "tp":
+    if args.metadata_mode == "sealed" and args.mode not in ("tp", "single"):
         p.error(
-            "Sealed metadata benchmark mode currently requires an explicit TP target"
+            "Sealed metadata benchmark mode currently requires an explicit TP/single target"
         )
     if args.continuous_target and (
-        args.mode != "tp"
+        args.mode not in ("tp", "single")
         or args.mtp_checkpoint
         or args.adaptive_mtp
         or args.batch_target
@@ -441,26 +441,35 @@ def main():
         device="cuda:0",
         max_tokens=args.projection_rows,
     )
-    target = (
-        NativeQwenModel.from_q8(
+    if args.mode == "single":
+        target = NativeQwenModel.from_q8(
             weights,
             QwenRuntime(args.qwen_library, backend),
-            tensor_parallel_device="cuda:1",
-            tensor_parallel_transport="host",
             projection_profile=args.projection_profile,
             metadata_mode=args.metadata_mode,
             **kw,
         )
-        if args.mode == "tp"
-        else NativeQwenPipelineModel.from_q8(
-            weights,
-            QwenRuntime(args.qwen_library, backend),
-            pipeline_device="cuda:1",
-            split_layer=32,
-            transport="host",
-            **kw,
+    else:
+        target = (
+            NativeQwenModel.from_q8(
+                weights,
+                QwenRuntime(args.qwen_library, backend),
+                tensor_parallel_device="cuda:1",
+                tensor_parallel_transport="host",
+                projection_profile=args.projection_profile,
+                metadata_mode=args.metadata_mode,
+                **kw,
+            )
+            if args.mode == "tp"
+            else NativeQwenPipelineModel.from_q8(
+                weights,
+                QwenRuntime(args.qwen_library, backend),
+                pipeline_device="cuda:1",
+                split_layer=32,
+                transport="host",
+                **kw,
+            )
         )
-    )
     model = target
     sessions = []
     batch = admission = None
