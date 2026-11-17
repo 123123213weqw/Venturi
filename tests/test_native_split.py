@@ -31,6 +31,8 @@ def test_qwen_includes_only_operator_contract_and_stateless_helpers():
         # Unified model-agnostic KV storage: contract-shared mechanism headers.
         "ops/csrc/kv/kv_pool.cuh",
         "ops/csrc/kv/kv_prefix.cuh",
+        # Load-time model-agnostic dispatch contract: C API pointers, no kernels.
+        "ops/csrc/row_codec_dispatch.cuh",
     }
     assert "models/qwen/csrc/qwen_runtime.cuh" in files
     text = "\n".join(

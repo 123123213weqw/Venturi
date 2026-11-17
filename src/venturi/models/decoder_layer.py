@@ -12,7 +12,7 @@ import threading
 import torch
 
 from ..ops.blocks import _no_overlap, _shape, _tensor
-from ..ops.weights import DenseWeight, Q4RowSplitWeight, Q8RowSplitWeight
+from ..ops.weights import DenseWeight, Q4RowSplitWeight, Q5RowSplitWeight, Q8RowSplitWeight
 from .gated_mlp import GatedMLPWeights, GatedMLPWorkspace
 
 
@@ -77,10 +77,10 @@ class AttentionDimensions:
 @dataclass(frozen=True)
 class DecoderLayerWeights:
     attention_norm: torch.Tensor
-    query: DenseWeight | Q4RowSplitWeight | Q8RowSplitWeight
-    key: DenseWeight | Q4RowSplitWeight | Q8RowSplitWeight
-    value: DenseWeight | Q4RowSplitWeight | Q8RowSplitWeight
-    output: DenseWeight | Q4RowSplitWeight | Q8RowSplitWeight
+    query: DenseWeight | Q4RowSplitWeight | Q5RowSplitWeight | Q8RowSplitWeight
+    key: DenseWeight | Q4RowSplitWeight | Q5RowSplitWeight | Q8RowSplitWeight
+    value: DenseWeight | Q4RowSplitWeight | Q5RowSplitWeight | Q8RowSplitWeight
+    output: DenseWeight | Q4RowSplitWeight | Q5RowSplitWeight | Q8RowSplitWeight
     mlp: GatedMLPWeights
 
     def __post_init__(self):
@@ -89,10 +89,10 @@ class DecoderLayerWeights:
         h = self.mlp.gate.in_features
         for weight in (self.query, self.key, self.value, self.output):
             if not isinstance(
-                weight, (DenseWeight, Q4RowSplitWeight, Q8RowSplitWeight)
+                weight, (DenseWeight, Q4RowSplitWeight, Q5RowSplitWeight, Q8RowSplitWeight)
             ):
                 raise TypeError(
-                    "Decoder projections require explicit dense, Q4 or Q8 descriptors"
+                    "Decoder projections require explicit dense, Q4, Q5 or Q8 descriptors"
                 )
             weight.validate()
         if any(w.in_features != h for w in (self.query, self.key, self.value)):

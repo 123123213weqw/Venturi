@@ -1063,6 +1063,7 @@ namespace vrow {
 #include "q4_fused.cuh"
 #include "q5_fused.cuh"
 }
+#include "q5_cublas.cuh"
 // q5 fused GEMM: reads q5_g64_fp16 codes + high plane directly, no FP16
 // materialization. W5A16 mirrors the q4 fused kernel geometry.
 extern "C" int venturi_q5_fused_run(const void* x,const void* codes,const void* high,const void* scales,void* out,int t,int rows,int k,int padded,int dtype,void* stream) {

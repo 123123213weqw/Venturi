@@ -19,7 +19,7 @@ from torch.nn import functional as F
 
 from .ada import _overlaps
 from .backend import Backend, BackendCapabilities, OperatorSupport
-from .weights import DenseWeight, Q4RowSplitWeight, Q8RowSplitWeight
+from .weights import DenseWeight, Q4RowSplitWeight, Q5RowSplitWeight, Q8RowSplitWeight
 
 _DTYPES = {torch.float16: 0, torch.bfloat16: 1, torch.float32: 2}
 
@@ -160,7 +160,7 @@ class ResidentRMSNorm:
         return self._backend.bind_rmsnorm(self, tokens=tokens)
 
 
-def _block_capabilities(*, reference, architecture=None, q4=False):
+def _block_capabilities(*, reference, architecture=None, q4=False, q5=False):
     devices = frozenset(("cpu", "cuda") if reference else ("cuda",))
     dtypes = frozenset(
         (torch.float16, torch.bfloat16, torch.float32, torch.float64)
@@ -209,6 +209,10 @@ def _block_capabilities(*, reference, architecture=None, q4=False):
                 materializes_weights=reference,
             )
         )
+    if reference or (q5 and architecture == 70):
+        operators.append(OperatorSupport(
+            "linear", devices, quant_dtypes if reference else frozenset((torch.float16,)),
+            "q5_g64_fp16", "row_split_k128_v1", materializes_weights=reference))
     return BackendCapabilities(
         "torch-reference" if reference else f"venturi-blocks-sm{architecture}",
         tuple(operators),
@@ -318,6 +322,7 @@ class CudaBackend(_SharedPreparedBackend):
             reference=False,
             architecture=self.architecture,
             q4=self.q4_backend is not None,
+            q5=getattr(self, "_q5_available", False),
         )
 
     def __init__(self, library, *, q4_backend=None):
@@ -333,6 +338,7 @@ class CudaBackend(_SharedPreparedBackend):
         self.architecture = self._native.venturi_blocks_arch()
         if self.architecture not in (70, 89):
             raise RuntimeError("Unsupported Venturi blocks architecture tag")
+        self._q5_available = hasattr(self._native, "venturi_q5_backend_version")
         signatures = {
             "venturi_blocks_abi": ([], ctypes.c_int),
             "venturi_blocks_error": ([], ctypes.c_char_p),
@@ -456,11 +462,14 @@ class CudaBackend(_SharedPreparedBackend):
         return target
 
     def upload_linear(self, weight, *, dtype, device):
-        if not isinstance(weight, (DenseWeight, Q4RowSplitWeight, Q8RowSplitWeight)):
+        if not isinstance(weight, (DenseWeight, Q4RowSplitWeight, Q5RowSplitWeight, Q8RowSplitWeight)):
             raise TypeError(
-                "Linear requires explicit DenseWeight, Q4RowSplitWeight or Q8RowSplitWeight"
+                "Linear requires explicit DenseWeight, Q4RowSplitWeight, Q5RowSplitWeight or Q8RowSplitWeight"
             )
         weight.validate()
+        if isinstance(weight, Q5RowSplitWeight):
+            from .q5_linear import upload_q5
+            return upload_q5(self, weight, dtype=dtype, device=device)
         target = self.validate_device(dtype, device)
         if isinstance(weight, Q8RowSplitWeight):
             from .vocabulary import Q8VocabularyWeights
@@ -518,7 +527,10 @@ class CudaBackend(_SharedPreparedBackend):
         if resident._backend is not self:
             raise ValueError("Resident weight belongs to a different backend instance")
         from .vocabulary import ResidentQ8Vocabulary
+        from .q5_linear import ResidentQ5
 
+        if isinstance(resident._payload, ResidentQ5):
+            return resident._payload.prepare(tokens=tokens)
         if isinstance(resident._payload, ResidentQ8Vocabulary):
             return _Q8Linear(resident._payload.prepare(tokens=tokens))
         if not isinstance(resident._payload, torch.Tensor):
@@ -889,9 +901,9 @@ class TorchBackend(_SharedPreparedBackend):
         return target
 
     def upload_linear(self, weight, *, dtype, device):
-        if not isinstance(weight, (DenseWeight, Q4RowSplitWeight, Q8RowSplitWeight)):
+        if not isinstance(weight, (DenseWeight, Q4RowSplitWeight, Q5RowSplitWeight, Q8RowSplitWeight)):
             raise TypeError(
-                "Linear requires explicit DenseWeight, Q4RowSplitWeight or Q8RowSplitWeight"
+                "Linear requires explicit DenseWeight, Q4RowSplitWeight, Q5RowSplitWeight or Q8RowSplitWeight"
             )
         weight.validate()
         device = self.validate_device(dtype, device)
@@ -908,7 +920,10 @@ class TorchBackend(_SharedPreparedBackend):
                     "Quantized reference preparation requires explicit CPU planes"
                 )
             work_dtype = torch.float64 if dtype == torch.float64 else torch.float32
-            data = weight.dequantize_reference().to(device=device, dtype=work_dtype)
+            decoded = weight.dequantize_reference()
+            if isinstance(weight, Q5RowSplitWeight):
+                decoded = decoded.half()  # explicit Q5 FP16 decode boundary
+            data = decoded.to(device=device, dtype=work_dtype)
         if not bool(torch.isfinite(data).all()):
             raise ValueError("Linear weights must be finite in the execution dtype")
         if device.type == "cuda":
@@ -919,7 +934,7 @@ class TorchBackend(_SharedPreparedBackend):
                 data,
                 (
                     weight.format
-                    if isinstance(weight, (Q4RowSplitWeight, Q8RowSplitWeight))
+                    if isinstance(weight, (Q4RowSplitWeight, Q5RowSplitWeight, Q8RowSplitWeight))
                     else False
                 ),
             ),

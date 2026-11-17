@@ -107,7 +107,7 @@ extern "C" int venturi_q5_hmma_run(
     const void* x, const void* codes, const void* high, const void* scales, void* out,
     int tokens, int rows, int k, int padded, void* stream) {
     if (!x || !codes || !high || !scales || !out || tokens <= 0 || tokens > 65535 ||
-        rows <= 0 || k % 64 || padded < k || padded % 128)
+        rows <= 0 || k <= 0 || k % 64 || padded < k || padded % 128)
         return -1;
     const dim3 grid((rows + 127) / 128, (tokens + 15) / 16);
     q5mma::q5_wmma_kernel<<<grid, 256, 0, (cudaStream_t)stream>>>(

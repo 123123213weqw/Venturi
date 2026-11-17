@@ -204,6 +204,23 @@ class NativeQwenModel:
             )
         )
 
+    def configure_q5_linear(self, route, *, workspace_limit_bytes=256 * 1024**2):
+        """Opt-in SM70 native Q5 baseline/adaptive service-loop routing."""
+        from .qwen_q5 import configure
+
+        return configure(self, route, workspace_limit_bytes)
+
+    def calibrate_q5_linear(self, token_rows, **kwargs):
+        """Explicit startup calibration before any request session exists."""
+        from .qwen_q5 import calibrate
+
+        return calibrate(self, token_rows, **kwargs)
+
+    def q5_linear_info(self):
+        from .qwen_q5 import info
+
+        return info(self)
+
     def kv_cache_info(self):
         """Model-wide KV pool stats, not per-request bytes or NVML VRAM/RSS."""
         with self._lock:

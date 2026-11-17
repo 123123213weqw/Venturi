@@ -117,6 +117,10 @@ inline std::uint64_t scales_bytes(const VRMatrix& m,int group) { return mul(m.n,
 #include "staged_uploader.cuh"
 #include "weight_validate.cuh"
 
+} // namespace vr
+#include "qwen_q5_router.cuh"
+namespace vr {
+
 template<class T> __global__ void tables(const float* inv,float* cos,float* sin,int half,int count) {
     for (int i=blockIdx.x*blockDim.x+threadIdx.x;i<count;i+=gridDim.x*blockDim.x) {
         const float phase=__fmul_rn(static_cast<float>(i/half),inv[i%half]);
@@ -150,6 +154,7 @@ struct Model {
     std::map<std::uint64_t,std::unique_ptr<Buffer>> resident_weights;
     std::map<std::uint64_t,std::unique_ptr<Buffer>> second_weights;
     Buffer arena, inverse, blas_workspace;
+    Q5Router q5_router;
     Buffer first_output,second_input,second_output;
     // Explicit alternate arithmetic only. Scratch is shared by serialized model
     // calls, not by independent request caches; no quantized weights are copied.
@@ -278,8 +283,9 @@ struct Model {
             const int bits=matrix_bits(m);
             if (bits>=4 && bits<=6) {
                 const auto* plan=rowcodec::prepare(bits,rowcodec::Precision::WxA16);
-                require(plan,"no registered WxA16 row-codec plan for this matrix's bits");
-                plans.emplace(m.offset,plan);
+                // Q6 keeps its bounded dequant+GEMM route until a fused family exists.
+                require(plan || bits==6,"no registered WxA16 row-codec plan for this matrix's bits");
+                if (plan) plans.emplace(m.offset,plan);
             }
             matrices.emplace(m.offset,m);
         }
@@ -363,6 +369,10 @@ struct Model {
         }
     }
     void project(const VRMatrix& m,const void* x,const std::int8_t* codes,const __half* scales,void* out,int t,int rows,Buffer& quant,cudaStream_t s,bool packed=false) {
+        if (q5_router.mode) {
+            require(matrix_bits(m)==5 && matrix_group(m)==64 && s==stream.ptr,"Q5 adaptive requires serialized G64 model projections");
+            q5_router.project(dense.ptr,m,x,codes,high_ptr(m),scales,out,t,rows,s,m.offset==head.offset);return;
+        }
         // QuantLinear dispatch (PR-A): plans resolve per matrix at load time
         // (register_matrix); decode-time selection is one threshold test plus
         // a direct call. A plan only holds kernels sharing its precision
@@ -370,6 +380,7 @@ struct Model {
         // precision. The WxA8 dp4a family stays registered in rowcodec but is
         // reachable only under an explicit WxA8 policy (future ABI field).
         if (row_codec() && !c.dequant_resident) {
+            if (matrix_bits(m)==6) { row_dense_project(m,x,codes,high_ptr(m),scales,out,t,rows);return; }
             auto pit=plans.find(m.offset);
             require(pit!=plans.end(),"row-codec matrix has no prepared linear plan");
             const rowcodec::LinearPlan& plan=*pit->second;
@@ -1294,4 +1305,31 @@ extern "C" VENTURI_EXPORT void* venturi_qwen_session_with_prefix(void* h,int cap
         vr::require(m->kv_tier && m->kv_prefix,"prefix sharing requires the VRAM-first KV tier enabled before requests");
         m->source();return new vr::Session(m,capacity,true,key,prefix_tokens);
     }catch(const std::exception& e){error_text=e.what();return nullptr;}
+}
+
+// Additive Q5 service-loop ABI; the base model/descriptor ABI is unchanged.
+extern "C" VENTURI_EXPORT int venturi_qwen_q5_configure(void* h,int mode,std::uint64_t budget) {
+    try{vr::require(h && mode>=0 && mode<=2,"invalid Q5 mode");auto m=*static_cast<vr::Handle*>(h);std::lock_guard<std::mutex> lock(m->mutex);vr::Device d(m->c.device);m->sync();
+        vr::require(VENTURI_BLOCKS_ARCH==70 && m->c.weight_bits==5 && m->c.weight_group==64 && m->c.dtype==0 && m->c.resident && !m->c.dequant_resident && !m->stage && !m->parallel() && !m->activation_passes && !m->experiments && m->rank_graphs.empty(),"Q5 routing requires a plain single-device resident SM70 FP16/G64 target without graphs");
+        for(const auto& [_,a]:m->matrices)vr::require(m->matrix_bits(a)==5 && m->matrix_group(a)==64,"Q5 routing rejects mixed codecs");
+        if(!m->q5_router.scratch.ptr){vr::require(!m->session_created && budget>=8ULL*1024*1024 && budget<=1024ULL*1024*1024,"Q5 scratch must be configured before requests (8..1024 MiB)");m->guard(budget);m->q5_router.scratch.allocate(budget);m->device_bytes=vr::add(m->device_bytes,budget);}
+        vr::require(budget==m->q5_router.scratch.bytes,"Q5 budget is immutable after preparation");
+        m->q5_router.mode=mode;m->q5_router.reset();return 0;
+    }catch(const std::exception& e){error_text=e.what();return -1;}
+}
+extern "C" VENTURI_EXPORT int venturi_qwen_q5_calibrate(void* h,const int* tokens,int count,int repeats,int iterations,double gain) {
+    try{vr::require(h && tokens && count>0 && count<=128 && repeats>0 && repeats<=31 && iterations>0 && iterations<=100 && gain>=0 && gain<1,"invalid Q5 calibration arguments");auto m=*static_cast<vr::Handle*>(h);std::lock_guard<std::mutex> lock(m->mutex);vr::Device d(m->c.device);
+        vr::require(m->q5_router.scratch.ptr && !m->session_created,"Q5 calibration requires preparation before requests");m->sync();
+        for(int j=0;j<count;++j)vr::require(tokens[j]>0 && tokens[j]<=m->c.max_tokens,"Q5 calibration token rows exceed model workspace");
+        std::set<std::pair<int,int>> seen;
+        for(const auto& [_,a]:m->matrices){if(a.offset!=m->head.offset)continue;if(!seen.emplace(a.n,a.k).second)continue;auto w=m->weight(a);
+            for(int j=0;j<count;++j)m->q5_router.calibrate(m->dense.ptr,a,w.first,m->high_ptr(a),w.second,tokens[j],m->stream.ptr,repeats,iterations,gain);
+        }m->sync();m->q5_router.reset();return 0;
+    }catch(const std::exception& e){error_text=e.what();return -1;}
+}
+extern "C" VENTURI_EXPORT int venturi_qwen_q5_info(void* h,std::uint64_t* info,double* records,int capacity) {
+    try{vr::require(h && info && capacity>=0,"invalid Q5 info output");auto m=*static_cast<vr::Handle*>(h);std::lock_guard<std::mutex> lock(m->mutex);auto& q=m->q5_router;
+        const std::uint64_t v[]={2,std::uint64_t(q.mode),q.scratch.bytes,q.records.size(),q.calls[0],q.calls[1],q.calls[2],q.rows[0],q.rows[1],q.rows[2],q.misses,q.guarded};std::copy(v,v+12,info);
+        if(records){vr::require(capacity>=int(q.records.size()),"Q5 record output capacity too small");int i=0;for(const auto& [_,r]:q.records){double row[]={double(r.n),double(r.k),double(r.t),double(r.route),double(r.valid),r.ms[0],r.ms[1],r.ms[2],r.error[0],r.error[1],r.error[2]};std::copy(row,row+11,records+11*i++);}}return 0;
+    }catch(const std::exception& e){error_text=e.what();return -1;}
 }

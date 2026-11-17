@@ -1,0 +1,302 @@
+{
+  "scope": "SM70/V100, Q5 Linear only; real exported weights + synthetic held-out activations; not model generation TPS",
+  "base_commit": "cf7c80a7e8fa96eb693eb2db2bc62b281859ecfa",
+  "branch": "codex/q5-adaptive-sm70",
+  "tests": {
+    "cpu_full": {
+      "passed": 1923,
+      "skipped": 2936
+    },
+    "remote_related_regression": {
+      "passed": 113,
+      "skipped": 3
+    },
+    "q5_suite": {
+      "passed": 36,
+      "gpu_execution_cases": 32
+    },
+    "memcheck_errors": 0,
+    "synccheck_errors": 0,
+    "architecture_boundary_violations": 0
+  },
+  "service_restored": {
+    "running": true,
+    "restart_policy": "unless-stopped"
+  },
+  "service_health": {
+    "status": "ok"
+  },
+  "runtime": {
+    "torch": "2.7.1+cu126",
+    "cublas_version": 120604,
+    "cublas_libraries": [
+      {
+        "sha256": "d9343511e1d2ed51e4d65fa94a25cb8f73b0ebc5ae5487da794e18e6950c98dc",
+        "name": "libcublas.so.12"
+      },
+      {
+        "sha256": "a4ddaed1410acc604815f0e84cdd6c4a70c61cfd2b95dc96360f0799169f0374",
+        "name": "libcublasLt.so.12"
+      }
+    ],
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Tue_May_27_02:21:03_PDT_2025\nCuda compilation tools, release 12.9, V12.9.86\nBuild cuda_12.9.r12.9/compiler.36037853_0\n",
+    "gpu": "index, name, driver_version, memory.total [MiB]\n0, Tesla V100-PCIE-32GB, 580.178.04, 32768 MiB\n1, Tesla V100-PCIE-32GB, 580.178.04, 32768 MiB\n"
+  },
+  "unimplemented": [
+    "No native-Qwen serving-loop automatic dispatcher integration",
+    "No whole-model quality or TPS promotion",
+    "No QPN-style Q5 kernel",
+    "No SM89 Q6 requalification"
+  ],
+  "timing_anomaly": "64MiB N5120 K6144 M256, both lanes cuBLAS, ratio 0.912x; handle/workspace cross-probe did not reproduce (>~1%) discrepancy. Retained, not dropped; no per-cell no-regression guarantee.",
+  "budgets": {
+    "64": {
+      "status": "complete",
+      "cases": [
+        {
+          "n": 5120,
+          "k": 6144,
+          "matrix_key": "model.language_model.layers.0.linear_attn.out_proj.weight",
+          "identity": {
+            "policy": "q5-g64-f16decode-f32acc-v1",
+            "n": 5120,
+            "k": 6144,
+            "weights_sha256": "c885e1f1bc3f183f98c5ae9912637a5234f33c5b963468665eed97d1b30642af",
+            "library_sha256": "8445f2d1f07834226adf1aab1e5934e1f9295e39c9074c92edf431e45cd75aa1"
+          },
+          "weight_bytes": 20643840,
+          "resident_fp16_bytes": 62914560,
+          "dynamic": {
+            "cublas": {
+              "gpu_ms": 0.37035044917353876,
+              "wall_ms": 0.37058775951327,
+              "cpu_ms": 0.37201800740740665
+            },
+            "adaptive": {
+              "gpu_ms": 0.3093693768536603,
+              "wall_ms": 0.3096111153286916,
+              "cpu_ms": 0.3113553740740721
+            },
+            "gpu_speedup": 1.1971141195035735,
+            "wall_speedup": 1.1969459142958867,
+            "routes": {
+              "1": "q5-scalar",
+              "2": "q5-scalar",
+              "4": "q5-scalar",
+              "8": "q5-cublas",
+              "16": "q5-cublas",
+              "32": "q5-wmma",
+              "64": "q5-wmma",
+              "128": "q5-cublas",
+              "256": "q5-cublas"
+            }
+          }
+        },
+        {
+          "n": 17408,
+          "k": 5120,
+          "matrix_key": "model.language_model.layers.0.mlp.gate_proj.weight",
+          "identity": {
+            "policy": "q5-g64-f16decode-f32acc-v1",
+            "n": 17408,
+            "k": 5120,
+            "weights_sha256": "b8266ad491dac66f696f2c2762b0718e699a089dfb1b079a1a48a3ed5e2493d5",
+            "library_sha256": "8445f2d1f07834226adf1aab1e5934e1f9295e39c9074c92edf431e45cd75aa1"
+          },
+          "weight_bytes": 58490880,
+          "resident_fp16_bytes": 178257920,
+          "dynamic": {
+            "cublas": {
+              "gpu_ms": 1.0618349428530092,
+              "wall_ms": 1.0621295586504318,
+              "cpu_ms": 1.06974260740742
+            },
+            "adaptive": {
+              "gpu_ms": 0.7674766257957176,
+              "wall_ms": 0.7677419852741338,
+              "cpu_ms": 0.7702786925925935
+            },
+            "gpu_speedup": 1.3835404325859457,
+            "wall_speedup": 1.3834459740679448,
+            "routes": {
+              "1": "q5-scalar",
+              "2": "q5-scalar",
+              "4": "q5-wmma",
+              "8": "q5-wmma",
+              "16": "q5-wmma",
+              "32": "q5-wmma",
+              "64": "q5-cublas",
+              "128": "q5-cublas",
+              "256": "q5-cublas"
+            }
+          }
+        },
+        {
+          "n": 5120,
+          "k": 17408,
+          "matrix_key": "model.language_model.layers.0.mlp.down_proj.weight",
+          "identity": {
+            "policy": "q5-g64-f16decode-f32acc-v1",
+            "n": 5120,
+            "k": 17408,
+            "weights_sha256": "1e128c2c444bca12e7f7a4ccd3090904af2308555c59051a3fdcf4068f58df69",
+            "library_sha256": "8445f2d1f07834226adf1aab1e5934e1f9295e39c9074c92edf431e45cd75aa1"
+          },
+          "weight_bytes": 58490880,
+          "resident_fp16_bytes": 178257920,
+          "dynamic": {
+            "cublas": {
+              "gpu_ms": 1.8960042317708334,
+              "wall_ms": 1.8963623403881986,
+              "cpu_ms": 1.907162103703673
+            },
+            "adaptive": {
+              "gpu_ms": 1.3255945276331018,
+              "wall_ms": 1.3259843517853707,
+              "cpu_ms": 1.3324647851852154
+            },
+            "gpu_speedup": 1.4303048121028528,
+            "wall_speedup": 1.4301543889525112,
+            "routes": {
+              "1": "q5-scalar",
+              "2": "q5-scalar",
+              "4": "q5-scalar",
+              "8": "q5-wmma",
+              "16": "q5-wmma",
+              "32": "q5-wmma",
+              "64": "q5-wmma",
+              "128": "q5-wmma",
+              "256": "q5-wmma"
+            }
+          }
+        }
+      ],
+      "maximum_held_out_abs_error": 0.001953125,
+      "kernel_wins_over_resident_control_above_3pct": 1
+    },
+    "256": {
+      "status": "complete",
+      "cases": [
+        {
+          "n": 5120,
+          "k": 6144,
+          "matrix_key": "model.language_model.layers.0.linear_attn.out_proj.weight",
+          "identity": {
+            "policy": "q5-g64-f16decode-f32acc-v1",
+            "n": 5120,
+            "k": 6144,
+            "weights_sha256": "c885e1f1bc3f183f98c5ae9912637a5234f33c5b963468665eed97d1b30642af",
+            "library_sha256": "8445f2d1f07834226adf1aab1e5934e1f9295e39c9074c92edf431e45cd75aa1"
+          },
+          "weight_bytes": 20643840,
+          "resident_fp16_bytes": 62914560,
+          "dynamic": {
+            "cublas": {
+              "gpu_ms": 0.3704035441080729,
+              "wall_ms": 0.37071061475823325,
+              "cpu_ms": 0.37222569259260435
+            },
+            "adaptive": {
+              "gpu_ms": 0.3236636409053096,
+              "wall_ms": 0.32396089992727395,
+              "cpu_ms": 0.32435558148147825
+            },
+            "gpu_speedup": 1.1444088779080301,
+            "wall_speedup": 1.1443066581227985,
+            "routes": {
+              "1": "q5-scalar",
+              "2": "q5-scalar",
+              "4": "q5-scalar",
+              "8": "q5-cublas",
+              "16": "q5-cublas",
+              "32": "q5-wmma",
+              "64": "q5-cublas",
+              "128": "q5-cublas",
+              "256": "q5-cublas"
+            }
+          }
+        },
+        {
+          "n": 17408,
+          "k": 5120,
+          "matrix_key": "model.language_model.layers.0.mlp.gate_proj.weight",
+          "identity": {
+            "policy": "q5-g64-f16decode-f32acc-v1",
+            "n": 17408,
+            "k": 5120,
+            "weights_sha256": "b8266ad491dac66f696f2c2762b0718e699a089dfb1b079a1a48a3ed5e2493d5",
+            "library_sha256": "8445f2d1f07834226adf1aab1e5934e1f9295e39c9074c92edf431e45cd75aa1"
+          },
+          "weight_bytes": 58490880,
+          "resident_fp16_bytes": 178257920,
+          "dynamic": {
+            "cublas": {
+              "gpu_ms": 0.9632427074291088,
+              "wall_ms": 0.9636220884405904,
+              "cpu_ms": 0.9696507259259379
+            },
+            "adaptive": {
+              "gpu_ms": 0.7019406353985822,
+              "wall_ms": 0.7022776554718062,
+              "cpu_ms": 0.7054125740740734
+            },
+            "gpu_speedup": 1.3722566537014227,
+            "wall_speedup": 1.3721383286688895,
+            "routes": {
+              "1": "q5-scalar",
+              "2": "q5-scalar",
+              "4": "q5-wmma",
+              "8": "q5-wmma",
+              "16": "q5-wmma",
+              "32": "q5-cublas",
+              "64": "q5-cublas",
+              "128": "q5-cublas",
+              "256": "q5-cublas"
+            }
+          }
+        },
+        {
+          "n": 5120,
+          "k": 17408,
+          "matrix_key": "model.language_model.layers.0.mlp.down_proj.weight",
+          "identity": {
+            "policy": "q5-g64-f16decode-f32acc-v1",
+            "n": 5120,
+            "k": 17408,
+            "weights_sha256": "1e128c2c444bca12e7f7a4ccd3090904af2308555c59051a3fdcf4068f58df69",
+            "library_sha256": "8445f2d1f07834226adf1aab1e5934e1f9295e39c9074c92edf431e45cd75aa1"
+          },
+          "weight_bytes": 58490880,
+          "resident_fp16_bytes": 178257920,
+          "dynamic": {
+            "cublas": {
+              "gpu_ms": 0.9891574435763889,
+              "wall_ms": 0.9895680886175897,
+              "cpu_ms": 0.9949406555555306
+            },
+            "adaptive": {
+              "gpu_ms": 0.8680940981264468,
+              "wall_ms": 0.8685696292323647,
+              "cpu_ms": 0.873646855555579
+            },
+            "gpu_speedup": 1.1394587818431499,
+            "wall_speedup": 1.139307725383125,
+            "routes": {
+              "1": "q5-scalar",
+              "2": "q5-scalar",
+              "4": "q5-cublas",
+              "8": "q5-cublas",
+              "16": "q5-cublas",
+              "32": "q5-wmma",
+              "64": "q5-wmma",
+              "128": "q5-cublas",
+              "256": "q5-cublas"
+            }
+          }
+        }
+      ],
+      "maximum_held_out_abs_error": 0.001953125,
+      "kernel_wins_over_resident_control_above_3pct": 1
+    }
+  }
+}

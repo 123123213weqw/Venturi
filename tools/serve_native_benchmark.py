@@ -339,6 +339,9 @@ def main():
         choices=("fp16", "q8-residual"),
         default="fp16",
     )
+    p.add_argument("--q5-route", choices=("legacy", "cublas", "adaptive"), default="legacy")
+    p.add_argument("--q5-workspace-mib", type=int, default=256)
+    p.add_argument("--q5-calibration-rows", default="1,2,3,4,5,6,7,8,16,32")
     p.add_argument("--qwen-library", required=True)
     args = p.parse_args()
     if args.prefill_policy != "round-robin" and not args.continuous_target:
@@ -414,8 +417,8 @@ def main():
         p.error("Prefix recovery requires MTP depth two")
     if args.mtp_depth != 1 and not args.mtp_checkpoint:
         p.error("--mtp-depth requires --mtp-checkpoint")
-    if args.batch_target and (args.mode != "tp" or args.mtp_checkpoint):
-        p.error("Grouped target batching currently requires TP without MTP")
+    if args.batch_target and (args.mode not in ("tp", "single") or args.mtp_checkpoint):
+        p.error("Grouped target batching requires a single/TP target without MTP")
     if args.projection_profile != "fp16" and args.mode != "tp":
         p.error("Explicit residual profile currently supports TP, not PP")
     if not 0 <= args.batch_window_ms <= 100:
@@ -428,7 +431,6 @@ def main():
         QwenWeights,
         QwenMTPWeights,
     )
-    from venturi.container.safetensors import SafetensorsContainer
     from venturi.ops import CudaBackend
     from venturi.models.qwen.native_runtime import QwenRuntime
 
@@ -470,6 +472,12 @@ def main():
                 **kw,
             )
         )
+    if args.q5_route != "legacy":
+        if args.mode != "single" or args.mtp_checkpoint or args.target_layer_graph:
+            p.error("Q5 routing requires a plain single-device target")
+        target.configure_q5_linear(args.q5_route, workspace_limit_bytes=args.q5_workspace_mib * 1024**2)
+        if args.q5_route == "adaptive":
+            target.calibrate_q5_linear([int(t) for t in args.q5_calibration_rows.split(",")])
     model = target
     sessions = []
     batch = admission = None
@@ -522,6 +530,7 @@ def main():
             mtp_probe_interval=args.mtp_probe_interval if args.adaptive_mtp else None,
             target_layer_graph=args.target_layer_graph,
             engine="Venturi native",
+            q5_linear=target.q5_linear_info() if args.q5_route != "legacy" else None,
             mode=args.mode,
             slots=args.slots,
             capacity=args.capacity,

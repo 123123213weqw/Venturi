@@ -13,23 +13,23 @@ import torch
 
 from ..ops.backend import OperatorBackend
 from ..ops.blocks import _no_overlap, _shape, _tensor
-from ..ops.weights import DenseWeight, Q4RowSplitWeight, Q8RowSplitWeight
+from ..ops.weights import DenseWeight, Q4RowSplitWeight, Q5RowSplitWeight, Q8RowSplitWeight
 
 
 @dataclass(frozen=True)
 class GatedMLPWeights:
     norm: torch.Tensor
-    gate: DenseWeight | Q4RowSplitWeight | Q8RowSplitWeight
-    up: DenseWeight | Q4RowSplitWeight | Q8RowSplitWeight
-    down: DenseWeight | Q4RowSplitWeight | Q8RowSplitWeight
+    gate: DenseWeight | Q4RowSplitWeight | Q5RowSplitWeight | Q8RowSplitWeight
+    up: DenseWeight | Q4RowSplitWeight | Q5RowSplitWeight | Q8RowSplitWeight
+    down: DenseWeight | Q4RowSplitWeight | Q5RowSplitWeight | Q8RowSplitWeight
 
     def __post_init__(self):
         for weight in (self.gate, self.up, self.down):
             if not isinstance(
-                weight, (DenseWeight, Q4RowSplitWeight, Q8RowSplitWeight)
+                weight, (DenseWeight, Q4RowSplitWeight, Q5RowSplitWeight, Q8RowSplitWeight)
             ):
                 raise TypeError(
-                    "Gated MLP requires explicit dense, Q4 or Q8 weight descriptors"
+                    "Gated MLP requires explicit dense, Q4, Q5 or Q8 weight descriptors"
                 )
             weight.validate()
         h, intermediate = self.gate.in_features, self.gate.out_features
