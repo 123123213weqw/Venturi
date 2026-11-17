@@ -1077,7 +1077,8 @@ extern "C" int venturi_q4_fused_run(const void* x,const void* codes,const void* 
 // Row-codec dequantification entry points (q4/q5/q6; high plane null for q4).
 extern "C" int venturi_row_dequant_rows(const void* codes,const void* high,const void* scales,void* out,int row,int rows,int k,int padded,int bits,void* stream) {
     try { require(codes && scales && out && rows>0 && k>0 && row>=0 && padded>=k && padded%128==0 && bits>=4 && bits<=6,"invalid row-codec dequant geometry");
-        const int groups=padded>>6;const dim3 grid((groups+255)/256,rows);
+        require(bits==4 || high,"row-codec high plane required");
+        const dim3 grid(((k+7)/8+255)/256,rows);
         vrow::row_dequant_rows_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
             static_cast<const unsigned char*>(codes),static_cast<const unsigned char*>(high),
             static_cast<const __half*>(scales),static_cast<__half*>(out),row,rows,k,padded,bits);
@@ -1086,7 +1087,8 @@ extern "C" int venturi_row_dequant_rows(const void* codes,const void* high,const
 }
 extern "C" int venturi_row_dequant_indexed(const void* codes,const void* high,const void* scales,const std::int64_t* ids,void* out,int count,int k,int padded,int bits,void* stream) {
     try { require(codes && scales && ids && out && count>0 && k>0 && padded>=k && padded%128==0 && bits>=4 && bits<=6,"invalid row-codec dequant geometry");
-        const int groups=padded>>6;const dim3 grid((groups+255)/256,count);
+        require(bits==4 || high,"row-codec high plane required");
+        const dim3 grid(((k+7)/8+255)/256,count);
         vrow::row_dequant_indexed_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
             static_cast<const unsigned char*>(codes),static_cast<const unsigned char*>(high),
             static_cast<const __half*>(scales),ids,static_cast<__half*>(out),count,k,padded,bits);

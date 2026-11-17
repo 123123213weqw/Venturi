@@ -356,10 +356,10 @@ struct Model {
             const int rows=std::min(chunk,n_rows-begin);
             op(venturi_row_dequant_rows(codes,high,scales,dequant.ptr,begin,rows,m.k,padded(m),matrix_bits(m),stream.ptr));
             op(venturi_dense_run(dense.ptr,x,dequant.ptr,q4_chunk.ptr,t,rows,m.k,blas_workspace.ptr,blas_workspace.bytes,stream.ptr));
-            for (int tok=0;tok<t;++tok)
-                check(cudaMemcpyAsync(static_cast<char*>(out)+mul(add(mul(tok,n_rows),begin),2),
-                    static_cast<const char*>(q4_chunk.ptr)+mul(mul(tok,rows),2),mul(rows,2),
-                    cudaMemcpyDeviceToDevice,stream.ptr));
+            auto* destination=static_cast<char*>(out)+mul(begin,2);
+            if(t==1)check(cudaMemcpyAsync(destination,q4_chunk.ptr,mul(rows,2),cudaMemcpyDeviceToDevice,stream.ptr));
+            else check(cudaMemcpy2DAsync(destination,mul(n_rows,2),q4_chunk.ptr,mul(rows,2),
+                mul(rows,2),t,cudaMemcpyDeviceToDevice,stream.ptr));
         }
     }
     void project(const VRMatrix& m,const void* x,const std::int8_t* codes,const __half* scales,void* out,int t,int rows,Buffer& quant,cudaStream_t s,bool packed=false) {

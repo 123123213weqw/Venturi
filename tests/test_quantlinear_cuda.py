@@ -330,3 +330,97 @@ def test_q5_a8_matches_independent_integer_projection(native_engine, t):
     torch.testing.assert_close(
         y.cpu(), (activation @ weights.T).half(), rtol=2e-3, atol=2e-3
     )
+
+
+@pytest.mark.parametrize("fmt", ["q4_g64_fp16", "q5_g64_fp16", "q6_g64_fp16"])
+@pytest.mark.parametrize(
+    "k", [1, 7, 8, 9, 63, 64, 65, 127, 128, 129, 255, 511, 512, 513]
+)
+@pytest.mark.parametrize("offset", [0, 1])
+def test_row_decode_octets_exact_tails_offsets_and_extreme_scales(
+    native_engine, fmt, k, offset
+):
+    b, dtype, dev = native_engine
+    if dtype != torch.float16:
+        pytest.skip("Canonical decode output is FP16")
+    n, first, rows = 9, 2, 5
+    c, h, s = _random_planes(dev, n, k, fmt, 617)
+    s[:, 0] = 2**-24
+    s[1, 0] = 0
+    s[3, 0] = 65504
+    if offset:
+        c = (
+            torch.empty(c.numel() + 1, dtype=c.dtype, device=dev)[1:]
+            .copy_(c.flatten())
+            .view_as(c)
+        )
+        if h is not None:
+            h = (
+                torch.empty(h.numel() + 1, dtype=h.dtype, device=dev)[1:]
+                .copy_(h.flatten())
+                .view_as(h)
+            )
+    expected = dequantize_planes(
+        c.cpu(), s.cpu(), h.cpu() if h is not None else None, (n, k), fmt
+    )
+    storage = torch.full((rows * k + 2,), float("nan"), dtype=torch.float16, device=dev)
+    out = storage[offset : offset + rows * k].view(rows, k)
+    fn = b._native.venturi_row_dequant_rows
+    fn.argtypes = [C.c_void_p] * 4 + [C.c_int] * 5 + [C.c_void_p]
+    fn.restype = C.c_int
+    args = [
+        c.data_ptr(),
+        h.data_ptr() if h is not None else None,
+        s.data_ptr(),
+        out.data_ptr(),
+    ]
+    assert (
+        fn(
+            *args,
+            first,
+            rows,
+            k,
+            (k + 127) // 128 * 128,
+            int(fmt[1]),
+            torch.cuda.current_stream(dev).cuda_stream,
+        )
+        == 0
+    )
+    assert torch.equal(
+        out.cpu().view(torch.uint8),
+        expected[first : first + rows].contiguous().view(torch.uint8),
+    )
+    assert torch.isnan(storage[offset + rows * k :]).all()
+    ids = torch.tensor([8, 0, 3], dtype=torch.int64, device=dev)
+    indexed = torch.empty((3, k), dtype=torch.float16, device=dev)
+    fn = b._native.venturi_row_dequant_indexed
+    fn.argtypes = [C.c_void_p] * 5 + [C.c_int] * 4 + [C.c_void_p]
+    fn.restype = C.c_int
+    assert (
+        fn(
+            c.data_ptr(),
+            h.data_ptr() if h is not None else None,
+            s.data_ptr(),
+            ids.data_ptr(),
+            indexed.data_ptr(),
+            3,
+            k,
+            (k + 127) // 128 * 128,
+            int(fmt[1]),
+            torch.cuda.current_stream(dev).cuda_stream,
+        )
+        == 0
+    )
+    assert torch.equal(
+        indexed.cpu().view(torch.uint8),
+        expected[[8, 0, 3]].contiguous().view(torch.uint8),
+    )
+
+
+@pytest.mark.parametrize("bits", [5, 6])
+def test_row_decode_requires_high_plane_before_launch(native_engine, bits):
+    b, _, _ = native_engine
+    fn = b._native.venturi_row_dequant_rows
+    fn.argtypes = [C.c_void_p] * 4 + [C.c_int] * 5 + [C.c_void_p]
+    fn.restype = C.c_int
+    assert fn(1, None, 1, 1, 0, 1, 64, 128, bits, None) < 0
