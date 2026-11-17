@@ -230,60 +230,55 @@ def main():
                         ),
                         flush=True,
                     )
-                if implementation == "auto":
-                    batch = model.create_batch([256] * 32)
-                    record["batches"] = []
-                    try:
-                        for count in (4, 8, 16, 32):
-                            slots = list(range(count))
-                            batch.reset(slots=slots)
-                            selected = [i % len(cases) for i in slots]
-                            outputs = batch.generate(
-                                [cases[i]["prompt_token_ids"] for i in selected],
-                                max_new_tokens=[
-                                    cases[i]["max_new_tokens"] for i in selected
+                batch = model.create_batch([256] * 32)
+                record["batches"] = []
+                try:
+                    for count in (4, 8, 16, 32):
+                        slots = list(range(count))
+                        batch.reset(slots=slots)
+                        selected = [i % len(cases) for i in slots]
+                        outputs = batch.generate(
+                            [cases[i]["prompt_token_ids"] for i in selected],
+                            max_new_tokens=[
+                                cases[i]["max_new_tokens"] for i in selected
+                            ],
+                            slots=slots,
+                            eos_token_ids=[],
+                        )
+                        expected_outputs = [reference[i]["ids"] for i in selected]
+                        entry = dict(
+                            concurrency=count,
+                            tokens_equal=outputs == expected_outputs,
+                            output_ids=outputs,
+                            state_components=0,
+                            state_failures=[],
+                        )
+                        record["batches"].append(entry)
+                        save()
+                        assert entry[
+                            "tokens_equal"
+                        ], "Grouped generation changed reference greedy trajectory"
+                        for slot, index in zip(slots, selected):
+                            checks = compare_states(
+                                batch.snapshot(slot),
+                                reference[index]["states"][
+                                    cases[index]["max_new_tokens"] - 1
                                 ],
-                                slots=slots,
-                                eos_token_ids=[],
                             )
-                            expected_outputs = [reference[i]["ids"] for i in selected]
-                            entry = dict(
-                                concurrency=count,
-                                tokens_equal=outputs == expected_outputs,
-                                output_ids=outputs,
-                                state_components=0,
-                                state_failures=[],
+                            entry["state_components"] += len(checks)
+                            entry["state_failures"].extend(
+                                dict(slot=slot, **c) for c in checks if not c["passed"]
                             )
-                            record["batches"].append(entry)
-                            save()
-                            assert entry[
-                                "tokens_equal"
-                            ], "Grouped generation changed reference greedy trajectory"
-                            for slot, index in zip(slots, selected):
-                                checks = compare_states(
-                                    batch.snapshot(slot),
-                                    reference[index]["states"][
-                                        cases[index]["max_new_tokens"] - 1
-                                    ],
-                                )
-                                entry["state_components"] += len(checks)
-                                entry["state_failures"].extend(
-                                    dict(slot=slot, **c)
-                                    for c in checks
-                                    if not c["passed"]
-                                )
-                            save()
-                            assert not entry[
-                                "state_failures"
-                            ], "Grouped private-state gate failed"
-                            print(
-                                json.dumps(
-                                    dict(stage="batch", count=count, passed=True)
-                                ),
-                                flush=True,
-                            )
-                    finally:
-                        batch.close()
+                        save()
+                        assert not entry[
+                            "state_failures"
+                        ], "Grouped private-state gate failed"
+                        print(
+                            json.dumps(dict(stage="batch", count=count, passed=True)),
+                            flush=True,
+                        )
+                finally:
+                    batch.close()
             finally:
                 model.close()
                 del model
