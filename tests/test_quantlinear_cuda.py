@@ -424,3 +424,66 @@ def test_row_decode_requires_high_plane_before_launch(native_engine, bits):
     fn.argtypes = [C.c_void_p] * 4 + [C.c_int] * 5 + [C.c_void_p]
     fn.restype = C.c_int
     assert fn(1, None, 1, 1, 0, 1, 64, 128, bits, None) < 0
+
+
+@pytest.mark.parametrize("fmt", ["q4_g64_fp16", "q5_g64_fp16", "q6_g64_fp16"])
+def test_chunked_head_tail_2d_copy_matches_frozen_runtime(tmp_path, native_engine, fmt):
+    import os
+    from qwen_fixtures import source_config
+    from qwen_safetensors import write_quantized_checkpoint
+    from venturi.models import NativeQwenModel
+    from venturi.models.qwen.qwen_weights import QwenWeights
+    from venturi.models.qwen.native_runtime import QwenRuntime
+    from venturi.ops import CudaBackend
+    from test_row_codec_execution import _codec_enabled
+
+    b, dtype, dev = native_engine
+    if dtype != torch.float16:
+        pytest.skip("Canonical low-bit runtime is FP16")
+    refops = os.environ.get("VENTURI_REFERENCE_OPS_LIBRARY")
+    refqwen = os.environ.get("VENTURI_REFERENCE_QWEN_LIBRARY")
+    if not refops or not refqwen:
+        pytest.skip("Explicit frozen reference pair required")
+    cfg = source_config()["text_config"]
+    cfg.update(
+        hidden_size=64,
+        head_dim=64,
+        vocab_size=8193,
+        num_hidden_layers=2,
+        layer_types=["linear_attention", "full_attention"],
+        intermediate_size=128,
+    )
+    path, _, _ = write_quantized_checkpoint(
+        tmp_path / "head-tail.safetensors", config=cfg, matrix_format=fmt
+    )
+    weights = QwenWeights.open(path)
+    reference = QwenRuntime(refqwen, CudaBackend(refops))
+    models = []
+    try:
+        with _codec_enabled(fmt):
+            for runtime in (native_runtime(b), reference):
+                models.append(
+                    NativeQwenModel.from_q8(
+                        weights,
+                        runtime,
+                        weight_mode="resident",
+                        dtype=dtype,
+                        device=dev,
+                        max_tokens=32,
+                        reserve_bytes=0,
+                        linear_implementation="dequant",
+                    )
+                )
+        sessions = [m.create_session(64) for m in models]
+        try:
+            for tokens in ([1], list(range(2, 6)), list(range(6, 23))):
+                values = [s.forward(tokens, all_logits=True) for s in sessions]
+                assert torch.equal(
+                    values[0].view(torch.uint8), values[1].view(torch.uint8)
+                )
+        finally:
+            for s in sessions:
+                s.close()
+    finally:
+        for m in models:
+            m.close()
