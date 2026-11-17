@@ -69,26 +69,25 @@ struct Batch {
                 }
                 op(venturi_gates_run(w.p("a"),w.p("b"),static_cast<const float*>(l.rate),static_cast<const float*>(l.bias),static_cast<float*>(w.p("decay")),static_cast<float*>(w.p("beta")),n,c.gvh,c.dtype,1,stream));
                 bool any_trace=false;for(const auto& s:segments)if(requests[s.slot]->verification_trace)any_trace=true;
-                if(false && !any_trace && segments.size()>1) {   // night-tps-20261117: disabled pending >=8-segment crash triage
-                    // night-tps-20261116: per-segment conv+GDN issued on parallel
-                    // streams. Segments touch disjoint workspace rows and their own
-                    // request caches; ordering rides group_ready (after the shared
-                    // projections/gates) and segment_done (before the batched gated
-                    // RMS). Trace-verified cohorts keep the serial reference path.
-                    const auto scount=static_cast<int>(segments.size());
-                    m.ensure_segment_streams(scount);
-                    check(cudaEventRecord(m.group_ready.ptr,stream));
-                    for(int si=0;si<scount;++si) {
-                        const auto& segment=segments[si];auto& request=*requests[segment.slot];
-                        const int r=segment.row,t=segment.count;
-                        cudaStream_t ss=m.segment_streams[si].ptr;
-                        check(cudaStreamWaitEvent(ss,m.group_ready.ptr,0));
-                        op(venturi_conv_run(row("qkv",r,width),l.conv,request.history[index]->ptr,row("convolved",r,width),request.history[index]->ptr,t,width,c.convolution,c.dtype,l.conv_fp32,ss));
-                        auto* q=row("convolved",r,width);const auto stride=mul(c.gqk*c.gkd,2);
-                        op((m.activation_passes==2?venturi_gdn_compact_run:venturi_gdn_run)(q,q+stride,q+2*stride,reinterpret_cast<const float*>(row("decay",r,c.gvh,4)),reinterpret_cast<const float*>(row("beta",r,c.gvh,4)),static_cast<const float*>(request.state[index]->ptr),row("recurrent",r,c.gvh*c.gvd),static_cast<float*>(request.state[index]->ptr),t,c.gqk,c.gvh,c.gkd,c.gvd,1,1,c.dtype,c.gdn_scale,ss));
-                        check(cudaEventRecord(m.segment_done[si].ptr,ss));
-                    }
-                    for(int si=0;si<scount;++si)check(cudaStreamWaitEvent(stream,m.segment_done[si].ptr,0));
+                // PR-A+1: promote the head-GDN batch decode kernels to the plain
+                // path. Pure-decode cohorts (every segment one token, no trace,
+                // <=32 segments, gkd 64/128) collapse the per-layer x per-request
+                // serial conv+GDN launches into one conv_segments + one
+                // gdn_segments launch; anything else keeps the serial reference.
+                bool batched=!any_trace && segments.size()>1 && segments.size()<=32 && (c.gkd==64 || c.gkd==128);
+                for(const auto& s:segments)batched=batched&&s.count==1;
+                if(batched){
+                    DecodeSegments batch{};batch.count=static_cast<int>(segments.size());
+                    for(int j=0;j<batch.count;++j)batch.slots[j]={segments[j].row,requests[segments[j].slot]->history[index]->ptr,requests[segments[j].slot]->state[index]->ptr};
+                    const dim3 cgrid((width+255)/256,batch.count);
+                    if(l.conv_fp32)conv_segments<float><<<cgrid,256,0,stream>>>(static_cast<const __half*>(w.p("qkv")),static_cast<const float*>(l.conv),static_cast<__half*>(w.p("convolved")),batch,width,c.convolution);
+                    else conv_segments<__half><<<cgrid,256,0,stream>>>(static_cast<const __half*>(w.p("qkv")),static_cast<const __half*>(l.conv),static_cast<__half*>(w.p("convolved")),batch,width,c.convolution);
+                    check(cudaGetLastError());
+                    gdn_segments<<<dim3(c.gvh*c.gvd,batch.count),c.gkd,0,stream>>>(
+                        static_cast<const __half*>(w.p("convolved")),
+                        static_cast<const float*>(w.p("decay")),static_cast<const float*>(w.p("beta")),
+                        static_cast<__half*>(w.p("recurrent")),batch,c.gqk,c.gvh,c.gkd,c.gvd,c.gdn_scale);
+                    check(cudaGetLastError());
                 } else for(const auto& segment:segments) {
                     auto& request=*requests[segment.slot];const int r=segment.row,t=segment.count;
                     auto* trace=request.verification_trace;
