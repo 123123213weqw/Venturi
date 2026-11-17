@@ -110,3 +110,41 @@ Rebuild the explicit library pair: **operator ABI 18, Qwen runtime ABI 3**.
 ABI-2 runtimes are rejected even though their descriptor sizes match, because
 those runtimes could still auto-select unqualified Q5 fusion. Weight-file
 formats are unchanged; no checkpoint re-download/requantization is required.
+
+### Qualified safe SM70 Q5 campaign (2026-11-17)
+
+Canonical A16 Q5 `auto`/`dequant` is now admitted on SM70 after the real 64-layer
+27B artifact passed four scalar trajectories/native replays and C4/8/16/32
+grouped output and byte-identical private-state checks (7680 components).
+This does not open fused/A8, low-bit TP/PP/MTP, Q4/Q6 on SM70, or establish
+original-BF16/corpus quality. The frozen reference uses the **same Q5 artifact**.
+
+The shared Q4/Q5/Q6 decoder now coalesces adjacent octets with aligned packed
+reads/vector stores and safe offset/tail fallbacks. Arithmetic is unchanged:
+integer times FP16 scale, rounded once to FP16. Both contiguous and indexed rows
+use it. Native multi-token chunk output uses a strided 2D copy instead of one
+copy per token; vocabulary-size-8193 tail fixtures match a frozen runtime pair
+byte-for-byte. No full-model FP16 shadow is retained.
+
+Two V100 independent native replicas, 16 input IDs / 32 forced outputs, three
+clean repetitions, common end-to-end wall-time TPS (including prefill and HTTP):
+
+| Concurrency | Frozen safe control | Optimized safe path |
+|---:|---:|---:|
+| 1 | 0.750 | 5.385 |
+| 4 | 2.777 | 19.155 |
+| 8 | 5.307 | 34.606 |
+| 16 | 5.208 | 28.973 |
+| 32 | 6.717 | 30.433 |
+
+These are not decode-only TPS, TP2, a llama.cpp comparison or historical fused
+results. The complete reference arm was reused from an earlier protected window
+with matching artifact/DSO/workload/config checks; both windows and the earlier
+campaign's incomplete overall status are preserved. C16 repeat variance and
+non-monotonic C16/C32 scaling remain unresolved, not filtered out.
+
+Separate one-step C16 Nsight attribution showed row decode 1280.687→91.544ms;
+GEMM is now the largest kernel family. Counter occupancy and DRAM bandwidth
+were not measured. CPU/latency/first-token availability/RAM/VRAM, sampled GPU
+busy/power/clocks/temperature, trace gaps and production restoration receipts
+are in [the complete campaign](../operations/pr14-quantlinear-fix-20261117-v1/README.md).

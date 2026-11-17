@@ -1,0 +1,17 @@
+{"stage": "restorer_started", "pid": 486641, "deadline": 1794911771.8949676}
+{"stage": "temporary_keepalive_hold", "self_expiring": true, "other_cron_jobs_unchanged": true, "deadline": 1794911771.8949676}
+{"stage": "production_temporarily_paused", "container_id": "32016083ca86"}
+{"stage": "start", "name": "sm70-small-v1"}
+sm70-small-v1 487065
+{"reason": "normal", "exit_code": 0, "finished_unix": 1794909392.5200586, "remaining_own_apps": [], "scope": "No foreign job/service/driver/monitor changes; private leases released"}
+{"stage": "complete", "name": "sm70-small-v1"}
+{"stage": "start", "name": "sm70-real-v1"}
+sm70-real-v1 488080
+{"reason": "normal", "exit_code": 1, "finished_unix": 1794909931.376471, "remaining_own_apps": [], "scope": "No foreign job/service/driver/monitor changes; private leases released"}
+{"stage": "production_restored", "actor": "primary", "restored_running": true, "http_200": true, "container_id": "32016083ca863740a89e381cf62a79913c9f72f5f02bfc2e11ec5a3dac5d0c7a", "same_config": true, "unix": 1794909955.2536356, "llm_keepalive_cron_restored": true}
+Traceback (most recent call last):
+  File "/home/wzu/codex-build/Venturi-pr14-fix-20261117-v3/production_window.py", line 141, in <module>
+    subprocess.run([sys.executable,str(R/'guard_job.py'),str(R/(name+'.json'))],check=True,cwd=R)
+  File "/usr/lib/python3.10/subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/wzu/venvs/venturi-sm70/bin/python', '/home/wzu/codex-build/Venturi-pr14-fix-20261117-v3/guard_job.py', '/home/wzu/codex-build/Venturi-pr14-fix-20261117-v3/sm70-real-v1.json']' returned non-zero exit status 1.

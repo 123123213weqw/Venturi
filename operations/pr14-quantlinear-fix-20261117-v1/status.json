@@ -1,19 +1,93 @@
 {
-  "phase": "correctness_passed_ci_pending",
+  "phase": "completed_correctness_ci_tps_and_restoration",
   "reviewed_base": "82d7ec8ffc433bb4e333140574892063f71cb9c7",
+  "source_head": "6eb0777c7b6fd5f3ea31d51f7789df1397c65d82",
   "cpu": {
-    "passed": 1934,
-    "skipped": 2980
+    "passed": 1957,
+    "skipped": 3174,
+    "scope": "local CPU, CUDA unavailable; no Rust compilation"
+  },
+  "ci": {
+    "run_id": 44100554606,
+    "conclusion": "success",
+    "python": [
+      "3.10",
+      "3.12"
+    ]
   },
   "sm89": {
-    "host": "L40",
+    "host": "L40/node5",
     "gpus": 2,
-    "passed": 213,
-    "skipped": 120
+    "passed": 388,
+    "skipped": 215,
+    "micro": "three repetitions per shape/format, bit-identical output; 5.43-6.52x CUDA-event row decode only; not model TPS"
   },
-  "sm70_full_model": "pending; production not yet paused",
-  "tps": "not measured; blocked by correctness/CI ordering",
-  "activation_int8_model_gate": "closed; original independent logit gate failed (relative L2 0.0553 > 0.02); no widening",
-  "production": "unchanged",
-  "historical_benchmarks": "preserved"
+  "sm70": {
+    "host": "V100_222/root1",
+    "small_tests": {
+      "passed": 191,
+      "skipped": 153
+    },
+    "full_model": {
+      "passed": true,
+      "completed": true,
+      "scalar_cases": 4,
+      "batch_counts": [
+        4,
+        8,
+        16,
+        32
+      ],
+      "grouped_state_components": 7680,
+      "grouped_state_failures": 0,
+      "grouped_private_state_bytes_equal": true
+    }
+  },
+  "tps": {
+    "scope": "Common cohort end-to-end wall including prefill/HTTP, 16 input IDs/32 forced outputs, two single-GPU native replicas, 3 valid clean repetitions; not decode-only, streaming TTFT, TP2 or llama.cpp comparison",
+    "reference_medians": {
+      "1": 0.75,
+      "4": 2.777,
+      "8": 5.307,
+      "16": 5.208,
+      "32": 6.717
+    },
+    "candidate_medians": {
+      "1": 5.385,
+      "4": 19.155,
+      "8": 34.606,
+      "16": 28.973,
+      "32": 30.433
+    },
+    "completed": true,
+    "reference_provenance": {
+      "path": "/home/xs/codex-build/Venturi-pr14-final-20261117-v2/evidence/tps-matched-v1.json",
+      "sha256": "bd47c0011e3cf5612aaef5970fe5027b7ccbff34e28ca36e3271b3a781ab916c",
+      "original_campaign_completed": false,
+      "reused_arm_completed": true,
+      "reason": "Reuse 15 completed, qualified clean same-workload reference cells; candidate was interrupted before timing. Different time windows explicitly retained; no baseline cell overwritten or relabelled."
+    },
+    "limitation": "C16 has substantial repeat variance, 28.878..42.511 TPS; C32 does not scale beyond C8. Retained, not filtered."
+  },
+  "activation_int8_model_gate": "closed; original independent fixture relative L2 0.0553 > 0.02",
+  "fused_q5_gate": "closed; original same-artifact private-state gate failed 50 components",
+  "production": {
+    "actor": "primary",
+    "restored_running": true,
+    "http_200": true,
+    "same_command_environment_cwd_binary": true,
+    "original_pid": 1374268,
+    "restored_pid": 1386561,
+    "original_log_preserved": true,
+    "no_route_or_model_parameter_changes": true,
+    "unix": 1794925040.7706969
+  },
+  "historical_benchmarks": "preserved, unqualified speed claims not reused",
+  "external_pr_commits_preserved": [
+    "b5f681b76ccee83730d8d0c0541678e7645affd7",
+    "cf7c80a7e8fa96eb693eb2db2bc62b281859ecfa"
+  ],
+  "qualification_table_head": "2b4bbe8a",
+  "sm70_safe_q5_gate": "open for canonical A16 auto/dequant only after exact real-artifact scalar/grouped-state parity; not BF16/corpus quality qualification",
+  "profile": "separate one C16 single-GPU decode step per implementation; two successful traces; kernel attribution and gaps only, no occupancy/DRAM counters"
 }

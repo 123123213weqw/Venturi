@@ -1,0 +1,50 @@
+{
+  "pid": 540031,
+  "started_unix": 1794912207.1903362,
+  "deadline_unix": 1794913407.1903362,
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=30",
+    "1200",
+    "/home/wangyue/venturi-venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/test_quantlinear_cuda.py",
+    "tests/test_row_codec_execution.py",
+    "tests/test_native_split.py",
+    "tests/test_qwen_native.py",
+    "tests/test_pd_native.py",
+    "tests/test_qwen_tensor_parallel.py",
+    "tests/test_q8_dp4a.py",
+    "tests/test_q8_projection_dispatch.py",
+    "--maxfail=3",
+    "-rs",
+    "tests/test_qwen_batch.py",
+    "tests/test_qwen_projection_profile.py::test_profile_independent_fp64_full_fixture_unchanged_logit_gates[False]",
+    "tests/test_quantlinear_contract.py",
+    "tests/test_qwen_pipeline.py",
+    "tests/test_qwen_mtp.py"
+  ],
+  "gpus": [
+    "GPU-2a2119dc-2199-b3f4-6dc5-c4b1f8d2cca1",
+    "GPU-3b981324-1cfc-111c-826a-35b7aecd93b2"
+  ],
+  "source": "/data/wangyue/codex-build/Venturi-pr14-fix-20261117/change",
+  "libraries": {
+    "VENTURI_OPS_LIBRARY": {
+      "path": "/data/wangyue/codex-build/Venturi-pr14-fix-20261117/native/change-sm89-ops/8c041215d3787a87/libventuri_ops.so",
+      "sha256": "2d9934523402bf4b82f31f62e124911a0f947f8b5215193895ba22e323702ce5"
+    },
+    "VENTURI_QWEN_LIBRARY": {
+      "path": "/data/wangyue/codex-build/Venturi-pr14-fix-20261117/native/change-sm89-qwen/217a9d8c3b5d9347/libventuri_qwen.so",
+      "sha256": "6af478c3eb52e1ce2ab91d67e0f15bbfd08072730ddf64e303c36e180dec7b74"
+    },
+    "VENTURI_HALF_MLP_LIBRARY": {
+      "path": "/home/wangyue/codex-build/Venturi/operations/glm53-flash-8l40-20261103-v1/expert-rows-build-v1/sm89/libventuri_half_mlp.so",
+      "sha256": "9c694961ee65ebe61a68d9b54163e4f9a83622206ff8e9c7a0018c819d08bd84"
+    }
+  },
+  "source_manifest_sha256": "ed21f0732d4f0364c230bb35cb20629e8c4e2033f73ec38c5cb74853ecd30507"
+}

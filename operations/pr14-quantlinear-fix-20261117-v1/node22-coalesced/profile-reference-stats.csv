@@ -1,0 +1,31 @@
+Generating SQLite file /home/xs/codex-build/Venturi-pr14-coalesced-20261117/evidence/profile-reference-c16.sqlite from /home/xs/codex-build/Venturi-pr14-coalesced-20261117/evidence/profile-reference-c16.nsys-rep
+Processing [/home/xs/codex-build/Venturi-pr14-coalesced-20261117/evidence/profile-reference-c16.sqlite] with [/opt/nvidia/nsight-systems/2024.6.2/host-linux-x64/reports/cuda_gpu_kern_sum.py]... 
+Time (%),Total Time (ns),Instances,Avg (ns),Med (ns),Min (ns),Max (ns),StdDev (ns),Name
+82.3,1280686700,751,1705308.5,1875644.0,267679,5878738,1340818.0,"vrow::row_dequant_rows_kernel(const unsigned char *, const unsigned char *, const __half *, __half *, int, int, int, int, int)"
+12.4,193534467,494,391770.2,352287.0,223552,767518,146336.1,volta_fp16_sgemm_fp16_64x32_sliced1x4_tn
+2.7,41353666,768,53845.9,53856.0,53344,54304,157.3,"void <unnamed>::gdn_recurrent<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)"
+0.9,13675301,209,65432.1,53472.0,51424,110751,22306.7,volta_sgemm_fp16_64x32_sliced1x4_tn
+0.9,13465767,48,280536.8,280527.5,277440,284416,1439.6,volta_fp16_sgemm_fp16_32x32_sliced1x4_tn
+0.4,5490292,256,21446.5,21376.0,20736,23008,372.2,"void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)"
+0.2,2754330,768,3586.4,3552.0,3232,4448,172.2,"void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)"
+0.1,1786586,96,18610.3,19088.0,16672,20224,1122.9,"void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)"
+0.1,1657468,129,12848.6,12864.0,12352,13216,164.1,"void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)"
+0.0,754048,256,2945.5,2912.0,2816,3392,104.2,"void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)"
+0.0,700221,209,3350.3,3072.0,2912,4736,464.5,"void cublasLt::splitKreduce_kernel<(int)32, (int)16, int, float, __half, float, __half, (bool)0, __half, __half, __half, (bool)1, (bool)0, (bool)0>(cublasLt::cublasSplitKParams<T6>, const T4 *, const T10 *, T9 *, T5 *, const T6 *, const T6 *, const T11 *, const T4 *, T11 *, void *, long, T6 *, int *, T6 *, T6 *, const T6 *, const T6 *, const T6 *, const T6 *, const T6 *)"
+0.0,295486,64,4617.0,4608.0,4416,4992,119.5,"void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)"
+0.0,289344,128,2260.5,2240.0,2176,2400,53.4,"void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)"
+0.0,241535,48,5032.0,5024.0,4832,5408,129.2,"void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)"
+0.0,121440,48,2530.0,2528.0,2464,2848,71.2,"void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)"
+0.0,47200,16,2950.0,2944.0,2752,3168,131.8,"void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)"
+0.0,16128,1,16128.0,16128.0,16128,16128,0.0,"vrow::row_dequant_indexed_kernel(const unsigned char *, const unsigned char *, const __half *, const long *, __half *, int, int, int, int)"
+0.0,3040,1,3040.0,3040.0,3040,3040,0.0,"void <unnamed>::embedding<__half>(const T1 *, const long *, T1 *, long, int, int)"
+
+Processing [/home/xs/codex-build/Venturi-pr14-coalesced-20261117/evidence/profile-reference-c16.sqlite] with [/opt/nvidia/nsight-systems/2024.6.2/host-linux-x64/reports/cuda_api_sum.py]... 
+Time (%),Total Time (ns),Num Calls,Avg (ns),Med (ns),Min (ns),Max (ns),StdDev (ns),Name
+87.0,1366940012,12307,111070.1,6377.0,5596,69044409,787045.0,cudaMemcpyAsync
+6.9,109077601,4290,25426.0,5059.5,3604,1412955,138587.5,cudaLaunchKernel
+6.1,95125910,2,47562955.0,47562955.0,5494,95120416,67256406.3,cudaStreamSynchronize
+0.0,19515,1,19515.0,19515.0,19515,19515,0.0,cudaDeviceSynchronize
+0.0,6188,1,6188.0,6188.0,6188,6188,0.0,cudaStreamIsCapturing_v10000
+0.0,5340,1,5340.0,5340.0,5340,5340,0.0,cuProfilerStart
+
