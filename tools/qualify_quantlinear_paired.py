@@ -6,6 +6,7 @@ weights/KV are offloaded to host; CPU copies exist only for validation.
 """
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import gc
 import json
 from pathlib import Path
@@ -48,6 +49,11 @@ def main():
     p.add_argument("--output", required=True)
     p.add_argument("--expected-sha256", required=True)
     p.add_argument("--qualification-campaign", action="store_true")
+    p.add_argument(
+        "--parallel-validation",
+        action="store_true",
+        help="Run independent GPU reference/candidate concurrently; correctness only, never a timing sample",
+    )
     a = p.parse_args()
     output = Path(a.output)
     assert not output.exists(), "Never overwrite raw qualification"
@@ -94,6 +100,7 @@ def main():
             kl_max=0.002,
         ),
         state_gates=dict(rtol=0.01, atol=0.005),
+        parallel_validation=a.parallel_validation,
         implementations={},
         batches=[],
         completed=False,
@@ -107,6 +114,13 @@ def main():
 
     save()
     models = []
+    pool = ThreadPoolExecutor(max_workers=2) if a.parallel_validation else None
+
+    def paired(items, operation):
+        return (
+            list(pool.map(operation, items)) if pool else [operation(x) for x in items]
+        )
+
     began = time.perf_counter()
     cpu = time.process_time()
     try:
@@ -159,7 +173,7 @@ def main():
                         if step == 0
                         else [records[0]["generated_ids"][-1]]
                     )
-                    values = [s.forward(ids) for s in sessions]
+                    values = paired(sessions, lambda s: s.forward(ids))
                     for entry, logits in zip(records, values):
                         entry["generated_ids"].append(int(logits.argmax()))
                     check = logits_comparison(values[1], values[0])
@@ -167,7 +181,7 @@ def main():
                     save()
                     assert check["passed"], "Matched logit/top1 gate failed"
                     if step in (0, case["max_new_tokens"] - 1):
-                        states = [s.snapshot() for s in sessions]
+                        states = paired(sessions, lambda s: s.snapshot())
                         checks = compare_states(states[1], states[0])
                         records[1]["states"].append(
                             dict(
@@ -183,13 +197,17 @@ def main():
                         if step == case["max_new_tokens"] - 1:
                             final_states = states
                 assert records[0]["generated_ids"] == records[1]["generated_ids"]
-                for i, s in enumerate(sessions):
+
+                def native_generate(s):
                     s.reset()
-                    tokens = s.generate(
+                    return s.generate(
                         case["prompt_token_ids"],
                         max_new_tokens=case["max_new_tokens"],
                         eos_token_ids=[],
                     )
+
+                generated = paired(sessions, native_generate)
+                for i, (s, tokens) in enumerate(zip(sessions, generated)):
                     assert (
                         tokens == records[i]["generated_ids"]
                     ), "Native generation changed qualified greedy trajectory"
@@ -214,15 +232,15 @@ def main():
                 indices = [i % len(cases) for i in slots]
                 for b in batches:
                     b.reset(slots=slots)
-                values = [
-                    b.generate(
+                values = paired(
+                    batches,
+                    lambda b: b.generate(
                         [cases[i]["prompt_token_ids"] for i in indices],
                         max_new_tokens=[cases[i]["max_new_tokens"] for i in indices],
                         slots=slots,
                         eos_token_ids=[],
-                    )
-                    for b in batches
-                ]
+                    ),
+                )
                 expected = [
                     report["implementations"]["dequant"]["cases"][i]["generated_ids"]
                     for i in indices
@@ -239,7 +257,7 @@ def main():
                 save()
                 assert entry["tokens_equal"], "Grouped greedy output changed"
                 for slot in slots:
-                    states = [b.snapshot(slot) for b in batches]
+                    states = paired(batches, lambda b: b.snapshot(slot))
                     checks = compare_states(states[1], states[0])
                     entry["state_components"] += len(checks)
                     entry["state_failures"].extend(
@@ -261,6 +279,8 @@ def main():
         report["error"] = repr(exc)
         raise
     finally:
+        if pool:
+            pool.shutdown(wait=True)
         for m in models:
             m.close()
         codecs.EXECUTION_QUALIFIED[arch] = old
