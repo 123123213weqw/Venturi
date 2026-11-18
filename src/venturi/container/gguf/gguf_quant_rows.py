@@ -19,6 +19,7 @@ from venturi.container.model_assets import ModelAsset
 
 # type_id -> (decoder name, block values, block bytes)
 QUANT_TABLES = {
+    0: ("decode_f32_rows", 1, 4),
     10: ("decode_q2_k_rows", 256, 84),
     11: ("decode_q3_k_rows", 256, 110),
     13: ("decode_q5_k_rows", 256, 176),

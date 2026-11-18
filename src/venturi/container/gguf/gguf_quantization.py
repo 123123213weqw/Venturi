@@ -469,3 +469,19 @@ def _iq2_s_grid():
 def _iq3_s_grid():
     return _hex_rows(_IQ3_S_GRID_HEX, _IQ3_S_GRID_MAP, 512, 4)
 
+
+
+def decode_f32_rows(raw, width, *, max_values=2**20):
+    """Plain F32 rows (GGUF type 0): exact bit copy, nonfinite rejected."""
+    import torch
+    if type(width) is not int or width <= 0:
+        raise ValueError("F32 width must be positive")
+    if not isinstance(raw, bytes) or len(raw) % (width * 4):
+        raise ValueError("F32 row payload must compose whole rows")
+    rows = len(raw) // (width * 4)
+    if rows * width > max_values:
+        raise ValueError("F32 decode exceeds bounded budget")
+    values = torch.frombuffer(bytearray(raw), dtype=torch.float32).reshape(rows, width).clone()
+    if not bool(torch.isfinite(values).all()):
+        raise ValueError("F32 nonfinite payload values")
+    return values
