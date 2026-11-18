@@ -62,3 +62,31 @@ def test_output_budgets_are_checked_before_allocating(budget):
 
 def test_import_has_no_torch_or_gpu_side_effects():
     subprocess.check_call([sys.executable,'-c','import sys;import venturi.container.gguf.gguf_quantization;assert "torch" not in sys.modules'])
+
+
+def test_q8_0_q6_k_iq2_s_iq3_s_geometry_and_rejection():
+    from venturi.container.gguf.gguf_quantization import (
+        decode_q8_0_rows, decode_q6_k_rows, decode_iq2_s_rows,
+        decode_iq3_s_rows,
+    )
+    cases = (
+        (decode_q8_0_rows, 32, 34), (decode_q6_k_rows, 256, 210),
+        (decode_iq2_s_rows, 256, 82), (decode_iq3_s_rows, 256, 110),
+    )
+    for decoder, block_values, block_bytes in cases:
+        with pytest.raises(ValueError):
+            decoder(bytes(block_bytes - 1), block_values)  # short block
+        with pytest.raises(ValueError):
+            decoder(bytes(block_bytes * 2), block_values + 1)  # width not aligned
+
+
+def test_q8_0_hand_constructed_block():
+    import struct as struct_module
+    from venturi.container.gguf.gguf_quantization import decode_q8_0_rows
+    block = struct_module.pack("<e", 0.5) + bytes(range(32))
+    expected = [0.5 * (value if value < 128 else value - 256) for value in range(32)]
+    out = decode_q8_0_rows(block * 8, 256)
+    assert out.shape == (1, 256)
+    assert out[0, :32].tolist() == expected
+
+

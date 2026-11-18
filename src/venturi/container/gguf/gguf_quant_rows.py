@@ -21,9 +21,13 @@ from venturi.container.model_assets import ModelAsset
 QUANT_TABLES = {
     10: ("decode_q2_k_rows", 256, 84),
     11: ("decode_q3_k_rows", 256, 110),
-    18: ("decode_iq3_xxs_rows", 256, 98),
     13: ("decode_q5_k_rows", 256, 176),
+    14: ("decode_q6_k_rows", 256, 210),
+    18: ("decode_iq3_xxs_rows", 256, 98),
     20: ("decode_iq4_nl_rows", 32, 18),
+    8: ("decode_q8_0_rows", 32, 34),
+    21: ("decode_iq3_s_rows", 256, 110),
+    22: ("decode_iq2_s_rows", 256, 82),
     30: ("decode_bf16_rows", 1, 2),
 }
 
@@ -65,11 +69,18 @@ class VerifiedQuantRows:
             raise TypeError("Explicit ModelAsset required")
         if type_id not in QUANT_TABLES:
             raise ValueError(f"Unsupported quant type id {type_id}")
-        if (not isinstance(expected_shape, (tuple, list)) or len(expected_shape) != 2
+        if (not isinstance(expected_shape, (tuple, list)) or not 2 <= len(expected_shape) <= 3
                 or any(type(x) is not int for x in expected_shape)
                 or not 0 < expected_shape[0] < 2**63):
-            raise ValueError("Bounded [rows, width] integer shape required")
-        rows, width = expected_shape
+            raise ValueError("Bounded [rows, width] (or [experts, rows, width]) shape required")
+        # A fused 3-D bank [experts, rows_per_expert, width] is addressed as a
+        # flat 2-D row space of experts * rows_per_expert rows.
+        width = expected_shape[-1]
+        rows = 1
+        for dimension in expected_shape[:-1]:
+            rows *= dimension
+        self.experts_per_bank = expected_shape[0] if len(expected_shape) == 3 else None
+        self.rows_per_expert = expected_shape[1] if len(expected_shape) == 3 else None
         self.row_bytes = quant_row_bytes(type_id, width)
         if type(max_values) is not int or not 0 < max_values <= 2**20:
             raise ValueError("Explicit bounded lookup output budget required")
