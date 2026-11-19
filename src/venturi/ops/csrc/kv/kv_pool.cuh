@@ -43,7 +43,11 @@ struct Device {  // VMM/driver calls are device-scoped; restore the caller's.
 
 struct Pool {
     struct Entry;
-    struct Page { CUmemGenericAllocationHandle handle = 0; unsigned refs = 0; };  // refs = entries mapping this page
+    struct Page {
+        CUmemGenericAllocationHandle handle = 0;
+        unsigned refs = 0, writers = 0;  // refs = entries mapping this page
+        std::uint64_t counted = 0;      // admission-only unique-page stamp
+    };
     int device; cudaStream_t compute, copy; void* ring; std::uint64_t ring_bytes, ring_slot;
     std::uint64_t reserve, gpu_limit, ram_limit, granule = 0;
     CUmemAllocationProp prop{}; CUmemAccessDesc access{}, readonly{};
@@ -51,6 +55,7 @@ struct Pool {
     std::vector<std::unique_ptr<Page>> pool;
     std::vector<Page*> free_pages;
     std::vector<Entry*> entries;
+    std::uint64_t aliased_pages = 0;
     std::uint64_t ram_bytes = 0, serial = 0, evictions = 0, reloads = 0, d2h = 0, h2d = 0,
                   ooms = 0, preflights = 0, peak_gpu = 0, peak_ram = 0, async_copies = 0;
     cudaEvent_t slot_done[2]; bool slot_used[2] = {false, false}; unsigned ring_cursor = 0;
@@ -63,18 +68,22 @@ struct Pool {
 
     struct Entry {
         Pool& owner; CUdeviceptr base = 0; std::uint64_t plane = 0, row = 0, valid = 0, planned = 0, last = 0, host_plane = 0;
-        bool active = false; std::uint64_t mapped = 0;
+        bool active = false; std::uint64_t mapped = 0, incarnation = 0;
         cudaEvent_t ready = nullptr;  // signals the latest async reload completion on the copy stream
         std::array<std::vector<Page*>, 2> pages;
         // Per-plane per-page flag: this slot maps a SHARED read-only page.
         // The first write attempt copy-on-writes it into a private RW page.
         std::array<std::vector<bool>, 2> shared;
+        // Type-erased publication lease. Releasing it never calls back into a
+        // manager (and therefore cannot invert manager -> pool lock ordering).
+        std::shared_ptr<const void> read_lease;
         std::unique_ptr<unsigned char[]> host;
         Entry(Pool& o, std::uint64_t bytes, std::uint64_t row_bytes) : owner(o), plane(o.round(bytes)), row(row_bytes) {
             for (auto& p : pages) p.resize(plane / o.granule, nullptr);
             for (auto& f : shared) f.assign(plane / o.granule, false);
             check(cudaEventCreateWithFlags(&ready, cudaEventDisableTiming));
             std::lock_guard<std::mutex> lock(o.mutex);
+            incarnation = ++o.serial;
             o.driver(cuMemAddressReserve(&base, mul(plane, 2), o.granule, 0, 0));
             try { o.entries.push_back(this); }
             catch (...) { cuMemAddressFree(base, mul(plane, 2)); throw; }
@@ -148,10 +157,15 @@ struct Pool {
                 if (e.pages[k][p]) {
                     driver(cuMemUnmap(e.base + mul(k, e.plane) + mul(p, granule), granule));
                     release(*e.pages[k][p]); e.pages[k][p] = nullptr;
+                    e.shared[k][p] = false;
                 }
         e.mapped = 0;
     }
-    void release(Page& page) { if (--page.refs == 0) free_pages.push_back(&page); }
+    void release(Page& page) {
+        require(page.refs > 0, "KV page reference underflow");
+        if (page.refs == 2) --aliased_pages;
+        if (--page.refs == 0) free_pages.push_back(&page);
+    }
 
     void evict(Entry& e) {
         require(e.mapped > 0, "KV victim not resident");
@@ -172,11 +186,12 @@ struct Pool {
         ++preflights;
         for (auto* e : entries) { e->planned = e->valid; e->active = false; }
         for (const auto& g : goals) {
-            require(g.first && g.second <= g.first->plane, "KV planned prefix exceeds virtual capacity");
+            require(g.first && std::find(entries.begin(),entries.end(),g.first)!=entries.end() &&
+                    g.second <= g.first->plane, "KV planned prefix exceeds virtual capacity/ownership");
             g.first->planned = std::max(g.first->planned, g.second); g.first->active = true;
         }
-        std::uint64_t needed = 0, largest = 0;
-        for (const auto* e : entries) { const auto n = mul(round(e->planned) / granule, 2); needed = add(needed, n); largest = std::max(largest, n); }
+        std::uint64_t largest = 0;
+        for (const auto* e : entries) largest = std::max(largest, mul(round(e->planned) / granule, 2));
         std::size_t free = 0, total = 0; check(cudaMemGetInfo(&free, &total));
         const auto available = add(physical(), free > reserve ? free - reserve : 0);
         const auto budget = (gpu_limit ? std::min(gpu_limit, available) : available) / granule;
@@ -191,9 +206,38 @@ struct Pool {
                     for (auto p = n; p < e->mapped; ++p) {
                         driver(cuMemUnmap(e->base + mul(k, e->plane) + mul(p, granule), granule));
                         release(*e->pages[k][p]); e->pages[k][p] = nullptr;
+                        e->shared[k][p] = false;
                     }
                 e->mapped = std::min(e->mapped, n);
             }
+        }
+        // Count physical aliases once, plus unmapped growth/reload pages and
+        // private copies required by the active APPEND write sets. If every
+        // alias writes, the last writer can reuse the original physical page.
+        // Page stamps avoid a per-token hash table/full-context allocation.
+        const auto stamp = ++serial;
+        std::uint64_t needed = 0;
+        if (!aliased_pages) {
+            // Preserve the ordinary non-sharing O(entries) admission path.
+            for (const auto* e : entries) needed = add(needed,mul(round(e->planned)/granule,2));
+        } else {
+          for (const auto* e : entries) {
+            const auto n = round(e->planned) / granule;
+            for (int k = 0; k < 2; ++k) for (std::uint64_t p = 0; p < n; ++p) {
+                auto* page = e->pages[k][p];
+                if (!page) { needed = add(needed, 1); continue; }
+                if (page->counted != stamp) {
+                    page->counted = stamp; page->writers = 0; needed = add(needed, 1);
+                }
+            }
+          }
+          for (const auto* e : entries) if (e->active && e->planned > e->valid) {
+            const auto first = e->valid / granule, end = std::min(e->mapped, round(e->planned) / granule);
+            for (int k = 0; k < 2; ++k) for (auto p = first; p < end; ++p)
+                if (auto* page = e->pages[k][p]) ++page->writers;
+          }
+          for (const auto& page : pool) if (page->counted == stamp && page->writers)
+            needed = add(needed, std::min(page->writers, page->refs - 1));
         }
         const auto target = std::min(needed, budget);
         pool.reserve(std::max<std::uint64_t>(pool.size(), target));
@@ -232,7 +276,9 @@ struct Pool {
     // the same bytes. Runs before any write may touch the page, so the old
     // mapping is still readable for the copy.
     void copy_on_write(Entry& e, int k, std::uint64_t p) {
-        while (free_pages.empty()) {
+        auto* original = e.pages[k][p];
+        require(original && original->refs, "KV COW page absent");
+        while (free_pages.empty() && original->refs > 1) {
             Entry* victim = nullptr;
             for (auto* other : entries)
                 if (other != &e && other->mapped && (!victim || (other->active != victim->active ? !other->active : other->last < victim->last))) victim = other;
@@ -240,9 +286,17 @@ struct Pool {
             evict(*victim);
         }
         const auto addr = e.base + mul(k, e.plane) + mul(p, granule);
+        // Evicting a donor may leave this as the last alias. No extra page or
+        // copy is needed, including when the admitted pool has ZERO headroom.
+        if (original->refs == 1) {
+            if (e.shared[k][p]) driver(cuMemSetAccess(addr, granule, &access, 1));
+            e.shared[k][p] = false;
+            return;
+        }
         std::vector<unsigned char> image(granule);
         check(cudaStreamSynchronize(copy));
         check(cudaMemcpy(image.data(), reinterpret_cast<void*>(addr), granule, cudaMemcpyDeviceToHost));
+        d2h = add(d2h, granule);
         driver(cuMemUnmap(addr, granule));
         release(*e.pages[k][p]);
         e.pages[k][p] = nullptr;
@@ -251,6 +305,7 @@ struct Pool {
         driver(cuMemMap(addr, granule, 0, page->handle, 0));
         driver(cuMemSetAccess(addr, granule, &access, 1));  // read-write
         check(cudaMemcpy(reinterpret_cast<void*>(addr), image.data(), granule, cudaMemcpyHostToDevice));
+        h2d = add(h2d, granule);
         e.shared[k][p] = false;
     }
 
@@ -259,11 +314,12 @@ struct Pool {
         require(!poisoned, "KV VMM driver failure: recreate model");
         const auto n = round(bytes) / granule; e.last = ++serial;
         require(bytes <= e.plane && n <= pool.size() / 2, "KV prefix not admitted");
-        // Writes may land in already-mapped shared pages (a shared prefix
-        // boundary is byte-granular, pages are not): privatize them first.
-        for (int k = 0; k < 2; ++k)
-            for (std::uint64_t p = 0; p < std::min<std::uint64_t>(n, e.mapped); ++p)
-                if (e.shared[k][p]) copy_on_write(e, k, p);
+        // ensure is an append/read-prefix operation. Only [valid, bytes) is
+        // writable: untouched complete prefix pages must remain shared. Check
+        // physical refs, NOT just borrower RO flags: donors can be aliases too.
+        if (bytes > e.valid) for (int k = 0; k < 2; ++k)
+            for (auto p = e.valid / granule; p < std::min(n, e.mapped); ++p)
+                if (e.shared[k][p] || e.pages[k][p]->refs > 1) copy_on_write(e, k, p);
         if (e.mapped >= n) return;
         // Growth only maps NEW pages (no prior readers); eviction synchronizes
         // the compute stream itself before touching a victim's mappings.
@@ -281,6 +337,7 @@ struct Pool {
                 const auto addr = e.base + mul(k, e.plane) + mul(p, granule);
                 driver(cuMemMap(addr, granule, 0, page->handle, 0));
                 free_pages.pop_back(); ++page->refs; e.pages[k][p] = page;  // owner-tracked even if access setup fails
+                e.shared[k][p] = false;
                 driver(cuMemSetAccess(addr, granule, &access, 1));
             }
         e.mapped = n;
@@ -312,6 +369,13 @@ struct Pool {
         std::lock_guard<std::mutex> lock(mutex);
         require(!poisoned, "KV VMM driver failure: recreate model");
         check(cudaStreamSynchronize(compute)); check(cudaStreamSynchronize(copy));
+        // Detach aliases/RO mappings before request reuse. Retain ordinary
+        // private RW mappings, preserving the no-sharing reset fast path.
+        bool detach = false;
+        for (int k = 0; k < 2; ++k) for (std::uint64_t p = 0; p < e.mapped; ++p)
+            if (e.shared[k][p] || e.pages[k][p]->refs > 1) detach = true;
+        if (detach) unmap(e);
+        e.read_lease.reset(); e.incarnation = ++serial;
         e.valid = e.planned = 0; e.host.reset(); ram_bytes -= mul(e.host_plane, 2); e.host_plane = 0; e.active = false;
     }
     void remove(Entry& e) noexcept {
@@ -322,6 +386,7 @@ struct Pool {
             Device d(device);
             check(cudaStreamSynchronize(compute)); check(cudaStreamSynchronize(copy));
             unmap(e);
+            e.read_lease.reset();
             driver(cuMemAddressFree(e.base, mul(e.plane, 2)));
         } catch (...) { /* CUDA teardown failure must not throw from a destructor. */ }
     }

@@ -1,0 +1,51 @@
+{
+  "architecture": "sm89",
+  "source_sha256": {
+    "models/qwen/csrc/qwen.cu": "d76e983b3f9852378aabf968bd93681c6cd1a9d76ce6c4161ff21b5657fb9db2",
+    "models/qwen/csrc/qwen_batch.cuh": "6c9dc29f756378fac028e380f680450f6969308e671f54f9c1ff6f15c2e6582b",
+    "models/qwen/csrc/qwen_experiments.cuh": "866abefaa69e7916de52d35a80ef8d6b3744e370c2df849eff5ac52ed2473c5a",
+    "models/qwen/csrc/qwen_handoff.cuh": "f90c7cf92e15c354a0b8e786a2b077fe42842ddbca893790507a13a6cc00a8a0",
+    "models/qwen/csrc/qwen_head_gdn.cuh": "da269e31ed6c3a537ce1da693faf6732c371e939116f7c133322a6dc8aaf5ce5",
+    "models/qwen/csrc/qwen_mtp.cuh": "f491868cb857524da2a5fa7607e3e070d6204bd483645b9739d6927a5f21261e",
+    "models/qwen/csrc/qwen_pipeline.cuh": "80852376e04becf72e616e253884765532041682cb82f7e3d4901321a8b557c1",
+    "models/qwen/csrc/qwen_runtime.cuh": "a13260e025194360c223f1ce4440aaa551882951bb4a4f47ed17fc8d14345634",
+    "models/qwen/csrc/staged_uploader.cuh": "53835a8fd8384bf92d91e53f4c370e052e9c4213ad9dca12473f506cd74855f6",
+    "models/qwen/csrc/weight_source.cuh": "b44a0c4259094750d88fed10555396658dd1374b9b00f488be83abe7458a8262",
+    "models/qwen/csrc/weight_validate.cuh": "5d38773878a06fb5d5af989f4ae441a4e89e02eb90361be9c9c9b72a2ae576b8",
+    "ops/csrc/cuda_common.cuh": "087a7e9444440945edd423a616e8bae55f10a70ff071a2e36f16fac9a74f0843",
+    "ops/csrc/kv/kv_pool.cuh": "ca8225d10b1b1db97db35a32d90ba25ea7b53b5b9e3bebacaa191dc5776b36e4",
+    "ops/csrc/kv/kv_prefix.cuh": "60d3f715480c462d0deb4ad57043071f6817d13d043728a20a2f49e2ef721837",
+    "ops/csrc/ops_api.h": "eb0b7b2feda0f41f3e25906f6bfbe9aa3a5952f0f63e15feda6ea6c1eb547eb9"
+  },
+  "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Tue_May_27_02:21:03_PDT_2025\nCuda compilation tools, release 12.9, V12.9.86\nBuild cuda_12.9.r12.9/compiler.36037853_0\n",
+  "command": [
+    "/data/wangyue/cuda-12.9/bin/nvcc",
+    "-O3",
+    "-std=c++20",
+    "-lineinfo",
+    "-shared",
+    "--cudart=static",
+    "-Xcompiler=-fPIC",
+    "-Xcompiler=-fvisibility=hidden",
+    "-Xlinker=-z",
+    "-Xlinker=defs",
+    "-DVENTURI_BLOCKS_ARCH=89",
+    "-gencode=arch=compute_89,code=sm_89",
+    "-gencode=arch=compute_89,code=compute_89",
+    "/data/wangyue/codex-build/Venturi-pr11-fix-20261116/build-ops/39c2f359c871c106/libventuri_ops.so",
+    "-lcuda",
+    "-lcublas",
+    "-Xlinker=-rpath",
+    "-Xlinker=$ORIGIN",
+    "-Xlinker=-soname",
+    "-Xlinker=libventuri_qwen.so",
+    "/data/wangyue/codex-build/Venturi-pr11-fix-20261116/source/src/venturi/models/qwen/csrc/qwen.cu",
+    "-o",
+    "/data/wangyue/codex-build/Venturi-pr11-fix-20261116/build-qwen/17f27db1da86b25e/build-tjaqewem/libventuri_qwen.so"
+  ],
+  "dependencies": {
+    "ops_sha256": "74c9ddda4db0780433c435fc32a029a5f6817b6858032183cbc5713ca4972f0c"
+  },
+  "soname": "libventuri_qwen.so",
+  "library_sha256": "0556c39f1317561025ace402b64cb412295800650ad25815ea0fb9e3323fd3aa"
+}
