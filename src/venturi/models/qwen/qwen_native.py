@@ -527,7 +527,7 @@ class NativeQwenSession:
                 raise ValueError("Native Qwen generation exceeds capacity")
             generator = None
             if sampling.seed is not None:
-                generator = torch.Generator()
+                generator = torch.Generator(device="cpu")
                 generator.manual_seed(sampling.seed)
             logits = self.forward(list(prompt_token_ids))
             tokens = []

@@ -139,7 +139,7 @@ def main(argv=None):
     p.add_argument(
         "--temperature",
         type=float,
-        help="Seeded temperature sampling; omit for the native greedy loop",
+        help="Sampling temperature; with no sampling options use the native greedy loop",
     )
     p.add_argument(
         "--top-k", type=int, help="Sampling top-k truncation (0 keeps all)"
@@ -148,7 +148,7 @@ def main(argv=None):
         "--top-p", type=float, help="Sampling nucleus mass in (0, 1]"
     )
     p.add_argument(
-        "--seed", type=int, help="Deterministic sampling seed (with --temperature)"
+        "--seed", type=int, help="Deterministic sampling seed (any sampling option enables sampling)"
     )
     p.add_argument(
         "--max-tokens",
@@ -405,7 +405,7 @@ def main(argv=None):
                     sampling=(
                         "explicit greedy, lowest-index ties, nonfinite reject; not source stochastic defaults"
                         if sampling is None
-                        else f"seeded temperature/top-k/top-p (t={sampling.temperature}, k={sampling.top_k}, p={sampling.top_p}, seed={sampling.seed}); correctness-first Python loop"
+                        else f"temperature/top-k/top-p (t={sampling.temperature}, k={sampling.top_k}, p={sampling.top_p}, seed={sampling.seed}); correctness-first Python loop"
                     ),
                     prompt_tokens=len(ids),
                     generated_ids=generated,

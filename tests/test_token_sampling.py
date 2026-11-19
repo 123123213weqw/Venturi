@@ -26,6 +26,7 @@ def test_params_validation():
         dict(top_p=1.5),
         dict(top_p=float("inf")),
         dict(seed=-1),
+        dict(seed=2**64),
         dict(seed=1.2),
     ):
         with pytest.raises(ValueError):
@@ -38,13 +39,14 @@ def test_params_validation():
 def test_same_seed_is_deterministic_and_seeds_differ():
     logits = torch.tensor([1.0, 4.0, 2.0, 0.5, 3.0])
     params = SamplingParams(temperature=1.0, seed=1234)
-    first = [sample_token(logits, params) for _ in range(32)]
-    second = [sample_token(logits, params) for _ in range(32)]
-    assert first == second
-    other = [
-        sample_token(logits, SamplingParams(temperature=1.0, seed=99)) for _ in range(32)
-    ]
-    assert other != first or len(set(first)) == 1  # degenerate support may collide
+
+    def draw_sequence(seed):
+        rng = torch.Generator(device="cpu").manual_seed(seed)
+        return [sample_token(logits, params, rng) for _ in range(32)]
+
+    first = draw_sequence(1234)
+    assert first == draw_sequence(1234) and len(set(first)) > 1
+    assert first != draw_sequence(99)
 
 
 def test_top_k_one_and_cold_temperature_collapse_to_argmax():
@@ -113,3 +115,40 @@ def test_draw_bounds_validated():
         reference_sample_token(logits, SamplingParams(), 1.0)
     with pytest.raises(ValueError):
         sample_token(logits, SamplingParams(), uniform=1.5)
+
+
+@pytest.mark.parametrize(
+    "top_k,top_p,draw,expected",
+    [
+        (1, 1.0, 0.0, 0),
+        (2, 1.0, 0.75, 1),
+        (0, 0.25, 0.99, 1),
+    ],
+)
+def test_tied_scores_keep_ascending_token_ids(top_k, top_p, draw, expected):
+    logits = torch.zeros(8, dtype=torch.float64)
+    params = SamplingParams(top_k=top_k, top_p=top_p)
+    assert sample_token(logits, params, uniform=draw) == expected
+    assert reference_sample_token(logits, params, draw) == expected
+
+
+def test_inverse_cdf_rounding_cannot_return_zero_mass_tail():
+    logits = torch.tensor([0.0, -5 / 17, -5 / 19, -1000.0], dtype=torch.float64)
+    draw = math.nextafter(1.0, 0.0)
+    assert sample_token(logits, SamplingParams(), uniform=draw) == 1
+    assert reference_sample_token(logits, SamplingParams(), draw) == 1
+
+
+def test_reference_and_sampler_reject_empty_row():
+    with pytest.raises(ValueError, match="nonempty"):
+        sample_token(torch.empty(0), SamplingParams())
+    with pytest.raises(ValueError, match="nonempty"):
+        reference_sample_token([], SamplingParams(), 0.0)
+
+
+def test_finite_extreme_logits_can_be_rescaled_before_difference():
+    logits = torch.tensor([1e308, -1e308], dtype=torch.float64)
+    params = SamplingParams(temperature=1e308)
+    # Centered logits [0, -2] give the second ID about 0.119 probability.
+    assert sample_token(logits, params, uniform=0.95) == 1
+    assert reference_sample_token(logits, params, 0.95) == 1
