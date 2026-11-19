@@ -1,4 +1,4 @@
-"""Explicit owned Q8 native runtime; raw prompts and greedy-only generation."""
+"""Explicit owned Q8 native runtime; raw prompts, optional seeded sampling."""
 
 import argparse
 from collections import Counter
@@ -137,6 +137,20 @@ def main(argv=None):
     )
     p.add_argument("--max-new-tokens", type=int, default=32)
     p.add_argument(
+        "--temperature",
+        type=float,
+        help="Sampling temperature; with no sampling options use the native greedy loop",
+    )
+    p.add_argument(
+        "--top-k", type=int, help="Sampling top-k truncation (0 keeps all)"
+    )
+    p.add_argument(
+        "--top-p", type=float, help="Sampling nucleus mass in (0, 1]"
+    )
+    p.add_argument(
+        "--seed", type=int, help="Deterministic sampling seed (any sampling option enables sampling)"
+    )
+    p.add_argument(
         "--max-tokens",
         type=int,
         default=128,
@@ -225,8 +239,23 @@ def main(argv=None):
         ):
             raise ValueError("Column MLP requires explicit two-device host TP")
         if args.max_new_tokens <= 0:
-            raise ValueError(
-                "max-new-tokens must be positive; this runtime is greedy-only"
+            raise ValueError("max-new-tokens must be positive")
+        from venturi.engine.sampling import SamplingParams
+
+        sampling = None
+        if any(
+            value is not None
+            for value in (args.temperature, args.top_k, args.top_p, args.seed)
+        ):
+            if args.mtp_checkpoint:
+                raise ValueError(
+                    "MTP speculative acceptance is exact-equality and greedy-only"
+                )
+            sampling = SamplingParams(
+                temperature=args.temperature if args.temperature is not None else 1.0,
+                top_k=args.top_k if args.top_k is not None else 0,
+                top_p=args.top_p if args.top_p is not None else 1.0,
+                seed=args.seed,
             )
         if args.prompt is None and args.token_ids is None:
             raise ValueError("generate requires a raw --prompt or explicit --token-ids")
@@ -321,6 +350,7 @@ def main(argv=None):
                     ids,
                     max_new_tokens=args.max_new_tokens,
                     eos_token_ids=eos,
+                    sampling=sampling,
                     **(
                         {"draft_tokens": 2, "recovery": args.mtp_recovery}
                         if args.mtp_draft_tokens == 2
@@ -372,7 +402,11 @@ def main(argv=None):
                     speculative_draft_tokens=(
                         args.mtp_draft_tokens if args.mtp_checkpoint else 0
                     ),
-                    sampling="explicit greedy, lowest-index ties, nonfinite reject; not source stochastic defaults",
+                    sampling=(
+                        "explicit greedy, lowest-index ties, nonfinite reject; not source stochastic defaults"
+                        if sampling is None
+                        else f"temperature/top-k/top-p (t={sampling.temperature}, k={sampling.top_k}, p={sampling.top_p}, seed={sampling.seed}); correctness-first Python loop"
+                    ),
                     prompt_tokens=len(ids),
                     generated_ids=generated,
                     text=tokenizer.decode(generated) if tokenizer else None,
