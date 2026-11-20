@@ -2,7 +2,7 @@
 
 Correctness-first torch execution over any store satisfying the expert-store
 contract (`.geometry` + `read(expert, *, device, dtype) -> (gate_up, down)`).
-Expert math uses the clamped-SwiGLU oracle; iteration order matches the
+Expert math is oracle-exact clamped SwiGLU; iteration order matches the
 pinned flash-next reference (ascending expert ids, index_add_ accumulation).
 """
 
@@ -11,7 +11,19 @@ from torch import nn
 
 from venturi.models.moe.geometry import ExpertGeometry
 from venturi.models.moe.routing import TopKRouter
-from venturi.models.moe_routing import reference_expert_activation
+
+
+def _clamped_swiglu(gate, up, limit):
+    """Training-compatible SwiGLU clamps on any device/dtype.
+
+    Mirrors venturi.models.moe_routing.reference_expert_activation (the
+    CPU-FP32 pinned oracle) without its CPU-only admission checks:
+    upper-only gate clamp, two-sided up clamp.
+    """
+    if limit:
+        gate = gate.clamp(max=limit)
+        up = up.clamp(min=-limit, max=limit)
+    return nn.functional.silu(gate) * up
 
 
 def routed_experts(hidden_states, indices, scores, store, *, swiglu_limit: float = 0.0):
@@ -33,7 +45,7 @@ def routed_experts(hidden_states, indices, scores, store, *, swiglu_limit: float
         token_rows, slots = torch.where(flat_indices == expert)
         gate_up, down = store.read(expert, device=hidden_states.device, dtype=hidden_states.dtype)
         gate, up = nn.functional.linear(flat[token_rows], gate_up).chunk(2, dim=-1)
-        activated = reference_expert_activation(gate, up, limit=swiglu_limit)
+        activated = _clamped_swiglu(gate, up, swiglu_limit)
         current = nn.functional.linear(activated, down)
         weighted = current.to(output.dtype) * flat_scores[token_rows, slots, None].to(output.dtype)
         output.reshape(-1, geometry.hidden_size).index_add_(0, token_rows, weighted.to(output.dtype))
