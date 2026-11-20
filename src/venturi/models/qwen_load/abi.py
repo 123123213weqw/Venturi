@@ -39,6 +39,7 @@ class Config(C.Structure):
             ("second_device", C.c_int),
             ("peer_transport", C.c_int),
             ("reserve", C.c_uint64),
+            ("linear_implementation", C.c_int),
         ]
     )
 
@@ -50,12 +51,17 @@ class Span(C.Structure):
 
 
 class Matrix(C.Structure):
+    # Every loader descriptor supplies bits/group explicitly; zero is retained
+    # only for native internal descriptors inheriting the validated config.
+    # Field order must match VRMatrix in qwen_runtime.cuh (runtime ABI 3).
     _fields_ = [
         ("offset", C.c_uint64),
         ("high", C.c_uint64),
         ("scales", C.c_uint64),
         ("n", C.c_int),
         ("k", C.c_int),
+        ("bits", C.c_int),
+        ("group", C.c_int),
     ]
 
 
@@ -111,6 +117,7 @@ def _bind(runtime):
             integer,
         ),
         "venturi_qwen_info": ([ptr, C.POINTER(u64)], integer),
+        "venturi_qwen_linear_plan_info": ([ptr, integer, C.POINTER(u64)], integer),
         "venturi_qwen_timings": ([ptr, C.POINTER(C.c_double)], integer),
         "venturi_qwen_parallel_info": ([ptr, C.POINTER(u64)], integer),
         "venturi_qwen_reset": ([ptr], integer),

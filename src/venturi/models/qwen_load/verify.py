@@ -22,12 +22,18 @@ def projection_info(spec, cfg, quant_bytes, native):
     dtype = spec.dtype
     info = dict(
         projection_profile=normalized_profile(spec),
-        activation_quantization_passes=2 if spec.projection_profile != "fp16" else 0,
+        activation_quantization_passes=(
+            0
+            if spec.projection_profile == "fp16"
+            else 1 if spec.projection_profile == "int8" else 2
+        ),
+        linear_implementation=spec.linear_implementation,
+        dequant_resident=spec.dequant_resident,
         primary_projection_workspace_bytes=quant_bytes,
         peer_projection_workspace_bytes=(
             quant_bytes if spec.tensor_parallel_device is not None else 0
         ),
-        projection_precision_scope=f"Original Q8 weights/scales; {dtype} storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic.",
+        projection_precision_scope=f"Original per-matrix encoded weights/scales; Q4/Q5/Q6 auto/reference A16 decode q*scale with FP16 rounding before FP32 accumulation; separately gated fused Q4 research retains FP32 group-scale association. Actual per-codec family/rounding is reported in linear_contracts. int8 explicitly uses one group32 activation Q8 pass; {dtype} storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic.",
     )
     if spec.column_profile:
         info[
@@ -75,7 +81,7 @@ def reconcile(spec, runtime, handle, cfg, owned, budget, info):
         values = (C.c_uint64 * 3)()
         runtime._check(query(handle, values))
         if list(values) != [
-            2,
+            1 if spec.projection_profile == "int8" else 2,
             quant_bytes,
             quant_bytes if spec.tensor_parallel_device is not None else 0,
         ]:

@@ -17,6 +17,9 @@ def prepare_source(spec):
     # trusting a caller-mutated in-memory config or descriptor table.
     owned = QwenWeights.open(spec.weights.source.path)
     cfg = copy.deepcopy(owned.config)
+    from venturi.quantization.linear import validate_linear_contracts
+
+    validate_linear_contracts(spec, owned)
     if spec.stage_range is not None:
         if (
             not isinstance(spec.stage_range, tuple)

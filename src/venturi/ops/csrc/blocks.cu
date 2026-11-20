@@ -647,7 +647,7 @@ __global__ void greedy_finish(const GreedyCandidate* scratch, std::int64_t* out,
 
 }
 
-extern "C" int venturi_blocks_abi() { return 17; }
+extern "C" int venturi_blocks_abi() { return 18; }
 extern "C" int venturi_blocks_arch() { return VENTURI_BLOCKS_ARCH; }
 extern "C" const char* venturi_blocks_error() { return error_text.c_str(); }
 extern "C" int venturi_greedy_run(const void* logits, std::int64_t* out, void* workspace,
@@ -1040,6 +1040,8 @@ extern "C" int venturi_qwen_gate_run(const void* x, const void* qg, void* out,
 #include "q8_column_tp.cuh"
 #include "q8_shared.cuh"
 #include "q8_fused.cuh"
+#include "q5_dp4a.cuh"
+#include "q5_hmma.cuh"
 #include "q8_wmma.cuh"
 #include "q8_projection_dispatch.cuh"
 #include "q8_producer.cuh"
@@ -1048,6 +1050,19 @@ extern "C" int venturi_qwen_gate_run(const void* x, const void* qg, void* out,
 namespace vrow {
 #include "weight_dequant.cuh"
 #include "q4_fused.cuh"
+#include "q5_fused.cuh"
+}
+// q5 fused GEMM: reads q5_g64_fp16 codes + high plane directly, no FP16
+// materialization. W5A16 mirrors the q4 fused kernel geometry.
+extern "C" int venturi_q5_fused_run(const void* x,const void* codes,const void* high,const void* scales,void* out,int t,int rows,int k,int padded,int dtype,void* stream) {
+    try { require(x && codes && high && scales && out && t>0 && rows>0 && k>0 && padded>=k && padded%128==0 && dtype==0,"invalid q5 fused GEMM geometry");
+        const dim3 grid((rows+7)/8,t);
+        vrow::q5_fused_run_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
+            static_cast<const __half*>(x),static_cast<const unsigned char*>(codes),
+            static_cast<const unsigned char*>(high),static_cast<const __half*>(scales),
+            static_cast<__half*>(out),t,rows,k,padded);
+        check(cudaGetLastError());return 0;
+    } catch (const std::exception& e) { error_text=e.what();return -1; }
 }
 // q4 fused GEMM: reads compressed nibble codes directly, no FP16 materialization.
 extern "C" int venturi_q4_fused_run(const void* x,const void* codes,const void* scales,void* out,int t,int rows,int k,int padded,int dtype,void* stream) {
@@ -1062,7 +1077,8 @@ extern "C" int venturi_q4_fused_run(const void* x,const void* codes,const void* 
 // Row-codec dequantification entry points (q4/q5/q6; high plane null for q4).
 extern "C" int venturi_row_dequant_rows(const void* codes,const void* high,const void* scales,void* out,int row,int rows,int k,int padded,int bits,void* stream) {
     try { require(codes && scales && out && rows>0 && k>0 && row>=0 && padded>=k && padded%128==0 && bits>=4 && bits<=6,"invalid row-codec dequant geometry");
-        const int groups=padded>>6;const dim3 grid((groups+255)/256,rows);
+        require(bits==4 || high,"row-codec high plane required");
+        const dim3 grid(((k+7)/8+255)/256,rows);
         vrow::row_dequant_rows_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
             static_cast<const unsigned char*>(codes),static_cast<const unsigned char*>(high),
             static_cast<const __half*>(scales),static_cast<__half*>(out),row,rows,k,padded,bits);
@@ -1071,7 +1087,8 @@ extern "C" int venturi_row_dequant_rows(const void* codes,const void* high,const
 }
 extern "C" int venturi_row_dequant_indexed(const void* codes,const void* high,const void* scales,const std::int64_t* ids,void* out,int count,int k,int padded,int bits,void* stream) {
     try { require(codes && scales && ids && out && count>0 && k>0 && padded>=k && padded%128==0 && bits>=4 && bits<=6,"invalid row-codec dequant geometry");
-        const int groups=padded>>6;const dim3 grid((groups+255)/256,count);
+        require(bits==4 || high,"row-codec high plane required");
+        const dim3 grid(((k+7)/8+255)/256,count);
         vrow::row_dequant_indexed_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
             static_cast<const unsigned char*>(codes),static_cast<const unsigned char*>(high),
             static_cast<const __half*>(scales),ids,static_cast<__half*>(out),count,k,padded,bits);

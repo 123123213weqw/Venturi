@@ -326,7 +326,7 @@ class CudaBackend(_SharedPreparedBackend):
         self._native = ctypes.CDLL(str(self.library))
         self._native.venturi_blocks_abi.argtypes = []
         self._native.venturi_blocks_abi.restype = ctypes.c_int
-        if self._native.venturi_blocks_abi() != 17:
+        if self._native.venturi_blocks_abi() != 18:
             raise RuntimeError("Venturi blocks ABI mismatch; rebuild explicitly")
         self._native.venturi_blocks_arch.argtypes = []
         self._native.venturi_blocks_arch.restype = ctypes.c_int

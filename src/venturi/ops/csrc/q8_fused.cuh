@@ -159,13 +159,33 @@ template<int Tokens,int Passes,int Rows,int Kind>void launch(const void* workspa
     const dim3 grid(static_cast<unsigned>(blocks),(tokens+Tokens-1)/Tokens);
     if constexpr(Kind==0)global_dot<Tokens,Passes,Rows><<<grid,Rows*32,0,stream>>>(codes,scales,g,tokens,k,padded,groups);
     else if constexpr(Kind==1)full_dot<Tokens,Passes,Rows><<<grid,Rows*32,tokens*groups*Passes*36,stream>>>(codes,scales,g,tokens,k,padded,groups);
-    else tiled_dot<Tokens,Passes,Rows><<<grid,Rows*32,Tokens*Passes*32*36,stream>>>(codes,scales,g,tokens,k,padded,groups);
+    else {
+        // night-tps-20261116: wide tiles (>16 tokens) need more than the 48KiB
+        // default dynamic shared budget on SM70; raise once per instantiation.
+        constexpr auto dynamic=Tokens*Passes*32*36;
+        if constexpr(dynamic>48*1024) {
+            static bool raised=false;
+            if(!raised){check(cudaFuncSetAttribute(tiled_dot<Tokens,Passes,Rows>,cudaFuncAttributeMaxDynamicSharedMemorySize,dynamic));raised=true;}
+        }
+        tiled_dot<Tokens,Passes,Rows><<<grid,Rows*32,dynamic,stream>>>(codes,scales,g,tokens,k,padded,groups);
+    }
 }
 template<int Passes>void run(const void* w,Group g,int tokens,int k,int padded,cudaStream_t stream) {
     int maxn=0;for(int i=0;i<g.count;++i)maxn=std::max(maxn,g.item[i].n);
     if(tokens==1)launch<1,Passes,4,0>(w,g,tokens,k,padded,stream);
     else if(tokens==2 && vdq::bytes(tokens,k,Passes)<=48*1024)launch<2,Passes,16,1>(w,g,tokens,k,padded,stream);
     else if(tokens==2)launch<2,Passes,4,0>(w,g,tokens,k,padded,stream);
+    // night-tps-20261116: each 8-token tile re-reads the full weight row, so a
+    // 32-decode cohort re-reads the weights 4x per projection. A 32-token tile
+    // needs 72KiB dynamic shared at Passes==2, over the 64KiB-per-block SM70
+    // limit, so the widest tile is Passes==1 only (36KiB); everything else
+    // above 15 tokens uses one 16-token tile (36KiB). Per-token dp4a/FMA
+    // arithmetic and reduction order are unchanged; only tiles are partitioned.
+    else if(tokens>=24 && maxn>=1024) {
+        if constexpr(Passes==1)launch<32,Passes,16,2>(w,g,tokens,k,padded,stream);
+        else launch<16,Passes,16,2>(w,g,tokens,k,padded,stream);
+    }
+    else if(tokens>=16 && maxn>=1024)launch<16,Passes,16,2>(w,g,tokens,k,padded,stream);
     else if(tokens>=8 && maxn>=1024)launch<8,Passes,16,2>(w,g,tokens,k,padded,stream);
     else launch<4,Passes,8,2>(w,g,tokens,k,padded,stream);
 }

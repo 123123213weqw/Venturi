@@ -35,14 +35,10 @@ __global__ inline void q4_fused_run_kernel(
         const int c2 = (g + 2) * 64 + lane * 2;
         const int c3 = (g + 3) * 64 + lane * 2;
         // __half2 loads: one 4-byte transaction for two FP16 activations.
-        const __half2 xa = c0 + 1 < k ? *reinterpret_cast<const __half2*>(xrow + c0)
-                                      : __half2{__float2half(0), __float2half(0)};
-        const __half2 xb = c1 + 1 < k ? *reinterpret_cast<const __half2*>(xrow + c1)
-                                      : __half2{__float2half(0), __float2half(0)};
-        const __half2 xc = c2 + 1 < k ? *reinterpret_cast<const __half2*>(xrow + c2)
-                                      : __half2{__float2half(0), __float2half(0)};
-        const __half2 xd = c3 + 1 < k ? *reinterpret_cast<const __half2*>(xrow + c3)
-                                      : __half2{__float2half(0), __float2half(0)};
+        const __half2 xa = __halves2half2(c0<k?xrow[c0]:__float2half(0), c0+1<k?xrow[c0+1]:__float2half(0));
+        const __half2 xb = __halves2half2(c1<k?xrow[c1]:__float2half(0), c1+1<k?xrow[c1+1]:__float2half(0));
+        const __half2 xc = __halves2half2(c2<k?xrow[c2]:__float2half(0), c2+1<k?xrow[c2+1]:__float2half(0));
+        const __half2 xd = __halves2half2(c3<k?xrow[c3]:__float2half(0), c3+1<k?xrow[c3+1]:__float2half(0));
         const float s0 = __half2float(srow[g + 0]);
         const float s1 = __half2float(srow[g + 1]);
         const float s2 = __half2float(srow[g + 2]);

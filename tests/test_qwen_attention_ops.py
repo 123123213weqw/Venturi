@@ -322,7 +322,9 @@ def test_qwen_eager_source_norm_rotary_and_gate_conventions():
         backend, position=262130, tokens=7, dtype=torch.bfloat16, device="cpu"
     )
     module = Qwen3_5TextRotaryEmbedding(hf)
-    positions = torch.arange(262130, 262137)[None]
+    # Text uses identical positions on all three mRoPE axes. Pass the explicit
+    # upstream shape; newer HF releases no longer expand 2-D text positions.
+    positions = torch.arange(262130, 262137)[None, None].expand(3, 1, -1)
     hfco, hfsi = module(torch.empty(1, 7, 32, dtype=torch.bfloat16), positions)
     assert torch.equal(co, hfco[0, :, :32].float()) and torch.equal(
         si, hfsi[0, :, :32].float()

@@ -1,0 +1,20 @@
+{"stage": "restorer_started", "pid": 1353456, "deadline": 1794921560.700004}
+{"stage": "production_temporarily_paused", "pid": 2938688}
+{"stage": "start", "name": "sm70-small-v1"}
+sm70-small-v1 1353466
+{"reason": "normal", "exit_code": 0, "finished_unix": 1794917980.4587944, "remaining_own_apps": [], "scope": "No foreign job/service/driver/monitor changes; private leases released"}
+{"stage": "complete", "name": "sm70-small-v1"}
+{"stage": "start", "name": "sm70-real-v1"}
+sm70-real-v1 1353562
+{"reason": "normal", "exit_code": 0, "finished_unix": 1794918278.310299, "remaining_own_apps": [], "scope": "No foreign job/service/driver/monitor changes; private leases released"}
+{"stage": "complete", "name": "sm70-real-v1"}
+{"stage": "start", "name": "sm70-tps-v1"}
+sm70-tps-v1 1355321
+{"reason": "normal", "exit_code": 1, "finished_unix": 1794918342.9669647, "remaining_own_apps": [], "scope": "No foreign job/service/driver/monitor changes; private leases released"}
+{"stage": "production_restored", "actor": "primary", "restored_running": true, "http_200": true, "same_command_environment_cwd_binary": true, "original_pid": 2938688, "restored_pid": 1355715, "original_log_preserved": true, "no_route_or_model_parameter_changes": true, "unix": 1794918366.9310048}
+Traceback (most recent call last):
+  File "/home/xs/codex-build/Venturi-pr14-fix-20261117/production_window_node22.py", line 172, in <module>
+    subprocess.run([sys.executable,str(R/'guard_job.py'),str(R/(name+'.json'))],check=True,cwd=R)
+  File "/usr/lib/python3.10/subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/home/xs/codex-build/Venturi-pr14-fix-20261117/guard_job.py', '/home/xs/codex-build/Venturi-pr14-fix-20261117/sm70-tps-v1.json']' returned non-zero exit status 1.
