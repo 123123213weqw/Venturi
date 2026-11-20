@@ -1,0 +1,23 @@
+{
+  "host": "WZU_Server, same V100",
+  "command": [
+    "/usr/local/cuda/bin/nvcc",
+    "-O3",
+    "-std=c++20",
+    "-lineinfo",
+    "-shared",
+    "--cudart=static",
+    "-Xcompiler=-fPIC",
+    "-DVENTURI_Q8_ROW_PAIR=1",
+    "-gencode=arch=compute_70,code=sm_70",
+    "-gencode=arch=compute_70,code=compute_70",
+    "-Xptxas=-v",
+    "-I/home/data/wangyue/repos/codex-build/Venturi/swiglu-quant-src-v1/src/venturi/ops/csrc",
+    "/home/data/wangyue/repos/codex-build/Venturi/swiglu-quant-src-v1/tools/projection/swiglu_quant_probe.cu",
+    "-o",
+    "/home/data/wangyue/artifacts/venturi-swiglu-quant-v1/libswiglu_quant_probe.so"
+  ],
+  "exit": 0,
+  "cuda": "12.9",
+  "note": "Remote CUDA compilation only. V2 uses the exact same SO; all CUDA/header input hashes were verified identical before execution."
+}

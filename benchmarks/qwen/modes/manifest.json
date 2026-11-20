@@ -1,0 +1,458 @@
+{
+  "task": "Expose single/parallel native request dispatch with idle runtime switching and startup-fixed concurrency/KV budgets",
+  "recorded_utc": "2026-10-16T06:15:35.146415+00:00",
+  "base_commit": "fc972990c036dd32e8d4ef86ac40b729af629477",
+  "source_state": "Uncommitted implementation on top of base; prior long-context changes retained; not pushed",
+  "source_sha256": {
+    "src/venturi/backends/csrc/qwen_runner.cpp": "9c9d7d37fd39a021e3c633b81d8f050e5dde91276c6053bcf453aab300d782ab",
+    "src/venturi/backends/qwen.py": "5a271b2ca5736251dad708edbfe4ae799ef7951d9642dca5b1e51a8e49363537",
+    "src/venturi/qwen_cli.py": "e588e17bd718208831f22b4ae362ee47e9e4cd848b71ce3f6ad2c7039f8c376a",
+    "tools/validate_qwen_modes.py": "3af160b26307f7bd7c94e4e6423c363408de0d0d8d47384da401b667d39cb17b",
+    "tests/test_qwen_backend.py": "94fd406e0a27770a064ad8a436e478e97d4e7b876e6a9222f972fb130f04b0f0",
+    "tests/test_qwen_real.py": "cbcc3dbfd5095a4a1266521d76eb13f597c2e7d673302fe7ba6d6aed73ebb2a9",
+    "benchmarks/qwen/modes/probe_numerics.py": "636a9f1bcea690e2ac0bfb2258469ec2f12e087a30e49c55de8908504b6a071f"
+  },
+  "backend": "External NInfer/Cinference math, scheduler, paging and kernels; Venturi owns transport/API/CLI/measurement. No external source/library or weight representation changes.",
+  "model": {
+    "name": "Existing Qwen3.8-27B .ninfer text checkpoint",
+    "artifact_id": "d3ae5782742a48c8b058196297a7ddff",
+    "staged_path": "/dev/shm/venturi-test/venturi-ninfer-d3ae5782742a48c8b058196297a7ddff-f730fa10d9cd5d08/qwen3_8_27b.ninfer",
+    "selected_weights_bytes": 15677913088,
+    "formats": "Stored mixed Q4/Q8/BF16/FP32; no FP16 expansion, vision or MTP"
+  },
+  "hardware": "2026-10-16T14:14:29+08:00\nServer-4090D\nNVIDIA GeForce RTX 4090 D, 580.178.04, 24564 MiB, 387 MiB, 0 %\n2662, /usr/libexec/gnome-remote-desktop-daemon, 354 MiB\ng++ (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n",
+  "runner_sha256": "bdfaf62b626462e530bf0f81770af2113d63cc2a28c27287f872db0653817d82",
+  "build_report": "venturi-qwen-runner-modes.build.json",
+  "method": "Eight requests/wave, each 509 raw prompt tokens + 64 fixed output tokens. Context 2048, chunk 512, CUDA graphs, no speculation/reuse. One resident model per configuration: warm each mode, measured ABBA dispatch order (two waves/mode). All output tokens / shared batch wall time including preparation, queueing and prefill; startup/warmup excluded. Separate precision/configuration comparisons, not a precision ablation.",
+  "configs": [
+    {
+      "file": "bf16-c4.json",
+      "config": {
+        "cuda_graph": true,
+        "device": 0,
+        "draft_tokens": 8,
+        "kv_capacity": 8192,
+        "kv_dtype": "bf16",
+        "max_concurrency": 4,
+        "max_context": 2048,
+        "optimized_proposal": false,
+        "pending_timeout_ms": 600000,
+        "prefill_chunk": 512,
+        "speculative": "none",
+        "verify_tree": false
+      },
+      "limits": {
+        "kv_capacity": 8192,
+        "max_batch_requests": 16,
+        "max_concurrency": 4
+      },
+      "summaries": {
+        "single": {
+          "output_tokens_per_second": 46.82350592794744,
+          "mean_decode_batch": 1.0,
+          "median_first_token_seconds": 0.25733835
+        },
+        "parallel": {
+          "output_tokens_per_second": 116.11400335602784,
+          "mean_decode_batch": 3.9069767441860463,
+          "median_first_token_seconds": 1.757768703
+        }
+      },
+      "cross_mode_exact_ids": false,
+      "comparisons": [
+        {
+          "stage": "parallel_warmup",
+          "equal_by_request": [
+            true,
+            true,
+            true,
+            false,
+            true,
+            false,
+            true,
+            false
+          ]
+        },
+        {
+          "stage": "measured_0_single",
+          "equal_by_request": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": "measured_1_parallel",
+          "equal_by_request": [
+            true,
+            true,
+            true,
+            false,
+            true,
+            false,
+            true,
+            false
+          ]
+        },
+        {
+          "stage": "measured_2_parallel",
+          "equal_by_request": [
+            true,
+            true,
+            true,
+            false,
+            true,
+            false,
+            true,
+            false
+          ]
+        },
+        {
+          "stage": "measured_3_single",
+          "equal_by_request": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": "chat",
+          "equal_by_request": [
+            true,
+            true,
+            false
+          ]
+        }
+      ],
+      "literal_answers": [
+        "APPLE",
+        "RIVER",
+        "CLOUD",
+        "MUSIC"
+      ]
+    },
+    {
+      "file": "k8v4-c8-shared.json",
+      "config": {
+        "cuda_graph": true,
+        "device": 0,
+        "draft_tokens": 8,
+        "kv_capacity": 4608,
+        "kv_dtype": "k8v4",
+        "max_concurrency": 8,
+        "max_context": 2048,
+        "optimized_proposal": false,
+        "pending_timeout_ms": 600000,
+        "prefill_chunk": 512,
+        "speculative": "none",
+        "verify_tree": false
+      },
+      "limits": {
+        "kv_capacity": 4608,
+        "max_batch_requests": 16,
+        "max_concurrency": 8
+      },
+      "summaries": {
+        "single": {
+          "output_tokens_per_second": 46.98165146008709,
+          "mean_decode_batch": 1.0,
+          "median_first_token_seconds": 0.2584306355
+        },
+        "parallel": {
+          "output_tokens_per_second": 150.0491827005576,
+          "mean_decode_batch": 7.2,
+          "median_first_token_seconds": 1.221387872
+        }
+      },
+      "cross_mode_exact_ids": false,
+      "comparisons": [
+        {
+          "stage": "parallel_warmup",
+          "equal_by_request": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "stage": "measured_0_single",
+          "equal_by_request": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": "measured_1_parallel",
+          "equal_by_request": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "stage": "measured_2_parallel",
+          "equal_by_request": [
+            true,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            true
+          ]
+        },
+        {
+          "stage": "measured_3_single",
+          "equal_by_request": [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        },
+        {
+          "stage": "chat",
+          "equal_by_request": [
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "literal_answers": [
+        "APPLE",
+        "RIVER",
+        "CLOUD",
+        "MUSIC"
+      ]
+    }
+  ],
+  "validation": {
+    "local_cpu": "300 passed, 53 skipped; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+    "native_and_transport": "47 passed on 4090D before three additional CPU transport cases; final remote transport suite 46 passed separately",
+    "native_scope": "Default C1 generation, BF16/K8V4 C4 mode switches, single-row equivalence, serial reset, distinct literal answers in ordered rows, bounded 16-item ingress, overflow rejection/recovery. Additional C8 shared-budget production validation and actual Mac SSH launcher in both modes.",
+    "lint": "ruff check src tests tools benchmarks/qwen/modes/probe_numerics.py; git diff --check; Python 3.11 py_compile passed",
+    "initial_failure": "gpu-tests-initial-cross-b-ids.log retained: invalid assumption of universal cross-batch exact greedy IDs, not hidden or relabeled as passing"
+  },
+  "numerical_probes": [
+    {
+      "kv_dtype": "bf16",
+      "cases": [
+        {
+          "name": "raw",
+          "differences": [
+            {
+              "index": 0,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 1,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 2,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 3,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 4,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 5,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 6,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 7,
+              "equal": true,
+              "first_difference": null
+            }
+          ],
+          "serial_reset_equal": true
+        },
+        {
+          "name": "chat",
+          "differences": [
+            {
+              "index": 0,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 1,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 2,
+              "equal": false,
+              "first_difference": 9
+            }
+          ],
+          "serial_reset_equal": true
+        }
+      ]
+    },
+    {
+      "kv_dtype": "k8v4",
+      "cases": [
+        {
+          "name": "raw",
+          "differences": [
+            {
+              "index": 0,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 1,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 2,
+              "equal": false,
+              "first_difference": 42
+            },
+            {
+              "index": 3,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 4,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 5,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 6,
+              "equal": false,
+              "first_difference": 42
+            },
+            {
+              "index": 7,
+              "equal": true,
+              "first_difference": null
+            }
+          ],
+          "serial_reset_equal": true
+        },
+        {
+          "name": "chat",
+          "differences": [
+            {
+              "index": 0,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 1,
+              "equal": true,
+              "first_difference": null
+            },
+            {
+              "index": 2,
+              "equal": true,
+              "first_difference": null
+            }
+          ],
+          "serial_reset_equal": true
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "One RPC at a time; offline list API, not asynchronous independent clients or HTTP serving.",
+    "Maximum native active concurrency 1..8 fixed at startup; at most 16 input strings per list.",
+    "Runtime switching does not resize/free the original lane/KV reservation; C1 needs a new session to enable parallel.",
+    "Shared KV admission pressure may lower actual batch size; four full 256K caches do not fit on this card.",
+    "Cross-batch exact IDs are not guaranteed: observed BF16-KV chat divergence at token index 9 and K8V4 raw divergence at index 42; full IDs retained. No broad semantic-quality/logit-error/batch-invariance proof.",
+    "More aggregate throughput does not imply faster individual requests; first-token metrics are retained in each report."
+  ],
+  "deployment": {
+    "primary_source": "/home/test/wangyue/venturi-work/qwen/src",
+    "primary_runner": "/home/test/wangyue/venturi-work/qwen/native/venturi-qwen-runner",
+    "protocol": 2,
+    "tested_candidate": "/home/test/wangyue/venturi-work/qwen/native/venturi-qwen-runner-modes",
+    "preserved_protocol1_source": "/home/test/wangyue/venturi-work/qwen/protocol1/src",
+    "preserved_protocol1_runner": "/home/test/wangyue/venturi-work/qwen/native/venturi-qwen-runner-protocol1-112400ecb730d8ab",
+    "preserved_protocol1_sha256": "112400ecb730d8ab7badd105d84c147d16140b43c15bdb72d6577b6b54091e91",
+    "launch": "scripts/venturi-qwen-4090d forwards --mode/--max-concurrency/--kv-capacity and repeated --prompt; CLI acceptances explicitly selected retained RAM stage; default model path unchanged",
+    "services": "No server or background model kept running; only pre-existing GNOME desktop GPU process after tests"
+  },
+  "reproduction": {
+    "cpu": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 ../venturi-testenv/bin/python -m pytest -q --tb=short",
+    "native": "VENTURI_TEST_CUDA=1 VENTURI_QWEN_MODEL=<existing-stage> VENTURI_QWEN_RUNNER=<protocol-2-runner> PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src python -m pytest tests/test_qwen_real.py tests/test_qwen_backend.py -q --tb=short",
+    "benchmark": "PYTHONPATH=src python tools/validate_qwen_modes.py <existing-stage> --runner <protocol-2-runner> --output <new-report.json> [--kv-dtype k8v4 --max-concurrency 8 --kv-capacity 4608]",
+    "numerics": "PYTHONPATH=src python benchmarks/qwen/modes/probe_numerics.py <existing-stage> --runner <protocol-2-runner> --output <new-report.json>"
+  },
+  "evidence_sha256": {
+    "benchmark-k8v4.log": "5a5aab0821d463ca1b91729f5d1bdedd9de28a1ca6ac5ac5e44a86cd0a016646",
+    "benchmark.log": "63db55a57a258374d1d378845916d1adf5ce3d6f5c45e93d83ba02f786151e00",
+    "bf16-c4.json": "d55da1b624aa2b6772a0f32ddbf342a04e16fae357f3e676a79a0a622aec428c",
+    "build.log": "7587f7050ce558e77382ec742263a94918dfb5c3dc7a82100796160f0dfbea5e",
+    "cli-parallel.json": "731430aba96eb217c8e8165a29c9e9f929ccd57469d4dc26bdce13e112726b9e",
+    "cli-single.json": "957188cc23d03f8cbc1be77dff02be58febec1efab3dc3e0ba29041495768064",
+    "cpu-tests.log": "2f55ecbffd68ad097aefac8dd5dbc7daa733e646cab088962487c56e6f69bdb3",
+    "gpu-tests-final.log": "c38980d766c19720d24eeb9ca647d7144d295c0db945b56441e8548879c57e40",
+    "gpu-tests-initial-cross-b-ids.log": "9976682e074ef6ef0096c18744a1aa96d98ae23baebe16d8e64410b264823b5c",
+    "gpu-tests.log": "9976682e074ef6ef0096c18744a1aa96d98ae23baebe16d8e64410b264823b5c",
+    "k8v4-c8-shared.json": "8b7dc1ffd037f1f5fc8259390dfabdd6e63ef711bbd067c1fffda2294d8d90c8",
+    "numerical-probes.json": "51881943162513e342c2218941ca8a37d963a8b1bdbb701803adf3548693e66e",
+    "numerical-probes.log": "6dc40714905eefbd9343d0030652b517886b48abf8376ec30d7e8d8136464b2d",
+    "probe_numerics.py": "636a9f1bcea690e2ac0bfb2258469ec2f12e087a30e49c55de8908504b6a071f",
+    "server-final-check.txt": "dd85dde1001b9b3fb61c40000bfc94b452c0fdab9e4c7df7554e3e9f9d0d3e2d",
+    "transport-tests-final.log": "cf38f3ea762039def62c9fab3eb080a62c891267526bb2a89e8e21cc3a68ade0",
+    "venturi-qwen-runner-modes.build.json": "7587f7050ce558e77382ec742263a94918dfb5c3dc7a82100796160f0dfbea5e"
+  }
+}

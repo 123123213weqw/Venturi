@@ -1,0 +1,42 @@
+{
+  "scope": "FP16 checkpoint loading and exact-byte verification only; no inference",
+  "venturi_revision": "f6fd08ccf5566c295a2c900e462e6eed90bdc6a4",
+  "hardware": {
+    "python": "3.12.3",
+    "torch": "2.9.1+cu130",
+    "safetensors": "0.8.0",
+    "torch_cuda": "13.0",
+    "torch_cpu_threads": 20,
+    "device_name": "NVIDIA GeForce RTX 4090 D",
+    "device_capability": [
+      8,
+      9
+    ]
+  },
+  "server_test_result": {
+    "passed": 86,
+    "skipped": 0,
+    "seconds": 2.73,
+    "warnings": 3,
+    "warning_reason": "Siphon reduced I/O queue depth to fit the explicit small test buffers"
+  },
+  "server_test_command": "VENTURI_TEST_CUDA=1 VENTURI_MODEL_PATH=<checkpoint> PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q --tb=short",
+  "measured_loads": 6,
+  "every_measured_load_verified": true,
+  "verified_tensors_per_load": 94,
+  "verified_bytes_per_load": 166019180,
+  "checkpoint_sha256": "ebfa4e2f18696ebd83716a0d39fe2c025f2ff8483f72a83ca59c475692fc9d15",
+  "ci": {
+    "python_versions": [
+      "3.10",
+      "3.12"
+    ],
+    "conclusion": "success",
+    "url": "https://github.com/123123213weqw/Venturi/actions/runs/38761785405"
+  },
+  "limitations": [
+    "OS page cache was not controlled or evicted",
+    "PyTorch allocator figures exclude Siphon native allocations and the CUDA context",
+    "Small-model result is not a general speedup or inference-throughput claim"
+  ]
+}

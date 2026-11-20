@@ -1,0 +1,75 @@
+{
+  "scope": "Small operator compatibility probes only; not Qwen-27B bandwidth or TPS. Separate context probes are not simultaneous.",
+  "counter_access": "One-off passwordless sudo; global RmProfilingAdminOnly remains 1.",
+  "runs": [
+    {
+      "name": "admin-probe-v3",
+      "units": {
+        "gpu__time_duration.sum": "ns",
+        "dram__bytes_read.sum": "byte",
+        "dram__bytes_write.sum": "byte",
+        "dram__throughput.avg.pct_of_peak_sustained_elapsed": "%",
+        "sm__warps_active.avg.pct_of_peak_sustained_active": "%"
+      },
+      "rows": [
+        {
+          "ID": "0",
+          "Kernel Name": "void vectorized_elementwise_kernel<4, FillFunctor<float>, Array<char *, 1>>(int, T2, T3)",
+          "Device": "0",
+          "Context": "1",
+          "gpu__time_duration.sum": "3168",
+          "dram__bytes_read.sum": "1024",
+          "dram__bytes_write.sum": "299680",
+          "dram__throughput.avg.pct_of_peak_sustained_elapsed": "12.42",
+          "sm__warps_active.avg.pct_of_peak_sustained_active": "20.94"
+        }
+      ]
+    },
+    {
+      "name": "api-range-probe-v2",
+      "units": {
+        "gpu__time_duration.sum": "ns",
+        "dram__bytes_read.sum": "byte",
+        "dram__bytes_write.sum": "byte",
+        "dram__throughput.avg.pct_of_peak_sustained_elapsed": "%",
+        "sm__warps_active.avg.pct_of_peak_sustained_active": "%"
+      },
+      "rows": [
+        {
+          "ID": "0",
+          "Kernel Name": "range",
+          "Device": "0",
+          "Context": "1",
+          "gpu__time_duration.sum": "2897472",
+          "dram__bytes_read.sum": "331712",
+          "dram__bytes_write.sum": "1901760",
+          "dram__throughput.avg.pct_of_peak_sustained_elapsed": "0.08",
+          "sm__warps_active.avg.pct_of_peak_sustained_active": "26.52"
+        }
+      ]
+    },
+    {
+      "name": "api-range-probe-selected1",
+      "units": {
+        "gpu__time_duration.sum": "ns",
+        "dram__bytes_read.sum": "byte",
+        "dram__bytes_write.sum": "byte",
+        "dram__throughput.avg.pct_of_peak_sustained_elapsed": "%",
+        "sm__warps_active.avg.pct_of_peak_sustained_active": "%"
+      },
+      "rows": [
+        {
+          "ID": "0",
+          "Kernel Name": "range",
+          "Device": "1",
+          "Context": "2",
+          "gpu__time_duration.sum": "2631360",
+          "dram__bytes_read.sum": "265216",
+          "dram__bytes_write.sum": "1837344",
+          "dram__throughput.avg.pct_of_peak_sustained_elapsed": "0.10",
+          "sm__warps_active.avg.pct_of_peak_sustained_active": "26.09"
+        }
+      ]
+    }
+  ]
+}

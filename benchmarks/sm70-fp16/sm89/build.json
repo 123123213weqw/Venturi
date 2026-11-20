@@ -1,0 +1,24 @@
+{
+  "architecture": "sm89",
+  "source_sha256": {
+    "blocks.cu": "01531ccdf40e75f926f4af5ccca1ac879552dd877463b8511878b9bf5e34f478"
+  },
+  "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n",
+  "command": [
+    "/usr/local/cuda/bin/nvcc",
+    "-O3",
+    "-std=c++20",
+    "-lineinfo",
+    "-shared",
+    "--cudart=static",
+    "-Xcompiler=-fPIC",
+    "-gencode=arch=compute_89,code=sm_89",
+    "-gencode=arch=compute_89,code=compute_89",
+    "-DVENTURI_BLOCKS_ARCH=89",
+    "/home/test/wangyue/venturi-work/qwen/src/src/venturi/ops/csrc/blocks.cu",
+    "-lcublas",
+    "-o",
+    "/home/test/wangyue/venturi-work/qwen/own-blocks-build/2c05202bbca99b24/build-qbr0rbb6/libventuri_blocks.so"
+  ],
+  "library_sha256": "158aeff115a3272182c2c2b14721ee87f57e1e082025b244c7c527f06606b61d"
+}

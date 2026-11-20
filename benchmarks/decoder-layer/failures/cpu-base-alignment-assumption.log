@@ -1,0 +1,10 @@
+....F.................                                                   [100%]
+=================================== FAILURES ===================================
+_________ test_shared_weights_arena_liveness_and_position_only_binding _________
+tests/test_decoder_layer.py:118: in test_shared_weights_arena_liveness_and_position_only_binding
+    assert all(t.data_ptr() % 256 == 0 for t in (hidden, residual, q, attended))
+E   assert False
+E    +  where False = all(<generator object test_shared_weights_arena_liveness_and_position_only_binding.<locals>.<genexpr> at 0x7351ac0ee5a0>)
+=========================== short test summary info ============================
+FAILED tests/test_decoder_layer.py::test_shared_weights_arena_liveness_and_position_only_binding
+1 failed, 21 passed in 1.37s

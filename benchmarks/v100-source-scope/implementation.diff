@@ -1,0 +1,1036 @@
+--- pre-experiment/src/venturi/models/qwen_native.py
++++ prototype/src/venturi/models/qwen_native.py
+@@ -645,7 +645,7 @@
+ 
+     @property
+     def projection_info(self):
+-        return dict(
++        result = dict(
+             getattr(
+                 self,
+                 "_projection_info",
+@@ -657,6 +657,16 @@
+                 ),
+             )
+         )
++        native = getattr(getattr(self, "_backend", None), "_native", None)
++        mode = getattr(native, "venturi_qwen_source_scope_mode", None)
++        result["source_validation_policy"] = (
++            "resident-forward-boundaries; unscoped/streaming per-weight"
++            if mode is not None
++            and mode() == 1
++            and getattr(self, "_mode", None) == "resident"
++            else "per-weight"
++        )
++        return result
+ 
+     def _metadata(self):
+         if _digest(self._weights) != self._digest:
+--- pre-experiment/src/venturi/ops/build.py
++++ prototype/src/venturi/ops/build.py
+@@ -19,6 +19,7 @@
+     q8_token_tile=None,
+     q8_row_tile=None,
+     q8_decode_mode=0,
++    resident_source_scope=False,
+ ) -> Path:
+     """Build the optional C ABI library and retain compiler output/provenance."""
+     import sys
+@@ -40,6 +41,10 @@
+         raise ValueError("Q8 token/row tiles must be explicit 1, 2, 4 or 8")
+     if type(q8_decode_mode) is not int or q8_decode_mode not in (0, 1, 2):
+         raise ValueError("Q8 decode mode must be explicit 0, 1 or 2")
++    if type(resident_source_scope) is not bool:
++        raise ValueError("Resident source scope must be an explicit boolean")
++    if resident_source_scope and (component != "blocks" or architecture != "sm70"):
++        raise ValueError("Experimental resident source scope requires SM70 blocks")
+     if sys.platform != "linux":
+         raise RuntimeError(
+             "Build Venturi CUDA operators on a Linux CUDA machine, not the local Mac"
+@@ -110,6 +115,7 @@
+             else []
+         ),
+         *(["-I" + str(source / "third_party/ninfer")] if component == "ada" else []),
++        *(["-DVENTURI_RESIDENT_SOURCE_SCOPE=1"] if resident_source_scope else []),
+     ]
+     key = hashlib.sha256(
+         json.dumps([component, files, version, flags], sort_keys=True).encode()
+@@ -127,6 +133,8 @@
+                 record = json.loads(manifest_path.read_text())
+                 valid = (
+                     record["source_sha256"] == files
++                    and record.get("resident_source_scope", False)
++                    == resident_source_scope
+                     and (
+                         component != "blocks"
+                         or record.get("architecture") == architecture
+@@ -159,6 +167,7 @@
+                 )
+             record = {
+                 "architecture": architecture,
++                "resident_source_scope": resident_source_scope,
+                 "source_sha256": files,
+                 "nvcc": version,
+                 "command": command,
+@@ -184,6 +193,7 @@
+     q8_token_tile=None,
+     q8_row_tile=None,
+     q8_decode_mode=0,
++    resident_source_scope=False,
+ ) -> Path:
+     """Build Venturi-owned blocks and cuBLAS bridge, without an external engine."""
+     return _build_backend(
+@@ -194,6 +204,7 @@
+         q8_token_tile=q8_token_tile,
+         q8_row_tile=q8_row_tile,
+         q8_decode_mode=q8_decode_mode,
++        resident_source_scope=resident_source_scope,
+     )
+ 
+ 
+@@ -206,9 +217,18 @@
+     parser.add_argument("--q8-token-tile", type=int, choices=(1, 2, 4, 8))
+     parser.add_argument("--q8-row-tile", type=int, choices=(1, 2, 4, 8))
+     parser.add_argument("--q8-decode-mode", type=int, choices=(0, 1, 2), default=0)
++    parser.add_argument(
++        "--resident-source-scope",
++        action="store_true",
++        help="Experimental SM70 resident-only forward-boundary source validation",
++    )
+     args = parser.parse_args()
+     if args.component == "ada" and args.architecture != "sm89":
+         parser.error("Ada Q4 supports sm89 only")
++    if args.resident_source_scope and (
++        args.component != "blocks" or args.architecture != "sm70"
++    ):
++        parser.error("Resident source scope requires SM70 blocks")
+     build = build_blocks_backend if args.component == "blocks" else build_cuda_backend
+     print(
+         build(
+@@ -220,6 +240,7 @@
+                     q8_token_tile=args.q8_token_tile,
+                     q8_row_tile=args.q8_row_tile,
+                     q8_decode_mode=args.q8_decode_mode,
++                    resident_source_scope=args.resident_source_scope,
+                 )
+                 if args.component == "blocks"
+                 else {}
+--- pre-experiment/src/venturi/ops/csrc/qwen_batch.cuh
++++ prototype/src/venturi/ops/csrc/qwen_batch.cuh
+@@ -49,6 +49,12 @@
+         auto& m=*model;auto& w=*work;const auto& c=m.c;auto stream=m.stream.ptr;
+         const int n=static_cast<int>(tokens.size()),width=2*c.gqk*c.gkd+c.gvh*c.gvd,qw=c.hq*c.dim,kw=c.hkv*c.dim;
+         require(n>0 && n<=c.max_tokens,"batch row tile exceeds model workspace");
++        // Generation can call group() repeatedly after the public input check.
++        // Each group therefore owns a fresh entry/exit validation boundary.
++#if VENTURI_RESIDENT_SOURCE_SCOPE
++        if(c.resident)m.source();
++#endif
++        ResidentSourceScope source_scope(&m,c.resident);
+         w.embedding(tokens.data(),n,w.p("x"));void* x=w.p("x");void* out=w.p("out");
+         for(int index=0;index<c.layers;++index) {
+             const auto& l=m.layers[index];
+@@ -100,7 +106,7 @@
+         }
+         op(venturi_rms_run(x,m.norm,w.p("normalized"),n,c.hidden,c.dtype,c.epsilon,stream));
+         for(const auto& segment:segments)check(cudaMemcpyAsync(last_hidden.at(mul(mul(segment.slot,c.hidden),2)),row("normalized",segment.row+segment.count-1,c.hidden),mul(c.hidden,2),cudaMemcpyDeviceToDevice,stream));
+-        m.sync();m.source();
++        m.sync();m.source_boundary_pause();m.source();
+         for(const auto& segment:segments)requests[segment.slot]->position+=segment.count;
+         ++group_calls;input_rows=add(input_rows,n);max_rows=std::max(max_rows,static_cast<std::uint64_t>(n));if(decode)++decode_calls;else ++prefill_calls;
+     }
+--- pre-experiment/src/venturi/ops/csrc/qwen_mtp.cuh
++++ prototype/src/venturi/ops/csrc/qwen_mtp.cuh
+@@ -146,6 +146,7 @@
+         require(!failed() && n>0 && n<=c.max_tokens && n<=draft->capacity-draft->position,"MTP draft chunk exceeds capacity or failed session");
+         for(int i=0;i<n;++i)require(ids[i]>=0 && ids[i]<c.vocab,"MTP draft token out of range");
+         const auto start=mtp_clock();std::lock_guard<std::mutex> lock(m.mutex);Device d(c.device);md.source();
++        ResidentSourceScope source_scope(&m,c.resident);
+         const auto bytes=mul(mul(n,c.hidden),2);
+         check(cudaMemcpyAsync(draft->p("ids"),ids,mul(n,8),cudaMemcpyHostToDevice,m.stream.ptr));m.sync();
+         {
+@@ -181,7 +182,7 @@
+                 for(int i=0;i<c.vocab;++i)diagnostic_logits[i]=c.dtype==0?__half2float(reinterpret_cast<const __half*>(draft->host_logits.data())[i]):__bfloat162float(reinterpret_cast<const __nv_bfloat16*>(draft->host_logits.data())[i]);
+             }
+         }
+-        m.sync();md.source();draft->position+=n;++draft_calls;draft_inputs=add(draft_inputs,n);draft_seconds+=mtp_clock()-start;
++        m.sync();m.source_boundary_pause();md.source();draft->position+=n;++draft_calls;draft_inputs=add(draft_inputs,n);draft_seconds+=mtp_clock()-start;
+     }
+     void remember(int row) {
+         auto& m=*model->base;std::lock_guard<std::mutex> lock(m.mutex);Device d(m.c.device);
+@@ -442,6 +443,10 @@
+ extern "C" void* venturi_qwen_mtp_create(void* target,int pipeline,const VRConfig* c,const VRSpan* spans,int count,const VRLayer* layer,const VRMatrix* fc,const void* norm,const void* enorm,const void* hnorm,const float* inv) {
+     try {vr::require(c && layer && fc && (pipeline==0 || pipeline==1),"null/invalid MTP descriptor");return new vr::MTPHandle(std::make_shared<vr::MTPModel>(target,pipeline,*c,spans,count,*layer,*fc,norm,enorm,hnorm,inv));}
+     catch(const std::exception& e){error_text=e.what();return nullptr;}
++}
++extern "C" int venturi_qwen_mtp_debug_source_pause(void* h,int action) {
++    try {vr::require(h,"null MTP source boundary model");auto m=*static_cast<vr::MTPHandle*>(h);return vr::debug_source_pause(*m->base,action);}
++    catch(const std::exception& e){error_text=e.what();return -1;}
+ }
+ // Additive ABI16 exports. The original create entry retains typed FP16/BF16.
+ extern "C" void* venturi_qwen_mtp_create_profiled(void* target,int pipeline,const VRConfig* c,const VRSpan* spans,int count,const VRLayer* layer,const VRMatrix* fc,const void* norm,const void* enorm,const void* hnorm,const float* inv,int profile) {
+--- pre-experiment/src/venturi/ops/csrc/qwen_runtime.cuh
++++ prototype/src/venturi/ops/csrc/qwen_runtime.cuh
+@@ -13,6 +13,17 @@
+ #include <memory>
+ #include <mutex>
+ #include <vector>
++#include <atomic>
++#include <thread>
++
++// Experimental build-time execution policy, not an arithmetic/weight profile.
++// Original per-weight validation remains the default.
++#ifndef VENTURI_RESIDENT_SOURCE_SCOPE
++#define VENTURI_RESIDENT_SOURCE_SCOPE 0
++#endif
++#if VENTURI_RESIDENT_SOURCE_SCOPE != 0 && VENTURI_RESIDENT_SOURCE_SCOPE != 1
++#error VENTURI_RESIDENT_SOURCE_SCOPE must be 0 or 1
++#endif
+ 
+ struct VRConfig {
+     int device, dtype, layers, hidden, intermediate, vocab, hq, hkv, dim, rotary;
+@@ -34,6 +45,23 @@
+ };
+ 
+ namespace vr {
++struct Model;
++#if VENTURI_RESIDENT_SOURCE_SCOPE
++inline thread_local const Model* resident_source_owner=nullptr;
++#endif
++struct ResidentSourceScope {
++#if VENTURI_RESIDENT_SOURCE_SCOPE
++    const Model* previous;
++    explicit ResidentSourceScope(const Model* model,bool resident):previous(resident_source_owner) {
++        resident_source_owner=resident?model:nullptr;
++    }
++    ~ResidentSourceScope() {resident_source_owner=previous;}
++#else
++    explicit ResidentSourceScope(const Model*,bool) {}
++#endif
++    ResidentSourceScope(const ResidentSourceScope&)=delete;
++    ResidentSourceScope& operator=(const ResidentSourceScope&)=delete;
++};
+ inline double native_clock() {return std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();}
+ inline std::uint64_t mul(std::uint64_t a, std::uint64_t b) {
+     if (b && a>UINT64_MAX/b) throw std::invalid_argument("native Qwen size overflow");
+@@ -161,6 +189,10 @@
+     std::uint64_t second_device_bytes=0,peer_input_bytes=0,peer_output_bytes=0;
+     std::uint64_t stage_bytes=8*1024*1024;
+     std::mutex mutex;
++#if VENTURI_RESIDENT_SOURCE_SCOPE
++    // Disposable-fixture test hook only; never armed by inference tools.
++    std::atomic<int> source_pause{0};
++#endif
+     void sync() {
+         check(cudaStreamSynchronize(stream.ptr));
+         if (second_stream.ptr) { Device d(c.second_device);check(cudaStreamSynchronize(second_stream.ptr)); }
+@@ -195,6 +227,21 @@
+         }
+     }
+     void source() { for (const auto& f:files) f->verify(); }
++    void weight_source() {
++#if VENTURI_RESIDENT_SOURCE_SCOPE
++        if(c.resident && resident_source_owner==this)return;
++#endif
++        source();
++    }
++    void source_boundary_pause() {
++#if VENTURI_RESIDENT_SOURCE_SCOPE
++        int armed=1;
++        if(source_pause.compare_exchange_strong(armed,2,std::memory_order_acq_rel)) {
++            while(source_pause.load(std::memory_order_acquire)==2)std::this_thread::yield();
++            source_pause.store(0,std::memory_order_release);
++        }
++#endif
++    }
+     void guard(std::uint64_t n) {
+         std::size_t free=0,total=0;check(cudaMemGetInfo(&free,&total));
+         if (add(n,c.reserve)>free) throw std::runtime_error("native Qwen memory admission failed; no implicit offload/precision fallback");
+@@ -259,7 +306,7 @@
+     }
+     std::pair<const std::int8_t*,const __half*> weight(const VRMatrix& m) {
+         require(!column_down.count(m.offset),"column-packed down requires the explicit MLP path");
+-        source();const Buffer* b=nullptr;
++        weight_source();const Buffer* b=nullptr;
+         if (c.resident) b=resident_weights.at(m.offset).get();
+         else { upload(arena.ptr,m.offset,codes(m));upload(arena.at(codes(m)),m.scales,scales(m));b=&arena; }
+         return {static_cast<const std::int8_t*>(b->ptr),reinterpret_cast<const __half*>(b->at(c.resident?plane(m,first_rows(m)):codes(m)))};
+@@ -432,7 +479,7 @@
+         }
+         const int half=c.intermediate/2;const auto xb=mul(mul(t,c.hidden),2),partial_bytes=mul(xb,2);
+         require(t>0 && t<=c.max_tokens && x && gate && up && out,"invalid column MLP operands");
+-        auto gw=weight(l.matrix[4]),uw=weight(l.matrix[5]);const auto local=column_descriptor(l.matrix[6]);source();
++        auto gw=weight(l.matrix[4]),uw=weight(l.matrix[5]);const auto local=column_descriptor(l.matrix[6]);weight_source();
+         const auto& down=*resident_weights.at(local.offset);
+         const auto half_bytes=mul(mul(t,half),2);
+         VQFOutput first[2]={{gw.first,gw.second,static_cast<__half*>(gate),half,half},{uw.first,uw.second,static_cast<__half*>(up),half,half}};
+@@ -773,6 +820,8 @@
+     void forward(const std::int64_t* tokens,int n,float* logits,bool all,void* trace,void* hidden=nullptr) {
+         input(tokens,n);auto& m=*model;const auto& c=m.c;const int initial=position;bool started=false;
+         require(!m.stage,"internal pipeline stage cannot execute as a complete model");
++        // input() forced an entry check; source() below is never deduplicated.
++        ResidentSourceScope source_scope(&m,c.resident);
+         try {
+             for (int start=0;start<n;start+=c.max_tokens) {
+                 const int t=std::min(c.max_tokens,n-start),pos=initial+start;
+@@ -782,7 +831,7 @@
+                 else if (hidden) op(venturi_rms_run(x,m.norm,p("normalized"),t,c.hidden,c.dtype,c.epsilon,m.stream.ptr));
+                 if (hidden) check(cudaMemcpyAsync(static_cast<char*>(hidden)+mul(mul(start,c.hidden),2),p("normalized"),mul(mul(t,c.hidden),2),cudaMemcpyDeviceToDevice,m.stream.ptr));
+             }
+-            m.sync();m.source();position=initial+n;
++            m.sync();m.source_boundary_pause();m.source();position=initial+n;
+         } catch (...) { if (started) { failed=true;try { m.sync(); } catch (...) {} }throw; }
+     }
+     void reset() {
+@@ -795,8 +844,45 @@
+     }
+ };
+ using Handle=std::shared_ptr<Model>;
++inline int debug_source_pause(Model& m,int action) {
++#if VENTURI_RESIDENT_SOURCE_SCOPE
++    require(action>=-1 && action<=1,"invalid source boundary test action");
++    if(action==1) {int idle=0;require(m.source_pause.compare_exchange_strong(idle,1),"source boundary test already armed");}
++    else if(action==0)m.source_pause.store(0,std::memory_order_release);
++    return m.source_pause.load(std::memory_order_acquire);
++#else
++    throw std::invalid_argument("source scope test requires the experimental build");
++#endif
++}
+ }
+ 
++extern "C" int venturi_qwen_source_scope_mode() {return VENTURI_RESIDENT_SOURCE_SCOPE;}
++// Additive fixture-only test hooks. They never mutate or bypass source stamps.
++extern "C" int venturi_qwen_debug_source_pause(void* h,int action) {
++    try {vr::require(h,"null source boundary model");return vr::debug_source_pause(**static_cast<vr::Handle*>(h),action);}
++    catch(const std::exception& e){error_text=e.what();return -1;}
++}
++extern "C" int venturi_qwen_debug_source_scopes(void* h,void* foreign) {
++    try {
++#if VENTURI_RESIDENT_SOURCE_SCOPE
++        vr::require(h && foreign,"null source scope model");auto a=*static_cast<vr::Handle*>(h),b=*static_cast<vr::Handle*>(foreign);
++        vr::require(a!=b,"source scope test needs distinct owners");std::scoped_lock lock(a->mutex,b->mutex);
++        const auto* previous=vr::resident_source_owner;
++        try {vr::ResidentSourceScope first(a.get(),true);vr::require(vr::resident_source_owner==a.get(),"outer source owner lost");
++            {vr::ResidentSourceScope second(b.get(),true);vr::require(vr::resident_source_owner==b.get(),"nested source owner lost");}
++            vr::require(vr::resident_source_owner==a.get(),"nested source owner not restored");
++            {vr::ResidentSourceScope streaming(b.get(),false);vr::require(!vr::resident_source_owner,"streaming inherited resident scope");}
++            vr::require(vr::resident_source_owner==a.get(),"streaming source owner not restored");throw 1;
++        }catch(int){}
++        vr::require(vr::resident_source_owner==previous,"source scope exception leaked ownership");
++        a->source();vr::ResidentSourceScope first(a.get(),a->c.resident);
++        b->weight_source(); // A changed foreign owner must still be checked here.
++        return 0;
++#else
++        throw std::invalid_argument("source scope test requires the experimental build");
++#endif
++    }catch(const std::exception& e){error_text=e.what();return -1;}
++}
+ extern "C" int venturi_qwen_sizes(std::uint64_t* out) {
+     if (!out) return -1;out[0]=sizeof(VRConfig);out[1]=sizeof(VRSpan);out[2]=sizeof(VRMatrix);out[3]=sizeof(VRLayer);return 0;
+ }
+--- pre-experiment/tests/test_execution_policy_tool.py
++++ prototype/tests/test_execution_policy_tool.py
+@@ -0,0 +1,41 @@
++"""Hash-pinned reuse is explicit and rejected before any model allocation."""
++
++import hashlib
++from importlib.util import module_from_spec, spec_from_file_location
++import json
++from pathlib import Path
++
++import pytest
++
++
++@pytest.fixture
++def tool(monkeypatch):
++    path = Path(__file__).resolve().parents[1] / "tools"
++    monkeypatch.syspath_prepend(str(path))
++    spec = spec_from_file_location(
++        "execution_policy_qualifier", path / "qualify_qwen_execution_policy.py"
++    )
++    module = module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module
++
++
++def test_hash_pin_matches_complete_reference(tmp_path, tool):
++    p = tmp_path / "report.json"
++    p.write_text(json.dumps(dict(completed=True, cases=["exactly declared reuse"])))
++    assert tool.read_pin(p, hashlib.sha256(p.read_bytes()).hexdigest())["completed"]
++
++
++def test_hash_mismatch_never_reuses_reference(tmp_path, tool):
++    p = tmp_path / "report.json"
++    p.write_text('{"completed":true}')
++    with pytest.raises(ValueError, match="hash mismatch"):
++        tool.read_pin(p, "0" * 64)
++
++
++@pytest.mark.parametrize("value", [{}, {"completed": False}, [], None])
++def test_incomplete_or_nonobject_reference_rejected(tmp_path, tool, value):
++    p = tmp_path / "report.json"
++    p.write_text(json.dumps(value))
++    with pytest.raises(ValueError, match="incomplete"):
++        tool.read_pin(p, hashlib.sha256(p.read_bytes()).hexdigest())
+--- pre-experiment/tests/test_resident_source_scope.py
++++ prototype/tests/test_resident_source_scope.py
+@@ -0,0 +1,347 @@
++"""Execution-only source-check deduplication must retain owner/boundary guards."""
++
++from concurrent.futures import ThreadPoolExecutor
++import ctypes as C
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import time
++from types import SimpleNamespace
++
++import pytest
++import torch
++
++from test_qwen_model import hybrid_fixture
++from test_qwen_mtp import load_models, mtp_fixture
++from test_qwen_tensor_parallel import same_state
++from venturi.models import NativeQwenModel
++from venturi.ops import CudaBackend
++from venturi.ops.build import build_blocks_backend
++
++
++@pytest.mark.parametrize("value", [1, "true", None])
++def test_build_policy_requires_explicit_boolean(value):
++    with pytest.raises(ValueError, match="explicit boolean"):
++        build_blocks_backend("unused", architecture="sm70", resident_source_scope=value)
++
++
++def test_build_policy_rejects_other_architecture_before_compiler():
++    with pytest.raises(ValueError, match="SM70 blocks"):
++        build_blocks_backend("unused", architecture="sm89", resident_source_scope=True)
++
++
++def test_build_policy_is_opt_in_and_cache_separated(tmp_path, monkeypatch):
++    commands = []
++
++    def compiler(command, **kwargs):
++        if command[-1] == "--version":
++            return subprocess.CompletedProcess(command, 0, "fake compiler version", "")
++        commands.append(command)
++        Path(command[-1]).write_bytes(b"Non-executable fake compiler output")
++        return subprocess.CompletedProcess(command, 0, "fake build\n", "")
++
++    monkeypatch.setattr(sys, "platform", "linux")
++    monkeypatch.setattr(subprocess, "run", compiler)
++    original = build_blocks_backend(tmp_path, nvcc="fake-nvcc", architecture="sm70")
++    scoped = build_blocks_backend(
++        tmp_path, nvcc="fake-nvcc", architecture="sm70", resident_source_scope=True
++    )
++    assert original != scoped
++    assert not any("RESIDENT_SOURCE_SCOPE" in s for s in commands[0])
++    assert "-DVENTURI_RESIDENT_SOURCE_SCOPE=1" in commands[1]
++    assert not json.loads(original.with_name("build.json").read_text())[
++        "resident_source_scope"
++    ]
++    assert json.loads(scoped.with_name("build.json").read_text())[
++        "resident_source_scope"
++    ]
++    assert (
++        build_blocks_backend(
++            tmp_path, nvcc="fake-nvcc", architecture="sm70", resident_source_scope=True
++        )
++        == scoped
++    )
++    assert len(commands) == 2
++
++
++def test_metadata_reports_policy_without_changing_arithmetic_profile():
++    m = NativeQwenModel()
++    m._mode, m._projection_profile = "resident", "q8-residual-column-mlp"
++    m._backend = SimpleNamespace(
++        _native=SimpleNamespace(venturi_qwen_source_scope_mode=lambda: 1)
++    )
++    assert m.projection_info["source_validation_policy"].startswith("resident-forward")
++    assert m.projection_info["projection_profile"] == "q8-residual-column-mlp"
++    m._mode = "streaming"
++    assert m.projection_info["source_validation_policy"] == "per-weight"
++    m._backend = SimpleNamespace(_native=SimpleNamespace())
++    assert m.projection_info["source_validation_policy"] == "per-weight"
++
++
++@pytest.mark.parametrize("mode", ["resident", "streaming", "column"])
++def test_default_build_still_matches_qualified_control(tmp_path, mode):
++    paths = [
++        os.environ.get(name)
++        for name in (
++            "VENTURI_SOURCE_SCOPE_DEFAULT_LIBRARY",
++            "VENTURI_SOURCE_SCOPE_CONTROL_LIBRARY",
++        )
++    ]
++    if not all(paths):
++        pytest.skip(
++            "Explicit fresh default and qualified per-weight libraries required"
++        )
++    weights, _ = hybrid_fixture(tmp_path)
++    default_backend = CudaBackend(paths[0])
++    assert default_backend._native.venturi_qwen_source_scope_mode() == 0
++    first, control = (
++        load(weights, default_backend, mode),
++        load(weights, CudaBackend(paths[1]), mode),
++    )
++    sessions = [first.create_session(32), control.create_session(32)]
++    try:
++        for ids in ([1, 2, 3, 4], [5]):
++            assert torch.equal(*[s.forward(ids, all_logits=True) for s in sessions])
++            same_state(*[s.snapshot() for s in sessions])
++        assert first.projection_info["source_validation_policy"] == "per-weight"
++    finally:
++        for s in sessions:
++            s.close()
++        first.close()
++        control.close()
++
++
++@pytest.fixture
++def backend():
++    path = os.environ.get("VENTURI_SOURCE_SCOPE_LIBRARY")
++    if not path:
++        pytest.skip("Explicit experimental resident-source-scope library required")
++    b = CudaBackend(path)
++    n = b._native
++    n.venturi_qwen_source_scope_mode.argtypes = []
++    n.venturi_qwen_source_scope_mode.restype = C.c_int
++    assert n.venturi_qwen_source_scope_mode() == 1
++    for name, args in (
++        ("venturi_qwen_debug_source_pause", [C.c_void_p, C.c_int]),
++        ("venturi_qwen_mtp_debug_source_pause", [C.c_void_p, C.c_int]),
++        ("venturi_qwen_debug_source_scopes", [C.c_void_p, C.c_void_p]),
++    ):
++        fn = getattr(n, name)
++        fn.argtypes, fn.restype = args, C.c_int
++    return b
++
++
++def load(weights, backend, mode="resident"):
++    kwargs = dict(
++        weight_mode="streaming" if mode == "streaming" else "resident",
++        dtype=torch.float16,
++        device="cuda:0",
++        max_tokens=3,
++        reserve_bytes=0,
++    )
++    if mode == "column":
++        kwargs.update(
++            tensor_parallel_device="cuda:1",
++            tensor_parallel_transport="host",
++            projection_profile="q8-residual-column-mlp",
++        )
++    return NativeQwenModel.from_q8(weights, backend, **kwargs)
++
++
++def mutate(path, kind):
++    if kind == "touch":
++        old = path.stat()
++        os.utime(path, ns=(old.st_atime_ns, old.st_mtime_ns + 123456789))
++    else:
++        replacement = path.with_suffix(".replacement")
++        replacement.write_bytes(path.read_bytes())
++        replacement.replace(path)
++
++
++def paused_call(b, fn, handle, call, mutation):
++    """Pause after GPU completion but before the mandatory native exit check."""
++    b._check(fn(handle, 1))
++    with ThreadPoolExecutor(max_workers=1) as pool:
++        future = pool.submit(call)
++        try:
++            deadline = time.monotonic() + 20
++            while fn(handle, -1) != 2:
++                if future.done():
++                    future.result()
++                    pytest.fail("Native call returned before its armed boundary")
++                assert time.monotonic() < deadline, (
++                    "Verified native boundary did not become ready"
++                )
++                time.sleep(0.001)
++            mutation()
++        finally:
++            b._check(fn(handle, 0))
++        with pytest.raises(RuntimeError, match="source changed"):
++            future.result(timeout=20)
++
++
++@pytest.mark.parametrize("mode", ["resident", "streaming", "column"])
++@pytest.mark.parametrize("mutation", ["touch", "replace"])
++def test_mid_forward_mutation_rejected_at_native_exit(
++    tmp_path, backend, mode, mutation
++):
++    weights, _ = hybrid_fixture(tmp_path)
++    model = load(weights, backend, mode)
++    s = model.create_session(32)
++    try:
++        paused_call(
++            backend,
++            backend._native.venturi_qwen_debug_source_pause,
++            model._handle,
++            lambda: s.forward([1, 2, 3], all_logits=True),
++            lambda: mutate(weights.artifact.path, mutation),
++        )
++        assert s.failed and s.position == 0
++        with pytest.raises(RuntimeError, match="source changed"):
++            s.reset()
++    finally:
++        s.close()
++        model.close()
++    # Changed stamp requires recreation, not silently accepting it on reset.
++    model = load(weights, backend, mode)
++    s = model.create_session(32)
++    try:
++        assert torch.isfinite(s.forward([1, 2])).all()
++    finally:
++        s.close()
++        model.close()
++
++
++@pytest.mark.parametrize("mode", ["resident", "streaming"])
++def test_nested_foreign_and_exception_scope_ownership(tmp_path, backend, mode):
++    a, b = tmp_path / "a", tmp_path / "b"
++    a.mkdir()
++    b.mkdir()
++    wa, _ = hybrid_fixture(a)
++    wb, _ = hybrid_fixture(b)
++    first, other = load(wa, backend), load(wb, backend, mode)
++    try:
++        fn = backend._native.venturi_qwen_debug_source_scopes
++        backend._check(fn(first._handle, other._handle))
++        mutate(wb.artifact.path, "touch")
++        with pytest.raises(RuntimeError, match="source changed"):
++            backend._check(fn(first._handle, other._handle))
++        s = first.create_session(32)
++        try:
++            assert torch.isfinite(s.forward([1, 2])).all()
++        finally:
++            s.close()
++    finally:
++        other.close()
++        first.close()
++
++
++@pytest.mark.parametrize("mode", ["resident", "column"])
++def test_exact_control_private_threads_failure_reset_and_closed(
++    tmp_path, backend, mode
++):
++    path = os.environ.get("VENTURI_SOURCE_SCOPE_CONTROL_LIBRARY")
++    if not path:
++        pytest.skip("Qualified per-weight control library required")
++    weights, _ = hybrid_fixture(tmp_path)
++    first, control = (
++        load(weights, backend, mode),
++        load(weights, CudaBackend(path), mode),
++    )
++    sessions, references = (
++        [first.create_session(32) for _ in range(2)],
++        [control.create_session(32) for _ in range(2)],
++    )
++    try:
++        with ThreadPoolExecutor(max_workers=2) as pool:
++            futures = [
++                pool.submit(s.forward, ids, all_logits=True)
++                for s, ids in zip(sessions, ([1, 2, 3, 4], [6, 5]))
++            ]
++            for s, r, ids, future in zip(
++                sessions, references, ([1, 2, 3, 4], [6, 5]), futures
++            ):
++                assert torch.equal(future.result(), r.forward(ids, all_logits=True))
++                same_state(s.snapshot(), r.snapshot())
++        sessions[0]._inject_failure(layer=2, position=4)
++        with pytest.raises(RuntimeError, match="injected"):
++            sessions[0].forward([2])
++        assert sessions[0].failed
++        assert torch.equal(sessions[1].forward([2]), references[1].forward([2]))
++        sessions[0].reset()
++        references[0].reset()
++        assert torch.equal(sessions[0].forward([3, 4]), references[0].forward([3, 4]))
++        same_state(sessions[0].snapshot(), references[0].snapshot())
++        sessions[0].close()
++        with pytest.raises(RuntimeError, match="closed"):
++            sessions[0].forward([1])
++    finally:
++        for s in sessions + references:
++            s.close()
++        first.close()
++        control.close()
++
++
++@pytest.mark.parametrize("kind", ["target", "draft"])
++def test_mid_mtp_mutation_poisoned_without_returned_generation(tmp_path, backend, kind):
++    weights, draft, _, _ = mtp_fixture(tmp_path)
++    target, model = load_models(
++        weights,
++        draft,
++        (backend, torch.float16, "cuda:0"),
++        "tp",
++        profile="q8-residual-column-mlp",
++        draft_profile="q8-residual",
++    )
++    s = model.create_session(32)
++    s.prepare_prefix()
++    try:
++        fn = (
++            backend._native.venturi_qwen_debug_source_pause
++            if kind == "target"
++            else backend._native.venturi_qwen_mtp_debug_source_pause
++        )
++        handle = target._handle if kind == "target" else model._handle
++        path = weights.artifact.path if kind == "target" else draft.artifact.path
++        paused_call(
++            backend,
++            fn,
++            handle,
++            lambda: s.generate(
++                [1, 2, 3], max_new_tokens=5, draft_tokens=2, recovery="prefix"
++            ),
++            lambda: mutate(path, "touch"),
++        )
++        # MTP's SDK info() also requests stats, which deliberately revalidates
++        # metadata. Inspect the native failure bit without refreshing stamps.
++        values = (C.c_uint64 * 8)()
++        backend._check(model._native.venturi_qwen_info(s._handle, values))
++        assert values[1] == 1
++        with pytest.raises(RuntimeError, match="source changed"):
++            s.info()
++    finally:
++        s.close()
++        model.close()
++        target.close()
++
++
++@pytest.mark.parametrize("mode", ["resident", "column"])
++def test_mid_native_batch_mutation_poisoned_cohort(tmp_path, backend, mode):
++    weights, _ = hybrid_fixture(tmp_path)
++    model = load(weights, backend, mode)
++    batch = model.create_batch([32, 32])
++    try:
++        paused_call(
++            backend,
++            backend._native.venturi_qwen_debug_source_pause,
++            model._handle,
++            lambda: batch.generate([[1, 2], [3]], max_new_tokens=4),
++            lambda: mutate(weights.artifact.path, "touch"),
++        )
++        info = batch.info()
++        assert all(r["failed"] for r in info["requests"])
++    finally:
++        batch.close()
++        model.close()
+--- pre-experiment/tests/test_source_validation_trace.py
++++ prototype/tests/test_source_validation_trace.py
+@@ -61,3 +61,10 @@
+     assert not r["engine_change"] and r["model_outputs_exact"]
+     assert r["raw_native_calls"] == 1
+     assert r["instrumented_syscall_seconds"] == {}
++
++
++def test_changed_source_cadence_is_not_reported_as_unchanged_engine():
++    data = report()
++    data["source_guards_unchanged"] = False
++    r = summarize("", data)
++    assert r["engine_change"] and r["source_check_cadence_changed"]
+--- pre-experiment/tools/probe_native_source_validation.py
++++ prototype/tools/probe_native_source_validation.py
+@@ -122,7 +122,10 @@
+             projection_rows=32,
+             prepared_slots=8,
+             capacity_per_slot=256,
+-            source_guards_unchanged=True,
++            source_guards_unchanged=target.projection_info["source_validation_policy"]
++            == "per-weight",
++            source_integrity_predicate_preserved=True,
++            source_validation_policy=target.projection_info["source_validation_policy"],
+             python_math_in_marked_call=False,
+             no_http_throughput_claim=True,
+         )
+--- pre-experiment/tools/profile_qwen_mtp.py
++++ prototype/tools/profile_qwen_mtp.py
+@@ -99,6 +99,7 @@
+             projection_rows=32,
+             capacity_per_slot=256,
+             projection_profile=a.projection_profile,
++            source_validation_policy=target.projection_info["source_validation_policy"],
+             draft_profile=a.mtp_draft_projection_profile,
+             instrumented_wave=measured,
+             stats=[s.stats() for s in sessions[: a.count]],
+--- pre-experiment/tools/profile_qwen_mtp_batch.py
++++ prototype/tools/profile_qwen_mtp_batch.py
+@@ -88,6 +88,9 @@
+                     projection_rows=32,
+                     capacity_per_slot=256,
+                     projection_profile=a.projection_profile,
++                    source_validation_policy=target.projection_info[
++                        "source_validation_policy"
++                    ],
+                     draft_profile=a.mtp_draft_projection_profile,
+                     selected_slots=slots,
+                     outputs=result,
+--- pre-experiment/tools/qualify_qwen_execution_policy.py
++++ prototype/tools/qualify_qwen_execution_policy.py
+@@ -0,0 +1,238 @@
++"""Exact trained trajectory/state gate for execution-only source-check policies.
++
++Independent represented-Q8 teacher/draft equations are explicitly reused from
++hash-pinned qualified references. This is not a new arithmetic/corpus quality gate.
++"""
++
++import argparse
++from contextlib import ExitStack
++import ctypes as C
++import hashlib
++import json
++from pathlib import Path
++from unittest.mock import patch
++
++import torch
++
++from qualify_qwen_mtp_batch import draft_signature
++from qualify_qwen_projection_variant import state_signature
++from venturi.models import (
++    NativeQwenModel,
++    NativeQwenMTPModel,
++    QwenQ8Weights,
++    QwenMTPWeights,
++)
++from venturi.ninfer import NInferArtifact
++from venturi.ops import CudaBackend
++
++
++def read_pin(path, expected):
++    raw = Path(path).read_bytes()
++    if hashlib.sha256(raw).hexdigest() != expected:
++        raise ValueError("Execution-policy qualification reference hash mismatch")
++    result = json.loads(raw)
++    if not isinstance(result, dict) or not result.get("completed"):
++        raise ValueError("Execution-policy qualification reference incomplete")
++    return result
++
++
++def forbidden(*args, **kwargs):
++    raise AssertionError("Python numerical fallback in native policy qualification")
++
++
++def main():
++    p = argparse.ArgumentParser(description=__doc__)
++    p.add_argument("artifact")
++    p.add_argument("--mtp-artifact", required=True)
++    p.add_argument("--library", required=True)
++    p.add_argument("--cases", required=True)
++    for name in ("target", "draft", "batch"):
++        p.add_argument("--prior-" + name + "-report", required=True)
++        p.add_argument("--prior-" + name + "-report-sha256", required=True)
++    p.add_argument("--expected-source-scope", required=True, type=int, choices=(0, 1))
++    p.add_argument("--output-directory", required=True)
++    a = p.parse_args()
++    refs = {
++        name: read_pin(
++            getattr(a, "prior_" + name + "_report"),
++            getattr(a, "prior_" + name + "_report_sha256"),
++        )
++        for name in ("target", "draft", "batch")
++    }
++    target_pin = refs["target"]["profiles"]["q8-residual-column-mlp"]["candidate"]
++    assert (
++        target_pin["passed"]
++        and sum(len(c["all_logit_bytes"]) for c in target_pin["cases"]) == 98
++    )
++    draft_pin = refs["draft"]
++    assert (
++        draft_pin["projection_profile"] == "q8-residual-column-mlp"
++        and draft_pin["mtp_draft_projection_profile"] == "q8-residual"
++    )
++    assert (
++        len(draft_pin["block_reference"]) == 2
++        and len(draft_pin["recurrence_reference"]) == 3
++    )
++    assert all(
++        c["passed"]
++        for c in draft_pin["block_reference"] + draft_pin["recurrence_reference"]
++    )
++    assert refs["batch"]["profiles"] == dict(
++        target="q8-residual-column-mlp", draft="q8-residual", kv="fp16"
++    )
++    assert refs["batch"]["selective_reset_untouched_state_exact"]
++    cases = json.loads(Path(a.cases).read_text())
++    assert len(cases) == 4
++    out = Path(a.output_directory)
++    out.mkdir(parents=True, exist_ok=False)
++    report = dict(
++        scope=__doc__,
++        completed=False,
++        cases=[],
++        source_scope_mode=a.expected_source_scope,
++        library_sha256=hashlib.sha256(Path(a.library).read_bytes()).hexdigest(),
++        reused_reference_sha256={
++            name: getattr(a, "prior_" + name + "_report_sha256") for name in refs
++        },
++        independent_numerical_quality_reused=True,
++        new_cpu_teacher_campaign=False,
++        broad_bf16_corpus_quality=False,
++        projection_rows=32,
++        capacity_per_slot=256,
++        profiles=dict(target="q8-residual-column-mlp", draft="q8-residual", kv="fp16"),
++    )
++
++    def save():
++        (out / "report.json").write_text(json.dumps(report, indent=2) + "\n")
++
++    save()
++    torch.set_num_threads(4)
++    backend = CudaBackend(a.library)
++    backend._native.venturi_qwen_source_scope_mode.argtypes = []
++    backend._native.venturi_qwen_source_scope_mode.restype = C.c_int
++    assert backend._native.venturi_qwen_source_scope_mode() == a.expected_source_scope
++    weights = QwenQ8Weights.from_ninfer(NInferArtifact(a.artifact))
++    assert (
++        weights.artifact.artifact_id
++        == refs["target"]["artifact_id"]
++        == draft_pin["target_artifact_id"]
++    )
++    report["target_artifact_id"] = weights.artifact.artifact_id
++    report["mtp_artifact_sha256"] = hashlib.sha256(
++        Path(a.mtp_artifact).read_bytes()
++    ).hexdigest()
++    assert report["mtp_artifact_sha256"] == draft_pin["mtp_artifact_sha256"]
++    target = NativeQwenModel.from_q8(
++        weights,
++        backend,
++        weight_mode="resident",
++        dtype=torch.float16,
++        device="cuda:0",
++        max_tokens=32,
++        tensor_parallel_device="cuda:1",
++        tensor_parallel_transport="host",
++        projection_profile="q8-residual-column-mlp",
++    )
++    model = None
++    report["source_validation_policy"] = target.projection_info[
++        "source_validation_policy"
++    ]
++    try:
++        model = NativeQwenMTPModel.from_q8(
++            target,
++            QwenMTPWeights.from_ninfer(NInferArtifact(a.mtp_artifact)),
++            draft_projection_profile="q8-residual",
++        )
++        for case in cases:
++            ordinary = target.create_session(256)
++            session = model.create_session(256)
++            try:
++                session.prepare_prefix()
++                kwargs = dict(
++                    max_new_tokens=case["max_new_tokens"],
++                    eos_token_ids=case.get("eos_token_ids", []),
++                )
++                with ExitStack() as stack:
++                    for name in (
++                        "matmul",
++                        "mm",
++                        "mv",
++                        "empty",
++                        "zeros",
++                        "tensor",
++                        "as_tensor",
++                    ):
++                        stack.enter_context(patch.object(torch, name, forbidden))
++                    plain = ordinary.generate(case["prompt_token_ids"], **kwargs)
++                    ids = session.generate(
++                        case["prompt_token_ids"],
++                        draft_tokens=2,
++                        recovery="prefix",
++                        **kwargs,
++                    )
++                t = next(c for c in target_pin["cases"] if c["name"] == case["name"])
++                d = next(
++                    c
++                    for c in refs["batch"]["full_references"]
++                    if c["name"] == case["name"]
++                )
++                old = next(
++                    c for c in draft_pin["cases"] if c["case"]["name"] == case["name"]
++                )
++                assert (
++                    ids
++                    == plain
++                    == t["generated_ids"]
++                    == d["ids"]
++                    == old["generated_ids"]
++                )
++                state = state_signature(session.snapshot())
++                assert (
++                    state
++                    == state_signature(ordinary.snapshot())
++                    == t["committed_private_state"]
++                    == d["target_state"]
++                )
++                draft_state = draft_signature(session.draft_snapshot())
++                assert draft_state == d["draft_state"]
++                stats = session.stats()
++                keys = (
++                    "proposed_tokens",
++                    "accepted_tokens",
++                    "verification_calls",
++                    "target_forward_calls",
++                    "target_input_tokens",
++                    "draft_forward_calls",
++                    "draft_input_tokens",
++                    "replayed_input_tokens",
++                    "forced_proposals",
++                )
++                assert all(stats[k] == old["mtp_stats"][k] for k in keys)
++                report["cases"].append(
++                    dict(
++                        name=case["name"],
++                        generated_ids=ids,
++                        position=session.position,
++                        exact_ordinary_target_and_pinned_state=True,
++                        exact_pinned_corrected_draft_state=True,
++                        exact_prior_mtp2_algorithm_counters=True,
++                        native_without_python_math=True,
++                        target_state=state,
++                        draft_state=draft_state,
++                        mtp_stats=stats,
++                    )
++                )
++                save()
++            finally:
++                session.close()
++                ordinary.close()
++        report["completed"] = True
++        save()
++    finally:
++        if model is not None:
++            model.close()
++        target.close()
++
++
++if __name__ == "__main__":
++    main()
+--- pre-experiment/tools/serve_native_benchmark.py
++++ prototype/tools/serve_native_benchmark.py
+@@ -332,6 +332,7 @@
+             if args.batch_target or args.batch_mtp
+             else None,
+             projection_profile=args.projection_profile,
++            source_validation_policy=target.projection_info["source_validation_policy"],
+             mtp_draft_projection_profile=model.projection_info[
+                 "mtp_draft_projection_profile"
+             ]
+--- pre-experiment/tools/summarize_native_source_validation.py
++++ prototype/tools/summarize_native_source_validation.py
+@@ -71,7 +71,8 @@
+         unmatched_pending_tids=sorted(pending),
+         raw_native_calls=len(intervals),
+         model_outputs_exact=all(c["output_ids_equal"] for c in intervals),
+-        engine_change=False,
++        engine_change=not report.get("source_guards_unchanged", True),
++        source_check_cadence_changed=not report.get("source_guards_unchanged", True),
+     )
+ 
+ 

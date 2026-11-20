@@ -1,0 +1,24 @@
+import pathlib,subprocess,json,os,time,signal,hashlib,traceback
+root=pathlib.Path('/home/data/wangyue');src=root/'repos/codex-build/Venturi/mtp-draft-residual-src-v1';out=root/'artifacts/venturi-mtp-draft-residual-guards-v5';py=str(root/'repos/codex-build/.venvs/b2-v100/bin/python')
+env=os.environ.copy();env.update(CUDA_VISIBLE_DEVICES='1,0',PYTHONPATH=str(root/'repos/codex-build/Venturi/v100-tp-diagnostics-v2/python-deps')+':'+str(src/'src')+':'+str(src/'tests'),OMP_NUM_THREADS='4',MKL_NUM_THREADS='4')
+try:
+ gate=root/'artifacts/venturi-mtp-draft-residual-profile-v4';deadline=time.monotonic()+6000
+ while not (gate/'exit-code.txt').exists():
+  pid=json.loads((gate/'process.json').read_text())['pid'];p=pathlib.Path(f'/proc/{pid}/cmdline');assert p.exists() and str(gate/'worker.py').encode() in p.read_bytes();assert time.monotonic()<deadline;time.sleep(3)
+ assert (gate/'exit-code.txt').read_text().strip()=='0'
+ library=(gate/'library.txt').read_text().strip()
+ code="import ctypes as C,json,os,tempfile,pathlib,torch\nfrom test_qwen_mtp import mtp_fixture\nfrom venturi.models import NativeQwenModel,NativeQwenMTPModel\nfrom venturi.ops import CudaBackend\nlibrary=LIBRARY\nrecords=[]\nwith tempfile.TemporaryDirectory(prefix='venturi-residual-draft-guards-') as temp:\n for kind in ['metadata-scalar','metadata-cohort','source-scalar','source-cohort','native-source-scalar']:\n  a,b,_,_=mtp_fixture(pathlib.Path(temp)/kind)\n  backend=CudaBackend(library)\n  target=NativeQwenModel.from_q8(a,backend,weight_mode='resident',dtype=torch.float16,device='cuda:0',max_tokens=8,reserve_bytes=0,tensor_parallel_device='cuda:1',tensor_parallel_transport='host',projection_profile='q8-residual-column-mlp')\n  model=NativeQwenMTPModel.from_q8(target,b,reserve_bytes=0,draft_projection_profile='q8-residual')\n  session=model.create_batch([24]*2) if 'cohort' in kind else model.create_session(24)\n  try:\n   if kind.startswith('metadata'):\n    original=model._mtp_weights.plan.config['rms_norm_eps'];model._mtp_weights.plan.config['rms_norm_eps']=original*1.01\n   else:\n    p=model._mtp_weights.artifact.files[0].path;stamp=p.stat();os.utime(p,ns=(stamp.st_atime_ns,stamp.st_mtime_ns+1000000))\n   if kind=='native-source-scalar':\n    ids=(C.c_int64*3)(1,2,3);out=(C.c_int64*4)();count=C.c_int()\n    rc=model._native.venturi_qwen_generate2_prefix(session._handle,ids,3,4,None,0,out,C.byref(count))\n    assert rc!=0\n    error=backend._native.venturi_blocks_error().decode();assert 'source' in error.lower() and ('changed' in error.lower() or 'replaced' in error.lower())\n    records.append(dict(case=kind,rejected=True,native_guard_without_sdk=True,error=error))\n   else:\n    entered=[]\n    def forbidden(*args):entered.append(True);raise AssertionError('Native generation reached after invalid metadata/source')\n    owner=session._native if 'cohort' in kind else model._native\n    attr='generate' if 'cohort' in kind else 'venturi_qwen_generate2_prefix';saved=getattr(owner,attr);setattr(owner,attr,forbidden)\n    try:\n     try:\n      if 'cohort' in kind:session.generate([[1,2],[3,4]],max_new_tokens=4)\n      else:session.generate([1,2,3],max_new_tokens=4,draft_tokens=2,recovery='prefix')\n     except RuntimeError as e:assert 'metadata/source changed' in str(e);error=str(e)\n     else:raise AssertionError('Changed source or metadata accepted')\n     assert not entered\n     records.append(dict(case=kind,rejected=True,before_native_generation=True,error=error))\n    finally:setattr(owner,attr,saved)\n   if kind.startswith('metadata'):\n    model._mtp_weights.plan.config['rms_norm_eps']=original\n    info=session.info();positions=[r['position'] for r in info['requests']] if 'cohort' in kind else [info['position']];assert not any(positions)\n  finally:session.close();model.close();target.close()\npathlib.Path(OUTPUT).write_text(json.dumps(dict(completed=True,checks=records),indent=2)+chr(10))\n".replace('library=LIBRARY','library='+repr(library)).replace('pathlib.Path(OUTPUT)','pathlib.Path('+repr(str(out/'report.json'))+')')
+ (out/'checks.py').write_text(code)
+ with (out/'checks.log').open('wb') as f:
+  p=subprocess.Popen([py,str(out/'checks.py')],cwd=src,env=env,stdout=f,stderr=subprocess.STDOUT,start_new_session=True)
+  try:rc=p.wait(timeout=180)
+  except BaseException:
+   os.killpg(p.pid,signal.SIGTERM)
+   try:p.wait(timeout=20)
+   except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);p.wait()
+   raise
+  assert rc==0,'Guard checks failed'
+ assert json.loads((out/'report.json').read_text())['completed']
+ (out/'completed.json').write_text(json.dumps(dict(completed=True,ended_unix=time.time(),checks=5,library_sha256=hashlib.sha256(pathlib.Path(library).read_bytes()).hexdigest()),indent=2)+chr(10));rc=0
+except BaseException:(out/'failure.txt').write_text(traceback.format_exc());rc=1
+(out/'exit-code.txt').write_text(str(rc)+chr(10));raise SystemExit(rc)

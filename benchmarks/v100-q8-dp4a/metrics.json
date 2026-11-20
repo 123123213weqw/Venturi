@@ -1,0 +1,995 @@
+{
+  "scope": "Recompute experimental projection ratios without promoting them to serving TPS.",
+  "new_compute_profiles_not_full_model_qualified": true,
+  "default_engine_arithmetic_unchanged": true,
+  "external_speed_goal_complete": false,
+  "operator_experiments": {
+    "scalar-projection-v2": {
+      "library_sha256": "bfdd1838839a38536b801e4307555443591173d699e821b11feed0d80d7b9475",
+      "summary": [
+        {
+          "tokens": 1,
+          "profile": "w8-a8-g32-f32scale",
+          "shapes": 8,
+          "min_projection_speedup": 0.8290322669480996,
+          "median_projection_speedup": 0.9545068012716768,
+          "max_projection_speedup": 0.9732888065797394,
+          "relative_l2_vs_original_range": [
+            0.005147580126422456,
+            0.005472699239830409
+          ],
+          "original_top1_agrees_all_rows_all_shapes": true,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        },
+        {
+          "tokens": 1,
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "shapes": 8,
+          "min_projection_speedup": 0.8131102164107288,
+          "median_projection_speedup": 0.8611279895749913,
+          "max_projection_speedup": 0.9030302730979898,
+          "relative_l2_vs_original_range": [
+            6.804385324121805e-05,
+            0.00010468308693543335
+          ],
+          "original_top1_agrees_all_rows_all_shapes": true,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        },
+        {
+          "tokens": 2,
+          "profile": "w8-a8-g32-f32scale",
+          "shapes": 8,
+          "min_projection_speedup": 0.7573221553517407,
+          "median_projection_speedup": 0.9985898104257328,
+          "max_projection_speedup": 1.164686932736047,
+          "relative_l2_vs_original_range": [
+            0.005048046695093518,
+            0.005608338293209092
+          ],
+          "original_top1_agrees_all_rows_all_shapes": true,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        },
+        {
+          "tokens": 2,
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "shapes": 8,
+          "min_projection_speedup": 0.7042801201705053,
+          "median_projection_speedup": 0.9391498298538573,
+          "max_projection_speedup": 1.0554258257255726,
+          "relative_l2_vs_original_range": [
+            8.66892627452883e-05,
+            9.86037165599032e-05
+          ],
+          "original_top1_agrees_all_rows_all_shapes": true,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        },
+        {
+          "tokens": 8,
+          "profile": "w8-a8-g32-f32scale",
+          "shapes": 8,
+          "min_projection_speedup": 0.8517200498522122,
+          "median_projection_speedup": 1.2016203247702217,
+          "max_projection_speedup": 1.5038481588698835,
+          "relative_l2_vs_original_range": [
+            0.004950896141828201,
+            0.005420430304484455
+          ],
+          "original_top1_agrees_all_rows_all_shapes": true,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        },
+        {
+          "tokens": 8,
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "shapes": 8,
+          "min_projection_speedup": 0.7210444093937008,
+          "median_projection_speedup": 0.9211516306276355,
+          "max_projection_speedup": 0.9792534771038134,
+          "relative_l2_vs_original_range": [
+            9.179404664665168e-05,
+            9.829128341413841e-05
+          ],
+          "original_top1_agrees_all_rows_all_shapes": true,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        },
+        {
+          "tokens": 32,
+          "profile": "w8-a8-g32-f32scale",
+          "shapes": 8,
+          "min_projection_speedup": 0.8100027854164653,
+          "median_projection_speedup": 1.2278165239257088,
+          "max_projection_speedup": 1.5575741073454172,
+          "relative_l2_vs_original_range": [
+            0.00529972377001978,
+            0.00554382722617193
+          ],
+          "original_top1_agrees_all_rows_all_shapes": false,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        },
+        {
+          "tokens": 32,
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "shapes": 8,
+          "min_projection_speedup": 0.6961117375335553,
+          "median_projection_speedup": 0.9395606932290643,
+          "max_projection_speedup": 1.0399882629570258,
+          "relative_l2_vs_original_range": [
+            9.319942413099424e-05,
+            9.692583356439077e-05
+          ],
+          "original_top1_agrees_all_rows_all_shapes": true,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        }
+      ]
+    },
+    "vector-v3": {
+      "library_sha256": "fccdf083b122f144ac23bb40f609245d885d87485f0c9d283f7d50010f7a55a1",
+      "summary": [
+        {
+          "tokens": 1,
+          "profile": "w8-a8-g32-f32scale",
+          "shapes": 8,
+          "min_projection_speedup": 1.2985978498822377,
+          "median_projection_speedup": 1.3631963241865788,
+          "max_projection_speedup": 1.4369984455048286,
+          "relative_l2_vs_original_range": [
+            0.0051476055106788815,
+            0.005472697514409114
+          ],
+          "original_top1_agrees_all_rows_all_shapes": true,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        },
+        {
+          "tokens": 1,
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "shapes": 8,
+          "min_projection_speedup": 1.2543544817991321,
+          "median_projection_speedup": 1.3954638653572107,
+          "max_projection_speedup": 1.4396544096889912,
+          "relative_l2_vs_original_range": [
+            6.804725177807702e-05,
+            0.00010474053242700391
+          ],
+          "original_top1_agrees_all_rows_all_shapes": true,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        },
+        {
+          "tokens": 2,
+          "profile": "w8-a8-g32-f32scale",
+          "shapes": 8,
+          "min_projection_speedup": 1.5503053252144026,
+          "median_projection_speedup": 1.784280728227925,
+          "max_projection_speedup": 1.9966270342210355,
+          "relative_l2_vs_original_range": [
+            0.005048037555751446,
+            0.005608416850943857
+          ],
+          "original_top1_agrees_all_rows_all_shapes": true,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        },
+        {
+          "tokens": 2,
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "shapes": 8,
+          "min_projection_speedup": 1.2138848752906632,
+          "median_projection_speedup": 1.5267996075037518,
+          "max_projection_speedup": 1.7074456452089966,
+          "relative_l2_vs_original_range": [
+            8.669208227073997e-05,
+            9.865494616369178e-05
+          ],
+          "original_top1_agrees_all_rows_all_shapes": true,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        },
+        {
+          "tokens": 8,
+          "profile": "w8-a8-g32-f32scale",
+          "shapes": 8,
+          "min_projection_speedup": 2.0753603362731536,
+          "median_projection_speedup": 2.257047070265833,
+          "max_projection_speedup": 2.4487106236483087,
+          "relative_l2_vs_original_range": [
+            0.0049508918866877265,
+            0.005420533082938042
+          ],
+          "original_top1_agrees_all_rows_all_shapes": true,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        },
+        {
+          "tokens": 8,
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "shapes": 8,
+          "min_projection_speedup": 1.3539832236659866,
+          "median_projection_speedup": 1.5984793693616757,
+          "max_projection_speedup": 1.763841453602722,
+          "relative_l2_vs_original_range": [
+            9.178622106516829e-05,
+            9.844664475649799e-05
+          ],
+          "original_top1_agrees_all_rows_all_shapes": true,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        },
+        {
+          "tokens": 32,
+          "profile": "w8-a8-g32-f32scale",
+          "shapes": 8,
+          "min_projection_speedup": 2.3608575180393467,
+          "median_projection_speedup": 2.48450369125851,
+          "max_projection_speedup": 3.2061036364303246,
+          "relative_l2_vs_original_range": [
+            0.0052997188898396665,
+            0.005543803933282157
+          ],
+          "original_top1_agrees_all_rows_all_shapes": false,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        },
+        {
+          "tokens": 32,
+          "profile": "w8-a8-g32-f32scale-residual-a8",
+          "shapes": 8,
+          "min_projection_speedup": 1.4287916923550177,
+          "median_projection_speedup": 1.6760117723224153,
+          "max_projection_speedup": 1.8872627041772012,
+          "relative_l2_vs_original_range": [
+            9.30124217772328e-05,
+            9.697100178401378e-05
+          ],
+          "original_top1_agrees_all_rows_all_shapes": true,
+          "gate_scope": "Independent sampled-row FP64 reconstruction of this explicit activation profile, not exact original FP16 arithmetic or full-model quality"
+        }
+      ]
+    }
+  },
+  "t8-screen-v1": {
+    "baseline-batch": [
+      {
+        "request_count": 1,
+        "trials": 1,
+        "mean_cohort_wall_seconds": 2.1143566300161183,
+        "aggregate_complete_request_output_tps": 15.134627501206387,
+        "mean_server_cpu_core_seconds": 2.0799999999999983,
+        "mean_client_completion_seconds": 2.113680317008402,
+        "max_client_completion_seconds": 2.113680317008402,
+        "native_single_post_first_tps": 18.806014624364522,
+        "engine_reported_timings": [
+          {
+            "native_time_to_first_token_seconds": 0.4246100549935363,
+            "native_generation_seconds": 2.073018855007831
+          }
+        ]
+      },
+      {
+        "request_count": 8,
+        "trials": 1,
+        "mean_cohort_wall_seconds": 8.876757028046995,
+        "aggregate_complete_request_output_tps": 28.839360950304552,
+        "mean_server_cpu_core_seconds": 8.880000000000003,
+        "mean_client_completion_seconds": 8.8724169350171,
+        "max_client_completion_seconds": 8.875155801011715
+      }
+    ],
+    "adaptive-batch": [
+      {
+        "request_count": 1,
+        "trials": 1,
+        "mean_cohort_wall_seconds": 2.223215345002245,
+        "aggregate_complete_request_output_tps": 14.393567439130681,
+        "mean_server_cpu_core_seconds": 2.1999999999999957,
+        "mean_client_completion_seconds": 2.2225147059652954,
+        "max_client_completion_seconds": 2.2225147059652954,
+        "native_single_post_first_tps": 18.82681151629284,
+        "engine_reported_timings": [
+          {
+            "native_time_to_first_token_seconds": 0.5355414180085063,
+            "native_generation_seconds": 2.182129315973725
+          }
+        ]
+      },
+      {
+        "request_count": 8,
+        "trials": 1,
+        "mean_cohort_wall_seconds": 11.014424631022848,
+        "aggregate_complete_request_output_tps": 23.242249012168937,
+        "mean_server_cpu_core_seconds": 11.009999999999998,
+        "mean_client_completion_seconds": 11.010525165125728,
+        "max_client_completion_seconds": 11.013083676982205
+      }
+    ]
+  },
+  "worker-screen-v1": {
+    "baseline-batch": [
+      {
+        "request_count": 1,
+        "trials": 1,
+        "mean_cohort_wall_seconds": 2.102627852000296,
+        "aggregate_complete_request_output_tps": 15.219050755728073,
+        "mean_server_cpu_core_seconds": 2.0899999999999963,
+        "mean_client_completion_seconds": 2.10187475400744,
+        "max_client_completion_seconds": 2.10187475400744,
+        "native_single_post_first_tps": 18.928095503583794,
+        "engine_reported_timings": [
+          {
+            "native_time_to_first_token_seconds": 0.42411860200809315,
+            "native_generation_seconds": 2.0618956300313585
+          }
+        ]
+      },
+      {
+        "request_count": 8,
+        "trials": 1,
+        "mean_cohort_wall_seconds": 8.868360695021693,
+        "aggregate_complete_request_output_tps": 28.86666530644239,
+        "mean_server_cpu_core_seconds": 8.880000000000003,
+        "mean_client_completion_seconds": 8.864699906887836,
+        "max_client_completion_seconds": 8.867135951993987
+      }
+    ],
+    "worker-batch": [
+      {
+        "request_count": 1,
+        "trials": 1,
+        "mean_cohort_wall_seconds": 2.1097823140444234,
+        "aggregate_complete_request_output_tps": 15.167441582471342,
+        "mean_server_cpu_core_seconds": 2.1500000000000057,
+        "mean_client_completion_seconds": 2.10924685804639,
+        "max_client_completion_seconds": 2.10924685804639,
+        "native_single_post_first_tps": 18.837978356857388,
+        "engine_reported_timings": [
+          {
+            "native_time_to_first_token_seconds": 0.42437306395731866,
+            "native_generation_seconds": 2.069984891975764
+          }
+        ]
+      },
+      {
+        "request_count": 8,
+        "trials": 1,
+        "mean_cohort_wall_seconds": 8.869214843027294,
+        "aggregate_complete_request_output_tps": 28.863885307870223,
+        "mean_server_cpu_core_seconds": 9.159999999999997,
+        "mean_client_completion_seconds": 8.865399970149156,
+        "max_client_completion_seconds": 8.867366610036697
+      }
+    ]
+  },
+  "actual_competitor_arithmetic": {
+    "completed": true,
+    "scope": "Instrumented arithmetic-path audit, not throughput. Whole-process CUDA graph node trace includes startup and single-request warmup/timed calls, 23 input IDs and 8 outputs. Only kernel identities/loaded-source hints are claimed.",
+    "experiments": [],
+    "physical_gpus": [
+      1,
+      0
+    ],
+    "utc_offset_seconds": 28800,
+    "achieved_hardware_counters": null,
+    "preceding_worker_exit_code": "0",
+    "profiled": true,
+    "llama_binary_sha256": "e5b1b5782cd5b4acec5316ac5bd40123e0b0c9826643ae4148b0ec6e359f5fa2",
+    "llama_build_info": "source_snapshot=exact production source for sha256 f068e23cbd1b74022f0fa33fd4bb536efbf8f4cd1ce281380896851e918a0e6d\ncandidate_git=5a393c9c82222d81de0e02a19976719d18b392fc\nupstream_meta_tensor_split=d3371929bb1b6982cf73f1e54156d3d426cd80a1\nupstream_meta_buffer_init=5d5cb4c3a4ea8769490d39a275ee49a45184774d\ncuda_arch=70\ncuda_toolkit=12.8.1\nbuilder=llama-v100-builder:cuda12.8\nllama_server_sha256=e5b1b5782cd5b4acec5316ac5bd40123e0b0c9826643ae4148b0ec6e359f5fa2\n",
+    "server_pid": 955410,
+    "profiler_pid": 955390,
+    "source_hints": {
+      "/home/data/wangyue/repos/codex-build/llama.cpp-meta-tp-candidate-20260829/ggml/src/ggml-cuda/mmvq.cu": {
+        "sha256": "c88378e251a813060ca10ad5f1dc8620de435400125e8db70fa8d102bbc70e78",
+        "scope": "Source hint from existing release candidate tree, not a recovered exact binary source revision"
+      },
+      "/home/data/wangyue/repos/codex-build/llama.cpp-meta-tp-candidate-20260829/ggml/src/ggml-cuda/vecdotq.cuh": {
+        "sha256": "2d6a6ce1a60eed1e80912e6a76ef480bd2ef0648a1d7da1a10fae49ee2c27bb6",
+        "scope": "Source hint from existing release candidate tree, not a recovered exact binary source revision"
+      },
+      "/home/data/wangyue/repos/codex-build/llama.cpp-meta-tp-candidate-20260829/ggml/src/ggml-cuda/quantize.cu": {
+        "sha256": "71cd7baab62ee1f457d23ae648c381d18b9b1327ec34832f31463b14b81895b3",
+        "scope": "Source hint from existing release candidate tree, not a recovered exact binary source revision"
+      },
+      "/home/data/wangyue/repos/codex-build/llama.cpp-meta-tp-candidate-20260829/ggml/src/ggml-cuda/mmq.cu": {
+        "sha256": "b1227340d9f50c6a0796f4c356b41c8620350329ddbdc643b7be5686ced7e0a7",
+        "scope": "Source hint from existing release candidate tree, not a recovered exact binary source revision"
+      }
+    },
+    "actual_activation_quantization_kernels": [
+      {
+        "name": "quantize_q8_1(const float *, void *, long, long, long, long, long, unsigned int, uint3)",
+        "count": 16100,
+        "instrumented_nanoseconds": 37910205
+      },
+      {
+        "name": "void quantize_mmq_q8_1<(mmq_q8_1_ds_layout)0, (bool)0>(const float *, const int *, void *, long, long, long, long, long, int, int, int)",
+        "count": 1984,
+        "instrumented_nanoseconds": 5264091
+      }
+    ],
+    "actual_quantized_projection_kernels": [
+      {
+        "name": "void mul_mat_vec_q<(ggml_type)8, (int)1, (bool)0, (bool)0>(const void *, const void *, const int *, ggml_cuda_mm_fusion_args_device, float *, unsigned int, uint3, unsigned int, unsigned int, unsigned int, uint3, unsigned int, unsigned int, unsigned int, uint3, unsigned int, unsigned int, unsigned int, unsigned int)",
+        "count": 10340,
+        "instrumented_nanoseconds": 315894463
+      },
+      {
+        "name": "void mul_mat_vec_q<(ggml_type)8, (int)1, (bool)1, (bool)0>(const void *, const void *, const int *, ggml_cuda_mm_fusion_args_device, float *, unsigned int, uint3, unsigned int, unsigned int, unsigned int, uint3, unsigned int, unsigned int, unsigned int, uint3, unsigned int, unsigned int, unsigned int, unsigned int)",
+        "count": 1792,
+        "instrumented_nanoseconds": 228318398
+      },
+      {
+        "name": "void mul_mat_q<(ggml_type)8, (int)24, (bool)0>(const char *, const int *, const int *, const int *, float *, float *, const float *, uint3, int, int, int, int, int, uint3, uint3, int, int, int, uint3, uint3, int, int, int, uint3)",
+        "count": 1600,
+        "instrumented_nanoseconds": 167825572
+      },
+      {
+        "name": "void mul_mat_vec_q<(ggml_type)8, (int)4, (bool)0, (bool)0>(const void *, const void *, const int *, ggml_cuda_mm_fusion_args_device, float *, unsigned int, uint3, unsigned int, unsigned int, unsigned int, uint3, unsigned int, unsigned int, unsigned int, uint3, unsigned int, unsigned int, unsigned int, unsigned int)",
+        "count": 1984,
+        "instrumented_nanoseconds": 78642773
+      },
+      {
+        "name": "void mul_mat_vec_q<(ggml_type)8, (int)2, (bool)0, (bool)0>(const void *, const void *, const int *, ggml_cuda_mm_fusion_args_device, float *, unsigned int, uint3, unsigned int, unsigned int, unsigned int, uint3, unsigned int, unsigned int, unsigned int, uint3, unsigned int, unsigned int, unsigned int, unsigned int)",
+        "count": 1984,
+        "instrumented_nanoseconds": 75593687
+      },
+      {
+        "name": "void mul_mat_q<(ggml_type)8, (int)32, (bool)1>(const char *, const int *, const int *, const int *, float *, float *, const float *, uint3, int, int, int, int, int, uint3, uint3, int, int, int, uint3, uint3, int, int, int, uint3)",
+        "count": 384,
+        "instrumented_nanoseconds": 5282617
+      }
+    ]
+  },
+  "separate_projection_attribution": {
+    "scope": "Separate instrumented standalone projection calls. No serving TPS, achieved occupancy or hardware-counter bandwidth claim.",
+    "ranges": [
+      {
+        "label": "projection_0_t1",
+        "launches": 16,
+        "kernel_nanoseconds": 2839307,
+        "activity_span_nanoseconds": 2853579,
+        "activity_union_nanoseconds": 2839307,
+        "gaps_between_this_process_kernels_nanoseconds": 14272,
+        "kernels": [
+          {
+            "name": "void <unnamed>::q8_tiled<__half, (int)1, (int)4>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+            "grid_x": 4352,
+            "grid_y": 1,
+            "block_x": 256,
+            "registers_per_thread": 56,
+            "static_shared_bytes": 128,
+            "count": 16,
+            "kernel_nanoseconds": 2839307
+          }
+        ]
+      },
+      {
+        "label": "projection_1_t1",
+        "launches": 32,
+        "kernel_nanoseconds": 1924146,
+        "activity_span_nanoseconds": 1963282,
+        "activity_union_nanoseconds": 1924146,
+        "gaps_between_this_process_kernels_nanoseconds": 39136,
+        "kernels": [
+          {
+            "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+            "grid_x": 20,
+            "grid_y": 1,
+            "block_x": 256,
+            "registers_per_thread": 38,
+            "static_shared_bytes": 0,
+            "count": 16,
+            "kernel_nanoseconds": 46303
+          },
+          {
+            "name": "void vdq::dot<(int)1, (int)1>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+            "grid_x": 4352,
+            "grid_y": 1,
+            "block_x": 128,
+            "registers_per_thread": 52,
+            "static_shared_bytes": 0,
+            "count": 16,
+            "kernel_nanoseconds": 1877843
+          }
+        ]
+      },
+      {
+        "label": "projection_2_t1",
+        "launches": 32,
+        "kernel_nanoseconds": 1884468,
+        "activity_span_nanoseconds": 1921459,
+        "activity_union_nanoseconds": 1884468,
+        "gaps_between_this_process_kernels_nanoseconds": 36991,
+        "kernels": [
+          {
+            "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+            "grid_x": 20,
+            "grid_y": 1,
+            "block_x": 256,
+            "registers_per_thread": 38,
+            "static_shared_bytes": 0,
+            "count": 16,
+            "kernel_nanoseconds": 49984
+          },
+          {
+            "name": "void vdq::dot<(int)1, (int)2>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+            "grid_x": 4352,
+            "grid_y": 1,
+            "block_x": 128,
+            "registers_per_thread": 64,
+            "static_shared_bytes": 0,
+            "count": 16,
+            "kernel_nanoseconds": 1834484
+          }
+        ]
+      },
+      {
+        "label": "projection_0_t8",
+        "launches": 16,
+        "kernel_nanoseconds": 13436832,
+        "activity_span_nanoseconds": 13450912,
+        "activity_union_nanoseconds": 13436832,
+        "gaps_between_this_process_kernels_nanoseconds": 14080,
+        "kernels": [
+          {
+            "name": "void <unnamed>::q8_tiled<__half, (int)4, (int)1>(const T1 *, const signed char *, const __half *, T1 *, int, int, int, int)",
+            "grid_x": 34816,
+            "grid_y": 1,
+            "block_x": 256,
+            "registers_per_thread": 40,
+            "static_shared_bytes": 128,
+            "count": 16,
+            "kernel_nanoseconds": 13436832
+          }
+        ]
+      },
+      {
+        "label": "projection_1_t8",
+        "launches": 32,
+        "kernel_nanoseconds": 5394169,
+        "activity_span_nanoseconds": 5432313,
+        "activity_union_nanoseconds": 5394169,
+        "gaps_between_this_process_kernels_nanoseconds": 38144,
+        "kernels": [
+          {
+            "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+            "grid_x": 160,
+            "grid_y": 1,
+            "block_x": 256,
+            "registers_per_thread": 38,
+            "static_shared_bytes": 0,
+            "count": 16,
+            "kernel_nanoseconds": 53696
+          },
+          {
+            "name": "void vdq::dot<(int)4, (int)1>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+            "grid_x": 4352,
+            "grid_y": 2,
+            "block_x": 128,
+            "registers_per_thread": 56,
+            "static_shared_bytes": 0,
+            "count": 16,
+            "kernel_nanoseconds": 5340473
+          }
+        ]
+      },
+      {
+        "label": "projection_2_t8",
+        "launches": 32,
+        "kernel_nanoseconds": 8108454,
+        "activity_span_nanoseconds": 8145958,
+        "activity_union_nanoseconds": 8108454,
+        "gaps_between_this_process_kernels_nanoseconds": 37504,
+        "kernels": [
+          {
+            "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+            "grid_x": 160,
+            "grid_y": 1,
+            "block_x": 256,
+            "registers_per_thread": 38,
+            "static_shared_bytes": 0,
+            "count": 16,
+            "kernel_nanoseconds": 57856
+          },
+          {
+            "name": "void vdq::dot<(int)4, (int)2>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+            "grid_x": 4352,
+            "grid_y": 2,
+            "block_x": 128,
+            "registers_per_thread": 78,
+            "static_shared_bytes": 0,
+            "count": 16,
+            "kernel_nanoseconds": 8050598
+          }
+        ]
+      }
+    ]
+  },
+  "hardware_counter_policy": "RmProfilingAdminOnly: 1",
+  "theoretical_residency": {
+    "library": "/home/data/wangyue/artifacts/venturi-dp4a-vector-v3/build/d97f65569f56e8cd/libventuri_blocks.so",
+    "library_sha256": "fccdf083b122f144ac23bb40f609245d885d87485f0c9d283f7d50010f7a55a1",
+    "driver_version": 13000,
+    "achieved_occupancy": null,
+    "hardware_counter_collection": false,
+    "kernel_launches_by_this_tool": 0,
+    "resource_usage": "\nFatbin elf code:\n================\narch = sm_70\ncode version = [1,7]\nhost = linux\ncompile_size = 64bit\nidentifier = /home/data/wangyue/repos/codex-build/Venturi/dp4a-src-v3/src/venturi/ops/csrc/blocks.cu \n\nResource usage:\n Common:\n  GLOBAL:0\n\nFatbin ptx code:\n================\narch = sm_70\ncode version = [8,8]\nhost = linux\ncompile_size = 64bit\ncompressed\nidentifier = /home/data/wangyue/repos/codex-build/Venturi/dp4a-src-v3/src/venturi/ops/csrc/blocks.cu\nptxasOptions =  --generate-line-info \n\nFatbin elf code:\n================\narch = sm_70\ncode version = [1,7]\nhost = linux\ncompile_size = 64bit\nidentifier = /home/data/wangyue/repos/codex-build/Venturi/dp4a-src-v3/src/venturi/ops/csrc/blocks.cu\n\nResource usage:\n Common:\n  GLOBAL:24 CONSTANT[4]:8\n Function _ZN2vr10mtp_concatI13__nv_bfloat16EEvPKT_S4_PS2_ii:\n  REG:20 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN2vr10mtp_concatI6__halfEEvPKT_S4_PS2_ii:\n  REG:20 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN2vr6tablesI13__nv_bfloat16EEvPKfPfS4_ii:\n  REG:22 STACK:32 SHARED:0 LOCAL:0 CONSTANT[2]:8 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN2vr6tablesI6__halfEEvPKfPfS4_ii:\n  REG:22 STACK:32 SHARED:0 LOCAL:0 CONSTANT[2]:8 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq3dotILi4ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:78 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq3dotILi2ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:62 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq3dotILi1ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:64 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq3dotILi4ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq3dotILi2ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:60 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq3dotILi1ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:52 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq8quantizeEPK6__halfPaPfiiii:\n  REG:38 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba537q8_headI13__nv_bfloat16EEvPKT_PKaPK6__halfPS2_iii:\n  REG:20 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:396 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li4ELi1EEEvPKT_PKaPK6__halfPS2_iiii:\n  REG:38 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li2ELi1EEEvPKT_PKaPK6__halfPS2_iiii:\n  REG:32 STACK:0 SHARED:64 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li1ELi4EEEvPKT_PKaPK6__halfPS2_iiii:\n  REG:56 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5313q8_warp_exactI13__nv_bfloat16Lb0EEEvPKT_PKaPK6__halfPS2_iii:\n  REG:32 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:396 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba537q8_headI6__halfEEvPKT_PKaPKS1_PS2_iii:\n  REG:21 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:396 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI6__halfLi4ELi1EEEvPKT_PKaPKS1_PS2_iiii:\n  REG:40 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI6__halfLi2ELi1EEEvPKT_PKaPKS1_PS2_iiii:\n  REG:32 STACK:0 SHARED:64 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI6__halfLi1ELi4EEEvPKT_PKaPKS1_PS2_iiii:\n  REG:56 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5313q8_warp_exactI6__halfLb0EEEvPKT_PKaPKS1_PS2_iii:\n  REG:32 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:396 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5311elementwiseIfLb0EEEvPKT_S3_PS1_l:\n  REG:26 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5311elementwiseI13__nv_bfloat16Lb0EEEvPKT_S4_PS2_l:\n  REG:17 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5311elementwiseI6__halfLb0EEEvPKT_S4_PS2_l:\n  REG:17 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5311elementwiseIfLb1EEEvPKT_S3_PS1_l:\n  REG:31 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5311elementwiseI13__nv_bfloat16Lb1EEEvPKT_S4_PS2_l:\n  REG:23 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5311elementwiseI6__halfLb1EEEvPKT_S4_PS2_l:\n  REG:23 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba539qwen_gateIfEEvPKT_S3_PS1_li:\n  REG:30 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:388 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba539qwen_gateI13__nv_bfloat16EEvPKT_S4_PS2_li:\n  REG:24 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:388 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba539qwen_gateI6__halfEEvPKT_S4_PS2_li:\n  REG:24 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:388 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba537qwen_qkIfEEvPKT_S3_PKfS5_S5_S5_PS1_S6_iiiif:\n  REG:23 STACK:0 SHARED:1056 LOCAL:0 CONSTANT[0]:436 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba537qwen_qkI13__nv_bfloat16EEvPKT_S4_PKfS6_S6_S6_PS2_S7_iiiif:\n  REG:23 STACK:0 SHARED:1056 LOCAL:0 CONSTANT[0]:436 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba537qwen_qkI6__halfEEvPKT_S4_PKfS6_S6_S6_PS2_S7_iiiif:\n  REG:23 STACK:0 SHARED:1056 LOCAL:0 CONSTANT[0]:436 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba539gated_rmsIfLb1EEEvPKT_S3_PKvPS1_if:\n  REG:24 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba539gated_rmsI13__nv_bfloat16Lb0EEEvPKT_S4_PKvPS2_if:\n  REG:24 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba539gated_rmsI13__nv_bfloat16Lb1EEEvPKT_S4_PKvPS2_if:\n  REG:24 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba539gated_rmsI6__halfLb0EEEvPKT_S4_PKvPS2_if:\n  REG:24 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba539gated_rmsI6__halfLb1EEEvPKT_S4_PKvPS2_if:\n  REG:24 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba539gdn_gatesIfEEvPKT_S3_PKfS5_PfS6_lib:\n  REG:32 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:413 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba539gdn_gatesI13__nv_bfloat16EEvPKT_S4_PKfS6_PfS7_lib:\n  REG:26 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:413 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba539gdn_gatesI6__halfEEvPKT_S4_PKfS6_PfS7_lib:\n  REG:26 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:413 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5311causal_convIffEEvPKT_PKT0_S3_PS1_S7_iii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:404 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5311causal_convI13__nv_bfloat16S1_EEvPKT_PKT0_S4_PS2_S8_iii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:404 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5311causal_convI13__nv_bfloat16fEEvPKT_PKT0_S4_PS2_S8_iii:\n  REG:46 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:404 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5311causal_convI6__halfS1_EEvPKT_PKT0_S4_PS2_S8_iii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:404 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5311causal_convI6__halffEEvPKT_PKT0_S4_PS2_S8_iii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:404 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5312q8_embeddingI13__nv_bfloat16EEvPKaPK6__halfPKlPT_liii:\n  REG:26 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:404 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5312q8_embeddingI6__halfEEvPKaPKS1_PKlPT_liii:\n  REG:26 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:404 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5313gdn_recurrentI13__nv_bfloat16Lb0EEEvPKT_S4_S4_PKfS6_S6_PS2_Pfiiiiibf:\n  REG:40 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:444 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5313gdn_recurrentI13__nv_bfloat16Lb1EEEvPKT_S4_S4_PKfS6_S6_PS2_Pfiiiiibf:\n  REG:42 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:444 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5313gdn_recurrentI6__halfLb0EEEvPKT_S4_S4_PKfS6_S6_PS2_Pfiiiiibf:\n  REG:40 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:444 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5313gdn_recurrentI6__halfLb1EEEvPKT_S4_S4_PKfS6_S6_PS2_Pfiiiiibf:\n  REG:42 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:444 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba539embeddingIfEEvPKT_PKlPS1_lii:\n  REG:34 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba539embeddingI13__nv_bfloat16EEvPKT_PKlPS2_lii:\n  REG:34 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba539embeddingI6__halfEEvPKT_PKlPS2_lii:\n  REG:26 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5316causal_attentionIfEEvPKT_S3_S3_PS1_iiiiif:\n  REG:28 STACK:0 SHARED:44 LOCAL:0 CONSTANT[0]:408 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5316causal_attentionI13__nv_bfloat16EEvPKT_S4_S4_PS2_iiiiif:\n  REG:28 STACK:0 SHARED:44 LOCAL:0 CONSTANT[0]:408 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5316causal_attentionI6__halfEEvPKT_S4_S4_PS2_iiiiif:\n  REG:28 STACK:0 SHARED:44 LOCAL:0 CONSTANT[0]:408 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba534ropeIfEEvPKT_PKfS5_PS1_liiib:\n  REG:44 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:405 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba534ropeI13__nv_bfloat16EEvPKT_PKfS6_PS2_liiib:\n  REG:40 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:405 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba534ropeI6__halfEEvPKT_PKfS6_PS2_liiib:\n  REG:40 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:405 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538rms_normIfEEvPKT_PKfPS1_if:\n  REG:22 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538rms_normI13__nv_bfloat16EEvPKT_PKfPS2_if:\n  REG:22 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538rms_normI6__halfEEvPKT_PKfPS2_if:\n  REG:22 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5318fp32_weight_linearI13__nv_bfloat16EEvPKT_PKfPS2_ii:\n  REG:20 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5318fp32_weight_linearI6__halfEEvPKT_PKfPS2_ii:\n  REG:20 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5315greedy_partialsIfEEvPKT_PNS_15GreedyCandidateEi:\n  REG:32 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:372 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5315greedy_partialsI13__nv_bfloat16EEvPKT_PNS_15GreedyCandidateEi:\n  REG:24 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:372 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5315greedy_partialsI6__halfEEvPKT_PNS_15GreedyCandidateEi:\n  REG:24 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:372 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5313greedy_finishEPKNS_15GreedyCandidateEPli:\n  REG:20 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:372 TEXTURE:0 SURFACE:0 SAMPLER:0\n",
+    "trace_files": {},
+    "devices": [
+      {
+        "hardware": {
+          "ordinal": 0,
+          "name": "Tesla V100-PCIE-32GB",
+          "sm_count": 80,
+          "warp_size": 32,
+          "threads_per_sm": 2048,
+          "registers_per_sm": 65536,
+          "shared_bytes_per_sm": 98304,
+          "blocks_per_sm": 32,
+          "l2_bytes": 6291456,
+          "compute_major": 7,
+          "compute_minor": 0
+        },
+        "compiled_q8_functions": [
+          {
+            "symbol": "_ZN3vdq3dotILi1ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 52,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 9,
+            "theoretical_occupancy_fraction": 0.5625
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi1ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 64,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi2ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 60,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi2ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 62,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi4ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 56,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 9,
+            "theoretical_occupancy_fraction": 0.5625
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi4ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "max_threads_per_block": 768,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 78,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.375
+          },
+          {
+            "symbol": "_ZN3vdq8quantizeEPK6__halfPaPfiiii",
+            "threads": 256,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 38,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5313q8_warp_exactI13__nv_bfloat16Lb0EEEvPKT_PKaPK6__halfPS2_iii",
+            "threads": 128,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 16,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5313q8_warp_exactI6__halfLb0EEEvPKT_PKaPKS1_PS2_iii",
+            "threads": 128,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 16,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li1ELi4EEEvPKT_PKaPK6__halfPS2_iiii",
+            "threads": 256,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 56,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li2ELi1EEEvPKT_PKaPK6__halfPS2_iiii",
+            "threads": 256,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 64,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li4ELi1EEEvPKT_PKaPK6__halfPS2_iiii",
+            "threads": 256,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 38,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI6__halfLi1ELi4EEEvPKT_PKaPKS1_PS2_iiii",
+            "threads": 256,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 56,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI6__halfLi2ELi1EEEvPKT_PKaPKS1_PS2_iiii",
+            "threads": 256,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 64,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI6__halfLi4ELi1EEEvPKT_PKaPKS1_PS2_iiii",
+            "threads": 256,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 40,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          }
+        ],
+        "traces": {}
+      },
+      {
+        "hardware": {
+          "ordinal": 1,
+          "name": "Tesla V100-PCIE-32GB",
+          "sm_count": 80,
+          "warp_size": 32,
+          "threads_per_sm": 2048,
+          "registers_per_sm": 65536,
+          "shared_bytes_per_sm": 98304,
+          "blocks_per_sm": 32,
+          "l2_bytes": 6291456,
+          "compute_major": 7,
+          "compute_minor": 0
+        },
+        "compiled_q8_functions": [
+          {
+            "symbol": "_ZN3vdq3dotILi1ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 52,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 9,
+            "theoretical_occupancy_fraction": 0.5625
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi1ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 64,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi2ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 60,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi2ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 62,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi4ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 56,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 9,
+            "theoretical_occupancy_fraction": 0.5625
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi4ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "max_threads_per_block": 768,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 78,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.375
+          },
+          {
+            "symbol": "_ZN3vdq8quantizeEPK6__halfPaPfiiii",
+            "threads": 256,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 38,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5313q8_warp_exactI13__nv_bfloat16Lb0EEEvPKT_PKaPK6__halfPS2_iii",
+            "threads": 128,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 16,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba5313q8_warp_exactI6__halfLb0EEEvPKT_PKaPKS1_PS2_iii",
+            "threads": 128,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 16,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li1ELi4EEEvPKT_PKaPK6__halfPS2_iiii",
+            "threads": 256,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 56,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li2ELi1EEEvPKT_PKaPK6__halfPS2_iiii",
+            "threads": 256,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 64,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li4ELi1EEEvPKT_PKaPK6__halfPS2_iiii",
+            "threads": 256,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 38,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI6__halfLi1ELi4EEEvPKT_PKaPKS1_PS2_iiii",
+            "threads": 256,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 56,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI6__halfLi2ELi1EEEvPKT_PKaPKS1_PS2_iiii",
+            "threads": 256,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 64,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__d4a530c2_9_blocks_cu_e131ba538q8_tiledI6__halfLi4ELi1EEEvPKT_PKaPKS1_PS2_iiii",
+            "threads": 256,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 40,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          }
+        ],
+        "traces": {}
+      }
+    ],
+    "limitations": [
+      "CUDA occupancy API results are theoretical residency, NOT measured achieved occupancy.",
+      "Recorded kernel durations are from previous separate instrumented runs, not fresh throughput timings.",
+      "Grid ceilings ignore load balance, tail effects, dependencies, memory/issue stalls and other processes.",
+      "The tool never changes launch geometry; several kernels require a fixed thread count for correctness.",
+      "Local bytes/stack alone do not prove register spilling; consult compiler/SASS evidence.",
+      "No occupancy averaging across kernels or devices is presented as achieved occupancy."
+    ],
+    "cubins": {
+      "blocks.sm_70.cubin": "482975681cb8c7bf58700ebd540ba281c7e7d0e45f793bdb342b88a33fb5cb04"
+    }
+  },
+  "failed_first_competitor_profile": {
+    "health_observer_main_thread_children_only": true,
+    "salvage_intersected_observer_watchdog": true,
+    "c1_response_preserved": true,
+    "c8_incomplete": true,
+    "no_inference_failure_or_zero_tps_inferred": true
+  }
+}

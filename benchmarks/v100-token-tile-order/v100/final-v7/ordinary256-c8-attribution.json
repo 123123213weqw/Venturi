@@ -1,0 +1,131 @@
+{
+  "scope": "Cohort CUDA timelines joined by each submitting request's NVTX/thread range.\n\nPer-device kernel unions reveal two-GPU overlap, not achieved SM occupancy.\nDuration sums are never substituted for request/cohort wall time. Timeline gaps\nrefer only to this process's captured activities, not device-wide idle time.\n",
+  "achieved_hardware_counters": false,
+  "cohorts": [
+    {
+      "name": "native_unsplit",
+      "requests": 1,
+      "host_cohort_span_nanoseconds": 4002154100,
+      "kernels": 82688,
+      "kernel_nanoseconds": 4138173469,
+      "activity_span_nanoseconds": 3996363937,
+      "activity_union_nanoseconds": 3569793553,
+      "gaps_between_this_process_activities_nanoseconds": 426570384,
+      "transfers": {
+        "host_to_device": {
+          "count": 21088,
+          "bytes": 3619294592,
+          "nanoseconds": 548284909
+        },
+        "device_to_host": {
+          "count": 16480,
+          "bytes": 3619295232,
+          "nanoseconds": 397823807
+        }
+      },
+      "kernel_by_name": [
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16, (bool)0>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 7936,
+          "nanoseconds": 1295232513
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16, (bool)1>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 256,
+          "nanoseconds": 832733788
+        },
+        {
+          "name": "void vdt::dot<(int)8, (int)2, (int)16, (bool)0>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 8000,
+          "nanoseconds": 678987805
+        },
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "count": 12288,
+          "nanoseconds": 515077470
+        },
+        {
+          "name": "void vdt::dot<(int)8, (int)2, (int)16, (bool)1>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 256,
+          "nanoseconds": 370460704
+        },
+        {
+          "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+          "count": 4096,
+          "nanoseconds": 179215783
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 16448,
+          "nanoseconds": 67939187
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 4128,
+          "nanoseconds": 53433721
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 12288,
+          "nanoseconds": 52207949
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 3072,
+          "nanoseconds": 49017958
+        },
+        {
+          "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+          "count": 4096,
+          "nanoseconds": 12009199
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 4096,
+          "nanoseconds": 10298216
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+          "count": 2048,
+          "nanoseconds": 9014250
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 1536,
+          "nanoseconds": 6843454
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 1536,
+          "nanoseconds": 3754258
+        },
+        {
+          "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+          "count": 512,
+          "nanoseconds": 1464650
+        },
+        {
+          "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+          "count": 32,
+          "nanoseconds": 325697
+        },
+        {
+          "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+          "count": 32,
+          "nanoseconds": 84960
+        },
+        {
+          "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+          "count": 32,
+          "nanoseconds": 71907
+        }
+      ],
+      "per_device_kernel_union_nanoseconds": {
+        "0": 2513793551,
+        "1": 1624379918
+      },
+      "cross_device_kernel_union_nanoseconds": 2889889291,
+      "simultaneous_two_device_kernel_nanoseconds": 1248284178
+    }
+  ]
+}

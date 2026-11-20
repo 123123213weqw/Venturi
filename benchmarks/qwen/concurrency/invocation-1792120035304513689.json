@@ -1,0 +1,37 @@
+{
+  "args": {
+    "checkpoint": "/dev/shm/venturi-test/venturi-ninfer-d3ae5782742a48c8b058196297a7ddff-f730fa10d9cd5d08/qwen3_8_27b.ninfer",
+    "runner": "/home/test/wangyue/venturi-work/qwen/native/venturi-qwen-probe",
+    "workloads": "/home/test/wangyue/venturi-work/qwen/validation-staged/workloads.json",
+    "output_dir": "/home/test/wangyue/venturi-work/qwen/concurrency",
+    "repeats": 2,
+    "profile": true,
+    "only": [
+      "c8-b",
+      "c4-b",
+      "c2-b",
+      "c1-b",
+      "c8-tight-kv",
+      "c8-budget-kv",
+      "c8-no-graph",
+      "c8-prefill128",
+      "c8-dflash",
+      "c8-output256",
+      "chat-c1",
+      "chat-c8",
+      "cache-off",
+      "cache-on",
+      "profile-c1",
+      "profile-c8"
+    ]
+  },
+  "probe_source_sha256": "3b00e6bafa0fd0f6fc612ed31ff185b2974ce8d18e951313e187256762111ab0",
+  "runner_sha256": "440d801c2c28cf100d18728e570dd00769d75bdb0812e3d7bcb8fd32a881e84e",
+  "notes": [
+    "Fixed 512-token raw prompts, 64-output throughput budget ignores EOS; not normal interactive completion.",
+    "Paged KV is already native and always enabled; capacity experiments are not paged-vs-contiguous A/B.",
+    "Runtime counters are interval differences; exposed per-request device time must not be summed.",
+    "Warmup is one eight-request wave; topology changes may still trigger later graph capture.",
+    "The backend supplies all mathematics, scheduler, cache and kernels; this is a research harness."
+  ]
+}

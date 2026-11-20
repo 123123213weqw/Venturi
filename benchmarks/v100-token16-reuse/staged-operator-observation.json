@@ -1,0 +1,87 @@
+{
+  "library": "/home/data/wangyue/artifacts/venturi-token16-staged-study-v5/build/0ba7ded3857365aa/libventuri_blocks.so",
+  "sha256": "be39e71dfb7221ee35d69318fdbb223be47d9a5af68f25601c13a4ca877f4677",
+  "cases": 77,
+  "median_eligible_fused_ratio": 1.0363990260922304,
+  "median_eligible_plain_ratio": 1.0107054009218603,
+  "minimum_unchanged_fused_t8_ratio": 0.994951369649395,
+  "fused_t16": [
+    {
+      "label": "fused-mlp",
+      "tokens": 16,
+      "ms": {
+        "control-t8": 0.44192711512247723,
+        "candidate-staged16": 0.43035732375250924,
+        "ablation-natural-t16": 0.47026846143934464
+      }
+    },
+    {
+      "label": "fused-gdn",
+      "tokens": 16,
+      "ms": {
+        "control-t8": 0.22275911437140572,
+        "candidate-staged16": 0.22453334596421984,
+        "ablation-natural-t16": 0.24628623326619467
+      }
+    },
+    {
+      "label": "fused-attention",
+      "tokens": 16,
+      "ms": {
+        "control-t8": 0.19753600491417778,
+        "candidate-staged16": 0.19369599554273817,
+        "ablation-natural-t16": 0.20845154921213785
+      }
+    }
+  ],
+  "target_resources": [
+    {
+      "symbol": "_ZN3vdt12staged16_dotILi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+      "threads": 256,
+      "dynamic_shared_bytes": 18432,
+      "max_threads_per_block": 256,
+      "static_shared_bytes": 0,
+      "local_bytes_per_thread": 0,
+      "registers_per_thread": 60,
+      "binary_version": 70,
+      "theoretical_resident_blocks_per_sm": 4,
+      "theoretical_occupancy_fraction": 0.5
+    },
+    {
+      "symbol": "_ZN3vdt3dotILi8ELi2ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+      "threads": 512,
+      "dynamic_shared_bytes": 18432,
+      "max_threads_per_block": 512,
+      "static_shared_bytes": 0,
+      "local_bytes_per_thread": 0,
+      "registers_per_thread": 49,
+      "binary_version": 70,
+      "theoretical_resident_blocks_per_sm": 2,
+      "theoretical_occupancy_fraction": 0.5
+    },
+    {
+      "symbol": "_ZN3vqf12staged16_dotILi2ELi8EEEvPKaPKfNS_5GroupEiiii",
+      "threads": 256,
+      "dynamic_shared_bytes": 18432,
+      "max_threads_per_block": 256,
+      "static_shared_bytes": 0,
+      "local_bytes_per_thread": 0,
+      "registers_per_thread": 64,
+      "binary_version": 70,
+      "theoretical_resident_blocks_per_sm": 4,
+      "theoretical_occupancy_fraction": 0.5
+    },
+    {
+      "symbol": "_ZN3vqf9tiled_dotILi8ELi2ELi16EEEvPKaPKfNS_5GroupEiiii",
+      "threads": 512,
+      "dynamic_shared_bytes": 18432,
+      "max_threads_per_block": 512,
+      "static_shared_bytes": 0,
+      "local_bytes_per_thread": 0,
+      "registers_per_thread": 56,
+      "binary_version": 70,
+      "theoretical_resident_blocks_per_sm": 2,
+      "theoretical_occupancy_fraction": 0.5
+    }
+  ]
+}

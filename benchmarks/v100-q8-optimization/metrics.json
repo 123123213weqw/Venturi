@@ -1,0 +1,213 @@
+{
+  "artifact_sha256": "b2428c6e524914853d636b268c21f2ed298ba3d19c682fdef4973e8d634edab8",
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "workload": {
+    "prompt_tokens": 26,
+    "output_tokens": 32,
+    "decode_tokens": 31,
+    "eos_stopping": false,
+    "order": [
+      "baseline",
+      "tiled",
+      "tiled",
+      "baseline"
+    ],
+    "scope": "Single native request; load/preparation/reset/warmup excluded; EOS-disabled fixed work includes post-EOS tokens"
+  },
+  "baseline": {
+    "trials": 4,
+    "ttft": {
+      "mean_wall_seconds": 2.3798964235029416,
+      "min_wall_seconds": 2.3784934770083055,
+      "max_wall_seconds": 2.3806086989934556,
+      "mean_process_cpu_seconds": 2.381037250000002
+    },
+    "decode": {
+      "mean_wall_seconds": 3.268218067009002,
+      "min_wall_seconds": 3.2650141090271063,
+      "max_wall_seconds": 3.2700412159902044,
+      "mean_process_cpu_seconds": 3.2698432500000028,
+      "output_tokens_per_second": 9.485291178373078
+    },
+    "unsplit": {
+      "mean_wall_seconds": 5.642528472992126,
+      "min_wall_seconds": 5.64192116598133,
+      "max_wall_seconds": 5.642919251986314,
+      "mean_process_cpu_seconds": 5.645111249999994,
+      "output_tokens_per_second": 5.671216397607473
+    }
+  },
+  "tiled": {
+    "trials": 4,
+    "ttft": {
+      "mean_wall_seconds": 0.9032625449908664,
+      "min_wall_seconds": 0.9004125989740714,
+      "max_wall_seconds": 0.9055357230245136,
+      "mean_process_cpu_seconds": 0.9037497499999994
+    },
+    "decode": {
+      "mean_wall_seconds": 2.074685220242827,
+      "min_wall_seconds": 2.07407560601132,
+      "max_wall_seconds": 2.0754824350005947,
+      "mean_process_cpu_seconds": 2.075634749999999,
+      "output_tokens_per_second": 14.94202575770587
+    },
+    "unsplit": {
+      "mean_wall_seconds": 2.9714381622325163,
+      "min_wall_seconds": 2.969458028965164,
+      "max_wall_seconds": 2.9727572109550238,
+      "mean_process_cpu_seconds": 2.9727312500000007,
+      "output_tokens_per_second": 10.76919600977245
+    }
+  },
+  "exact_all_matched_generated_ids": true,
+  "exact_trained_logits_hidden_gdn_kv_bytes": true,
+  "fixed_cpu_reference_logit_gates_passed": true,
+  "full_original_bf16_corpus_quality_qualified": false,
+  "independent_upstream_architecture_qualified": false,
+  "external_engine_performance_comparison": false,
+  "native_batching_paged_kv_qualified": false,
+  "whole_model_graphs_qualified": false,
+  "achieved_hardware_counters_available": false,
+  "speedup": {
+    "ttft": 2.634778156916721,
+    "decode": 1.5752838238402644,
+    "unsplit": 1.8989217223866952
+  },
+  "telemetry": {
+    "baseline": {
+      "samples": 434,
+      "scope": "Device-wide sampled NVML proxies during timed ranges; not achieved occupancy/bandwidth",
+      "values": {
+        "gpu_busy_percent": {
+          "mean": 99.69354838709677,
+          "min": 92.0,
+          "max": 100.0
+        },
+        "memory_controller_busy_percent": {
+          "mean": 43.264976958525345,
+          "min": 39.0,
+          "max": 46.0
+        },
+        "device_used_mib": {
+          "mean": 31629.0,
+          "min": 31629.0,
+          "max": 31629.0
+        },
+        "power_watts": {
+          "mean": 211.20442396313365,
+          "min": 158.03,
+          "max": 225.73
+        },
+        "temperature_c": {
+          "mean": 49.046082949308754,
+          "min": 43.0,
+          "max": 53.0
+        },
+        "sm_clock_mhz": {
+          "mean": 1380.0,
+          "min": 1380.0,
+          "max": 1380.0
+        },
+        "memory_clock_mhz": {
+          "mean": 877.0,
+          "min": 877.0,
+          "max": 877.0
+        }
+      }
+    },
+    "tiled": {
+      "samples": 230,
+      "scope": "Device-wide sampled NVML proxies during timed ranges; not achieved occupancy/bandwidth",
+      "values": {
+        "gpu_busy_percent": {
+          "mean": 99.43478260869566,
+          "min": 92.0,
+          "max": 100.0
+        },
+        "memory_controller_busy_percent": {
+          "mean": 54.391304347826086,
+          "min": 33.0,
+          "max": 64.0
+        },
+        "device_used_mib": {
+          "mean": 31629.0,
+          "min": 31629.0,
+          "max": 31629.0
+        },
+        "power_watts": {
+          "mean": 233.58143478260868,
+          "min": 129.08,
+          "max": 254.78
+        },
+        "temperature_c": {
+          "mean": 49.38695652173913,
+          "min": 46.0,
+          "max": 52.0
+        },
+        "sm_clock_mhz": {
+          "mean": 1374.7521739130434,
+          "min": 1357.0,
+          "max": 1380.0
+        },
+        "memory_clock_mhz": {
+          "mean": 877.0,
+          "min": 877.0,
+          "max": 877.0
+        }
+      }
+    }
+  },
+  "story": {
+    "prompt_tokens": 23,
+    "output_tokens": 32,
+    "emitted_eos": false,
+    "exact_matched_ids": true,
+    "baseline": {
+      "trials": 2,
+      "ttft": {
+        "mean_wall_seconds": 2.1075214199954644,
+        "min_wall_seconds": 2.107385577983223,
+        "max_wall_seconds": 2.107657262007706,
+        "mean_process_cpu_seconds": 2.108449000000004
+      },
+      "decode": {
+        "mean_wall_seconds": 3.2667954910139088,
+        "min_wall_seconds": 3.266678274027072,
+        "max_wall_seconds": 3.2669127080007456,
+        "mean_process_cpu_seconds": 3.2682059999999993,
+        "output_tokens_per_second": 9.489421693299384
+      },
+      "unsplit": {
+        "mean_wall_seconds": 5.368307307478972,
+        "min_wall_seconds": 5.36792449495988,
+        "max_wall_seconds": 5.368690119998064,
+        "mean_process_cpu_seconds": 5.370643999999999,
+        "output_tokens_per_second": 5.96091061244175
+      }
+    },
+    "tiled": {
+      "trials": 2,
+      "ttft": {
+        "mean_wall_seconds": 0.7797360005206428,
+        "min_wall_seconds": 0.7792058060294949,
+        "max_wall_seconds": 0.7802661950117908,
+        "mean_process_cpu_seconds": 0.7799814999999981
+      },
+      "decode": {
+        "mean_wall_seconds": 2.0711954529979266,
+        "min_wall_seconds": 2.070775258995127,
+        "max_wall_seconds": 2.0716156470007263,
+        "mean_process_cpu_seconds": 2.071975000000002,
+        "output_tokens_per_second": 14.967201649235676
+      },
+      "unsplit": {
+        "mean_wall_seconds": 2.846784843975911,
+        "min_wall_seconds": 2.8465877769631334,
+        "max_wall_seconds": 2.8469819109886885,
+        "mean_process_cpu_seconds": 2.8478480000000026,
+        "output_tokens_per_second": 11.240751146935212
+      }
+    }
+  }
+}

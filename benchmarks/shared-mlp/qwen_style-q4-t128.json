@@ -1,0 +1,259 @@
+{
+  "name": "qwen_style-q4-t128",
+  "hidden": 5120,
+  "intermediate": 17408,
+  "tokens": 128,
+  "format": "q4_g64_fp16",
+  "sampled_token_rows": [
+    0,
+    64,
+    127
+  ],
+  "qualification": {
+    "torch": {
+      "max_abs_error": 0.0078125,
+      "normalized_max_error": 0.011439448423386471,
+      "relative_rms_error": 0.00019253007678383144,
+      "diagnostic_budget_met": true,
+      "scope": "Composite diagnostic only, not a correctness oracle for intermediate FP32 rounding. The strict diagnostic budget can fail even on the PyTorch reference; every individual Op is independently qualified on its actual inputs."
+    },
+    "torch_stages": {
+      "rmsnorm": {
+        "max_abs_error": 0.0,
+        "passed": true,
+        "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+        "first_failures": []
+      },
+      "gate": {
+        "max_abs_error": 0.0078125,
+        "passed": true,
+        "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 0.0002",
+        "first_failures": []
+      },
+      "up": {
+        "max_abs_error": 0.0078125,
+        "passed": true,
+        "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 0.0002",
+        "first_failures": []
+      },
+      "swiglu": {
+        "max_abs_error": 0.0001220703125,
+        "passed": true,
+        "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+        "first_failures": []
+      },
+      "down": {
+        "max_abs_error": 0.0078125,
+        "passed": true,
+        "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 0.0002",
+        "first_failures": []
+      },
+      "residual": {
+        "max_abs_error": 0.0,
+        "passed": true,
+        "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+        "first_failures": []
+      }
+    },
+    "torch_graph": {
+      "max_abs_error": 0.0078125,
+      "normalized_max_error": 0.011439448423386471,
+      "relative_rms_error": 0.00019253007678383144,
+      "diagnostic_budget_met": true,
+      "scope": "Composite diagnostic only, not a correctness oracle for intermediate FP32 rounding. The strict diagnostic budget can fail even on the PyTorch reference; every individual Op is independently qualified on its actual inputs."
+    },
+    "native": {
+      "max_abs_error": 0.0078125,
+      "normalized_max_error": 0.011439448423386471,
+      "relative_rms_error": 0.00014336382075981529,
+      "diagnostic_budget_met": true,
+      "scope": "Composite diagnostic only, not a correctness oracle for intermediate FP32 rounding. The strict diagnostic budget can fail even on the PyTorch reference; every individual Op is independently qualified on its actual inputs."
+    },
+    "native_stages": {
+      "rmsnorm": {
+        "max_abs_error": 0.0,
+        "passed": true,
+        "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+        "first_failures": []
+      },
+      "gate": {
+        "max_abs_error": 0.0078125,
+        "passed": true,
+        "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 0.0002",
+        "first_failures": []
+      },
+      "up": {
+        "max_abs_error": 0.0078125,
+        "passed": true,
+        "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 0.0002",
+        "first_failures": []
+      },
+      "swiglu": {
+        "max_abs_error": 0.00390625,
+        "passed": true,
+        "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+        "first_failures": []
+      },
+      "down": {
+        "max_abs_error": 0.00390625,
+        "passed": true,
+        "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 0.0002",
+        "first_failures": []
+      },
+      "residual": {
+        "max_abs_error": 0.0,
+        "passed": true,
+        "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+        "first_failures": []
+      }
+    },
+    "native_graph": {
+      "max_abs_error": 0.0078125,
+      "normalized_max_error": 0.011439448423386471,
+      "relative_rms_error": 0.00014336382075981529,
+      "diagnostic_budget_met": true,
+      "scope": "Composite diagnostic only, not a correctness oracle for intermediate FP32 rounding. The strict diagnostic budget can fail even on the PyTorch reference; every individual Op is independently qualified on its actual inputs."
+    }
+  },
+  "phases": {
+    "torch_eager": {
+      "mode": "single",
+      "start_unix": 1792291679.3514514,
+      "end_unix": 1792291681.4426162,
+      "calls": 1000,
+      "wall_seconds": 2.0911271929508075,
+      "process_cpu_seconds": 2.0949749999999767,
+      "process_cpu_percent": 100.18400636088231,
+      "wall_us_per_call": 2091.1271929508075,
+      "event_us_per_call": 2090.504196166992,
+      "median_chunk_event_us_per_call": 2082.7283477783203,
+      "chunk_event_ms_per_call": [
+        2.010548858642578,
+        2.0325888061523436,
+        2.0348416137695313,
+        2.0361395263671875,
+        2.1420133972167967,
+        2.182318115234375,
+        2.1783346557617187,
+        2.108753967285156,
+        2.0567027282714845,
+        2.12280029296875
+      ]
+    },
+    "torch_graph": {
+      "mode": "single",
+      "start_unix": 1792291681.4567006,
+      "end_unix": 1792291683.571627,
+      "calls": 1000,
+      "wall_seconds": 2.1149103810312226,
+      "process_cpu_seconds": 2.113851000000011,
+      "process_cpu_percent": 99.94990893984382,
+      "wall_us_per_call": 2114.9103810312226,
+      "event_us_per_call": 2114.464157104492,
+      "median_chunk_event_us_per_call": 2110.2833557128906,
+      "chunk_event_ms_per_call": [
+        2.093527069091797,
+        2.1438053894042968,
+        2.065735626220703,
+        2.071920623779297,
+        2.161456298828125,
+        2.161233673095703,
+        2.1248789978027345,
+        2.0677427673339843,
+        2.0956877136230467,
+        2.1586534118652345
+      ]
+    },
+    "native_eager": {
+      "mode": "single",
+      "start_unix": 1792291689.5088327,
+      "end_unix": 1792291691.5322795,
+      "calls": 1900,
+      "wall_seconds": 2.023399166064337,
+      "process_cpu_seconds": 2.0294189999999617,
+      "process_cpu_percent": 100.29751094280294,
+      "wall_us_per_call": 1064.9469295075457,
+      "event_us_per_call": 1064.4746398925781,
+      "median_chunk_event_us_per_call": 1063.536605834961,
+      "chunk_event_ms_per_call": [
+        1.0730934143066406,
+        1.0667520141601563,
+        1.063536605834961,
+        1.0625740814208984,
+        1.0618367767333985,
+        1.0610688018798828,
+        1.0604236602783204,
+        1.0602259063720703,
+        1.0658201599121093,
+        1.0701516723632813,
+        1.069639663696289,
+        1.069516143798828,
+        1.0696294403076172,
+        1.0640793609619141,
+        1.0610157012939454,
+        1.0599702453613282,
+        1.059583969116211,
+        1.0615193939208984,
+        1.0645811462402344
+      ]
+    },
+    "native_graph": {
+      "mode": "single",
+      "start_unix": 1792291691.5421267,
+      "end_unix": 1792291693.602389,
+      "calls": 2400,
+      "wall_seconds": 2.060245377011597,
+      "process_cpu_seconds": 2.0592060000000174,
+      "process_cpu_percent": 99.94955081452058,
+      "wall_us_per_call": 858.4355737548321,
+      "event_us_per_call": 858.043270111084,
+      "median_chunk_event_us_per_call": 851.4609909057617,
+      "chunk_event_ms_per_call": [
+        0.8385014343261719,
+        0.8628121948242188,
+        0.8658432006835938,
+        0.8642253112792969,
+        0.8590745544433593,
+        0.8503993225097656,
+        0.8435199737548829,
+        0.8429334259033203,
+        0.8429055786132813,
+        0.8445030212402344,
+        0.8551014709472656,
+        0.8543014526367188,
+        0.8555622100830078,
+        0.86508544921875,
+        0.8645203399658203,
+        0.8588082885742188,
+        0.8505443572998047,
+        0.8462643432617187,
+        0.8438169860839844,
+        0.8435507202148438,
+        0.8451891326904297,
+        0.8457727813720703,
+        0.8523776245117187,
+        0.997425308227539
+      ]
+    }
+  },
+  "torch_workspace_bytes": 10223616,
+  "torch_routes": [
+    "torch-reference-q4-fp32",
+    "torch-reference-q4-fp32",
+    "torch-reference-q4-fp32"
+  ],
+  "torch_graph_replay_equal": true,
+  "native_vs_torch": {
+    "equal_elements": 650711,
+    "total_elements": 655360,
+    "max_abs_difference": 0.015625,
+    "scope": "Compatibility comparison only; independent FP64 stage qualification is separate."
+  },
+  "native_workspace_bytes": 10223616,
+  "native_routes": [
+    "ada-mma-general",
+    "ada-mma-general",
+    "ada-mma-general"
+  ],
+  "native_graph_replay_equal": true
+}

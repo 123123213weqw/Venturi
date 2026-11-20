@@ -1,0 +1,146 @@
+{
+  "backend": {
+    "architecture": "Qwen3_5ForCausalLM",
+    "artifact_bytes_read": 15690759730,
+    "backend": "external-ninfer-cinference",
+    "compute_capability": [
+      8,
+      9
+    ],
+    "config": {
+      "cpu_wait": "blocking",
+      "cuda_graph": true,
+      "device": 0,
+      "draft_tokens": 8,
+      "kv_capacity": 8192,
+      "kv_dtype": "bf16",
+      "max_concurrency": 4,
+      "max_context": 2048,
+      "optimized_proposal": false,
+      "pending_timeout_ms": 300000,
+      "prefill_chunk": 128,
+      "speculative": "none",
+      "verify_tree": false
+    },
+    "cpu_wait": "blocking",
+    "cuda_device_flags": 12,
+    "event": "ready",
+    "gpu": "NVIDIA GeForce RTX 4090 D",
+    "host_to_device_bytes": 15677906944,
+    "limits": {
+      "kv_capacity": 8192,
+      "max_batch_requests": 16,
+      "max_concurrency": 4
+    },
+    "load_seconds": 5.926801513,
+    "memory": {
+      "device_free_bytes": 7580024832,
+      "device_total_bytes": 25250627584,
+      "kv_capacity": 8192,
+      "kv_capacity_page_groups": 128,
+      "kv_payload_bytes": 536870912,
+      "runtime_reservation_bytes": 1230824704,
+      "weights_capacity_bytes": 15677913088,
+      "weights_used_bytes": 15677913088,
+      "workspace_peak_bytes": 0
+    },
+    "ok": true,
+    "protocol": 3,
+    "startup_seconds": 6.117915535,
+    "upload_seconds": 4.497211293,
+    "weight_formats": [
+      "bf16",
+      "fp32",
+      "q4_g64_fp16",
+      "q8_g32_fp16"
+    ]
+  },
+  "batch": {
+    "memory": {
+      "device_free_bytes": 7580024832,
+      "device_total_bytes": 25250627584,
+      "kv_capacity": 8192,
+      "kv_capacity_page_groups": 128,
+      "kv_payload_bytes": 536870912,
+      "runtime_reservation_bytes": 1230824704,
+      "weights_capacity_bytes": 15677913088,
+      "weights_used_bytes": 15677913088,
+      "workspace_peak_bytes": 19997696
+    },
+    "mode": "parallel",
+    "ok": true,
+    "results": [
+      {
+        "finish_reason": 3,
+        "generated_ids": [
+          75327,
+          248046
+        ],
+        "index": 0,
+        "ok": true,
+        "prompt_tokens": 22,
+        "reasoning": "",
+        "reused_prompt_tokens": 0,
+        "speculative": {
+          "accepted_per_position": [],
+          "accepted_tokens": 0,
+          "draft_window": 0,
+          "drafted_tokens": 0,
+          "enabled": false,
+          "fallback_steps": 0,
+          "rounds": 0
+        },
+        "text": "APPLE",
+        "timings": {
+          "decode_seconds": 0.017972176,
+          "first_token_seconds": 0.090970553,
+          "generation_wall_seconds": 0.018014239,
+          "prefill_seconds": 0.057662018,
+          "prepare_seconds": 0.004175945,
+          "total_seconds": 0.109001989
+        }
+      },
+      {
+        "finish_reason": 3,
+        "generated_ids": [
+          49,
+          18226,
+          248046
+        ],
+        "index": 1,
+        "ok": true,
+        "prompt_tokens": 23,
+        "reasoning": "",
+        "reused_prompt_tokens": 0,
+        "speculative": {
+          "accepted_per_position": [],
+          "accepted_tokens": 0,
+          "draft_window": 0,
+          "drafted_tokens": 0,
+          "enabled": false,
+          "fallback_steps": 0,
+          "rounds": 0
+        },
+        "text": "RIVER",
+        "timings": {
+          "decode_seconds": 0.035916802,
+          "first_token_seconds": 0.159316422,
+          "generation_wall_seconds": 0.035980439,
+          "prefill_seconds": 0.053455617999999996,
+          "prepare_seconds": 0.001211225,
+          "total_seconds": 0.19530940500000002
+        }
+      }
+    ],
+    "runtime": {
+      "committed_decode_tokens": 3,
+      "computed_prefill_tokens": 45,
+      "decode_rounds": 3,
+      "decode_row_rounds": 3,
+      "mean_decode_batch": 1.0
+    },
+    "wall_seconds": 0.199863758,
+    "client_request_seconds": 0.20051181997405365,
+    "output_tokens_per_second": 25.017041859084827
+  }
+}

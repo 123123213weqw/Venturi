@@ -1,0 +1,30 @@
+............................sssssss...........s..sssFsFsss.s.....s...s.. [ 43%]
+.s...s...s.s.sss.ss.....s......ss......ss...ss.ss....................... [ 87%]
+..........s.s.s.....                                                     [100%]
+=================================== FAILURES ===================================
+_ test_native_capture_no_allocations_fallback_sync_or_scalar_read[native-fp16] _
+tests/test_sampling.py:143: in test_native_capture_no_allocations_fallback_sync_or_scalar_read
+    with torch.cuda.graph(graph):
+../../.venvs/b2-v100/lib/python3.10/site-packages/torch/cuda/graphs.py:173: in __enter__
+    torch.cuda.synchronize()
+tests/test_sampling.py:128: in forbidden
+    raise AssertionError("No allocation/numerical Torch fallback/host sync/read")
+E   AssertionError: No allocation/numerical Torch fallback/host sync/read
+_ test_native_capture_no_allocations_fallback_sync_or_scalar_read[native-fp32] _
+tests/test_sampling.py:143: in test_native_capture_no_allocations_fallback_sync_or_scalar_read
+    with torch.cuda.graph(graph):
+../../.venvs/b2-v100/lib/python3.10/site-packages/torch/cuda/graphs.py:173: in __enter__
+    torch.cuda.synchronize()
+tests/test_sampling.py:128: in forbidden
+    raise AssertionError("No allocation/numerical Torch fallback/host sync/read")
+E   AssertionError: No allocation/numerical Torch fallback/host sync/read
+=============================== warnings summary ===============================
+../../.venvs/b2-v100/lib/python3.10/site-packages/torch/_subclasses/functional_tensor.py:295
+  /home/data/wangyue/repos/codex-build/.venvs/b2-v100/lib/python3.10/site-packages/torch/_subclasses/functional_tensor.py:295: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:84.)
+    cpu = _conversion_method_template(device=torch.device("cpu"))
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_sampling.py::test_native_capture_no_allocations_fallback_sync_or_scalar_read[native-fp16]
+FAILED tests/test_sampling.py::test_native_capture_no_allocations_fallback_sync_or_scalar_read[native-fp32]
+2 failed, 123 passed, 39 skipped, 1 warning in 7.29s

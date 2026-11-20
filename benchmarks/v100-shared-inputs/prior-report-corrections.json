@@ -1,0 +1,17 @@
+{
+  "scope": "Erratum only; prior frozen artifacts/manifests remain unchanged.",
+  "corrections": [
+    {
+      "file": "benchmarks/v100-native-residual/summary.md",
+      "topic": "Projection scratch versus per-request context capacity",
+      "incorrect_inference": "The benchmark context capacity of 256 caused projection scratch to scale to 256 activation rows.",
+      "correction": "The loopback adapter explicitly sets model max_tokens=32 while allocating each request a context capacity of 256. Projection scratch remains 1,253,376 bytes per device, exactly as at qualification. Context capacity and projection row capacity are different settings.",
+      "authoritative_sources": [
+        "benchmarks/v100-native-residual/source/tools/serve_native_benchmark.py",
+        "benchmarks/v100-native-residual/v100/qualification-v2/qualification/report.json",
+        "benchmarks/v100-native-residual/v100/campaign-v3/repeat-residual/command.json"
+      ],
+      "timing_or_engine_behavior_changed": false
+    }
+  ]
+}

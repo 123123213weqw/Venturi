@@ -1,0 +1,38 @@
+{
+  "architecture": "sm70",
+  "resident_source_scope": true,
+  "source_sha256": {
+    "blocks.cu": "78fb734cdd2aefd143b8af2be5b4ab710ddf4ab443c38b09cac135a87fc8d4e3",
+    "q8_column_tp.cuh": "fb4748026caa0e271b0389b0b4517e0b767f8b4ec4680fa54bdc9afadcbfa3ea",
+    "q8_dp4a.cuh": "bb1163e93285cc1f0c45b86497e7e7bfe871f9e19617a176d08ac7b0c8a5c3ed",
+    "q8_fused.cuh": "f9256a832b7fcf436b0e430bebb3627eb2539d86a7982c830a43f4e4ce1fc0c5",
+    "q8_shared.cuh": "3a7f34d565e03b8633db4f2da2093d9f1890af65e624f83e528ba36d1bfb9726",
+    "q8_wmma.cuh": "5bfea6943f04328bf60a0596a7155e45a5e14823d9b827baa34ebc339f4a9662",
+    "qwen_batch.cuh": "616a68063c42866c18c6e2806d467dcae32e5d3f73fd08344ec819a79ee7ac06",
+    "qwen_mtp.cuh": "adc054412b6ab803c0a1144cd56b607eb6e79dc3a96e160913f97bd310736502",
+    "qwen_pipeline.cuh": "73b4296184cdbf76c90496f01e1222bbc97307cbeb3a62beb4073096aee575e2",
+    "qwen_runtime.cuh": "783a1181622af563c4b3786b946d2830fe9c64b016ade8005719a4b195915f46"
+  },
+  "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Tue_May_27_02:21:03_PDT_2025\nCuda compilation tools, release 12.9, V12.9.86\nBuild cuda_12.9.r12.9/compiler.36037853_0\n",
+  "command": [
+    "/usr/local/cuda/bin/nvcc",
+    "-O3",
+    "-std=c++20",
+    "-lineinfo",
+    "-shared",
+    "--cudart=static",
+    "-Xcompiler=-fPIC",
+    "-gencode=arch=compute_70,code=sm_70",
+    "-gencode=arch=compute_70,code=compute_70",
+    "-DVENTURI_BLOCKS_ARCH=70",
+    "-DVENTURI_Q8_TOKEN_TILE=4",
+    "-DVENTURI_Q8_ROW_TILE=4",
+    "-DVENTURI_Q8_DECODE_MODE=0",
+    "-DVENTURI_RESIDENT_SOURCE_SCOPE=1",
+    "/home/data/wangyue/repos/codex-build/Venturi/source-scope-src-v1/src/venturi/ops/csrc/blocks.cu",
+    "-lcublas",
+    "-o",
+    "/home/data/wangyue/artifacts/venturi-source-scope-fixtures-v1/build/fb37c600c0b94279/build-unj5r_ln/libventuri_blocks.so"
+  ],
+  "library_sha256": "1b82d19104f4987db96672e74430d3cf0a6da51997c951a4e54ecd57fcef18b9"
+}

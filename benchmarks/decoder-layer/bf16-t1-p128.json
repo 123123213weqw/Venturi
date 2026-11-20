@@ -1,0 +1,879 @@
+{
+  "name": "bf16-t1-p128",
+  "stored_format": "bf16",
+  "tokens": 1,
+  "prefix": 128,
+  "layers": 2,
+  "qualification": {
+    "native": {
+      "per_layer_checks": [
+        {
+          "attention_norm": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "query": {
+            "passed": true,
+            "max_abs_error": 0.000244140625,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "key": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "value": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "rope_q": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "rope_k": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "attention": {
+            "passed": true,
+            "max_abs_error": 9.5367431640625e-07,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "output_projection": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "attention_residual": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "mlp": {
+            "passed": true,
+            "independently_qualified_ops": 6,
+            "criterion": "unchanged fixed per-Op FP64 bounds; Q4 absolute floor 2e-4, others 2e-5"
+          }
+        },
+        {
+          "attention_norm": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "query": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "key": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "value": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "rope_q": {
+            "passed": true,
+            "max_abs_error": 0.00048828125,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "rope_k": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "attention": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "output_projection": {
+            "passed": true,
+            "max_abs_error": 0.000244140625,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "attention_residual": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "mlp": {
+            "passed": true,
+            "independently_qualified_ops": 6,
+            "criterion": "unchanged fixed per-Op FP64 bounds; Q4 absolute floor 2e-4, others 2e-5"
+          }
+        }
+      ],
+      "composition_and_cache_bit_identical": true,
+      "independently_qualified_ops": 30
+    },
+    "reference": {
+      "per_layer_checks": [
+        {
+          "attention_norm": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "query": {
+            "passed": true,
+            "max_abs_error": 0.000244140625,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "key": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "value": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "rope_q": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "rope_k": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "attention": {
+            "passed": true,
+            "max_abs_error": 3.0517578125e-05,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "output_projection": {
+            "passed": true,
+            "max_abs_error": 0.0001220703125,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "attention_residual": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "mlp": {
+            "passed": true,
+            "independently_qualified_ops": 6,
+            "criterion": "unchanged fixed per-Op FP64 bounds; Q4 absolute floor 2e-4, others 2e-5"
+          }
+        },
+        {
+          "attention_norm": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "query": {
+            "passed": true,
+            "max_abs_error": 0.0009765625,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "key": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "value": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "rope_q": {
+            "passed": true,
+            "max_abs_error": 3.814697265625e-06,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "rope_k": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "attention": {
+            "passed": true,
+            "max_abs_error": 0.000244140625,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "output_projection": {
+            "passed": true,
+            "max_abs_error": 5.774199962615967e-08,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "attention_residual": {
+            "passed": true,
+            "max_abs_error": 0.0,
+            "failed_elements": 0,
+            "criterion": "abs(actual-rounded_FP64) <= 2*eps*abs(FP64) + 2e-05"
+          },
+          "mlp": {
+            "passed": true,
+            "independently_qualified_ops": 6,
+            "criterion": "unchanged fixed per-Op FP64 bounds; Q4 absolute floor 2e-4, others 2e-5"
+          }
+        }
+      ],
+      "composition_and_cache_bit_identical": true,
+      "independently_qualified_ops": 30
+    }
+  },
+  "weight_pointers_shared_across_token_shapes": true,
+  "native_weight_bytes": 1363230720,
+  "cache_bytes": 1056768,
+  "workspace_phases": [
+    {
+      "mode": "single",
+      "start_unix": 1792331829.4482675,
+      "end_unix": 1792331831.5340443,
+      "calls": 1300,
+      "wall_seconds": 2.0857540540164337,
+      "process_cpu_seconds": 2.084339,
+      "process_cpu_percent": 99.93215623799418,
+      "wall_us_per_call": 1604.4261953972566,
+      "event_us_per_call": 1603.9623436560996,
+      "median_chunk_event_us_per_call": 1601.9760131835938,
+      "chunk_event_ms_per_call": [
+        1.6195686340332032,
+        1.6103205871582031,
+        1.6018821716308593,
+        1.6019558715820312,
+        1.6020361328125,
+        1.6024473571777345,
+        1.601658935546875,
+        1.6018739318847657,
+        1.6017919921875,
+        1.601853485107422,
+        1.6020870971679688,
+        1.6019760131835938,
+        1.6020582580566407
+      ],
+      "workspace_allocations": 2,
+      "active_workspace_bytes": 8568832,
+      "single_lane_workspace_bytes": 4284416,
+      "linear_scratch_bytes": 4194304,
+      "full_sequence_calls_per_second": 623.2757872370686,
+      "condition": "separate",
+      "eager_graph_bit_identical": true,
+      "gpu": {
+        "samples": 6,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "memory.used": {
+          "mean": 3810.0,
+          "minimum": 3810.0,
+          "maximum": 3810.0
+        },
+        "power.draw": {
+          "mean": 293.56166666666667,
+          "minimum": 201.68,
+          "maximum": 316.07
+        },
+        "temperature.gpu": {
+          "mean": 50.5,
+          "minimum": 50.0,
+          "maximum": 51.0
+        },
+        "clocks.sm": {
+          "mean": 2775.0,
+          "minimum": 2775.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      }
+    },
+    {
+      "mode": "single",
+      "start_unix": 1792331831.5827134,
+      "end_unix": 1792331833.6658924,
+      "calls": 1300,
+      "wall_seconds": 2.0831558890640736,
+      "process_cpu_seconds": 2.081710000000001,
+      "process_cpu_percent": 99.93059141316965,
+      "wall_us_per_call": 1602.4276069723644,
+      "event_us_per_call": 1601.9297907902644,
+      "median_chunk_event_us_per_call": 1601.9148254394531,
+      "chunk_event_ms_per_call": [
+        1.6021401977539063,
+        1.6019865417480468,
+        1.6019558715820312,
+        1.601914825439453,
+        1.6020787048339844,
+        1.6018637084960938,
+        1.6018328857421875,
+        1.6018943786621094,
+        1.6020378112792968,
+        1.6019760131835938,
+        1.6016383361816406,
+        1.6018838500976562,
+        1.6018841552734375
+      ],
+      "workspace_allocations": 1,
+      "active_workspace_bytes": 4284416,
+      "single_lane_workspace_bytes": 4284416,
+      "linear_scratch_bytes": 4194304,
+      "full_sequence_calls_per_second": 624.0531526347113,
+      "condition": "shared",
+      "eager_graph_bit_identical": true,
+      "gpu": {
+        "samples": 5,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "memory.used": {
+          "mean": 3790.0,
+          "minimum": 3790.0,
+          "maximum": 3790.0
+        },
+        "power.draw": {
+          "mean": 312.152,
+          "minimum": 307.13,
+          "maximum": 315.5
+        },
+        "temperature.gpu": {
+          "mean": 51.0,
+          "minimum": 51.0,
+          "maximum": 51.0
+        },
+        "clocks.sm": {
+          "mean": 2775.0,
+          "minimum": 2775.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      }
+    },
+    {
+      "mode": "single",
+      "start_unix": 1792331833.7114425,
+      "end_unix": 1792331835.7947965,
+      "calls": 1300,
+      "wall_seconds": 2.083333002985455,
+      "process_cpu_seconds": 2.082129999999978,
+      "process_cpu_percent": 99.94225584754079,
+      "wall_us_per_call": 1602.5638484503502,
+      "event_us_per_call": 1602.0892451359675,
+      "median_chunk_event_us_per_call": 1601.9148254394531,
+      "chunk_event_ms_per_call": [
+        1.601781768798828,
+        1.60186279296875,
+        1.601727752685547,
+        1.6038809204101563,
+        1.6018841552734375,
+        1.601853485107422,
+        1.6018226623535157,
+        1.601914825439453,
+        1.6021286010742188,
+        1.6022425842285157,
+        1.602027587890625,
+        1.6020582580566407,
+        1.6019747924804688
+      ],
+      "workspace_allocations": 1,
+      "active_workspace_bytes": 4284416,
+      "single_lane_workspace_bytes": 4284416,
+      "linear_scratch_bytes": 4194304,
+      "full_sequence_calls_per_second": 624.0000989458122,
+      "condition": "shared",
+      "eager_graph_bit_identical": true,
+      "gpu": {
+        "samples": 6,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "memory.used": {
+          "mean": 3790.0,
+          "minimum": 3790.0,
+          "maximum": 3790.0
+        },
+        "power.draw": {
+          "mean": 313.195,
+          "minimum": 307.55,
+          "maximum": 316.25
+        },
+        "temperature.gpu": {
+          "mean": 51.0,
+          "minimum": 51.0,
+          "maximum": 51.0
+        },
+        "clocks.sm": {
+          "mean": 2775.0,
+          "minimum": 2775.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      }
+    },
+    {
+      "mode": "single",
+      "start_unix": 1792331835.8409727,
+      "end_unix": 1792331837.924218,
+      "calls": 1300,
+      "wall_seconds": 2.0832210979424417,
+      "process_cpu_seconds": 2.0816899999999947,
+      "process_cpu_percent": 99.92650333927786,
+      "wall_us_per_call": 1602.477767648032,
+      "event_us_per_call": 1601.9967181865986,
+      "median_chunk_event_us_per_call": 1602.0069885253906,
+      "chunk_event_ms_per_call": [
+        1.601976318359375,
+        1.6020069885253907,
+        1.6021299743652344,
+        1.6021299743652344,
+        1.6021501159667968,
+        1.6022195434570312,
+        1.60199462890625,
+        1.6021197509765626,
+        1.601853485107422,
+        1.6017372131347656,
+        1.6017408752441407,
+        1.6020172119140625,
+        1.6018812561035156
+      ],
+      "workspace_allocations": 2,
+      "active_workspace_bytes": 8568832,
+      "single_lane_workspace_bytes": 4284416,
+      "linear_scratch_bytes": 4194304,
+      "full_sequence_calls_per_second": 624.0336185554119,
+      "condition": "separate",
+      "eager_graph_bit_identical": true,
+      "gpu": {
+        "samples": 6,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "memory.used": {
+          "mean": 3790.0,
+          "minimum": 3790.0,
+          "maximum": 3790.0
+        },
+        "power.draw": {
+          "mean": 314.0566666666666,
+          "minimum": 307.4,
+          "maximum": 315.46
+        },
+        "temperature.gpu": {
+          "mean": 51.0,
+          "minimum": 51.0,
+          "maximum": 51.0
+        },
+        "clocks.sm": {
+          "mean": 2775.0,
+          "minimum": 2775.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      }
+    }
+  ],
+  "backend_phases": [
+    {
+      "mode": "single",
+      "start_unix": 1792331837.9784317,
+      "end_unix": 1792331840.0574915,
+      "calls": 1300,
+      "wall_seconds": 2.0790387869346887,
+      "process_cpu_seconds": 2.076228999999998,
+      "process_cpu_percent": 99.8648516346906,
+      "wall_us_per_call": 1599.260605334376,
+      "event_us_per_call": 1598.7619018554688,
+      "median_chunk_event_us_per_call": 1598.760986328125,
+      "chunk_event_ms_per_call": [
+        1.5986585998535157,
+        1.5985533142089843,
+        1.598699493408203,
+        1.5989657592773439,
+        1.598791046142578,
+        1.5989248657226562,
+        1.5987814331054688,
+        1.5988223266601562,
+        1.598760986328125,
+        1.5987391662597656,
+        1.5988531494140625,
+        1.5987164306640624,
+        1.598638153076172
+      ],
+      "workspace_allocations": 1,
+      "active_workspace_bytes": 90112,
+      "single_lane_workspace_bytes": 90112,
+      "linear_scratch_bytes": 0,
+      "full_sequence_calls_per_second": 625.2889595757399,
+      "condition": "reference",
+      "eager_graph_bit_identical": true,
+      "gpu": {
+        "samples": 5,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "memory.used": {
+          "mean": 3874.0,
+          "minimum": 3874.0,
+          "maximum": 3874.0
+        },
+        "power.draw": {
+          "mean": 312.02,
+          "minimum": 311.76,
+          "maximum": 312.41
+        },
+        "temperature.gpu": {
+          "mean": 52.0,
+          "minimum": 52.0,
+          "maximum": 52.0
+        },
+        "clocks.sm": {
+          "mean": 2775.0,
+          "minimum": 2775.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      }
+    },
+    {
+      "mode": "single",
+      "start_unix": 1792331840.1039288,
+      "end_unix": 1792331842.1872623,
+      "calls": 1300,
+      "wall_seconds": 2.083310266956687,
+      "process_cpu_seconds": 2.082039000000009,
+      "process_cpu_percent": 99.93897851045801,
+      "wall_us_per_call": 1602.5463591974515,
+      "event_us_per_call": 1602.0529761681191,
+      "median_chunk_event_us_per_call": 1601.9865417480469,
+      "chunk_event_ms_per_call": [
+        1.602027587890625,
+        1.601841278076172,
+        1.6016879272460938,
+        1.6019967651367188,
+        1.6017904663085938,
+        1.6017510986328125,
+        1.602099151611328,
+        1.6019865417480468,
+        1.6034713745117188,
+        1.6020378112792968,
+        1.601953887939453,
+        1.60216064453125,
+        1.6018841552734375
+      ],
+      "workspace_allocations": 1,
+      "active_workspace_bytes": 4284416,
+      "single_lane_workspace_bytes": 4284416,
+      "linear_scratch_bytes": 4194304,
+      "full_sequence_calls_per_second": 624.0069089176277,
+      "condition": "native",
+      "eager_graph_bit_identical": true,
+      "gpu": {
+        "samples": 6,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "memory.used": {
+          "mean": 3830.0,
+          "minimum": 3830.0,
+          "maximum": 3830.0
+        },
+        "power.draw": {
+          "mean": 312.32666666666665,
+          "minimum": 308.01,
+          "maximum": 316.74
+        },
+        "temperature.gpu": {
+          "mean": 52.0,
+          "minimum": 52.0,
+          "maximum": 52.0
+        },
+        "clocks.sm": {
+          "mean": 2775.0,
+          "minimum": 2775.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      }
+    },
+    {
+      "mode": "single",
+      "start_unix": 1792331842.2335556,
+      "end_unix": 1792331844.3172333,
+      "calls": 1300,
+      "wall_seconds": 2.0836451649665833,
+      "process_cpu_seconds": 2.083463000000009,
+      "process_cpu_percent": 99.99125739019114,
+      "wall_us_per_call": 1602.8039730512178,
+      "event_us_per_call": 1602.1745769794172,
+      "median_chunk_event_us_per_call": 1602.0445251464844,
+      "chunk_event_ms_per_call": [
+        1.6019354248046875,
+        1.6021401977539063,
+        1.6021197509765626,
+        1.6018943786621094,
+        1.6020480346679689,
+        1.6038604736328126,
+        1.6019354248046875,
+        1.6019865417480468,
+        1.6020445251464843,
+        1.6023245239257813,
+        1.6019456481933594,
+        1.602099151611328,
+        1.6019354248046875
+      ],
+      "workspace_allocations": 1,
+      "active_workspace_bytes": 4284416,
+      "single_lane_workspace_bytes": 4284416,
+      "linear_scratch_bytes": 4194304,
+      "full_sequence_calls_per_second": 623.9066141671242,
+      "condition": "native",
+      "eager_graph_bit_identical": true,
+      "gpu": {
+        "samples": 5,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "memory.used": {
+          "mean": 3830.0,
+          "minimum": 3830.0,
+          "maximum": 3830.0
+        },
+        "power.draw": {
+          "mean": 313.146,
+          "minimum": 308.05,
+          "maximum": 316.75
+        },
+        "temperature.gpu": {
+          "mean": 52.0,
+          "minimum": 52.0,
+          "maximum": 52.0
+        },
+        "clocks.sm": {
+          "mean": 2775.0,
+          "minimum": 2775.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      }
+    },
+    {
+      "mode": "single",
+      "start_unix": 1792331844.3884504,
+      "end_unix": 1792331846.4676118,
+      "calls": 1300,
+      "wall_seconds": 2.079137064050883,
+      "process_cpu_seconds": 2.079008000000016,
+      "process_cpu_percent": 99.99379242219771,
+      "wall_us_per_call": 1599.3362031160639,
+      "event_us_per_call": 1598.7992037259614,
+      "median_chunk_event_us_per_call": 1598.7405395507812,
+      "chunk_event_ms_per_call": [
+        1.5987405395507812,
+        1.598883819580078,
+        1.5987303161621094,
+        1.5987405395507812,
+        1.5988633728027344,
+        1.599129638671875,
+        1.5987295532226562,
+        1.598738250732422,
+        1.5987081909179688,
+        1.5987405395507812,
+        1.5988633728027344,
+        1.5987916564941407,
+        1.5987298583984375
+      ],
+      "workspace_allocations": 1,
+      "active_workspace_bytes": 90112,
+      "single_lane_workspace_bytes": 90112,
+      "linear_scratch_bytes": 0,
+      "full_sequence_calls_per_second": 625.259403277217,
+      "condition": "reference",
+      "eager_graph_bit_identical": true,
+      "gpu": {
+        "samples": 5,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "memory.used": {
+          "mean": 3914.0,
+          "minimum": 3914.0,
+          "maximum": 3914.0
+        },
+        "power.draw": {
+          "mean": 309.776,
+          "minimum": 300.88,
+          "maximum": 312.02
+        },
+        "temperature.gpu": {
+          "mean": 52.0,
+          "minimum": 52.0,
+          "maximum": 52.0
+        },
+        "clocks.sm": {
+          "mean": 2775.0,
+          "minimum": 2775.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      }
+    }
+  ],
+  "cross_backend_diagnostic": {
+    "max_abs_error": 0.03125,
+    "normalized_rms_error": 0.007044819760072617,
+    "matching_elements": 1429,
+    "elements": 5120,
+    "scope": "Diagnostic, not a per-Op correctness gate or lossless/quality claim."
+  },
+  "workspace_medians": {
+    "separate": {
+      "wall_us_per_call": 1603.4519815226445,
+      "event_us_per_call": 1602.9795309213491,
+      "process_cpu_percent": 99.92932978863601
+    },
+    "shared": {
+      "wall_us_per_call": 1602.4957277113572,
+      "event_us_per_call": 1602.009517963116,
+      "process_cpu_percent": 99.93642363035522
+    }
+  },
+  "backend_medians": {
+    "reference": {
+      "wall_us_per_call": 1599.2984042252199,
+      "event_us_per_call": 1598.780552790715,
+      "process_cpu_percent": 99.92932202844415
+    },
+    "native": {
+      "wall_us_per_call": 1602.6751661243347,
+      "event_us_per_call": 1602.113776573768,
+      "process_cpu_percent": 99.96511795032458
+    }
+  }
+}

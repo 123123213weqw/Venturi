@@ -1,0 +1,29 @@
+...sssssssssssssssssssssssssssss...............sssssssssssssssssssssssss [ 41%]
+sssssss.FFF...ssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 83%]
+sssssssssssssssssss.........                                             [100%]
+=================================== FAILURES ===================================
+__________ test_cli_depth2_route_and_required_artifact[replay-False] ___________
+tests/test_qwen_mtp2.py:341: in test_cli_depth2_route_and_required_artifact
+    assert module.main(argv) == 0
+           ^^^^^^^^^^^^^^^^^
+src/venturi/qwen_native_cli.py:262: in main
+    model = NativeQwenMTPModel.from_q8(
+E   TypeError: test_cli_depth2_route_and_required_artifact.<locals>.<lambda>() got an unexpected keyword argument 'draft_projection_profile'
+__________ test_cli_depth2_route_and_required_artifact[prefix-False] ___________
+tests/test_qwen_mtp2.py:341: in test_cli_depth2_route_and_required_artifact
+    assert module.main(argv) == 0
+           ^^^^^^^^^^^^^^^^^
+src/venturi/qwen_native_cli.py:262: in main
+    model = NativeQwenMTPModel.from_q8(
+E   TypeError: test_cli_depth2_route_and_required_artifact.<locals>.<lambda>() got an unexpected keyword argument 'draft_projection_profile'
+___________ test_cli_depth2_route_and_required_artifact[prefix-True] ___________
+tests/test_qwen_mtp2.py:337: in test_cli_depth2_route_and_required_artifact
+    module.main(argv)
+src/venturi/qwen_native_cli.py:262: in main
+    model = NativeQwenMTPModel.from_q8(
+E   TypeError: test_cli_depth2_route_and_required_artifact.<locals>.<lambda>() got an unexpected keyword argument 'draft_projection_profile'
+=========================== short test summary info ============================
+FAILED tests/test_qwen_mtp2.py::test_cli_depth2_route_and_required_artifact[replay-False]
+FAILED tests/test_qwen_mtp2.py::test_cli_depth2_route_and_required_artifact[prefix-False]
+FAILED tests/test_qwen_mtp2.py::test_cli_depth2_route_and_required_artifact[prefix-True]
+3 failed, 31 passed, 138 skipped in 0.70s

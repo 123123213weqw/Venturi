@@ -1,0 +1,19 @@
+/home/data/wangyue/repos/codex-build/Venturi/gdn-head-pilot-src-v1/tools/projection/gdn_head_pilot.cpp: In member function ‘void {anonymous}::Plan::core(int)’:
+/home/data/wangyue/repos/codex-build/Venturi/gdn-head-pilot-src-v1/tools/projection/gdn_head_pilot.cpp:126:118: error: invalid ‘static_cast’ from type ‘char*’ to type ‘float*’
+  126 |             f.ok(f.gates(off(b.av,h),off(b.bv,h),static_cast<const float*>(b.rate),static_cast<const float*>(b.bias),static_cast<float*>(off(b.decay,h,4)),static_cast<float*>(off(b.beta,h,4)),c.steps,h,0,1,streams[rank]));
+      |                                                                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/data/wangyue/repos/codex-build/Venturi/gdn-head-pilot-src-v1/tools/projection/gdn_head_pilot.cpp:126:156: error: invalid ‘static_cast’ from type ‘char*’ to type ‘float*’
+  126 |             f.ok(f.gates(off(b.av,h),off(b.bv,h),static_cast<const float*>(b.rate),static_cast<const float*>(b.bias),static_cast<float*>(off(b.decay,h,4)),static_cast<float*>(off(b.beta,h,4)),c.steps,h,0,1,streams[rank]));
+      |                                                                                                                                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/data/wangyue/repos/codex-build/Venturi/gdn-head-pilot-src-v1/tools/projection/gdn_head_pilot.cpp:128:51: error: invalid ‘static_cast’ from type ‘char*’ to type ‘const float*’
+  128 |             if(c.prefixes)f.ok(f.prefix(q,k,value,static_cast<const float*>(off(b.decay,h,4)),static_cast<const float*>(off(b.beta,h,4)),static_cast<const float*>(b.state[s]),off(b.recurrent,v),static_cast<float*>(b.state[s]),c.steps,qk,h,c.dk,c.dv,1,1,0,c.scale,b.prefix_state[s],b.prefix_state[8+s],2,streams[rank]));
+      |                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/data/wangyue/repos/codex-build/Venturi/gdn-head-pilot-src-v1/tools/projection/gdn_head_pilot.cpp:128:95: error: invalid ‘static_cast’ from type ‘char*’ to type ‘const float*’
+  128 |             if(c.prefixes)f.ok(f.prefix(q,k,value,static_cast<const float*>(off(b.decay,h,4)),static_cast<const float*>(off(b.beta,h,4)),static_cast<const float*>(b.state[s]),off(b.recurrent,v),static_cast<float*>(b.state[s]),c.steps,qk,h,c.dk,c.dv,1,1,0,c.scale,b.prefix_state[s],b.prefix_state[8+s],2,streams[rank]));
+      |                                                                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/data/wangyue/repos/codex-build/Venturi/gdn-head-pilot-src-v1/tools/projection/gdn_head_pilot.cpp:129:39: error: invalid ‘static_cast’ from type ‘char*’ to type ‘const float*’
+  129 |             else f.ok(f.gdn(q,k,value,static_cast<const float*>(off(b.decay,h,4)),static_cast<const float*>(off(b.beta,h,4)),static_cast<const float*>(b.state[s]),off(b.recurrent,v),static_cast<float*>(b.state[s]),c.steps,qk,h,c.dk,c.dv,1,1,0,c.scale,streams[rank]));
+      |                                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/data/wangyue/repos/codex-build/Venturi/gdn-head-pilot-src-v1/tools/projection/gdn_head_pilot.cpp:129:83: error: invalid ‘static_cast’ from type ‘char*’ to type ‘const float*’
+  129 |             else f.ok(f.gdn(q,k,value,static_cast<const float*>(off(b.decay,h,4)),static_cast<const float*>(off(b.beta,h,4)),static_cast<const float*>(b.state[s]),off(b.recurrent,v),static_cast<float*>(b.state[s]),c.steps,qk,h,c.dk,c.dv,1,1,0,c.scale,streams[rank]));
+      |                                                                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,0 +1,380 @@
+{
+  "study-v1": {
+    "arm": "candidate-pairs",
+    "library": "/home/data/wangyue/artifacts/venturi-activation-words-study-v1/build/77c2735dfe574579/libventuri_blocks.so",
+    "source": "8feef74cf9f18da99b8c5dab78085fe5065b58998a1e4a1b32206d4601ec47d7",
+    "median_fused_t3_ratio": 1.0036526476147571,
+    "minimum_unchanged_t8_ratio": 0.9955558582602178,
+    "promoted": false,
+    "target_resources": [
+      {
+        "symbol": "_ZN3vdt3dotILi4ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+        "threads": 256,
+        "dynamic_shared_bytes": 9216,
+        "max_threads_per_block": 256,
+        "static_shared_bytes": 0,
+        "local_bytes_per_thread": 0,
+        "registers_per_thread": 46,
+        "binary_version": 70,
+        "theoretical_resident_blocks_per_sm": 5,
+        "theoretical_occupancy_fraction": 0.625
+      },
+      {
+        "symbol": "_ZN3vqf9tiled_dotILi4ELi2ELi8EEEvPKaPKfNS_5GroupEiiii",
+        "threads": 256,
+        "dynamic_shared_bytes": 9216,
+        "max_threads_per_block": 256,
+        "static_shared_bytes": 0,
+        "local_bytes_per_thread": 0,
+        "registers_per_thread": 53,
+        "binary_version": 70,
+        "theoretical_resident_blocks_per_sm": 4,
+        "theoretical_occupancy_fraction": 0.5
+      }
+    ],
+    "affected_fused_cases": [
+      {
+        "label": "fused-mlp",
+        "tokens": 3,
+        "median_gpu_event_ms": {
+          "control-aos": 0.1357226636674669,
+          "candidate-pairs": 0.13629866970909965
+        }
+      },
+      {
+        "label": "fused-mlp",
+        "tokens": 4,
+        "median_gpu_event_ms": {
+          "control-aos": 0.14568889141082764,
+          "candidate-pairs": 0.14640355110168457
+        }
+      },
+      {
+        "label": "fused-gdn",
+        "tokens": 3,
+        "median_gpu_event_ms": {
+          "control-aos": 0.07618844509124756,
+          "candidate-pairs": 0.07411555449167888
+        }
+      },
+      {
+        "label": "fused-gdn",
+        "tokens": 4,
+        "median_gpu_event_ms": {
+          "control-aos": 0.07993244462543064,
+          "candidate-pairs": 0.07779555850558811
+        }
+      },
+      {
+        "label": "fused-attention",
+        "tokens": 3,
+        "median_gpu_event_ms": {
+          "control-aos": 0.06350221898820665,
+          "candidate-pairs": 0.06327111191219753
+        }
+      },
+      {
+        "label": "fused-attention",
+        "tokens": 4,
+        "median_gpu_event_ms": {
+          "control-aos": 0.0679324467976888,
+          "candidate-pairs": 0.06782222456402248
+        }
+      }
+    ]
+  },
+  "bound-study-v3": {
+    "arm": "candidate-pairs",
+    "library": "/home/data/wangyue/artifacts/venturi-activation-words-bound-study-v3/build/7dd4ae72bba4a269/libventuri_blocks.so",
+    "source": "6f55e7a7122991b38d06423962063421a7eaf01e192da5b239b9294ec63b1360",
+    "median_fused_t3_ratio": 1.0338818115432562,
+    "minimum_unchanged_t8_ratio": 0.9949705322242567,
+    "promoted": true,
+    "target_resources": [
+      {
+        "symbol": "_ZN3vdt3dotILi4ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+        "threads": 256,
+        "dynamic_shared_bytes": 9216,
+        "max_threads_per_block": 256,
+        "static_shared_bytes": 0,
+        "local_bytes_per_thread": 0,
+        "registers_per_thread": 46,
+        "binary_version": 70,
+        "theoretical_resident_blocks_per_sm": 5,
+        "theoretical_occupancy_fraction": 0.625
+      },
+      {
+        "symbol": "_ZN3vqf9tiled_dotILi4ELi2ELi8EEEvPKaPKfNS_5GroupEiiii",
+        "threads": 256,
+        "dynamic_shared_bytes": 9216,
+        "max_threads_per_block": 256,
+        "static_shared_bytes": 0,
+        "local_bytes_per_thread": 0,
+        "registers_per_thread": 47,
+        "binary_version": 70,
+        "theoretical_resident_blocks_per_sm": 5,
+        "theoretical_occupancy_fraction": 0.625
+      }
+    ],
+    "affected_fused_cases": [
+      {
+        "label": "fused-mlp",
+        "tokens": 3,
+        "median_gpu_event_ms": {
+          "control-aos": 0.13605333699120414,
+          "candidate-pairs": 0.13159467114342582,
+          "ablation-unbounded-pairs": 0.13594667116800943
+        }
+      },
+      {
+        "label": "fused-mlp",
+        "tokens": 4,
+        "median_gpu_event_ms": {
+          "control-aos": 0.14555022451612684,
+          "candidate-pairs": 0.1399715609020657,
+          "ablation-unbounded-pairs": 0.1459946632385254
+        }
+      },
+      {
+        "label": "fused-gdn",
+        "tokens": 3,
+        "median_gpu_event_ms": {
+          "control-aos": 0.07440711392296685,
+          "candidate-pairs": 0.06992355320188734,
+          "ablation-unbounded-pairs": 0.07311289178000556
+        }
+      },
+      {
+        "label": "fused-gdn",
+        "tokens": 4,
+        "median_gpu_event_ms": {
+          "control-aos": 0.08015644550323486,
+          "candidate-pairs": 0.07440711392296685,
+          "ablation-unbounded-pairs": 0.07846044169531928
+        }
+      },
+      {
+        "label": "fused-attention",
+        "tokens": 3,
+        "median_gpu_event_ms": {
+          "control-aos": 0.06349866920047337,
+          "candidate-pairs": 0.06527644395828247,
+          "ablation-unbounded-pairs": 0.0633208884133233
+        }
+      },
+      {
+        "label": "fused-attention",
+        "tokens": 4,
+        "median_gpu_event_ms": {
+          "control-aos": 0.06829510794745551,
+          "candidate-pairs": 0.06823822524812487,
+          "ablation-unbounded-pairs": 0.06797866688834296
+        }
+      }
+    ]
+  },
+  "aos-five-study-v5": {
+    "arm": "candidate-aos-five",
+    "library": "/home/data/wangyue/artifacts/venturi-activation-words-aos-five-study-v5/build/a4390cf2c9935d6c/libventuri_blocks.so",
+    "source": "736abd8bb93d553cbce3af1aacd44c73ce6a6ac79a355ff63b84b16562997d71",
+    "median_fused_t3_ratio": 1.0234918234540176,
+    "minimum_unchanged_t8_ratio": 0.9969606226305853,
+    "promoted": true,
+    "target_resources": [
+      {
+        "symbol": "_ZN3vdt3dotILi4ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+        "threads": 256,
+        "dynamic_shared_bytes": 9216,
+        "max_threads_per_block": 256,
+        "static_shared_bytes": 0,
+        "local_bytes_per_thread": 0,
+        "registers_per_thread": 48,
+        "binary_version": 70,
+        "theoretical_resident_blocks_per_sm": 5,
+        "theoretical_occupancy_fraction": 0.625
+      },
+      {
+        "symbol": "_ZN3vqf9tiled_dotILi4ELi2ELi8EEEvPKaPKfNS_5GroupEiiii",
+        "threads": 256,
+        "dynamic_shared_bytes": 9216,
+        "max_threads_per_block": 256,
+        "static_shared_bytes": 0,
+        "local_bytes_per_thread": 0,
+        "registers_per_thread": 47,
+        "binary_version": 70,
+        "theoretical_resident_blocks_per_sm": 5,
+        "theoretical_occupancy_fraction": 0.625
+      }
+    ],
+    "affected_fused_cases": [
+      {
+        "label": "fused-mlp",
+        "tokens": 3,
+        "median_gpu_event_ms": {
+          "control-aos": 0.13554488288031685,
+          "candidate-aos-five": 0.13243377208709717,
+          "ablation-unbounded-pairs": 0.13549510637919107,
+          "ablation-bounded-pairs": 0.13179022736019558
+        }
+      },
+      {
+        "label": "fused-mlp",
+        "tokens": 4,
+        "median_gpu_event_ms": {
+          "control-aos": 0.14498844411638048,
+          "candidate-aos-five": 0.14101333088344997,
+          "ablation-unbounded-pairs": 0.14492444197336832,
+          "ablation-bounded-pairs": 0.13876622252994114
+        }
+      },
+      {
+        "label": "fused-gdn",
+        "tokens": 3,
+        "median_gpu_event_ms": {
+          "control-aos": 0.07439644469155206,
+          "candidate-aos-five": 0.07031822204589844,
+          "ablation-unbounded-pairs": 0.0733155541949802,
+          "ablation-bounded-pairs": 0.06951466533872816
+        }
+      },
+      {
+        "label": "fused-gdn",
+        "tokens": 4,
+        "median_gpu_event_ms": {
+          "control-aos": 0.07991466919581096,
+          "candidate-aos-five": 0.07595733139250013,
+          "ablation-unbounded-pairs": 0.07838222053315905,
+          "ablation-bounded-pairs": 0.07367110914654201
+        }
+      },
+      {
+        "label": "fused-attention",
+        "tokens": 3,
+        "median_gpu_event_ms": {
+          "control-aos": 0.06321422259012859,
+          "candidate-aos-five": 0.06663822465472752,
+          "ablation-unbounded-pairs": 0.06333155764473809,
+          "ablation-bounded-pairs": 0.0643520024087694
+        }
+      },
+      {
+        "label": "fused-attention",
+        "tokens": 4,
+        "median_gpu_event_ms": {
+          "control-aos": 0.06791822115580241,
+          "candidate-aos-five": 0.07129600312974718,
+          "ablation-unbounded-pairs": 0.06801422437032063,
+          "ablation-bounded-pairs": 0.06752355231179132
+        }
+      }
+    ]
+  },
+  "guarded-study-v7": {
+    "arm": "candidate-guarded-pairs",
+    "library": "/home/data/wangyue/artifacts/venturi-activation-words-guarded-study-v7/build/ee056b754b287c15/libventuri_blocks.so",
+    "library_sha256": "f979230ad209b6662e75cb4c2129a2176648d1b24ccf19003599ae320da7b19b",
+    "median_fused_t3_ratio": 1.037596682980875,
+    "minimum_unchanged_t8_ratio": 0.9923409442647656,
+    "operator_gate_passed": true,
+    "affected_fused_cases": [
+      {
+        "label": "fused-mlp",
+        "tokens": 3,
+        "timings": {
+          "control-aos": 0.1360035604900784,
+          "candidate-guarded-pairs": 0.13107555442386204,
+          "ablation-pairs-five": 0.1303466690911187,
+          "ablation-aos-five": 0.13257955180274117
+        }
+      },
+      {
+        "label": "fused-mlp",
+        "tokens": 4,
+        "timings": {
+          "control-aos": 0.14525511529710558,
+          "candidate-guarded-pairs": 0.13962666193644205,
+          "ablation-pairs-five": 0.1388444503148397,
+          "ablation-aos-five": 0.1409813298119439
+        }
+      },
+      {
+        "label": "fused-gdn",
+        "tokens": 3,
+        "timings": {
+          "control-aos": 0.07451022333568996,
+          "candidate-guarded-pairs": 0.07004800107744005,
+          "ablation-pairs-five": 0.06989866495132446,
+          "ablation-aos-five": 0.0703715549574958
+        }
+      },
+      {
+        "label": "fused-gdn",
+        "tokens": 4,
+        "timings": {
+          "control-aos": 0.07958400249481201,
+          "candidate-guarded-pairs": 0.07449244128333198,
+          "ablation-pairs-five": 0.07454933060540093,
+          "ablation-aos-five": 0.07524622148937649
+        }
+      },
+      {
+        "label": "fused-attention",
+        "tokens": 3,
+        "timings": {
+          "control-aos": 0.06310400035646227,
+          "candidate-guarded-pairs": 0.06352711386150783,
+          "ablation-pairs-five": 0.06438755326800877,
+          "ablation-aos-five": 0.06554666492674086
+        }
+      },
+      {
+        "label": "fused-attention",
+        "tokens": 4,
+        "timings": {
+          "control-aos": 0.06847288873460558,
+          "candidate-guarded-pairs": 0.06782578097449408,
+          "ablation-pairs-five": 0.06763022475772434,
+          "ablation-aos-five": 0.07005155748791164
+        }
+      }
+    ],
+    "target_resources": [
+      {
+        "symbol": "_ZN3vdt3dotILi4ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+        "threads": 256,
+        "dynamic_shared_bytes": 9216,
+        "max_threads_per_block": 256,
+        "static_shared_bytes": 0,
+        "local_bytes_per_thread": 0,
+        "registers_per_thread": 48,
+        "binary_version": 70,
+        "theoretical_resident_blocks_per_sm": 5,
+        "theoretical_occupancy_fraction": 0.625
+      },
+      {
+        "symbol": "_ZN3vqf16paired_tiled_dotILi4ELi2ELi8EEEvPKaPKfNS_5GroupEiiii",
+        "threads": 256,
+        "dynamic_shared_bytes": 9216,
+        "max_threads_per_block": 256,
+        "static_shared_bytes": 0,
+        "local_bytes_per_thread": 0,
+        "registers_per_thread": 47,
+        "binary_version": 70,
+        "theoretical_resident_blocks_per_sm": 5,
+        "theoretical_occupancy_fraction": 0.625
+      },
+      {
+        "symbol": "_ZN3vqf9tiled_dotILi4ELi2ELi8EEEvPKaPKfNS_5GroupEiiii",
+        "threads": 256,
+        "dynamic_shared_bytes": 9216,
+        "max_threads_per_block": 256,
+        "static_shared_bytes": 0,
+        "local_bytes_per_thread": 0,
+        "registers_per_thread": 53,
+        "binary_version": 70,
+        "theoretical_resident_blocks_per_sm": 4,
+        "theoretical_occupancy_fraction": 0.5
+      }
+    ]
+  }
+}

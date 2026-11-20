@@ -1,0 +1,1844 @@
+{
+  "scope": "Matched Q8 projection-only tile ablation using real checkpoint matrices.\n\nAll libraries share the same immutable GPU Q8 planes and activation values.\nEvery candidate must match original output bytes before timing. Graph replay\namortizes Python launch overhead for this microbenchmark only; it does not imply\nwhole-model graph support. CUDA-event intervals include graph/timeline gaps and\nare not hardware-counter bandwidth or full-engine serving measurements.\n",
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "gpu": "Tesla V100-PCIE-32GB",
+  "dtype": "fp16",
+  "libraries": [
+    {
+      "name": "baseline",
+      "library": "/home/data/wangyue/artifacts/venturi-native-batch-v1/build/a4d0656f0f653e0a/libventuri_blocks.so",
+      "sha256": "d0961ff33c9c8635915359f4af23fd2451899387cc282e38e404f4a7807ffeee"
+    },
+    {
+      "name": "naive-t8-b6",
+      "library": "/home/data/wangyue/artifacts/venturi-native-t8-screen-v1/build/47dfffd37198092d/libventuri_blocks.so",
+      "sha256": "1e166c96d561870030e1b001534ad0666f113d316a07ddf939fff8185ef2074b"
+    },
+    {
+      "name": "adaptive-t8-b4",
+      "library": "/home/data/wangyue/artifacts/venturi-native-t8-screen-v1/build/2b62709298a2cecd/libventuri_blocks.so",
+      "sha256": "ab9cfdd1a0933812c343b61756c11a9d9de3fe18601154a52f45df61dd48dd34"
+    }
+  ],
+  "graph_nodes": 5,
+  "graph_replays_per_wave": 5,
+  "warmup_replays": 3,
+  "decode_only": false,
+  "verification_pairs": false,
+  "explicit_token_counts": [
+    8,
+    32
+  ],
+  "hardware_counters_available": false,
+  "cases": [
+    {
+      "shape": [
+        248320,
+        5120
+      ],
+      "role": "text/output_head",
+      "occurrences": 2,
+      "tokens": 8,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 11.074068603515625,
+          "wall_seconds": 0.27697102102683857,
+          "process_cpu_seconds": 0.27718100000000057
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 14.003651123046875,
+          "wall_seconds": 0.35019279998959973,
+          "process_cpu_seconds": 0.35035300000000014
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 14.072626953125,
+          "wall_seconds": 0.3519103060243651,
+          "process_cpu_seconds": 0.3521699999999992
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 14.07930419921875,
+          "wall_seconds": 0.35207143699517474,
+          "process_cpu_seconds": 0.35228400000000093
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 13.585489501953125,
+          "wall_seconds": 0.3400621539913118,
+          "process_cpu_seconds": 0.34018199999999865
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 11.083775634765624,
+          "wall_seconds": 0.27723949804203585,
+          "process_cpu_seconds": 0.27743699999999905
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 11.13239501953125,
+          "wall_seconds": 0.27839190198574215,
+          "process_cpu_seconds": 0.27863800000000083
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 13.85865234375,
+          "wall_seconds": 0.3466423120116815,
+          "process_cpu_seconds": 0.3469949999999997
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 14.0735693359375,
+          "wall_seconds": 0.35197835898725316,
+          "process_cpu_seconds": 0.3521959999999993
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 14.071112060546875,
+          "wall_seconds": 0.35186772601446137,
+          "process_cpu_seconds": 0.35208800000000195
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 13.58319580078125,
+          "wall_seconds": 0.33967082703020424,
+          "process_cpu_seconds": 0.3398569999999985
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 11.100283203125,
+          "wall_seconds": 0.2778072859509848,
+          "process_cpu_seconds": 0.2780079999999998
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 11.092029418945312,
+        "naive-t8-b6": 13.722070922851563,
+        "adaptive-t8-b4": 14.07309814453125
+      }
+    },
+    {
+      "shape": [
+        248320,
+        5120
+      ],
+      "role": "text/output_head",
+      "occurrences": 2,
+      "tokens": 32,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 44.714189453125,
+          "wall_seconds": 1.1179652550490573,
+          "process_cpu_seconds": 1.1185650000000003
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 54.7237890625,
+          "wall_seconds": 1.3681835280149244,
+          "process_cpu_seconds": 1.3688959999999994
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 56.2315283203125,
+          "wall_seconds": 1.4058829650166444,
+          "process_cpu_seconds": 1.4064469999999965
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 56.2606494140625,
+          "wall_seconds": 1.4066058910102583,
+          "process_cpu_seconds": 1.4071379999999998
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 54.28236328125,
+          "wall_seconds": 1.3572496459819376,
+          "process_cpu_seconds": 1.3579599999999985
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 44.739462890625,
+          "wall_seconds": 1.1186091129784472,
+          "process_cpu_seconds": 1.1189680000000024
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 44.74392578125,
+          "wall_seconds": 1.1186878610169515,
+          "process_cpu_seconds": 1.118932000000001
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 54.5582275390625,
+          "wall_seconds": 1.3642237830208614,
+          "process_cpu_seconds": 1.3648910000000036
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 56.2353759765625,
+          "wall_seconds": 1.4060114970197901,
+          "process_cpu_seconds": 1.4066549999999935
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 56.2646240234375,
+          "wall_seconds": 1.4067019040230662,
+          "process_cpu_seconds": 1.4073399999999978
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 54.27810546875,
+          "wall_seconds": 1.3570393419940956,
+          "process_cpu_seconds": 1.3578270000000003
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 44.7494970703125,
+          "wall_seconds": 1.118836096022278,
+          "process_cpu_seconds": 1.1193599999999932
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 44.741694335937495,
+        "naive-t8-b6": 54.42029541015625,
+        "adaptive-t8-b4": 56.2480126953125
+      }
+    },
+    {
+      "shape": [
+        17408,
+        5120
+      ],
+      "role": "text/layers/63/mlp/up",
+      "occurrences": 128,
+      "tokens": 8,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.7933952331542968,
+          "wall_seconds": 0.019888685957994312,
+          "process_cpu_seconds": 0.01988399999999757
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.032437744140625,
+          "wall_seconds": 0.025847434997558594,
+          "process_cpu_seconds": 0.025898999999995453
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0642227172851562,
+          "wall_seconds": 0.02666156302439049,
+          "process_cpu_seconds": 0.026662999999999215
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0638540649414063,
+          "wall_seconds": 0.026627674989867955,
+          "process_cpu_seconds": 0.02662899999999979
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0325606536865235,
+          "wall_seconds": 0.025846006989013404,
+          "process_cpu_seconds": 0.025846999999998843
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.7929036712646484,
+          "wall_seconds": 0.01985636301105842,
+          "process_cpu_seconds": 0.019890999999994108
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.7929036712646484,
+          "wall_seconds": 0.01985500898445025,
+          "process_cpu_seconds": 0.019856000000004315
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0180198669433593,
+          "wall_seconds": 0.025488268001936376,
+          "process_cpu_seconds": 0.025490999999995267
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.044684829711914,
+          "wall_seconds": 0.02615433605387807,
+          "process_cpu_seconds": 0.02615600000000029
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0446028900146485,
+          "wall_seconds": 0.026150510006118566,
+          "process_cpu_seconds": 0.02615199999999618
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0117529296875,
+          "wall_seconds": 0.025327455019578338,
+          "process_cpu_seconds": 0.02535800000000421
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.7779532623291016,
+          "wall_seconds": 0.019477842026390135,
+          "process_cpu_seconds": 0.019478999999996915
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.7929036712646484,
+        "naive-t8-b6": 1.025228805541992,
+        "adaptive-t8-b4": 1.0542694473266603
+      }
+    },
+    {
+      "shape": [
+        17408,
+        5120
+      ],
+      "role": "text/layers/63/mlp/up",
+      "occurrences": 128,
+      "tokens": 32,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.10181884765625,
+          "wall_seconds": 0.07761169999139383,
+          "process_cpu_seconds": 0.07765899999999704
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.088709106445313,
+          "wall_seconds": 0.10226827900623903,
+          "process_cpu_seconds": 0.10211800000000437
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.116480102539063,
+          "wall_seconds": 0.10295586701249704,
+          "process_cpu_seconds": 0.10300200000000359
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.9571456909179688,
+          "wall_seconds": 0.09897806198569015,
+          "process_cpu_seconds": 0.099024
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.8189874267578126,
+          "wall_seconds": 0.09552909201011062,
+          "process_cpu_seconds": 0.09557900000000075
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.0842880249023437,
+          "wall_seconds": 0.07715426798677072,
+          "process_cpu_seconds": 0.07719799999999566
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.1746865844726564,
+          "wall_seconds": 0.07940991799114272,
+          "process_cpu_seconds": 0.0794130000000024
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.118937683105469,
+          "wall_seconds": 0.10302767500979826,
+          "process_cpu_seconds": 0.1030890000000042
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.020879211425782,
+          "wall_seconds": 0.10058659804053605,
+          "process_cpu_seconds": 0.10062200000000132
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.992412109375,
+          "wall_seconds": 0.09985925001092255,
+          "process_cpu_seconds": 0.09992100000000192
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.825008544921875,
+          "wall_seconds": 0.09567467903252691,
+          "process_cpu_seconds": 0.09574899999999786
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.0711398315429688,
+          "wall_seconds": 0.07682633103104308,
+          "process_cpu_seconds": 0.07687899999999814
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 3.0930534362792965,
+        "naive-t8-b6": 3.956858825683594,
+        "adaptive-t8-b4": 4.006645660400391
+      }
+    },
+    {
+      "shape": [
+        5120,
+        17408
+      ],
+      "role": "text/layers/63/mlp/down",
+      "occurrences": 64,
+      "tokens": 8,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.77697021484375,
+          "wall_seconds": 0.019517694017849863,
+          "process_cpu_seconds": 0.019514000000008025
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0620928192138672,
+          "wall_seconds": 0.026602446974720806,
+          "process_cpu_seconds": 0.026664000000003796
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.1372134399414062,
+          "wall_seconds": 0.028492210956756026,
+          "process_cpu_seconds": 0.02848900000000043
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.137418212890625,
+          "wall_seconds": 0.028481033979915082,
+          "process_cpu_seconds": 0.02845800000000054
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0617241668701172,
+          "wall_seconds": 0.026584141014609486,
+          "process_cpu_seconds": 0.026586000000001775
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.7636991882324219,
+          "wall_seconds": 0.019128595013171434,
+          "process_cpu_seconds": 0.019190999999999292
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.7614873504638672,
+          "wall_seconds": 0.019072977011092007,
+          "process_cpu_seconds": 0.01907399999999626
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0789286041259765,
+          "wall_seconds": 0.02702365000732243,
+          "process_cpu_seconds": 0.02702700000000391
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.1657625579833983,
+          "wall_seconds": 0.029202263976912946,
+          "process_cpu_seconds": 0.029205999999994958
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.1658048248291015,
+          "wall_seconds": 0.0291957639856264,
+          "process_cpu_seconds": 0.02926000000000073
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0864230346679689,
+          "wall_seconds": 0.027212267043069005,
+          "process_cpu_seconds": 0.027212999999996157
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.7899136352539062,
+          "wall_seconds": 0.01979470602236688,
+          "process_cpu_seconds": 0.019796999999996956
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.7703347015380859,
+        "naive-t8-b6": 1.0705107116699217,
+        "adaptive-t8-b4": 1.1515903854370118
+      }
+    },
+    {
+      "shape": [
+        5120,
+        17408
+      ],
+      "role": "text/layers/63/mlp/down",
+      "occurrences": 64,
+      "tokens": 32,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.0779815673828126,
+          "wall_seconds": 0.07704172102967277,
+          "process_cpu_seconds": 0.07704000000000377
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.310096740722656,
+          "wall_seconds": 0.1078112330287695,
+          "process_cpu_seconds": 0.10787299999999789
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.320337829589843,
+          "wall_seconds": 0.10809994698502123,
+          "process_cpu_seconds": 0.1081569999999985
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.2693017578125,
+          "wall_seconds": 0.1068321589846164,
+          "process_cpu_seconds": 0.10693899999999701
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.9457177734375,
+          "wall_seconds": 0.09874908701749519,
+          "process_cpu_seconds": 0.09882499999999794
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.0946929931640623,
+          "wall_seconds": 0.07745056704152375,
+          "process_cpu_seconds": 0.07745800000000003
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.245260925292969,
+          "wall_seconds": 0.08122402097797021,
+          "process_cpu_seconds": 0.08129300000000228
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.313333740234375,
+          "wall_seconds": 0.10793913301313296,
+          "process_cpu_seconds": 0.10801599999999922
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.48597900390625,
+          "wall_seconds": 0.11223106499528512,
+          "process_cpu_seconds": 0.11216800000000404
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.228915100097656,
+          "wall_seconds": 0.10579285997664556,
+          "process_cpu_seconds": 0.10583400000000154
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.9608731079101562,
+          "wall_seconds": 0.09908451599767432,
+          "process_cpu_seconds": 0.09913699999999892
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.095881042480469,
+          "wall_seconds": 0.07744591997470707,
+          "process_cpu_seconds": 0.07750400000000468
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 3.0952870178222653,
+        "naive-t8-b6": 4.1354849243164065,
+        "adaptive-t8-b4": 4.294819793701172
+      }
+    },
+    {
+      "shape": [
+        10240,
+        5120
+      ],
+      "role": "text/layers/62/gdn/qkv",
+      "occurrences": 48,
+      "tokens": 8,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.48508926391601564,
+          "wall_seconds": 0.012190009001642466,
+          "process_cpu_seconds": 0.012186999999997283
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.6325862503051758,
+          "wall_seconds": 0.015860262035857886,
+          "process_cpu_seconds": 0.015862999999995964
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.6506086730957031,
+          "wall_seconds": 0.016310545965097845,
+          "process_cpu_seconds": 0.016313000000003797
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.6499942779541016,
+          "wall_seconds": 0.016289708961267024,
+          "process_cpu_seconds": 0.016291000000002498
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.6317670440673828,
+          "wall_seconds": 0.01583149895304814,
+          "process_cpu_seconds": 0.015832000000003177
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.48365566253662107,
+          "wall_seconds": 0.012126579997129738,
+          "process_cpu_seconds": 0.012126999999999555
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.48365440368652346,
+          "wall_seconds": 0.012125856999773532,
+          "process_cpu_seconds": 0.012126999999999555
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.6316454315185547,
+          "wall_seconds": 0.015827362018171698,
+          "process_cpu_seconds": 0.01582899999999654
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.6498303985595704,
+          "wall_seconds": 0.016288687998894602,
+          "process_cpu_seconds": 0.016291000000002498
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.6504857635498047,
+          "wall_seconds": 0.016300791990943253,
+          "process_cpu_seconds": 0.016301999999996042
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.6183731079101562,
+          "wall_seconds": 0.015495040046516806,
+          "process_cpu_seconds": 0.015546000000000504
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.4472422409057617,
+          "wall_seconds": 0.011217153980396688,
+          "process_cpu_seconds": 0.011217999999999506
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.48365503311157226,
+        "naive-t8-b6": 0.6317062377929688,
+        "adaptive-t8-b4": 0.6502400207519532
+      }
+    },
+    {
+      "shape": [
+        10240,
+        5120
+      ],
+      "role": "text/layers/62/gdn/qkv",
+      "occurrences": 48,
+      "tokens": 32,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.7847911071777345,
+          "wall_seconds": 0.04470997303724289,
+          "process_cpu_seconds": 0.04475399999999752
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.3752294921875,
+          "wall_seconds": 0.05943469703197479,
+          "process_cpu_seconds": 0.0594380000000001
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.4414207458496096,
+          "wall_seconds": 0.061081074993126094,
+          "process_cpu_seconds": 0.061145999999993705
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.4330239868164063,
+          "wall_seconds": 0.06087558204308152,
+          "process_cpu_seconds": 0.060878999999999905
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.2825779724121094,
+          "wall_seconds": 0.05711333703948185,
+          "process_cpu_seconds": 0.05717000000000638
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.7755751037597656,
+          "wall_seconds": 0.044431713002268225,
+          "process_cpu_seconds": 0.044432999999997946
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.8551193237304688,
+          "wall_seconds": 0.046432785980869085,
+          "process_cpu_seconds": 0.04649000000000569
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.37559814453125,
+          "wall_seconds": 0.05943432898493484,
+          "process_cpu_seconds": 0.05943699999999552
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.4169267272949218,
+          "wall_seconds": 0.060473490972071886,
+          "process_cpu_seconds": 0.06053500000000156
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.4148377990722656,
+          "wall_seconds": 0.060422434005886316,
+          "process_cpu_seconds": 0.06047699999999878
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.280816650390625,
+          "wall_seconds": 0.057067888032179326,
+          "process_cpu_seconds": 0.05707000000000306
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.7629183959960937,
+          "wall_seconds": 0.04411619302118197,
+          "process_cpu_seconds": 0.04416900000000368
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 1.78018310546875,
+        "naive-t8-b6": 2.3289037322998047,
+        "adaptive-t8-b4": 2.424975357055664
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "role": "text/layers/62/gdn/z",
+      "occurrences": 48,
+      "tokens": 8,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.27205631256103513,
+          "wall_seconds": 0.00686670996947214,
+          "process_cpu_seconds": 0.006861999999998147
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.35151870727539064,
+          "wall_seconds": 0.008827546960674226,
+          "process_cpu_seconds": 0.008828999999998643
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.36401153564453126,
+          "wall_seconds": 0.009137201006524265,
+          "process_cpu_seconds": 0.00913800000000009
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3640524673461914,
+          "wall_seconds": 0.00914385198848322,
+          "process_cpu_seconds": 0.009146000000001209
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.35160064697265625,
+          "wall_seconds": 0.008832805964630097,
+          "process_cpu_seconds": 0.00883400000000023
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.27045888900756837,
+          "wall_seconds": 0.0067979960003867745,
+          "process_cpu_seconds": 0.006850000000000023
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.27025407791137696,
+          "wall_seconds": 0.0067895830143243074,
+          "process_cpu_seconds": 0.006791000000006875
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.35110912322998045,
+          "wall_seconds": 0.008811049978248775,
+          "process_cpu_seconds": 0.008811999999998932
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3639705657958984,
+          "wall_seconds": 0.009133077983278781,
+          "process_cpu_seconds": 0.009134000000003084
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.36392959594726565,
+          "wall_seconds": 0.00913156202295795,
+          "process_cpu_seconds": 0.009132000000001028
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.34963455200195315,
+          "wall_seconds": 0.008782211982179433,
+          "process_cpu_seconds": 0.008783000000001095
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.26906623840332033,
+          "wall_seconds": 0.006758906994946301,
+          "process_cpu_seconds": 0.006759999999999877
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.27035648345947266,
+        "naive-t8-b6": 0.3513139152526855,
+        "adaptive-t8-b4": 0.36399105072021487
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "role": "text/layers/62/gdn/z",
+      "occurrences": 48,
+      "tokens": 32,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0573004913330077,
+          "wall_seconds": 0.0264978029881604,
+          "process_cpu_seconds": 0.026493999999999573
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.4009957885742188,
+          "wall_seconds": 0.03506520501105115,
+          "process_cpu_seconds": 0.03511900000000168
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.4493696594238281,
+          "wall_seconds": 0.036278772982768714,
+          "process_cpu_seconds": 0.03628100000000245
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.4418328857421876,
+          "wall_seconds": 0.03608951496426016,
+          "process_cpu_seconds": 0.036090999999998985
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.3715455627441406,
+          "wall_seconds": 0.03433409600984305,
+          "process_cpu_seconds": 0.03439600000000098
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0586112213134766,
+          "wall_seconds": 0.026517348014749587,
+          "process_cpu_seconds": 0.026515000000003397
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0877747344970703,
+          "wall_seconds": 0.02724983502412215,
+          "process_cpu_seconds": 0.027252000000004273
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.455677490234375,
+          "wall_seconds": 0.03643705800641328,
+          "process_cpu_seconds": 0.03646500000000685
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.4918861389160156,
+          "wall_seconds": 0.0373444440192543,
+          "process_cpu_seconds": 0.03734699999999691
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.4228274536132812,
+          "wall_seconds": 0.035614635969977826,
+          "process_cpu_seconds": 0.03561700000000201
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.371504669189453,
+          "wall_seconds": 0.03432874899590388,
+          "process_cpu_seconds": 0.03437400000000679
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0629119873046875,
+          "wall_seconds": 0.026609697961248457,
+          "process_cpu_seconds": 0.02661200000000008
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 1.0607616043090822,
+        "naive-t8-b6": 1.3862706756591798,
+        "adaptive-t8-b4": 1.4456012725830079
+      }
+    },
+    {
+      "shape": [
+        5120,
+        6144
+      ],
+      "role": "text/layers/63/attention/o",
+      "occurrences": 64,
+      "tokens": 8,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.26619903564453123,
+          "wall_seconds": 0.006707887048833072,
+          "process_cpu_seconds": 0.00670300000000168
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3504947280883789,
+          "wall_seconds": 0.00879723101388663,
+          "process_cpu_seconds": 0.008797999999998751
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3638886260986328,
+          "wall_seconds": 0.009131125989370048,
+          "process_cpu_seconds": 0.009131999999993923
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.36380672454833984,
+          "wall_seconds": 0.009128369041718543,
+          "process_cpu_seconds": 0.009129999999998972
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.35094528198242186,
+          "wall_seconds": 0.00882293697213754,
+          "process_cpu_seconds": 0.008826999999996588
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.26628095626831055,
+          "wall_seconds": 0.0066991670173592865,
+          "process_cpu_seconds": 0.006699999999995043
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.265666561126709,
+          "wall_seconds": 0.006677580007817596,
+          "process_cpu_seconds": 0.00667899999999122
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.35160064697265625,
+          "wall_seconds": 0.008824380987789482,
+          "process_cpu_seconds": 0.008825999999999112
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.364134407043457,
+          "wall_seconds": 0.00913776399102062,
+          "process_cpu_seconds": 0.009193000000010443
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.36409343719482423,
+          "wall_seconds": 0.009136495995335281,
+          "process_cpu_seconds": 0.009137999999992985
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.35147777557373044,
+          "wall_seconds": 0.008840448979754001,
+          "process_cpu_seconds": 0.008842000000001349
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2658304023742676,
+          "wall_seconds": 0.00668352103093639,
+          "process_cpu_seconds": 0.0066849999999973875
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.26601471900939944,
+        "naive-t8-b6": 0.35121152877807615,
+        "adaptive-t8-b4": 0.3639910316467285
+      }
+    },
+    {
+      "shape": [
+        5120,
+        6144
+      ],
+      "role": "text/layers/63/attention/o",
+      "occurrences": 64,
+      "tokens": 32,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0442342376708984,
+          "wall_seconds": 0.026169308985117823,
+          "process_cpu_seconds": 0.026166000000003464
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.390223388671875,
+          "wall_seconds": 0.03479407599661499,
+          "process_cpu_seconds": 0.03479600000000005
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.44068603515625,
+          "wall_seconds": 0.03606530302204192,
+          "process_cpu_seconds": 0.0361119999999957
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.441095733642578,
+          "wall_seconds": 0.036081426020246,
+          "process_cpu_seconds": 0.03608400000000245
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.3707264709472655,
+          "wall_seconds": 0.034308556001633406,
+          "process_cpu_seconds": 0.03437499999999716
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0375577545166015,
+          "wall_seconds": 0.025969887035898864,
+          "process_cpu_seconds": 0.025970000000000937
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0703257751464843,
+          "wall_seconds": 0.026787301991134882,
+          "process_cpu_seconds": 0.026788000000003365
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.4413824462890625,
+          "wall_seconds": 0.036063937994185835,
+          "process_cpu_seconds": 0.03606500000000068
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.4896742248535155,
+          "wall_seconds": 0.03727137896930799,
+          "process_cpu_seconds": 0.03733700000000795
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.4489190673828125,
+          "wall_seconds": 0.036253047990612686,
+          "process_cpu_seconds": 0.036256999999999096
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.3608140563964843,
+          "wall_seconds": 0.03405470197321847,
+          "process_cpu_seconds": 0.03405599999999254
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.0412850952148438,
+          "wall_seconds": 0.026063032040838152,
+          "process_cpu_seconds": 0.02610799999999358
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 1.042759666442871,
+        "naive-t8-b6": 1.3804749298095702,
+        "adaptive-t8-b4": 1.4450074005126954
+      }
+    },
+    {
+      "shape": [
+        12288,
+        5120
+      ],
+      "role": "text/layers/63/attention/q",
+      "occurrences": 16,
+      "tokens": 8,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.5332992172241211,
+          "wall_seconds": 0.013396531983744353,
+          "process_cpu_seconds": 0.01339200000000318
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.690667495727539,
+          "wall_seconds": 0.017306851979810745,
+          "process_cpu_seconds": 0.017354999999994902
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.7156940460205078,
+          "wall_seconds": 0.017933650000486523,
+          "process_cpu_seconds": 0.017936000000005947
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.7153254699707031,
+          "wall_seconds": 0.017920517013408244,
+          "process_cpu_seconds": 0.01792199999999866
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.6904627227783203,
+          "wall_seconds": 0.01729686901671812,
+          "process_cpu_seconds": 0.017297999999996705
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.5324390411376954,
+          "wall_seconds": 0.01335002202540636,
+          "process_cpu_seconds": 0.013351000000000113
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.5387059020996093,
+          "wall_seconds": 0.013505142997018993,
+          "process_cpu_seconds": 0.013505999999999574
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.7056998443603516,
+          "wall_seconds": 0.01767756399931386,
+          "process_cpu_seconds": 0.01767799999999653
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.7295795440673828,
+          "wall_seconds": 0.018273391004186124,
+          "process_cpu_seconds": 0.018336000000005015
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.7191756439208984,
+          "wall_seconds": 0.018014163011685014,
+          "process_cpu_seconds": 0.01801600000000292
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.6943949127197265,
+          "wall_seconds": 0.017394167953170836,
+          "process_cpu_seconds": 0.017394999999993388
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.5337907028198242,
+          "wall_seconds": 0.013377236027736217,
+          "process_cpu_seconds": 0.013378000000002999
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.5335449600219726,
+        "naive-t8-b6": 0.6925312042236328,
+        "adaptive-t8-b4": 0.7174348449707031
+      }
+    },
+    {
+      "shape": [
+        12288,
+        5120
+      ],
+      "role": "text/layers/63/attention/q",
+      "occurrences": 16,
+      "tokens": 32,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.155847625732422,
+          "wall_seconds": 0.05396110098809004,
+          "process_cpu_seconds": 0.053958000000001505
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.8797747802734377,
+          "wall_seconds": 0.07203318399842829,
+          "process_cpu_seconds": 0.07211000000000922
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.9480960083007814,
+          "wall_seconds": 0.07373990904306993,
+          "process_cpu_seconds": 0.07378800000000041
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.826526794433594,
+          "wall_seconds": 0.07070060598198324,
+          "process_cpu_seconds": 0.07074699999999723
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7280587768554687,
+          "wall_seconds": 0.06824073498137295,
+          "process_cpu_seconds": 0.06814800000000076
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.1415525817871095,
+          "wall_seconds": 0.05357422796078026,
+          "process_cpu_seconds": 0.05363600000000446
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.239119415283203,
+          "wall_seconds": 0.05601037305314094,
+          "process_cpu_seconds": 0.05601199999999551
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.911682434082031,
+          "wall_seconds": 0.0728286030353047,
+          "process_cpu_seconds": 0.072886000000004
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.8370123291015625,
+          "wall_seconds": 0.07096872403053567,
+          "process_cpu_seconds": 0.07101300000000066
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.8257485961914064,
+          "wall_seconds": 0.07068441202864051,
+          "process_cpu_seconds": 0.0706869999999995
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.718965759277344,
+          "wall_seconds": 0.06800854403991252,
+          "process_cpu_seconds": 0.06806100000000015
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.144747467041016,
+          "wall_seconds": 0.053654692019335926,
+          "process_cpu_seconds": 0.05369999999999919
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 2.150297546386719,
+        "naive-t8-b6": 2.803916778564453,
+        "adaptive-t8-b4": 2.831769561767578
+      }
+    },
+    {
+      "shape": [
+        1024,
+        5120
+      ],
+      "role": "text/layers/63/attention/v",
+      "occurrences": 32,
+      "tokens": 8,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.04878335952758789,
+          "wall_seconds": 0.0012663949746638536,
+          "process_cpu_seconds": 0.0012620000000040932
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06541312217712403,
+          "wall_seconds": 0.0016645250143483281,
+          "process_cpu_seconds": 0.0016649999999955867
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06496255874633788,
+          "wall_seconds": 0.0016519459895789623,
+          "process_cpu_seconds": 0.001652999999997462
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0642252779006958,
+          "wall_seconds": 0.0016326989862136543,
+          "process_cpu_seconds": 0.0016329999999982192
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06524928092956543,
+          "wall_seconds": 0.0016584040131419897,
+          "process_cpu_seconds": 0.0016589999999965244
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.04837376117706299,
+          "wall_seconds": 0.0012374540092423558,
+          "process_cpu_seconds": 0.0012380000000007385
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.04829184055328369,
+          "wall_seconds": 0.0012331200414337218,
+          "process_cpu_seconds": 0.0012329999999991514
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06496255874633788,
+          "wall_seconds": 0.0016508569824509323,
+          "process_cpu_seconds": 0.0016509999999954061
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06443007946014405,
+          "wall_seconds": 0.0016374380211345851,
+          "process_cpu_seconds": 0.0016379999999998063
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06463488101959229,
+          "wall_seconds": 0.001642732007894665,
+          "process_cpu_seconds": 0.0016430000000013933
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06504447937011719,
+          "wall_seconds": 0.001653974992223084,
+          "process_cpu_seconds": 0.0016540000000020427
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.048209919929504394,
+          "wall_seconds": 0.0012346580042503774,
+          "process_cpu_seconds": 0.0012350000000012074
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.048332800865173345,
+        "naive-t8-b6": 0.06514688014984131,
+        "adaptive-t8-b4": 0.06453248023986817
+      }
+    },
+    {
+      "shape": [
+        1024,
+        5120
+      ],
+      "role": "text/layers/63/attention/v",
+      "occurrences": 32,
+      "tokens": 32,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1763737678527832,
+          "wall_seconds": 0.004458046983927488,
+          "process_cpu_seconds": 0.004453000000005147
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2350284767150879,
+          "wall_seconds": 0.005905585014261305,
+          "process_cpu_seconds": 0.00590599999999597
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23453695297241212,
+          "wall_seconds": 0.00589203299023211,
+          "process_cpu_seconds": 0.00589300000000037
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2343731117248535,
+          "wall_seconds": 0.0058887850027531385,
+          "process_cpu_seconds": 0.005939999999995393
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2346598434448242,
+          "wall_seconds": 0.005895457987207919,
+          "process_cpu_seconds": 0.005895999999999901
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17567743301391603,
+          "wall_seconds": 0.0044197990209795535,
+          "process_cpu_seconds": 0.004421000000000674
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17555456161499022,
+          "wall_seconds": 0.004418199008796364,
+          "process_cpu_seconds": 0.004419000000005724
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23478271484375,
+          "wall_seconds": 0.005897201015613973,
+          "process_cpu_seconds": 0.0058969999999973766
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23433216094970702,
+          "wall_seconds": 0.005886528000701219,
+          "process_cpu_seconds": 0.005887000000001308
+        },
+        {
+          "name": "adaptive-t8-b4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2343731117248535,
+          "wall_seconds": 0.005888659972697496,
+          "process_cpu_seconds": 0.005888999999996258
+        },
+        {
+          "name": "naive-t8-b6",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2346188735961914,
+          "wall_seconds": 0.005892989982385188,
+          "process_cpu_seconds": 0.00589300000000037
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17571840286254883,
+          "wall_seconds": 0.00442057300824672,
+          "process_cpu_seconds": 0.004421000000000674
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.17569791793823242,
+        "naive-t8-b6": 0.2347212791442871,
+        "adaptive-t8-b4": 0.2343731117248535
+      }
+    }
+  ],
+  "completed": true
+}

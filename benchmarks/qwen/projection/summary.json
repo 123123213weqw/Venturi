@@ -1,0 +1,532 @@
+{
+  "decision": "reject scheduling candidate; production kernel and archives unchanged",
+  "device": "NVIDIA GeForce RTX 4090 D, SM89",
+  "candidate": "g8w4s3",
+  "candidate_count_including_original": 12,
+  "order": [
+    "baseline-a",
+    "candidate-a",
+    "candidate-b",
+    "baseline-b"
+  ],
+  "method": {
+    "session": "Each warms single and parallel, then single/parallel/parallel/single measured waves",
+    "prompts": 8,
+    "raw_tokens_per_prompt": 509,
+    "fixed_new_tokens_per_prompt": 64,
+    "context_capacity": 2048,
+    "reserved_slots": 4,
+    "kv_capacity": 8192,
+    "kv_dtype": "bf16",
+    "prefill_chunk": 512,
+    "cuda_graph": true,
+    "cpu_wait": "blocking",
+    "speculation": "none",
+    "prefix_reuse": false,
+    "timing_scope": "Unprofiled client wall; includes prefill/decode, excludes session loading and warmup",
+    "synthetic_benchmark": "Eight distinct weight matrices, 64 public Op calls/graph, 30 warmup graphs, 50 timed graphs",
+    "oracle": "Independent packed decode and naive FP64 fused formula; unchanged A16 criterion (3.3e-3,5.0e-3,6.3e-3); oracle compiled without fast-math/FMA contraction",
+    "numerical_cases": {
+      "seeds": [
+        1401,
+        2903
+      ],
+      "eager_T": [
+        1,
+        2,
+        17,
+        32,
+        512
+      ],
+      "graph_T": [
+        1,
+        2,
+        17
+      ],
+      "checks": [
+        "finite bounded normwise/pointwise error",
+        "output/weight/activation guards",
+        "unchanged inputs/weights",
+        "workspace query and execution equality",
+        "positive and negative inputs under graph replay"
+      ]
+    }
+  },
+  "full_model": {
+    "single": {
+      "baseline": {
+        "client_wall_seconds": 44.314192568010185,
+        "output_tokens": 2048,
+        "native_cpu_seconds": 0.9400000000000004,
+        "python_cpu_seconds": 0.006012000000001905,
+        "median_first_token_seconds": 0.25856006249999997,
+        "run_total_tokens_per_second": [
+          46.292049459509606,
+          46.13908783458352
+        ],
+        "output_tokens_per_second": 46.21544208115446,
+        "native_cpu_percent": 2.1212165798967386,
+        "median_63_token_decode_seconds": 1.1225710210000002,
+        "gpu_telemetry": {
+          "utilization.gpu": {
+            "sample_weighted_mean": 98.69458128078817,
+            "minimum": 98.0,
+            "maximum": 100.0,
+            "samples": 203
+          },
+          "utilization.memory": {
+            "sample_weighted_mean": 84.92610837438424,
+            "minimum": 19.0,
+            "maximum": 100.0,
+            "samples": 203
+          },
+          "memory.used": {
+            "sample_weighted_mean": 16914.0,
+            "minimum": 16914.0,
+            "maximum": 16914.0,
+            "samples": 203
+          },
+          "power.draw": {
+            "sample_weighted_mean": 418.9508866995074,
+            "minimum": 401.09,
+            "maximum": 423.87,
+            "samples": 203
+          },
+          "temperature.gpu": {
+            "sample_weighted_mean": 61.61576354679803,
+            "minimum": 53.0,
+            "maximum": 69.0,
+            "samples": 203
+          },
+          "clocks.sm": {
+            "sample_weighted_mean": 2755.1970443349755,
+            "minimum": 2700.0,
+            "maximum": 2775.0,
+            "samples": 203
+          },
+          "clocks.mem": {
+            "sample_weighted_mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0,
+            "samples": 203
+          }
+        }
+      },
+      "candidate": {
+        "client_wall_seconds": 44.323865290905815,
+        "output_tokens": 2048,
+        "native_cpu_seconds": 0.9500000000000011,
+        "python_cpu_seconds": 0.006078999999998835,
+        "median_first_token_seconds": 0.2597265755,
+        "run_total_tokens_per_second": [
+          46.22709256400079,
+          46.18364099219661
+        ],
+        "output_tokens_per_second": 46.205356562623614,
+        "native_cpu_percent": 2.1433148796138908,
+        "median_63_token_decode_seconds": 1.1223098569999999,
+        "gpu_telemetry": {
+          "utilization.gpu": {
+            "sample_weighted_mean": 98.79411764705883,
+            "minimum": 98.0,
+            "maximum": 100.0,
+            "samples": 204
+          },
+          "utilization.memory": {
+            "sample_weighted_mean": 85.53921568627452,
+            "minimum": 20.0,
+            "maximum": 100.0,
+            "samples": 204
+          },
+          "memory.used": {
+            "sample_weighted_mean": 16914.0,
+            "minimum": 16914.0,
+            "maximum": 16914.0,
+            "samples": 204
+          },
+          "power.draw": {
+            "sample_weighted_mean": 423.0454411764706,
+            "minimum": 412.39,
+            "maximum": 425.11,
+            "samples": 204
+          },
+          "temperature.gpu": {
+            "sample_weighted_mean": 63.43627450980392,
+            "minimum": 59.0,
+            "maximum": 67.0,
+            "samples": 204
+          },
+          "clocks.sm": {
+            "sample_weighted_mean": 2735.073529411765,
+            "minimum": 2700.0,
+            "maximum": 2760.0,
+            "samples": 204
+          },
+          "clocks.mem": {
+            "sample_weighted_mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0,
+            "samples": 204
+          }
+        }
+      },
+      "observed_total_tps_change_percent": -0.02182283253535644
+    },
+    "parallel": {
+      "baseline": {
+        "client_wall_seconds": 17.855522321013268,
+        "output_tokens": 2048,
+        "native_cpu_seconds": 0.5499999999999989,
+        "python_cpu_seconds": 0.00584499999999899,
+        "median_first_token_seconds": 1.7745572085,
+        "run_total_tokens_per_second": [
+          115.02070381049218,
+          114.37791508869867
+        ],
+        "output_tokens_per_second": 114.6984088832737,
+        "native_cpu_percent": 3.080279535439473,
+        "gpu_telemetry": {
+          "utilization.gpu": {
+            "sample_weighted_mean": 99.1029411764706,
+            "minimum": 98.0,
+            "maximum": 100.0,
+            "samples": 68
+          },
+          "utilization.memory": {
+            "sample_weighted_mean": 62.64705882352941,
+            "minimum": 19.0,
+            "maximum": 100.0,
+            "samples": 68
+          },
+          "memory.used": {
+            "sample_weighted_mean": 16914.0,
+            "minimum": 16914.0,
+            "maximum": 16914.0,
+            "samples": 68
+          },
+          "power.draw": {
+            "sample_weighted_mean": 406.4482352941176,
+            "minimum": 381.38,
+            "maximum": 419.91,
+            "samples": 68
+          },
+          "temperature.gpu": {
+            "sample_weighted_mean": 61.294117647058826,
+            "minimum": 54.0,
+            "maximum": 69.0,
+            "samples": 68
+          },
+          "clocks.sm": {
+            "sample_weighted_mean": 2754.705882352941,
+            "minimum": 2700.0,
+            "maximum": 2775.0,
+            "samples": 68
+          },
+          "clocks.mem": {
+            "sample_weighted_mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0,
+            "samples": 68
+          }
+        }
+      },
+      "candidate": {
+        "client_wall_seconds": 17.869411394989584,
+        "output_tokens": 2048,
+        "native_cpu_seconds": 0.5299999999999994,
+        "python_cpu_seconds": 0.0058829999999998606,
+        "median_first_token_seconds": 1.77699154,
+        "run_total_tokens_per_second": [
+          114.5908917124641,
+          114.62763231691527
+        ],
+        "output_tokens_per_second": 114.60925907018068,
+        "native_cpu_percent": 2.9659622708591646,
+        "gpu_telemetry": {
+          "utilization.gpu": {
+            "sample_weighted_mean": 99.05882352941177,
+            "minimum": 97.0,
+            "maximum": 100.0,
+            "samples": 68
+          },
+          "utilization.memory": {
+            "sample_weighted_mean": 61.705882352941174,
+            "minimum": 20.0,
+            "maximum": 100.0,
+            "samples": 68
+          },
+          "memory.used": {
+            "sample_weighted_mean": 16914.0,
+            "minimum": 16914.0,
+            "maximum": 16914.0,
+            "samples": 68
+          },
+          "power.draw": {
+            "sample_weighted_mean": 408.1392647058824,
+            "minimum": 389.02,
+            "maximum": 422.47,
+            "samples": 68
+          },
+          "temperature.gpu": {
+            "sample_weighted_mean": 62.98529411764706,
+            "minimum": 59.0,
+            "maximum": 67.0,
+            "samples": 68
+          },
+          "clocks.sm": {
+            "sample_weighted_mean": 2753.6029411764707,
+            "minimum": 2700.0,
+            "maximum": 2760.0,
+            "samples": 68
+          },
+          "clocks.mem": {
+            "sample_weighted_mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0,
+            "samples": 68
+          }
+        }
+      },
+      "observed_total_tps_change_percent": -0.07772541394513999
+    }
+  },
+  "checks": {
+    "single": {
+      "matching_measured_output_rows": 64,
+      "measured_output_rows": 64
+    },
+    "baseline_trace_matches_unprofiled_single": true,
+    "candidate_trace_matches_unprofiled_single": true,
+    "parallel": {
+      "matching_measured_output_rows": 64,
+      "measured_output_rows": 64
+    }
+  },
+  "stream_screening": [
+    {
+      "name": "baseline",
+      "warps": 4,
+      "stages": 3,
+      "activation": "shared",
+      "cache": "ca",
+      "forward_reverse_median_us": [
+        102.986999,
+        103.008002
+      ]
+    },
+    {
+      "name": "w4s2",
+      "warps": 4,
+      "stages": 2,
+      "activation": "shared",
+      "cache": "ca",
+      "forward_reverse_median_us": [
+        102.555998,
+        102.541998
+      ]
+    },
+    {
+      "name": "w8s2",
+      "warps": 8,
+      "stages": 2,
+      "activation": "shared",
+      "cache": "ca",
+      "forward_reverse_median_us": [
+        103.583999,
+        103.598498
+      ]
+    },
+    {
+      "name": "w8s1",
+      "warps": 8,
+      "stages": 1,
+      "activation": "shared",
+      "cache": "ca",
+      "forward_reverse_median_us": [
+        103.100501,
+        103.087999
+      ]
+    },
+    {
+      "name": "w4s3cached",
+      "warps": 4,
+      "stages": 3,
+      "activation": "cached",
+      "cache": "cg",
+      "forward_reverse_median_us": [
+        104.896002,
+        105.056003
+      ]
+    },
+    {
+      "name": "w8s2cached",
+      "warps": 8,
+      "stages": 2,
+      "activation": "cached",
+      "cache": "cg",
+      "forward_reverse_median_us": [
+        105.242997,
+        105.247997
+      ]
+    },
+    {
+      "name": "g8w4s3",
+      "warps": 4,
+      "stages": 3,
+      "activation": "shared",
+      "cache": "ca",
+      "groups": 8,
+      "forward_reverse_median_us": [
+        102.463998,
+        102.463998
+      ]
+    },
+    {
+      "name": "g8w8s3",
+      "warps": 8,
+      "stages": 3,
+      "activation": "shared",
+      "cache": "ca",
+      "groups": 8,
+      "forward_reverse_median_us": [
+        104.447998,
+        104.432002
+      ]
+    },
+    {
+      "name": "g8w8s2",
+      "warps": 8,
+      "stages": 2,
+      "activation": "shared",
+      "cache": "ca",
+      "groups": 8,
+      "forward_reverse_median_us": [
+        103.487998,
+        103.423998
+      ]
+    },
+    {
+      "name": "g8w4s4",
+      "warps": 4,
+      "stages": 4,
+      "activation": "shared",
+      "cache": "ca",
+      "groups": 8,
+      "forward_reverse_median_us": [
+        102.944002,
+        102.944002
+      ]
+    },
+    {
+      "name": "w4s2cg",
+      "warps": 4,
+      "stages": 2,
+      "activation": "shared",
+      "cache": "cg",
+      "groups": 16,
+      "forward_reverse_median_us": [
+        102.527998,
+        102.527998
+      ]
+    },
+    {
+      "name": "w4s3cg",
+      "warps": 4,
+      "stages": 3,
+      "activation": "shared",
+      "cache": "cg",
+      "groups": 16,
+      "forward_reverse_median_us": [
+        103.008002,
+        103.023998
+      ]
+    }
+  ],
+  "profiled_kernel_evidence": {
+    "baseline": {
+      "kernel": {
+        "name": "q4_linear_swiglu_gemv_pair_kernel",
+        "count": 32256,
+        "seconds": 3.426892331,
+        "fraction": 0.38434484597489893,
+        "launch_geometry": [
+          {
+            "threads": 128,
+            "registers_per_thread": 40,
+            "shared_bytes_per_block": 23296,
+            "local_memory_bytes_per_thread": 0,
+            "grid_blocks": 4352,
+            "resource_only_resident_blocks_upper_bound": 4,
+            "resource_only_thread_occupancy_upper_bound": 0.3333333333333333,
+            "count": 32256
+          }
+        ]
+      },
+      "decode_projection_fraction": 0.9427500167814359,
+      "kernel_timeline_coverage_fraction": 0.9038957674076192,
+      "instrumented_not_unprofiled": true
+    },
+    "candidate": {
+      "kernel": {
+        "name": "q4_linear_swiglu_gemv_pair_kernel",
+        "count": 32256,
+        "seconds": 3.414140073,
+        "fraction": 0.38347382824986265,
+        "launch_geometry": [
+          {
+            "threads": 128,
+            "registers_per_thread": 39,
+            "shared_bytes_per_block": 16768,
+            "local_memory_bytes_per_thread": 0,
+            "grid_blocks": 4352,
+            "resource_only_resident_blocks_upper_bound": 6,
+            "resource_only_thread_occupancy_upper_bound": 0.5,
+            "count": 32256
+          }
+        ]
+      },
+      "decode_projection_fraction": 0.9426853631294306,
+      "kernel_timeline_coverage_fraction": 0.9041028708364041,
+      "instrumented_not_unprofiled": true
+    }
+  },
+  "builds": {
+    "production_runner_sha256": "3c7da6aeb337ee374ce912934c9335252e39326cd9cba3e2163696c06d15dfb4",
+    "candidate_runner_sha256": "43b0706b6553182c7f43f29125b01b753621109ca72375b0fbd3fcb4b8594792",
+    "candidate_manifest": "candidates-tiles/builds.json",
+    "runner_manifest": "runner-g8w4s3.build.json",
+    "public_qualification": "qualification/evaluation.json"
+  },
+  "tests": {
+    "local_cpu_suite": "315 passed, 56 skipped",
+    "candidate_real_model_suite": "4 passed, 3 deselected",
+    "public_oracle_exit_codes": {
+      "baseline": 0,
+      "candidate": 0
+    }
+  },
+  "limitations": [
+    "Observed tiny differences do not establish a speedup/regression; clocks and temperatures drifted despite ABBA order.",
+    "Hardware counters denied previously with ERR_NVGPUCTRPERM; current RmProfilingAdminOnly remains 1. No privilege changes or redundant counter campaigns.",
+    "Achieved occupancy, actual DRAM bandwidth, compute throughput, cache hit rate and stalls unavailable.",
+    "NVML telemetry is coarse, whole-device, includes an unrelated desktop process; GPU busy is not achieved SM occupancy and memory busy is not bandwidth percent.",
+    "Profiler timing/interval coverage is perturbed and not a throughput/real-idle headroom claim.",
+    "Theoretical occupancy ceiling increased 33.3% to 50%, not measured achieved occupancy.",
+    "Cold write-flush CSV upstream dram_spec_pct uses another GPU peak and is excluded from conclusions.",
+    "Synthetic timing and limited deterministic generation checks are not broad model-quality or context-length validation."
+  ],
+  "next_target": "Q4 row-split residual/down GEMV; preserve the public contract and independently qualify each change.",
+  "preservation": {
+    "production_runner_unchanged": true,
+    "all_15_external_archives_match_original_build_manifest": true,
+    "desktop_process_left_running": 2662,
+    "no_commit_or_push": true
+  },
+  "raw_evidence_root": "/home/test/wangyue/venturi-work/qwen/projection",
+  "model": {
+    "artifact_uuid": "d3ae5782742a48c8b058196297a7ddff",
+    "prior_verified_checkpoint_sha256": "37cb1507aca20b442a35f4d7833b950e0507767cf766e7140e81fad4faf43d7f",
+    "weights_storage_bytes": 15677913088,
+    "format": "Original mixed Q4/Q8/BF16/FP32 NInfer checkpoint; no repacking or weight conversion"
+  }
+}

@@ -1,0 +1,515 @@
+{
+  "date": "2026-10-16",
+  "device": "RTX 4090 D, SM89, 114 SMs",
+  "decision": "retain 128 threads/block for the experimental vectorized Q4 LinearAdd route; observed differences are too small to establish a meaningful alternative advantage",
+  "scope": "N=5120, K=6144/17408, T=1; not a global block-size setting for the whole engine",
+  "changed_only": "Rows per CTA 2/4/8 and hence threads per CTA 64/128/256. Every output row stays owned by one warp.",
+  "fixed_schedule": {
+    "warps_per_row": 1,
+    "groups_per_warp_tile": 16,
+    "pipeline_stages": 1,
+    "activation_access": "Direct",
+    "lane_mapping": "PackedWord8",
+    "decode_mode": "Fp16Mantissa",
+    "code_transfer": "AsyncVector16",
+    "scale_access": "SharedPair32",
+    "weight_code_cache": "ca",
+    "static_groups_per_row": 0,
+    "launch_bounds_min_blocks": 1
+  },
+  "model_method": {
+    "run_order": [
+      "b128-a",
+      "b64-a",
+      "b256-a",
+      "b256-b",
+      "b64-b",
+      "b128-b"
+    ],
+    "sessions_per_size": 2,
+    "warmup": "Both dispatch modes before measurement in every session",
+    "measured_waves_per_session": [
+      "single",
+      "parallel",
+      "parallel",
+      "single"
+    ],
+    "raw_prompts": 8,
+    "prompt_tokens_each": 509,
+    "new_tokens_each": 64,
+    "ignore_eos": true,
+    "max_context": 2048,
+    "reserved_concurrency": 4,
+    "kv_capacity": 8192,
+    "kv_dtype": "bf16",
+    "prefill_chunk": 512,
+    "cuda_graph": true,
+    "cpu_wait": "blocking",
+    "speculation": "none",
+    "prefix_reuse": false,
+    "total_tps_scope": "Unprofiled client wall including prefill and decode, excluding loading/warmup"
+  },
+  "sizes": {
+    "64": {
+      "rows_per_cta": 2,
+      "microbench": {
+        "6144": {
+          "run_median_us": [
+            19.567501,
+            19.568
+          ],
+          "median_us": 19.567750500000002
+        },
+        "17408": {
+          "run_median_us": [
+            52.223999,
+            52.207999
+          ],
+          "median_us": 52.215999
+        }
+      },
+      "model": {
+        "single": {
+          "output_tokens_per_second": 46.93162480700225,
+          "client_wall_seconds": 43.63795220007887,
+          "output_tokens": 2048,
+          "native_cpu_seconds": 0.96,
+          "native_cpu_percent": 2.1999199128282303,
+          "python_cpu_seconds": 0.00557500000000033,
+          "median_first_token_seconds": 0.2587742655,
+          "session_tps": [
+            46.95437687117352,
+            46.908894781488335
+          ],
+          "gpu": {
+            "utilization.gpu": {
+              "samples": 199,
+              "sample_weighted_mean": 98.71356783919597,
+              "minimum": 98.0,
+              "maximum": 100.0
+            },
+            "utilization.memory": {
+              "samples": 199,
+              "sample_weighted_mean": 84.58793969849246,
+              "minimum": 20.0,
+              "maximum": 100.0
+            },
+            "memory.used": {
+              "samples": 199,
+              "sample_weighted_mean": 16914.0,
+              "minimum": 16914.0,
+              "maximum": 16914.0
+            },
+            "power.draw": {
+              "samples": 199,
+              "sample_weighted_mean": 400.1356783919598,
+              "minimum": 389.05,
+              "maximum": 406.02
+            },
+            "temperature.gpu": {
+              "samples": 199,
+              "sample_weighted_mean": 62.71859296482412,
+              "minimum": 57.0,
+              "maximum": 69.0
+            },
+            "clocks.sm": {
+              "samples": 199,
+              "sample_weighted_mean": 2758.643216080402,
+              "minimum": 2745.0,
+              "maximum": 2760.0
+            },
+            "clocks.mem": {
+              "samples": 199,
+              "sample_weighted_mean": 10251.0,
+              "minimum": 10251.0,
+              "maximum": 10251.0
+            }
+          },
+          "median_63_token_decode_seconds": 1.101757864,
+          "observed_tps_change_vs_128_percent": -0.06136131683373014
+        },
+        "parallel": {
+          "output_tokens_per_second": 114.72771974036583,
+          "client_wall_seconds": 17.850960558047518,
+          "output_tokens": 2048,
+          "native_cpu_seconds": 0.5300000000000002,
+          "native_cpu_percent": 2.9690279034372034,
+          "python_cpu_seconds": 0.005869999999998932,
+          "median_first_token_seconds": 1.773125087,
+          "session_tps": [
+            114.88995909896383,
+            114.56593794120313
+          ],
+          "gpu": {
+            "utilization.gpu": {
+              "samples": 69,
+              "sample_weighted_mean": 99.17391304347827,
+              "minimum": 98.0,
+              "maximum": 100.0
+            },
+            "utilization.memory": {
+              "samples": 69,
+              "sample_weighted_mean": 60.17391304347826,
+              "minimum": 20.0,
+              "maximum": 100.0
+            },
+            "memory.used": {
+              "samples": 69,
+              "sample_weighted_mean": 16914.0,
+              "minimum": 16914.0,
+              "maximum": 16914.0
+            },
+            "power.draw": {
+              "samples": 69,
+              "sample_weighted_mean": 408.2708695652174,
+              "minimum": 390.49,
+              "maximum": 421.49
+            },
+            "temperature.gpu": {
+              "samples": 69,
+              "sample_weighted_mean": 63.42028985507246,
+              "minimum": 58.0,
+              "maximum": 69.0
+            },
+            "clocks.sm": {
+              "samples": 69,
+              "sample_weighted_mean": 2748.695652173913,
+              "minimum": 2685.0,
+              "maximum": 2760.0
+            },
+            "clocks.mem": {
+              "samples": 69,
+              "sample_weighted_mean": 10251.0,
+              "minimum": 10251.0,
+              "maximum": 10251.0
+            }
+          },
+          "observed_tps_change_vs_128_percent": -0.0778567687914622
+        }
+      },
+      "runner_sha256": "8594e93f9b46a2e0b7800dafa557804e6c5d3297825f57d9ebc7e97da956afd3"
+    },
+    "128": {
+      "rows_per_cta": 4,
+      "microbench": {
+        "6144": {
+          "run_median_us": [
+            19.450501,
+            19.723,
+            19.486999
+          ],
+          "median_us": 19.486999
+        },
+        "17408": {
+          "run_median_us": [
+            52.143998,
+            52.271999,
+            52.175999
+          ],
+          "median_us": 52.175999
+        }
+      },
+      "model": {
+        "single": {
+          "output_tokens_per_second": 46.96044035159291,
+          "client_wall_seconds": 43.61117537796963,
+          "output_tokens": 2048,
+          "native_cpu_seconds": 0.96,
+          "native_cpu_percent": 2.2012706414809173,
+          "python_cpu_seconds": 0.006014000000000408,
+          "median_first_token_seconds": 0.25861687450000004,
+          "session_tps": [
+            46.976908314236134,
+            46.9439839307377
+          ],
+          "gpu": {
+            "utilization.gpu": {
+              "samples": 197,
+              "sample_weighted_mean": 98.86802030456853,
+              "minimum": 98.0,
+              "maximum": 100.0
+            },
+            "utilization.memory": {
+              "samples": 197,
+              "sample_weighted_mean": 83.61421319796955,
+              "minimum": 20.0,
+              "maximum": 100.0
+            },
+            "memory.used": {
+              "samples": 197,
+              "sample_weighted_mean": 16914.0,
+              "minimum": 16914.0,
+              "maximum": 16914.0
+            },
+            "power.draw": {
+              "samples": 197,
+              "sample_weighted_mean": 398.64233502538076,
+              "minimum": 385.1,
+              "maximum": 406.54
+            },
+            "temperature.gpu": {
+              "samples": 197,
+              "sample_weighted_mean": 60.90862944162436,
+              "minimum": 52.0,
+              "maximum": 70.0
+            },
+            "clocks.sm": {
+              "samples": 197,
+              "sample_weighted_mean": 2762.284263959391,
+              "minimum": 2745.0,
+              "maximum": 2775.0
+            },
+            "clocks.mem": {
+              "samples": 197,
+              "sample_weighted_mean": 10251.0,
+              "minimum": 10251.0,
+              "maximum": 10251.0
+            }
+          },
+          "median_63_token_decode_seconds": 1.1015119415,
+          "observed_tps_change_vs_128_percent": 0.0
+        },
+        "parallel": {
+          "output_tokens_per_second": 114.81711263428254,
+          "client_wall_seconds": 17.837062376958784,
+          "output_tokens": 2048,
+          "native_cpu_seconds": 0.54,
+          "native_cpu_percent": 3.0274043370367463,
+          "python_cpu_seconds": 0.005881000000000469,
+          "median_first_token_seconds": 1.7730362375,
+          "session_tps": [
+            114.97294303301712,
+            114.6617040781933
+          ],
+          "gpu": {
+            "utilization.gpu": {
+              "samples": 69,
+              "sample_weighted_mean": 98.97101449275362,
+              "minimum": 87.0,
+              "maximum": 100.0
+            },
+            "utilization.memory": {
+              "samples": 69,
+              "sample_weighted_mean": 59.81159420289855,
+              "minimum": 20.0,
+              "maximum": 100.0
+            },
+            "memory.used": {
+              "samples": 69,
+              "sample_weighted_mean": 16914.0,
+              "minimum": 16914.0,
+              "maximum": 16914.0
+            },
+            "power.draw": {
+              "samples": 69,
+              "sample_weighted_mean": 406.68782608695653,
+              "minimum": 386.91,
+              "maximum": 423.66
+            },
+            "temperature.gpu": {
+              "samples": 69,
+              "sample_weighted_mean": 61.31884057971015,
+              "minimum": 54.0,
+              "maximum": 69.0
+            },
+            "clocks.sm": {
+              "samples": 69,
+              "sample_weighted_mean": 2755.6521739130435,
+              "minimum": 2700.0,
+              "maximum": 2760.0
+            },
+            "clocks.mem": {
+              "samples": 69,
+              "sample_weighted_mean": 10251.0,
+              "minimum": 10251.0,
+              "maximum": 10251.0
+            }
+          },
+          "observed_tps_change_vs_128_percent": 0.0
+        }
+      },
+      "runner_sha256": "f381fc6305cf1eb1effc9e50bcbb91f54ae8f692911c6ce16478aa9c0ee6e8ba"
+    },
+    "256": {
+      "rows_per_cta": 8,
+      "microbench": {
+        "6144": {
+          "run_median_us": [
+            19.504,
+            19.504
+          ],
+          "median_us": 19.504
+        },
+        "17408": {
+          "run_median_us": [
+            52.352,
+            52.288
+          ],
+          "median_us": 52.31999999999999
+        }
+      },
+      "model": {
+        "single": {
+          "output_tokens_per_second": 46.86878635540372,
+          "client_wall_seconds": 43.69645897101145,
+          "output_tokens": 2048,
+          "native_cpu_seconds": 0.9300000000000006,
+          "native_cpu_percent": 2.128318911646752,
+          "python_cpu_seconds": 0.005559999999999121,
+          "median_first_token_seconds": 0.258774515,
+          "session_tps": [
+            46.927930145275226,
+            46.809791457028844
+          ],
+          "gpu": {
+            "utilization.gpu": {
+              "samples": 199,
+              "sample_weighted_mean": 98.57788944723617,
+              "minimum": 78.0,
+              "maximum": 100.0
+            },
+            "utilization.memory": {
+              "samples": 199,
+              "sample_weighted_mean": 85.91959798994975,
+              "minimum": 20.0,
+              "maximum": 100.0
+            },
+            "memory.used": {
+              "samples": 199,
+              "sample_weighted_mean": 16914.0,
+              "minimum": 16914.0,
+              "maximum": 16914.0
+            },
+            "power.draw": {
+              "samples": 199,
+              "sample_weighted_mean": 400.97427135678396,
+              "minimum": 390.75,
+              "maximum": 405.0
+            },
+            "temperature.gpu": {
+              "samples": 199,
+              "sample_weighted_mean": 63.88944723618091,
+              "minimum": 61.0,
+              "maximum": 68.0
+            },
+            "clocks.sm": {
+              "samples": 199,
+              "sample_weighted_mean": 2758.8693467336684,
+              "minimum": 2745.0,
+              "maximum": 2760.0
+            },
+            "clocks.mem": {
+              "samples": 199,
+              "sample_weighted_mean": 10251.0,
+              "minimum": 10251.0,
+              "maximum": 10251.0
+            }
+          },
+          "median_63_token_decode_seconds": 1.1039863105000003,
+          "observed_tps_change_vs_128_percent": -0.19517277841301084
+        },
+        "parallel": {
+          "output_tokens_per_second": 114.45522959554032,
+          "client_wall_seconds": 17.89345936605241,
+          "output_tokens": 2048,
+          "native_cpu_seconds": 0.5599999999999996,
+          "native_cpu_percent": 3.129635184253053,
+          "python_cpu_seconds": 0.005703000000001346,
+          "median_first_token_seconds": 1.784080467,
+          "session_tps": [
+            114.70365254638912,
+            114.20788037845824
+          ],
+          "gpu": {
+            "utilization.gpu": {
+              "samples": 69,
+              "sample_weighted_mean": 99.05797101449275,
+              "minimum": 98.0,
+              "maximum": 100.0
+            },
+            "utilization.memory": {
+              "samples": 69,
+              "sample_weighted_mean": 65.8840579710145,
+              "minimum": 19.0,
+              "maximum": 100.0
+            },
+            "memory.used": {
+              "samples": 69,
+              "sample_weighted_mean": 16914.0,
+              "minimum": 16914.0,
+              "maximum": 16914.0
+            },
+            "power.draw": {
+              "samples": 69,
+              "sample_weighted_mean": 408.24652173913046,
+              "minimum": 389.58,
+              "maximum": 422.23
+            },
+            "temperature.gpu": {
+              "samples": 69,
+              "sample_weighted_mean": 64.43478260869566,
+              "minimum": 62.0,
+              "maximum": 68.0
+            },
+            "clocks.sm": {
+              "samples": 69,
+              "sample_weighted_mean": 2749.782608695652,
+              "minimum": 2700.0,
+              "maximum": 2760.0
+            },
+            "clocks.mem": {
+              "samples": 69,
+              "sample_weighted_mean": 10251.0,
+              "minimum": 10251.0,
+              "maximum": 10251.0
+            }
+          },
+          "observed_tps_change_vs_128_percent": -0.31518214527385124
+        }
+      },
+      "runner_sha256": "accfcdc325a7b39a1a9f98e16cebecf45810babecc0eca12da3d34149c7b2cdd"
+    }
+  },
+  "model_output_checks": {
+    "single": {
+      "matching_reference_rows": 96,
+      "measured_rows": 96
+    },
+    "parallel": {
+      "matching_reference_rows": 96,
+      "measured_rows": 96
+    },
+    "reference_matches_prior_vectorized_candidate": true
+  },
+  "diagnostics": "diagnostics.json",
+  "tests": {
+    "independent_fp64_oracle_exit_codes": {
+      "word_r2w1": 0,
+      "word_r4w1": 0,
+      "word_r8w1": 0
+    },
+    "snapshot_cases": "Full 5120 output rows, both K values, seeds 429/431; 40960 bytes per variant",
+    "cpu_suite": "320 passed, 56 skipped; Ruff and diff checks passed",
+    "actual_launch_verification": "Three public-Op Nsight node traces, 7680 target calls each; diagnostic only, not unprofiled TPS",
+    "output_snapshot_bit_identical": true
+  },
+  "preservation": {
+    "production_runner_unchanged": true,
+    "all_15_external_archives_unchanged": true,
+    "no_commit_or_push": true,
+    "prior_non_bit_identity_not_fixed": "The vectorized candidate still differs from the original scalar production route on one of eight previously tested serial prompts. This ablation adds no observed output differences relative to that vectorized candidate."
+  },
+  "limitations": [
+    "Two sessions per size, counterbalanced order, not a formal confidence interval or exhaustive optimum search. Clocks and temperature drifted. Sub-0.2% serial differences do not establish a useful speedup.",
+    "Only this N/K/T domain and the tested short-context Qwen workload. Do not apply the selected block size globally to unrelated GEMM or attention kernels.",
+    "Achieved occupancy, DRAM throughput, compute/cache/stall counters remain unavailable under RmProfilingAdminOnly=1; no privilege changes or redundant counter campaign.",
+    "GPU telemetry is coarse whole-device time sampling including an unrelated desktop process; not achieved SM occupancy, bandwidth percent, or a causal energy result.",
+    "Resource-only residency ceilings are 24/12/6 blocks per SM respectively (100% thread ceilings for all). Finite grid gives another theoretical whole-device ceiling of about 93.6%; neither is measured achieved occupancy.",
+    "Full-model GPU/CPU numbers are unprofiled. Public-Op traces are instrumented and not used as model speed measurements.",
+    "FP64 oracle and exact parity against the vectorized reference do not resolve its earlier greedy divergence from the original production implementation. Production remains unchanged."
+  ],
+  "source_sha256": {
+    "tools/projection/test_rowsplit.py": "d8ae1b770b4ba11c5dad872a39665cdc383b33d021127ae93ea13ed8f6cfd424",
+    "tools/projection/q4_linear_add_snapshot.cpp": "976c432a669a3936013f07d9268d0fa37f534a9a7d50896513b09ab0236ed379"
+  }
+}

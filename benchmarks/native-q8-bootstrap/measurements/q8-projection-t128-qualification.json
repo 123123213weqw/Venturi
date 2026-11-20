@@ -1,0 +1,31 @@
+{
+  "name": "q8-projection-t128",
+  "tokens": 128,
+  "source": "Synthetic Q8 [-127,127]/group-32 FP16 planes, not trained weights",
+  "shape": [
+    17408,
+    5120
+  ],
+  "native_weight_bytes": 94699520,
+  "timing": "Graph replay wrapper. Reference materializes weights as FP32 during preparation, not each call; not another optimized Q8 implementation",
+  "qualification": {
+    "native": {
+      "passed": true,
+      "max_rounded_abs_error": 0.015625,
+      "max_unrounded_abs_error": 0.015624217048070932,
+      "elements": 2228224,
+      "failed_elements": 0,
+      "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 0.0002",
+      "first_failure_indices": []
+    },
+    "torch-reference": {
+      "passed": true,
+      "max_rounded_abs_error": 0.015625,
+      "max_unrounded_abs_error": 0.015624217048070932,
+      "elements": 2228224,
+      "failed_elements": 0,
+      "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 0.0002",
+      "first_failure_indices": []
+    }
+  }
+}

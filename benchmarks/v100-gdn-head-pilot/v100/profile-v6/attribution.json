@@ -1,0 +1,2494 @@
+{
+  "scope": "Separate research GDN timeline attribution; no achieved counters or model TPS.",
+  "achieved_hardware_counters": false,
+  "operators": [
+    {
+      "name": "gdn_0_1x1_row",
+      "host_span_nanoseconds": 9705293,
+      "kernels": 512,
+      "kernel_nanoseconds": 8265449,
+      "activity_span_nanoseconds": 9592699,
+      "activity_union_nanoseconds": 7142382,
+      "gaps_between_this_process_activities_nanoseconds": 2450317,
+      "transfers": {
+        "host_to_device": {
+          "count": 160,
+          "bytes": 1409024,
+          "nanoseconds": 673094
+        },
+        "device_to_host": {
+          "count": 128,
+          "bytes": 1409024,
+          "nanoseconds": 322626
+        }
+      },
+      "kernel_by_name": [
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 3534776
+        },
+        {
+          "name": "void vdq::dot<(int)1, (int)2>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 1817839
+        },
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "count": 32,
+          "nanoseconds": 1050252
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 64,
+          "nanoseconds": 698185
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 467015
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 128,
+          "nanoseconds": 320994
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 32,
+          "nanoseconds": 121890
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 95809
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 32,
+          "nanoseconds": 89504
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 32,
+          "nanoseconds": 69185
+        }
+      ],
+      "per_device_kernel_union_nanoseconds": {
+        "0": 5535937,
+        "1": 2729512
+      },
+      "cross_device_kernel_union_nanoseconds": 6435884,
+      "simultaneous_two_device_kernel_nanoseconds": 1829565,
+      "actual_launch_geometry": [
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 2048,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 72,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1776242
+        },
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 2048,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 72,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1758534
+        },
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "deviceId": 0,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 6144,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 44,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1050252
+        },
+        {
+          "name": "void vdq::dot<(int)1, (int)2>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 640,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 64,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1015054
+        },
+        {
+          "name": "void vdq::dot<(int)1, (int)2>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 640,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 64,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 802785
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 48,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 20,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 64,
+          "nanoseconds": 698185
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 22,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 467015
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 40,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 121890
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 48,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 24,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 95809
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 26,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 89504
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 24,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 84545
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 20,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 83648
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 24,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 77696
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 20,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 75105
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 20,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 17,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 69185
+        }
+      ],
+      "api_duration_sums_not_critical_path": [
+        {
+          "name": "cudaStreamSynchronize_v3020",
+          "count": 4,
+          "nanoseconds": 4619151
+        },
+        {
+          "name": "cudaLaunchKernel_v7000",
+          "count": 512,
+          "nanoseconds": 2183923
+        },
+        {
+          "name": "cudaMemcpyAsync_v3020",
+          "count": 192,
+          "nanoseconds": 838565
+        },
+        {
+          "name": "cudaMemcpy2DAsync_v3020",
+          "count": 96,
+          "nanoseconds": 442868
+        },
+        {
+          "name": "cudaStreamWaitEvent_v3020",
+          "count": 128,
+          "nanoseconds": 400530
+        },
+        {
+          "name": "cudaEventRecord_v3020",
+          "count": 128,
+          "nanoseconds": 110944
+        }
+      ],
+      "d2d": {
+        "count": 0,
+        "bytes": 0
+      }
+    },
+    {
+      "name": "gdn_0_1x1_head",
+      "host_span_nanoseconds": 7117784,
+      "kernels": 736,
+      "kernel_nanoseconds": 9155534,
+      "activity_span_nanoseconds": 7039802,
+      "activity_union_nanoseconds": 5896797,
+      "gaps_between_this_process_activities_nanoseconds": 1143005,
+      "transfers": {
+        "host_to_device": {
+          "count": 64,
+          "bytes": 983040,
+          "nanoseconds": 325859
+        },
+        "device_to_host": {
+          "count": 64,
+          "bytes": 983040,
+          "nanoseconds": 171168
+        }
+      },
+      "kernel_by_name": [
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 3539260
+        },
+        {
+          "name": "void vct::partial<(int)1, (int)4, (bool)0>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 1723789
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 128,
+          "nanoseconds": 1339659
+        },
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "count": 64,
+          "nanoseconds": 1086122
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 452968
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 128,
+          "nanoseconds": 306660
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 64,
+          "nanoseconds": 218561
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 64,
+          "nanoseconds": 186209
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 64,
+          "nanoseconds": 168545
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 32,
+          "nanoseconds": 70753
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "count": 32,
+          "nanoseconds": 63008
+        }
+      ],
+      "per_device_kernel_union_nanoseconds": {
+        "0": 4953187,
+        "1": 4202347
+      },
+      "cross_device_kernel_union_nanoseconds": 5538758,
+      "simultaneous_two_device_kernel_nanoseconds": 3616776,
+      "actual_launch_geometry": [
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 2048,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 72,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1772824
+        },
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 2048,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 72,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1766436
+        },
+        {
+          "name": "void vct::partial<(int)1, (int)4, (bool)0>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1280,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 48,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 864139
+        },
+        {
+          "name": "void vct::partial<(int)1, (int)4, (bool)0>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1280,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 48,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 859650
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 24,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 20,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 64,
+          "nanoseconds": 696905
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 24,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 20,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 64,
+          "nanoseconds": 642754
+        },
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "deviceId": 0,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 3072,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 44,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 577735
+        },
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "deviceId": 1,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 3072,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 44,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 508387
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 22,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 452968
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 20,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 114721
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 20,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 103840
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 26,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 97761
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 24,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 24,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 88545
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 26,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 88448
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 20,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 83296
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 24,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 24,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 80000
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 12,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 77602
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 20,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 76226
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 20,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 17,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 70753
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 12,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 69536
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 20,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 16,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 63008
+        }
+      ],
+      "api_duration_sums_not_critical_path": [
+        {
+          "name": "cudaLaunchKernel_v7000",
+          "count": 736,
+          "nanoseconds": 3031337
+        },
+        {
+          "name": "cudaStreamSynchronize_v3020",
+          "count": 4,
+          "nanoseconds": 2235371
+        },
+        {
+          "name": "cudaMemcpyAsync_v3020",
+          "count": 128,
+          "nanoseconds": 598428
+        },
+        {
+          "name": "cudaStreamWaitEvent_v3020",
+          "count": 64,
+          "nanoseconds": 198673
+        },
+        {
+          "name": "cudaEventRecord_v3020",
+          "count": 64,
+          "nanoseconds": 56517
+        }
+      ],
+      "d2d": {
+        "count": 0,
+        "bytes": 0
+      }
+    },
+    {
+      "name": "gdn_0_1x3_row",
+      "host_span_nanoseconds": 12378207,
+      "kernels": 544,
+      "kernel_nanoseconds": 11044913,
+      "activity_span_nanoseconds": 12269950,
+      "activity_union_nanoseconds": 9790378,
+      "gaps_between_this_process_activities_nanoseconds": 2479572,
+      "transfers": {
+        "host_to_device": {
+          "count": 160,
+          "bytes": 4227072,
+          "nanoseconds": 1067406
+        },
+        "device_to_host": {
+          "count": 128,
+          "bytes": 4227072,
+          "nanoseconds": 484195
+        }
+      },
+      "kernel_by_name": [
+        {
+          "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 4564357
+        },
+        {
+          "name": "void <unnamed>::gdn_prefix<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float, float *, float *, int)",
+          "count": 32,
+          "nanoseconds": 2381757
+        },
+        {
+          "name": "void vdt::dot<(int)4, (int)2, (int)8>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 2021971
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 64,
+          "nanoseconds": 735147
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 441925
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 128,
+          "nanoseconds": 348965
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 32,
+          "nanoseconds": 173088
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 123073
+        },
+        {
+          "name": "void <unnamed>::history_prefix<__half>(const T1 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 32,
+          "nanoseconds": 95360
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 32,
+          "nanoseconds": 88162
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 32,
+          "nanoseconds": 71108
+        }
+      ],
+      "per_device_kernel_union_nanoseconds": {
+        "0": 7769737,
+        "1": 3275176
+      },
+      "cross_device_kernel_union_nanoseconds": 8700697,
+      "simultaneous_two_device_kernel_nanoseconds": 2344216,
+      "actual_launch_geometry": [
+        {
+          "name": "void <unnamed>::gdn_prefix<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float, float *, float *, int)",
+          "deviceId": 0,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 6144,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 47,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 2381757
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1024,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 53,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 9216,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 2363135
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1024,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 53,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 9216,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 2201222
+        },
+        {
+          "name": "void vdt::dot<(int)4, (int)2, (int)8>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 320,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 48,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 9216,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1123985
+        },
+        {
+          "name": "void vdt::dot<(int)4, (int)2, (int)8>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 320,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 48,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 9216,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 897986
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 144,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 20,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 64,
+          "nanoseconds": 735147
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 3,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 22,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 441925
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 40,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 173088
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 144,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 24,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 123073
+        },
+        {
+          "name": "void <unnamed>::history_prefix<__half>(const T1 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 120,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 95360
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 72,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 93508
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 72,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 88704
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 26,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 88162
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 60,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 87264
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 60,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 79489
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 60,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 17,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 71108
+        }
+      ],
+      "api_duration_sums_not_critical_path": [
+        {
+          "name": "cudaStreamSynchronize_v3020",
+          "count": 4,
+          "nanoseconds": 6868692
+        },
+        {
+          "name": "cudaLaunchKernel_v7000",
+          "count": 544,
+          "nanoseconds": 2328079
+        },
+        {
+          "name": "cudaMemcpyAsync_v3020",
+          "count": 192,
+          "nanoseconds": 838637
+        },
+        {
+          "name": "cudaMemcpy2DAsync_v3020",
+          "count": 128,
+          "nanoseconds": 657216
+        },
+        {
+          "name": "cudaStreamWaitEvent_v3020",
+          "count": 128,
+          "nanoseconds": 399212
+        },
+        {
+          "name": "cudaEventRecord_v3020",
+          "count": 128,
+          "nanoseconds": 111107
+        }
+      ],
+      "d2d": {
+        "count": 32,
+        "bytes": 491520
+      }
+    },
+    {
+      "name": "gdn_0_1x3_head",
+      "host_span_nanoseconds": 9029565,
+      "kernels": 800,
+      "kernel_nanoseconds": 12224522,
+      "activity_span_nanoseconds": 8953235,
+      "activity_union_nanoseconds": 7698352,
+      "gaps_between_this_process_activities_nanoseconds": 1254883,
+      "transfers": {
+        "host_to_device": {
+          "count": 64,
+          "bytes": 2949120,
+          "nanoseconds": 567105
+        },
+        "device_to_host": {
+          "count": 64,
+          "bytes": 2949120,
+          "nanoseconds": 293057
+        }
+      },
+      "kernel_by_name": [
+        {
+          "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 4564680
+        },
+        {
+          "name": "void <unnamed>::gdn_prefix<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float, float *, float *, int)",
+          "count": 64,
+          "nanoseconds": 2370580
+        },
+        {
+          "name": "void vct::partial<(int)4, (int)8, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 2174483
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 128,
+          "nanoseconds": 1333324
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 454985
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 64,
+          "nanoseconds": 328227
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 128,
+          "nanoseconds": 314433
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 64,
+          "nanoseconds": 194976
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 64,
+          "nanoseconds": 177600
+        },
+        {
+          "name": "void <unnamed>::history_prefix<__half>(const T1 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 64,
+          "nanoseconds": 167201
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "count": 32,
+          "nanoseconds": 72608
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 32,
+          "nanoseconds": 71425
+        }
+      ],
+      "per_device_kernel_union_nanoseconds": {
+        "0": 6613561,
+        "1": 5610961
+      },
+      "cross_device_kernel_union_nanoseconds": 7067355,
+      "simultaneous_two_device_kernel_nanoseconds": 5157167,
+      "actual_launch_geometry": [
+        {
+          "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1024,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 53,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 9216,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 2347872
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1024,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 53,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 9216,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 2216808
+        },
+        {
+          "name": "void <unnamed>::gdn_prefix<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float, float *, float *, int)",
+          "deviceId": 0,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 3072,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 47,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1261905
+        },
+        {
+          "name": "void <unnamed>::gdn_prefix<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float, float *, float *, int)",
+          "deviceId": 1,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 3072,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 47,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1108675
+        },
+        {
+          "name": "void vct::partial<(int)4, (int)8, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 640,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 44,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 9216,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1103920
+        },
+        {
+          "name": "void vct::partial<(int)4, (int)8, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 640,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 44,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 9216,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1070563
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 72,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 20,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 64,
+          "nanoseconds": 688362
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 72,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 20,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 64,
+          "nanoseconds": 644962
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 3,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 22,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 454985
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 20,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 170274
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 20,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 157953
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 72,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 24,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 102080
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 26,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 93824
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 72,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 24,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 92896
+        },
+        {
+          "name": "void <unnamed>::history_prefix<__half>(const T1 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 60,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 88033
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 60,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 86656
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 26,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 83776
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 60,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 79456
+        },
+        {
+          "name": "void <unnamed>::history_prefix<__half>(const T1 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 60,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 79168
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 36,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 78817
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 60,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 16,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 72608
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 60,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 17,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 71425
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 36,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 69504
+        }
+      ],
+      "api_duration_sums_not_critical_path": [
+        {
+          "name": "cudaStreamSynchronize_v3020",
+          "count": 4,
+          "nanoseconds": 3877789
+        },
+        {
+          "name": "cudaLaunchKernel_v7000",
+          "count": 800,
+          "nanoseconds": 3255498
+        },
+        {
+          "name": "cudaMemcpyAsync_v3020",
+          "count": 128,
+          "nanoseconds": 595835
+        },
+        {
+          "name": "cudaStreamWaitEvent_v3020",
+          "count": 64,
+          "nanoseconds": 202786
+        },
+        {
+          "name": "cudaEventRecord_v3020",
+          "count": 64,
+          "nanoseconds": 58198
+        }
+      ],
+      "d2d": {
+        "count": 0,
+        "bytes": 0
+      }
+    },
+    {
+      "name": "gdn_0_8x1_row",
+      "host_span_nanoseconds": 24493508,
+      "kernels": 1184,
+      "kernel_nanoseconds": 22645913,
+      "activity_span_nanoseconds": 24371897,
+      "activity_union_nanoseconds": 20712089,
+      "gaps_between_this_process_activities_nanoseconds": 3659808,
+      "transfers": {
+        "host_to_device": {
+          "count": 160,
+          "bytes": 11272192,
+          "nanoseconds": 1996623
+        },
+        "device_to_host": {
+          "count": 128,
+          "bytes": 11272192,
+          "nanoseconds": 1020358
+        }
+      },
+      "kernel_by_name": [
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "count": 256,
+          "nanoseconds": 8435982
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 7625123
+        },
+        {
+          "name": "void vdt::dot<(int)8, (int)2, (int)16>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 2952541
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 256,
+          "nanoseconds": 1024810
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 64,
+          "nanoseconds": 833418
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 256,
+          "nanoseconds": 719370
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 455781
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 128,
+          "nanoseconds": 389796
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 128803
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 32,
+          "nanoseconds": 80289
+        }
+      ],
+      "per_device_kernel_union_nanoseconds": {
+        "0": 17476296,
+        "1": 5169617
+      },
+      "cross_device_kernel_union_nanoseconds": 18634460,
+      "simultaneous_two_device_kernel_nanoseconds": 4011453,
+      "actual_launch_geometry": [
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "deviceId": 0,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 6144,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 44,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 256,
+          "nanoseconds": 8435982
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 512,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 512,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 18432,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 4035960
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 512,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 512,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 18432,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 3589163
+        },
+        {
+          "name": "void vdt::dot<(int)8, (int)2, (int)16>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 512,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 160,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 49,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 18432,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1570071
+        },
+        {
+          "name": "void vdt::dot<(int)8, (int)2, (int)16>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 512,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 160,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 49,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 18432,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1382470
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 40,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 256,
+          "nanoseconds": 1024810
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 384,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 20,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 64,
+          "nanoseconds": 833418
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 26,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 256,
+          "nanoseconds": 719370
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 8,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 22,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 455781
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 384,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 24,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 128803
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 192,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 99680
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 192,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 98337
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 160,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 98304
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 160,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 93475
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 160,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 17,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 80289
+        }
+      ],
+      "api_duration_sums_not_critical_path": [
+        {
+          "name": "cudaStreamSynchronize_v3020",
+          "count": 4,
+          "nanoseconds": 15982228
+        },
+        {
+          "name": "cudaLaunchKernel_v7000",
+          "count": 1184,
+          "nanoseconds": 4872065
+        },
+        {
+          "name": "cudaMemcpyAsync_v3020",
+          "count": 192,
+          "nanoseconds": 853401
+        },
+        {
+          "name": "cudaMemcpy2DAsync_v3020",
+          "count": 128,
+          "nanoseconds": 653481
+        },
+        {
+          "name": "cudaStreamWaitEvent_v3020",
+          "count": 128,
+          "nanoseconds": 409608
+        },
+        {
+          "name": "cudaEventRecord_v3020",
+          "count": 128,
+          "nanoseconds": 108886
+        }
+      ],
+      "d2d": {
+        "count": 32,
+        "bytes": 1310720
+      }
+    },
+    {
+      "name": "gdn_0_8x1_head",
+      "host_span_nanoseconds": 17048009,
+      "kernels": 2080,
+      "kernel_nanoseconds": 25118898,
+      "activity_span_nanoseconds": 16952346,
+      "activity_union_nanoseconds": 15536338,
+      "gaps_between_this_process_activities_nanoseconds": 1416008,
+      "transfers": {
+        "host_to_device": {
+          "count": 64,
+          "bytes": 7864320,
+          "nanoseconds": 1226791
+        },
+        "device_to_host": {
+          "count": 64,
+          "bytes": 7864320,
+          "nanoseconds": 727618
+        }
+      },
+      "kernel_by_name": [
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "count": 512,
+          "nanoseconds": 8769808
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 7597950
+        },
+        {
+          "name": "void vct::partial<(int)8, (int)16, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 64,
+          "nanoseconds": 3076886
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 512,
+          "nanoseconds": 1808363
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 128,
+          "nanoseconds": 1424685
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 512,
+          "nanoseconds": 1250444
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 32,
+          "nanoseconds": 455751
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 128,
+          "nanoseconds": 360674
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 64,
+          "nanoseconds": 217249
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 32,
+          "nanoseconds": 78560
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "count": 32,
+          "nanoseconds": 78528
+        }
+      ],
+      "per_device_kernel_union_nanoseconds": {
+        "0": 13494644,
+        "1": 11624254
+      },
+      "cross_device_kernel_union_nanoseconds": 14415944,
+      "simultaneous_two_device_kernel_nanoseconds": 10702954,
+      "actual_launch_geometry": [
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "deviceId": 0,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 3072,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 44,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 256,
+          "nanoseconds": 4637060
+        },
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "deviceId": 1,
+          "blockX": 128,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 3072,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 44,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 256,
+          "nanoseconds": 4132748
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 512,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 512,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 18432,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 3994292
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 512,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 512,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 18432,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 3603658
+        },
+        {
+          "name": "void vct::partial<(int)8, (int)16, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 512,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 320,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 50,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 18432,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1598870
+        },
+        {
+          "name": "void vct::partial<(int)8, (int)16, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 512,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 320,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 50,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 18432,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 1478016
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 20,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 256,
+          "nanoseconds": 950730
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 20,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 56,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 256,
+          "nanoseconds": 857633
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 192,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 20,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 64,
+          "nanoseconds": 742089
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 192,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 20,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 64,
+          "nanoseconds": 682596
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 26,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 256,
+          "nanoseconds": 663465
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 1,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 26,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 256,
+          "nanoseconds": 586979
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 8,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 22,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 455751
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 192,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 24,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 112641
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 192,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 24,
+          "staticSharedMemory": 32,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 104608
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 160,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 97760
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 160,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 92833
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 96,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 89825
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "deviceId": 1,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 96,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 38,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 80256
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 160,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 17,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 78560
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "deviceId": 0,
+          "blockX": 256,
+          "blockY": 1,
+          "blockZ": 1,
+          "gridX": 160,
+          "gridY": 1,
+          "gridZ": 1,
+          "registersPerThread": 16,
+          "staticSharedMemory": 0,
+          "dynamicSharedMemory": 0,
+          "localMemoryPerThread": 0,
+          "count": 32,
+          "nanoseconds": 78528
+        }
+      ],
+      "api_duration_sums_not_critical_path": [
+        {
+          "name": "cudaLaunchKernel_v7000",
+          "count": 2080,
+          "nanoseconds": 8435971
+        },
+        {
+          "name": "cudaStreamSynchronize_v3020",
+          "count": 4,
+          "nanoseconds": 5792647
+        },
+        {
+          "name": "cudaMemcpyAsync_v3020",
+          "count": 128,
+          "nanoseconds": 601940
+        },
+        {
+          "name": "cudaStreamWaitEvent_v3020",
+          "count": 64,
+          "nanoseconds": 207891
+        },
+        {
+          "name": "cudaEventRecord_v3020",
+          "count": 64,
+          "nanoseconds": 58063
+        }
+      ],
+      "d2d": {
+        "count": 0,
+        "bytes": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "architecture": "sm70",
+  "source_sha256": {
+    "blocks.cu": "f2f6fc1a7fc9d87948aa7b77361b4bf32def3a4a6e03a4c931b41052a370a138",
+    "q8_dp4a.cuh": "bb1163e93285cc1f0c45b86497e7e7bfe871f9e19617a176d08ac7b0c8a5c3ed",
+    "q8_fused.cuh": "a87aa1bf6585cab9f1781b722dfdf61eb09104e7ab99545355d86cb05d007eea",
+    "q8_shared.cuh": "3a7f34d565e03b8633db4f2da2093d9f1890af65e624f83e528ba36d1bfb9726",
+    "q8_wmma.cuh": "5bfea6943f04328bf60a0596a7155e45a5e14823d9b827baa34ebc339f4a9662",
+    "qwen_batch.cuh": "cfdfcec6b30ad93471f97249c11046a80a96e1da397a3050c4554c5a120b85e6",
+    "qwen_mtp.cuh": "d394c5c0311b986d15099a75ce01ba3b969f99919b52fd4830c1dfb95a160b45",
+    "qwen_pipeline.cuh": "73b4296184cdbf76c90496f01e1222bbc97307cbeb3a62beb4073096aee575e2",
+    "qwen_runtime.cuh": "ab2de1b608309db049c397ea0356eef5b58437b065117d7aea875eee3da29ed2"
+  },
+  "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Tue_May_27_02:21:03_PDT_2025\nCuda compilation tools, release 12.9, V12.9.86\nBuild cuda_12.9.r12.9/compiler.36037853_0\n",
+  "command": [
+    "/usr/local/cuda/bin/nvcc",
+    "-O3",
+    "-std=c++20",
+    "-lineinfo",
+    "-shared",
+    "--cudart=static",
+    "-Xcompiler=-fPIC",
+    "-gencode=arch=compute_70,code=sm_70",
+    "-gencode=arch=compute_70,code=compute_70",
+    "-DVENTURI_BLOCKS_ARCH=70",
+    "-DVENTURI_Q8_TOKEN_TILE=4",
+    "-DVENTURI_Q8_ROW_TILE=4",
+    "-DVENTURI_Q8_DECODE_MODE=0",
+    "/home/data/wangyue/repos/codex-build/Venturi/t3-projection-src-v2/src/venturi/ops/csrc/blocks.cu",
+    "-lcublas",
+    "-o",
+    "/home/data/wangyue/artifacts/venturi-t3-projection-model-v2/build/ff77cc34731096be/build-_tls21qo/libventuri_blocks.so"
+  ],
+  "library_sha256": "f6ef262cec6e14676496dcac9a4cb9e2aa0cbd7f70f71d4a4338c560a0906894"
+}

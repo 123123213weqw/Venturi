@@ -1,0 +1,3519 @@
+{
+  "scope": "Bounded actual-Q8-plane operator prerequisite, not complete-model TPS/quality.\n\nBoth arms include quantization plus projection on the same resident weights.\nCandidate uses one INT16/F32 activation pass; control uses two residual A8 passes.\nFP16 input, FP16 full outputs or FP32 column down partials; arithmetic differs.\n",
+  "model_dispatch_changed": false,
+  "new_model_tps_measured": false,
+  "full_goal_complete": false,
+  "achieved_occupancy": null,
+  "cases": [
+    {
+      "label": "fused-mlp",
+      "tokens": 1,
+      "shapes": [
+        [
+          8704,
+          5120
+        ],
+        [
+          8704,
+          5120
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 0.9954349012450204,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 114.55222219228745,
+          "trial_gpu_event_us_per_call": [
+            115.22765457630157,
+            114.55222219228745,
+            114.4949346780777
+          ],
+          "mean_wall_us_per_call": 114.8393844232487,
+          "mean_cpu_core_us_per_call": 114.8401692708332,
+          "max_sampled_reference_relative_l2": 0.0001843639715195814,
+          "max_sampled_unquantized_activation_relative_l2": 0.00018772183164331288,
+          "telemetry": {
+            "1": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 79.66666666666667,
+                  "min": 39.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 80.66666666666667,
+                  "min": 42.0,
+                  "max": 100.0
+                },
+                "device_used_mib": {
+                  "mean": 3687.0,
+                  "min": 3687.0,
+                  "max": 3687.0
+                },
+                "power_watts": {
+                  "mean": 173.01,
+                  "min": 159.12,
+                  "max": 180.78
+                },
+                "temperature_c": {
+                  "mean": 34.333333333333336,
+                  "min": 33.0,
+                  "max": 35.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1330.0,
+                  "min": 1230.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.58333333333333,
+                  "min": 36.55,
+                  "max": 36.65
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 115.07756263017654,
+          "trial_gpu_event_us_per_call": [
+            115.69596827030182,
+            115.07756263017654,
+            114.95555937290192
+          ],
+          "mean_wall_us_per_call": 115.31062174678179,
+          "mean_cpu_core_us_per_call": 114.86523437500018,
+          "max_sampled_reference_relative_l2": 0.00019038787883751988,
+          "max_sampled_unquantized_activation_relative_l2": 0.00018715887805064937,
+          "telemetry": {
+            "1": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 79.66666666666667,
+                  "min": 39.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 80.66666666666667,
+                  "min": 42.0,
+                  "max": 100.0
+                },
+                "device_used_mib": {
+                  "mean": 3687.0,
+                  "min": 3687.0,
+                  "max": 3687.0
+                },
+                "power_watts": {
+                  "mean": 171.16,
+                  "min": 158.73,
+                  "max": 179.81
+                },
+                "temperature_c": {
+                  "mean": 34.666666666666664,
+                  "min": 34.0,
+                  "max": 36.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1322.3333333333333,
+                  "min": 1230.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.61666666666667,
+                  "min": 36.55,
+                  "max": 36.65
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "fused-mlp",
+      "tokens": 3,
+      "shapes": [
+        [
+          8704,
+          5120
+        ],
+        [
+          8704,
+          5120
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 0.9938675649329781,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 132.7231228351593,
+          "trial_gpu_event_us_per_call": [
+            132.70355761051178,
+            132.7231228351593,
+            132.83631205558777
+          ],
+          "mean_wall_us_per_call": 132.82699480517599,
+          "mean_cpu_core_us_per_call": 132.9147135416666,
+          "max_sampled_reference_relative_l2": 0.0002495503779262169,
+          "max_sampled_unquantized_activation_relative_l2": 0.0002488289583766458,
+          "telemetry": {
+            "1": {
+              "samples": 4,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 83.0,
+                  "min": 32.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 83.5,
+                  "min": 34.0,
+                  "max": 100.0
+                },
+                "device_used_mib": {
+                  "mean": 3687.0,
+                  "min": 3687.0,
+                  "max": 3687.0
+                },
+                "power_watts": {
+                  "mean": 232.6825,
+                  "min": 229.28,
+                  "max": 234.14
+                },
+                "temperature_c": {
+                  "mean": 38.75,
+                  "min": 37.0,
+                  "max": 40.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 4,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.625,
+                  "min": 36.55,
+                  "max": 36.65
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 133.54206085205078,
+          "trial_gpu_event_us_per_call": [
+            133.58037173748016,
+            133.54206085205078,
+            133.45637917518616
+          ],
+          "mean_wall_us_per_call": 133.60997492857982,
+          "mean_cpu_core_us_per_call": 133.68033854166666,
+          "max_sampled_reference_relative_l2": 0.00024532350529619685,
+          "max_sampled_unquantized_activation_relative_l2": 0.0002489818786065302,
+          "telemetry": {
+            "1": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 77.33333333333333,
+                  "min": 32.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 78.0,
+                  "min": 34.0,
+                  "max": 100.0
+                },
+                "device_used_mib": {
+                  "mean": 3687.0,
+                  "min": 3687.0,
+                  "max": 3687.0
+                },
+                "power_watts": {
+                  "mean": 225.21666666666667,
+                  "min": 223.72,
+                  "max": 227.92
+                },
+                "temperature_c": {
+                  "mean": 38.666666666666664,
+                  "min": 38.0,
+                  "max": 40.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.61666666666667,
+                  "min": 36.55,
+                  "max": 36.65
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "fused-mlp",
+      "tokens": 8,
+      "shapes": [
+        [
+          8704,
+          5120
+        ],
+        [
+          8704,
+          5120
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 1.0158548459196513,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 219.0263718366623,
+          "trial_gpu_event_us_per_call": [
+            220.06918489933014,
+            218.9864069223404,
+            219.0263718366623
+          ],
+          "mean_wall_us_per_call": 219.43471515821025,
+          "mean_cpu_core_us_per_call": 219.56998697916555,
+          "max_sampled_reference_relative_l2": 0.0002016114076338089,
+          "max_sampled_unquantized_activation_relative_l2": 0.00020256172641540732,
+          "telemetry": {
+            "1": {
+              "samples": 6,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 86.33333333333333,
+                  "min": 59.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 58.333333333333336,
+                  "min": 40.0,
+                  "max": 68.0
+                },
+                "device_used_mib": {
+                  "mean": 3687.0,
+                  "min": 3687.0,
+                  "max": 3687.0
+                },
+                "power_watts": {
+                  "mean": 247.01666666666668,
+                  "min": 241.49,
+                  "max": 248.59
+                },
+                "temperature_c": {
+                  "mean": 42.0,
+                  "min": 40.0,
+                  "max": 43.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1377.3333333333333,
+                  "min": 1372.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 6,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.635,
+                  "min": 36.55,
+                  "max": 36.66
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 215.60794115066528,
+          "trial_gpu_event_us_per_call": [
+            216.15752577781677,
+            215.60025215148926,
+            215.60794115066528
+          ],
+          "mean_wall_us_per_call": 215.89205891814345,
+          "mean_cpu_core_us_per_call": 215.98144531250034,
+          "max_sampled_reference_relative_l2": 0.0002023580267547776,
+          "max_sampled_unquantized_activation_relative_l2": 0.00020340859189636593,
+          "telemetry": {
+            "1": {
+              "samples": 6,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 100.0,
+                  "min": 100.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 68.16666666666667,
+                  "min": 68.0,
+                  "max": 69.0
+                },
+                "device_used_mib": {
+                  "mean": 3687.0,
+                  "min": 3687.0,
+                  "max": 3687.0
+                },
+                "power_watts": {
+                  "mean": 239.83166666666668,
+                  "min": 238.81,
+                  "max": 240.66
+                },
+                "temperature_c": {
+                  "mean": 42.166666666666664,
+                  "min": 41.0,
+                  "max": 43.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 6,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.61833333333333,
+                  "min": 36.55,
+                  "max": 36.75
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "fused-gdn",
+      "tokens": 1,
+      "shapes": [
+        [
+          5120,
+          5120
+        ],
+        [
+          3072,
+          5120
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 0.9938299126797573,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 57.4377179145813,
+          "trial_gpu_event_us_per_call": [
+            57.399094104766846,
+            57.456158101558685,
+            57.4377179145813
+          ],
+          "mean_wall_us_per_call": 57.50061524167904,
+          "mean_cpu_core_us_per_call": 57.536458333333485,
+          "max_sampled_reference_relative_l2": 0.00020018400415676888,
+          "max_sampled_unquantized_activation_relative_l2": 0.00019702171192972442,
+          "telemetry": {
+            "1": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 55.0,
+                  "min": 10.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 53.5,
+                  "min": 7.0,
+                  "max": 100.0
+                },
+                "device_used_mib": {
+                  "mean": 3625.0,
+                  "min": 3625.0,
+                  "max": 3625.0
+                },
+                "power_watts": {
+                  "mean": 173.735,
+                  "min": 171.73,
+                  "max": 175.74
+                },
+                "temperature_c": {
+                  "mean": 38.5,
+                  "min": 38.0,
+                  "max": 39.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.614999999999995,
+                  "min": 36.57,
+                  "max": 36.66
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 57.79431387782097,
+          "trial_gpu_event_us_per_call": [
+            57.79922008514404,
+            57.79431387782097,
+            57.779282331466675
+          ],
+          "mean_wall_us_per_call": 57.840869146730256,
+          "mean_cpu_core_us_per_call": 57.87207031249936,
+          "max_sampled_reference_relative_l2": 0.00019663067022976017,
+          "max_sampled_unquantized_activation_relative_l2": 0.00019701995969775003,
+          "telemetry": {
+            "1": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 10.0,
+                  "min": 10.0,
+                  "max": 10.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 7.0,
+                  "min": 7.0,
+                  "max": 7.0
+                },
+                "device_used_mib": {
+                  "mean": 3625.0,
+                  "min": 3625.0,
+                  "max": 3625.0
+                },
+                "power_watts": {
+                  "mean": 174.48,
+                  "min": 174.48,
+                  "max": 174.48
+                },
+                "temperature_c": {
+                  "mean": 39.0,
+                  "min": 39.0,
+                  "max": 39.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.66,
+                  "min": 36.66,
+                  "max": 36.66
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "fused-gdn",
+      "tokens": 3,
+      "shapes": [
+        [
+          5120,
+          5120
+        ],
+        [
+          3072,
+          5120
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 1.008538167280697,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 71.32624834775925,
+          "trial_gpu_event_us_per_call": [
+            71.32624834775925,
+            71.38250023126602,
+            71.30878418684006
+          ],
+          "mean_wall_us_per_call": 71.38742576747366,
+          "mean_cpu_core_us_per_call": 71.33886718750013,
+          "max_sampled_reference_relative_l2": 0.000209362472096467,
+          "max_sampled_unquantized_activation_relative_l2": 0.00020936165841373746,
+          "telemetry": {
+            "1": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 99.0,
+                  "min": 99.0,
+                  "max": 99.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 96.0,
+                  "min": 94.0,
+                  "max": 100.0
+                },
+                "device_used_mib": {
+                  "mean": 3625.0,
+                  "min": 3625.0,
+                  "max": 3625.0
+                },
+                "power_watts": {
+                  "mean": 188.53333333333333,
+                  "min": 145.87,
+                  "max": 212.49
+                },
+                "temperature_c": {
+                  "mean": 39.666666666666664,
+                  "min": 38.0,
+                  "max": 41.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.55,
+                  "min": 36.55,
+                  "max": 36.55
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 70.72240859270096,
+          "trial_gpu_event_us_per_call": [
+            70.80790400505066,
+            70.71865350008011,
+            70.72240859270096
+          ],
+          "mean_wall_us_per_call": 70.79578873951202,
+          "mean_cpu_core_us_per_call": 70.85188802083304,
+          "max_sampled_reference_relative_l2": 0.00020906558135899827,
+          "max_sampled_unquantized_activation_relative_l2": 0.00021097473692722354,
+          "telemetry": {
+            "1": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 64.5,
+                  "min": 29.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 61.0,
+                  "min": 28.0,
+                  "max": 94.0
+                },
+                "device_used_mib": {
+                  "mean": 3625.0,
+                  "min": 3625.0,
+                  "max": 3625.0
+                },
+                "power_watts": {
+                  "mean": 197.425,
+                  "min": 189.26,
+                  "max": 205.59
+                },
+                "temperature_c": {
+                  "mean": 40.5,
+                  "min": 40.0,
+                  "max": 41.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.72666666666667,
+                  "min": 36.66,
+                  "max": 36.76
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "fused-gdn",
+      "tokens": 8,
+      "shapes": [
+        [
+          5120,
+          5120
+        ],
+        [
+          3072,
+          5120
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 1.0212064774834642,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 114.89897221326828,
+          "trial_gpu_event_us_per_call": [
+            114.87090587615967,
+            114.89897221326828,
+            114.93665724992752
+          ],
+          "mean_wall_us_per_call": 114.98101237824206,
+          "mean_cpu_core_us_per_call": 115.00878906250088,
+          "max_sampled_reference_relative_l2": 0.0002084844327076339,
+          "max_sampled_unquantized_activation_relative_l2": 0.00020894890118188447,
+          "telemetry": {
+            "1": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 80.0,
+                  "min": 40.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 53.333333333333336,
+                  "min": 37.0,
+                  "max": 62.0
+                },
+                "device_used_mib": {
+                  "mean": 3625.0,
+                  "min": 3625.0,
+                  "max": 3625.0
+                },
+                "power_watts": {
+                  "mean": 229.19666666666666,
+                  "min": 228.9,
+                  "max": 229.49
+                },
+                "temperature_c": {
+                  "mean": 42.0,
+                  "min": 41.0,
+                  "max": 43.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.556666666666665,
+                  "min": 36.55,
+                  "max": 36.56
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 112.512968480587,
+          "trial_gpu_event_us_per_call": [
+            112.512968480587,
+            112.47249692678452,
+            113.1025031208992
+          ],
+          "mean_wall_us_per_call": 112.75070149470896,
+          "mean_cpu_core_us_per_call": 112.80761718750026,
+          "max_sampled_reference_relative_l2": 0.00020768927425584126,
+          "max_sampled_unquantized_activation_relative_l2": 0.00020910928949031745,
+          "telemetry": {
+            "1": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 92.0,
+                  "min": 88.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 56.333333333333336,
+                  "min": 54.0,
+                  "max": 61.0
+                },
+                "device_used_mib": {
+                  "mean": 3625.0,
+                  "min": 3625.0,
+                  "max": 3625.0
+                },
+                "power_watts": {
+                  "mean": 222.57666666666665,
+                  "min": 222.42,
+                  "max": 222.8
+                },
+                "temperature_c": {
+                  "mean": 42.333333333333336,
+                  "min": 42.0,
+                  "max": 43.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.65333333333333,
+                  "min": 36.55,
+                  "max": 36.76
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "fused-attention",
+      "tokens": 1,
+      "shapes": [
+        [
+          6144,
+          5120
+        ],
+        [
+          512,
+          5120
+        ],
+        [
+          512,
+          5120
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 0.9905660504724756,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 51.93221941590309,
+          "trial_gpu_event_us_per_call": [
+            51.938217133283615,
+            51.92962661385536,
+            51.93221941590309
+          ],
+          "mean_wall_us_per_call": 51.98028808687619,
+          "mean_cpu_core_us_per_call": 51.98697916666712,
+          "max_sampled_reference_relative_l2": 0.0002440620371813634,
+          "max_sampled_unquantized_activation_relative_l2": 0.00024981489718800434,
+          "telemetry": {
+            "1": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 36.0,
+                  "min": 3.0,
+                  "max": 69.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 37.0,
+                  "min": 0.0,
+                  "max": 74.0
+                },
+                "device_used_mib": {
+                  "mean": 3629.0,
+                  "min": 3629.0,
+                  "max": 3629.0
+                },
+                "power_watts": {
+                  "mean": 121.15,
+                  "min": 71.43,
+                  "max": 170.87
+                },
+                "temperature_c": {
+                  "mean": 38.5,
+                  "min": 38.0,
+                  "max": 39.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.58,
+                  "min": 36.58,
+                  "max": 36.58
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 52.426811307668686,
+          "trial_gpu_event_us_per_call": [
+            52.43293568491936,
+            52.426811307668686,
+            52.417781203985214
+          ],
+          "mean_wall_us_per_call": 52.46536913242986,
+          "mean_cpu_core_us_per_call": 52.48242187499974,
+          "max_sampled_reference_relative_l2": 0.0002446593076900946,
+          "max_sampled_unquantized_activation_relative_l2": 0.00024896178677793075,
+          "telemetry": {
+            "1": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 51.0,
+                  "min": 3.0,
+                  "max": 99.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 50.0,
+                  "min": 0.0,
+                  "max": 100.0
+                },
+                "device_used_mib": {
+                  "mean": 3629.0,
+                  "min": 3629.0,
+                  "max": 3629.0
+                },
+                "power_watts": {
+                  "mean": 148.73000000000002,
+                  "min": 128.63,
+                  "max": 168.83
+                },
+                "temperature_c": {
+                  "mean": 39.5,
+                  "min": 39.0,
+                  "max": 40.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.665,
+                  "min": 36.66,
+                  "max": 36.67
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "fused-attention",
+      "tokens": 3,
+      "shapes": [
+        [
+          6144,
+          5120
+        ],
+        [
+          512,
+          5120
+        ],
+        [
+          512,
+          5120
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 0.9982880586993698,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 60.152001678943634,
+          "trial_gpu_event_us_per_call": [
+            60.152001678943634,
+            60.127343982458115,
+            60.153938829898834
+          ],
+          "mean_wall_us_per_call": 60.18997949771195,
+          "mean_cpu_core_us_per_call": 60.239583333333734,
+          "max_sampled_reference_relative_l2": 0.00021148964928989445,
+          "max_sampled_unquantized_activation_relative_l2": 0.00021355968256184216,
+          "telemetry": {
+            "1": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 99.0,
+                  "min": 99.0,
+                  "max": 99.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 97.0,
+                  "min": 97.0,
+                  "max": 97.0
+                },
+                "device_used_mib": {
+                  "mean": 3629.0,
+                  "min": 3629.0,
+                  "max": 3629.0
+                },
+                "power_watts": {
+                  "mean": 216.95499999999998,
+                  "min": 215.24,
+                  "max": 218.67
+                },
+                "temperature_c": {
+                  "mean": 41.0,
+                  "min": 41.0,
+                  "max": 41.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.66,
+                  "min": 36.56,
+                  "max": 36.76
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 60.255154967308044,
+          "trial_gpu_event_us_per_call": [
+            60.28315797448158,
+            60.235437005758286,
+            60.255154967308044
+          ],
+          "mean_wall_us_per_call": 60.29604980994918,
+          "mean_cpu_core_us_per_call": 60.34505208333286,
+          "max_sampled_reference_relative_l2": 0.00021195406641548188,
+          "max_sampled_unquantized_activation_relative_l2": 0.00021349782008384035,
+          "telemetry": {
+            "1": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 26.0,
+                  "min": 26.0,
+                  "max": 26.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 28.0,
+                  "min": 28.0,
+                  "max": 28.0
+                },
+                "device_used_mib": {
+                  "mean": 3629.0,
+                  "min": 3629.0,
+                  "max": 3629.0
+                },
+                "power_watts": {
+                  "mean": 209.96,
+                  "min": 209.96,
+                  "max": 209.96
+                },
+                "temperature_c": {
+                  "mean": 40.0,
+                  "min": 40.0,
+                  "max": 40.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.56,
+                  "min": 36.56,
+                  "max": 36.56
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "fused-attention",
+      "tokens": 8,
+      "shapes": [
+        [
+          6144,
+          5120
+        ],
+        [
+          512,
+          5120
+        ],
+        [
+          512,
+          5120
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 1.0202051364735445,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 99.66109693050385,
+          "trial_gpu_event_us_per_call": [
+            99.67327862977982,
+            99.66109693050385,
+            99.6570959687233
+          ],
+          "mean_wall_us_per_call": 99.70563473871152,
+          "mean_cpu_core_us_per_call": 99.77311197916644,
+          "max_sampled_reference_relative_l2": 0.00020601751899724963,
+          "max_sampled_unquantized_activation_relative_l2": 0.00020725202994941431,
+          "telemetry": {
+            "1": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 100.0,
+                  "min": 100.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 73.66666666666667,
+                  "min": 62.0,
+                  "max": 97.0
+                },
+                "device_used_mib": {
+                  "mean": 3629.0,
+                  "min": 3629.0,
+                  "max": 3629.0
+                },
+                "power_watts": {
+                  "mean": 213.61333333333334,
+                  "min": 174.4,
+                  "max": 233.57
+                },
+                "temperature_c": {
+                  "mean": 41.333333333333336,
+                  "min": 38.0,
+                  "max": 43.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.60333333333333,
+                  "min": 36.57,
+                  "max": 36.66
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 97.68731147050858,
+          "trial_gpu_event_us_per_call": [
+            97.68731147050858,
+            97.74234145879745,
+            97.58387506008148
+          ],
+          "mean_wall_us_per_call": 97.71191601733638,
+          "mean_cpu_core_us_per_call": 97.7779947916683,
+          "max_sampled_reference_relative_l2": 0.00020745144401012857,
+          "max_sampled_unquantized_activation_relative_l2": 0.00020732696666525452,
+          "telemetry": {
+            "1": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 74.66666666666667,
+                  "min": 24.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 47.333333333333336,
+                  "min": 19.0,
+                  "max": 62.0
+                },
+                "device_used_mib": {
+                  "mean": 3629.0,
+                  "min": 3629.0,
+                  "max": 3629.0
+                },
+                "power_watts": {
+                  "mean": 226.16,
+                  "min": 225.37,
+                  "max": 226.65
+                },
+                "temperature_c": {
+                  "mean": 42.333333333333336,
+                  "min": 42.0,
+                  "max": 43.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.63333333333333,
+                  "min": 36.57,
+                  "max": 36.67
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "column-down-fp32",
+      "tokens": 1,
+      "shapes": [
+        [
+          5120,
+          8704
+        ]
+      ],
+      "output_dtype": "torch.float32",
+      "operator_throughput_ratio": 1.0078140100661648,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 64.3705278635025,
+          "trial_gpu_event_us_per_call": [
+            64.3705278635025,
+            64.37140703201294,
+            64.34419006109238
+          ],
+          "mean_wall_us_per_call": 64.4017792978957,
+          "mean_cpu_core_us_per_call": 64.46582031249989,
+          "max_sampled_reference_relative_l2": 1.3027204785204598e-07,
+          "max_sampled_unquantized_activation_relative_l2": 2.1530050181700828e-05,
+          "telemetry": {
+            "1": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 66.0,
+                  "min": 32.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 65.5,
+                  "min": 31.0,
+                  "max": 100.0
+                },
+                "device_used_mib": {
+                  "mean": 3643.0,
+                  "min": 3643.0,
+                  "max": 3643.0
+                },
+                "power_watts": {
+                  "mean": 169.52499999999998,
+                  "min": 169.51,
+                  "max": 169.54
+                },
+                "temperature_c": {
+                  "mean": 40.0,
+                  "min": 40.0,
+                  "max": 40.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.58,
+                  "min": 36.58,
+                  "max": 36.58
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 63.871435821056366,
+          "trial_gpu_event_us_per_call": [
+            63.89659643173218,
+            63.85897099971771,
+            63.871435821056366
+          ],
+          "mean_wall_us_per_call": 63.91223079541911,
+          "mean_cpu_core_us_per_call": 63.92968749999982,
+          "max_sampled_reference_relative_l2": 9.515796319573013e-08,
+          "max_sampled_unquantized_activation_relative_l2": 2.7642141084914927e-05,
+          "telemetry": {
+            "1": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 32.0,
+                  "min": 32.0,
+                  "max": 32.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 31.0,
+                  "min": 31.0,
+                  "max": 31.0
+                },
+                "device_used_mib": {
+                  "mean": 3643.0,
+                  "min": 3643.0,
+                  "max": 3643.0
+                },
+                "power_watts": {
+                  "mean": 169.22,
+                  "min": 169.22,
+                  "max": 169.22
+                },
+                "temperature_c": {
+                  "mean": 39.0,
+                  "min": 39.0,
+                  "max": 39.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.625,
+                  "min": 36.58,
+                  "max": 36.67
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "column-down-fp32",
+      "tokens": 3,
+      "shapes": [
+        [
+          5120,
+          8704
+        ]
+      ],
+      "output_dtype": "torch.float32",
+      "operator_throughput_ratio": 1.0400785701448636,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 76.53506100177765,
+          "trial_gpu_event_us_per_call": [
+            76.53506100177765,
+            76.54618471860886,
+            76.52796804904938
+          ],
+          "mean_wall_us_per_call": 76.57825165097165,
+          "mean_cpu_core_us_per_call": 76.55468749999973,
+          "max_sampled_reference_relative_l2": 1.1086531383828473e-07,
+          "max_sampled_unquantized_activation_relative_l2": 2.0291585074617006e-05,
+          "telemetry": {
+            "1": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 100.0,
+                  "min": 100.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 97.0,
+                  "min": 97.0,
+                  "max": 97.0
+                },
+                "device_used_mib": {
+                  "mean": 3643.0,
+                  "min": 3643.0,
+                  "max": 3643.0
+                },
+                "power_watts": {
+                  "mean": 209.32,
+                  "min": 209.32,
+                  "max": 209.32
+                },
+                "temperature_c": {
+                  "mean": 42.0,
+                  "min": 42.0,
+                  "max": 42.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.68,
+                  "min": 36.68,
+                  "max": 36.68
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 73.58584553003311,
+          "trial_gpu_event_us_per_call": [
+            73.61028343439102,
+            73.56821745634079,
+            73.58584553003311
+          ],
+          "mean_wall_us_per_call": 73.62250615490969,
+          "mean_cpu_core_us_per_call": 73.67350260416642,
+          "max_sampled_reference_relative_l2": 1.0016341668574778e-07,
+          "max_sampled_unquantized_activation_relative_l2": 2.6653118204443426e-05,
+          "telemetry": {
+            "1": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 74.0,
+                  "min": 22.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 71.66666666666667,
+                  "min": 22.0,
+                  "max": 97.0
+                },
+                "device_used_mib": {
+                  "mean": 3643.0,
+                  "min": 3643.0,
+                  "max": 3643.0
+                },
+                "power_watts": {
+                  "mean": 208.83,
+                  "min": 208.31,
+                  "max": 209.19
+                },
+                "temperature_c": {
+                  "mean": 41.333333333333336,
+                  "min": 41.0,
+                  "max": 42.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.57,
+                  "min": 36.57,
+                  "max": 36.57
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "column-down-fp32",
+      "tokens": 8,
+      "shapes": [
+        [
+          5120,
+          8704
+        ]
+      ],
+      "output_dtype": "torch.float32",
+      "operator_throughput_ratio": 1.0117599653748217,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 116.5873110294342,
+          "trial_gpu_event_us_per_call": [
+            116.5873110294342,
+            116.18559062480927,
+            116.5945902466774
+          ],
+          "mean_wall_us_per_call": 116.50964713301921,
+          "mean_cpu_core_us_per_call": 116.4677734375007,
+          "max_sampled_reference_relative_l2": 1.1256307687697012e-07,
+          "max_sampled_unquantized_activation_relative_l2": 2.0323358607995714e-05,
+          "telemetry": {
+            "1": {
+              "samples": 4,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 89.0,
+                  "min": 56.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 63.0,
+                  "min": 54.0,
+                  "max": 66.0
+                },
+                "device_used_mib": {
+                  "mean": 3643.0,
+                  "min": 3643.0,
+                  "max": 3643.0
+                },
+                "power_watts": {
+                  "mean": 233.07,
+                  "min": 228.89,
+                  "max": 235.59
+                },
+                "temperature_c": {
+                  "mean": 43.25,
+                  "min": 41.0,
+                  "max": 44.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 4,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.6175,
+                  "min": 36.56,
+                  "max": 36.67
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 115.2321845293045,
+          "trial_gpu_event_us_per_call": [
+            115.14337360858917,
+            115.2321845293045,
+            115.47025293111801
+          ],
+          "mean_wall_us_per_call": 115.32236004541119,
+          "mean_cpu_core_us_per_call": 115.37044270833417,
+          "max_sampled_reference_relative_l2": 8.876331935767289e-08,
+          "max_sampled_unquantized_activation_relative_l2": 2.278198652148545e-05,
+          "telemetry": {
+            "1": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 81.33333333333333,
+                  "min": 72.0,
+                  "max": 100.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 53.333333333333336,
+                  "min": 47.0,
+                  "max": 66.0
+                },
+                "device_used_mib": {
+                  "mean": 3643.0,
+                  "min": 3643.0,
+                  "max": 3643.0
+                },
+                "power_watts": {
+                  "mean": 227.30666666666667,
+                  "min": 225.33,
+                  "max": 228.54
+                },
+                "temperature_c": {
+                  "mean": 43.333333333333336,
+                  "min": 43.0,
+                  "max": 44.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.596666666666664,
+                  "min": 36.56,
+                  "max": 36.66
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "row-gdn-output",
+      "tokens": 1,
+      "shapes": [
+        [
+          2560,
+          6144
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 1.0620461263537033,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 27.327343821525574,
+          "trial_gpu_event_us_per_call": [
+            27.332156896591187,
+            27.317281812429428,
+            27.327343821525574
+          ],
+          "mean_wall_us_per_call": 27.36470346083782,
+          "mean_cpu_core_us_per_call": 27.402994791666153,
+          "max_sampled_reference_relative_l2": 0.00024466834699996725,
+          "max_sampled_unquantized_activation_relative_l2": 0.00024569790018610113,
+          "telemetry": {
+            "1": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 2.0,
+                  "min": 2.0,
+                  "max": 2.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3595.0,
+                  "min": 3595.0,
+                  "max": 3595.0
+                },
+                "power_watts": {
+                  "mean": 137.65,
+                  "min": 129.97,
+                  "max": 145.33
+                },
+                "temperature_c": {
+                  "mean": 39.5,
+                  "min": 39.0,
+                  "max": 40.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.629999999999995,
+                  "min": 36.58,
+                  "max": 36.68
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 25.73084458708763,
+          "trial_gpu_event_us_per_call": [
+            25.710344314575195,
+            25.73668770492077,
+            25.73084458708763
+          ],
+          "mean_wall_us_per_call": 25.760446305866935,
+          "mean_cpu_core_us_per_call": 25.752604166666185,
+          "max_sampled_reference_relative_l2": 0.00024480704321968975,
+          "max_sampled_unquantized_activation_relative_l2": 0.0002469894253701872,
+          "telemetry": {
+            "1": {
+              "samples": 0,
+              "values": {}
+            },
+            "0": {
+              "samples": 0,
+              "values": {}
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "row-gdn-output",
+      "tokens": 3,
+      "shapes": [
+        [
+          2560,
+          6144
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 0.9958560624096707,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 30.347125604748726,
+          "trial_gpu_event_us_per_call": [
+            30.33631294965744,
+            30.347125604748726,
+            30.355094000697136
+          ],
+          "mean_wall_us_per_call": 30.38476986224244,
+          "mean_cpu_core_us_per_call": 30.419921875001386,
+          "max_sampled_reference_relative_l2": 0.00023304393226652716,
+          "max_sampled_unquantized_activation_relative_l2": 0.0002328014778771131,
+          "telemetry": {
+            "1": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 24.0,
+                  "min": 24.0,
+                  "max": 24.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 20.0,
+                  "min": 20.0,
+                  "max": 20.0
+                },
+                "device_used_mib": {
+                  "mean": 3595.0,
+                  "min": 3595.0,
+                  "max": 3595.0
+                },
+                "power_watts": {
+                  "mean": 190.03,
+                  "min": 190.03,
+                  "max": 190.03
+                },
+                "temperature_c": {
+                  "mean": 41.0,
+                  "min": 41.0,
+                  "max": 41.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.67,
+                  "min": 36.67,
+                  "max": 36.67
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 30.473405495285988,
+          "trial_gpu_event_us_per_call": [
+            30.485186725854874,
+            30.466437339782715,
+            30.473405495285988
+          ],
+          "mean_wall_us_per_call": 30.509046230993892,
+          "mean_cpu_core_us_per_call": 30.496093750001044,
+          "max_sampled_reference_relative_l2": 0.00023456108241051333,
+          "max_sampled_unquantized_activation_relative_l2": 0.00023241868922701495,
+          "telemetry": {
+            "1": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 24.0,
+                  "min": 24.0,
+                  "max": 24.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 20.0,
+                  "min": 20.0,
+                  "max": 20.0
+                },
+                "device_used_mib": {
+                  "mean": 3595.0,
+                  "min": 3595.0,
+                  "max": 3595.0
+                },
+                "power_watts": {
+                  "mean": 181.2,
+                  "min": 181.2,
+                  "max": 181.2
+                },
+                "temperature_c": {
+                  "mean": 40.0,
+                  "min": 40.0,
+                  "max": 40.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.68,
+                  "min": 36.68,
+                  "max": 36.68
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "row-gdn-output",
+      "tokens": 8,
+      "shapes": [
+        [
+          2560,
+          6144
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 1.0392076087047886,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 46.05706408619881,
+          "trial_gpu_event_us_per_call": [
+            46.07503116130829,
+            46.05165496468544,
+            46.05706408619881
+          ],
+          "mean_wall_us_per_call": 46.09974382674409,
+          "mean_cpu_core_us_per_call": 46.125325520832384,
+          "max_sampled_reference_relative_l2": 0.0002325063755346208,
+          "max_sampled_unquantized_activation_relative_l2": 0.0002329419342980398,
+          "telemetry": {
+            "1": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 40.0,
+                  "min": 40.0,
+                  "max": 40.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 24.0,
+                  "min": 24.0,
+                  "max": 24.0
+                },
+                "device_used_mib": {
+                  "mean": 3595.0,
+                  "min": 3595.0,
+                  "max": 3595.0
+                },
+                "power_watts": {
+                  "mean": 218.53,
+                  "min": 218.53,
+                  "max": 218.53
+                },
+                "temperature_c": {
+                  "mean": 42.0,
+                  "min": 42.0,
+                  "max": 42.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.78,
+                  "min": 36.78,
+                  "max": 36.78
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 44.319406151771545,
+          "trial_gpu_event_us_per_call": [
+            44.356219470500946,
+            44.319406151771545,
+            44.318780303001404
+          ],
+          "mean_wall_us_per_call": 44.36413799642954,
+          "mean_cpu_core_us_per_call": 44.36816406250035,
+          "max_sampled_reference_relative_l2": 0.00023036761256516982,
+          "max_sampled_unquantized_activation_relative_l2": 0.0002327475346715386,
+          "telemetry": {
+            "1": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 93.0,
+                  "min": 87.0,
+                  "max": 99.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 66.5,
+                  "min": 60.0,
+                  "max": 73.0
+                },
+                "device_used_mib": {
+                  "mean": 3595.0,
+                  "min": 3595.0,
+                  "max": 3595.0
+                },
+                "power_watts": {
+                  "mean": 214.68,
+                  "min": 212.93,
+                  "max": 216.43
+                },
+                "temperature_c": {
+                  "mean": 42.5,
+                  "min": 42.0,
+                  "max": 43.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.620000000000005,
+                  "min": 36.57,
+                  "max": 36.67
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "row-attention-output",
+      "tokens": 1,
+      "shapes": [
+        [
+          2560,
+          6144
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 1.0610869764882087,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 27.32912451028824,
+          "trial_gpu_event_us_per_call": [
+            27.333812788128853,
+            27.32912451028824,
+            27.315907180309296
+          ],
+          "mean_wall_us_per_call": 27.365046207705745,
+          "mean_cpu_core_us_per_call": 27.379882812500014,
+          "max_sampled_reference_relative_l2": 0.0001844740802964799,
+          "max_sampled_unquantized_activation_relative_l2": 0.00018219942353851247,
+          "telemetry": {
+            "1": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 41.0,
+                  "min": 41.0,
+                  "max": 41.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 37.0,
+                  "min": 37.0,
+                  "max": 37.0
+                },
+                "device_used_mib": {
+                  "mean": 3595.0,
+                  "min": 3595.0,
+                  "max": 3595.0
+                },
+                "power_watts": {
+                  "mean": 154.0,
+                  "min": 154.0,
+                  "max": 154.0
+                },
+                "temperature_c": {
+                  "mean": 40.0,
+                  "min": 40.0,
+                  "max": 40.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.58,
+                  "min": 36.58,
+                  "max": 36.58
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 25.755781680345535,
+          "trial_gpu_event_us_per_call": [
+            25.727344676852226,
+            25.78253112733364,
+            25.755781680345535
+          ],
+          "mean_wall_us_per_call": 25.791434249337424,
+          "mean_cpu_core_us_per_call": 25.78841145833265,
+          "max_sampled_reference_relative_l2": 0.0001778671054961241,
+          "max_sampled_unquantized_activation_relative_l2": 0.00018803391158860253,
+          "telemetry": {
+            "1": {
+              "samples": 0,
+              "values": {}
+            },
+            "0": {
+              "samples": 0,
+              "values": {}
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "row-attention-output",
+      "tokens": 3,
+      "shapes": [
+        [
+          2560,
+          6144
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 0.9973203886917319,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 30.35625070333481,
+          "trial_gpu_event_us_per_call": [
+            30.353780835866928,
+            30.358031392097473,
+            30.35625070333481
+          ],
+          "mean_wall_us_per_call": 30.39581476590077,
+          "mean_cpu_core_us_per_call": 30.419921874999073,
+          "max_sampled_reference_relative_l2": 0.0001858337244758562,
+          "max_sampled_unquantized_activation_relative_l2": 0.00018994189184157745,
+          "telemetry": {
+            "1": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 56.0,
+                  "min": 56.0,
+                  "max": 56.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 52.0,
+                  "min": 52.0,
+                  "max": 52.0
+                },
+                "device_used_mib": {
+                  "mean": 3595.0,
+                  "min": 3595.0,
+                  "max": 3595.0
+                },
+                "power_watts": {
+                  "mean": 185.7,
+                  "min": 177.83,
+                  "max": 193.57
+                },
+                "temperature_c": {
+                  "mean": 40.5,
+                  "min": 40.0,
+                  "max": 41.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.58,
+                  "min": 36.58,
+                  "max": 36.58
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 30.437812209129333,
+          "trial_gpu_event_us_per_call": [
+            30.437812209129333,
+            30.406437814235687,
+            30.447624623775482
+          ],
+          "mean_wall_us_per_call": 30.463675765683245,
+          "mean_cpu_core_us_per_call": 30.449869791666455,
+          "max_sampled_reference_relative_l2": 0.00019014410349088882,
+          "max_sampled_unquantized_activation_relative_l2": 0.00018965485745957934,
+          "telemetry": {
+            "1": {
+              "samples": 0,
+              "values": {}
+            },
+            "0": {
+              "samples": 0,
+              "values": {}
+            }
+          }
+        }
+      ]
+    },
+    {
+      "label": "row-attention-output",
+      "tokens": 8,
+      "shapes": [
+        [
+          2560,
+          6144
+        ]
+      ],
+      "output_dtype": "torch.float16",
+      "operator_throughput_ratio": 1.0377357554913131,
+      "arms": [
+        {
+          "arm": 0,
+          "median_gpu_event_us_per_call": 45.994751155376434,
+          "trial_gpu_event_us_per_call": [
+            46.04112356901169,
+            45.98459228873253,
+            45.994751155376434
+          ],
+          "mean_wall_us_per_call": 46.047669911786215,
+          "mean_cpu_core_us_per_call": 46.039062499999424,
+          "max_sampled_reference_relative_l2": 0.00019182677840772045,
+          "max_sampled_unquantized_activation_relative_l2": 0.00019426509101399078,
+          "telemetry": {
+            "1": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 27.0,
+                  "min": 27.0,
+                  "max": 27.0
+                },
+                "device_used_mib": {
+                  "mean": 3595.0,
+                  "min": 3595.0,
+                  "max": 3595.0
+                },
+                "power_watts": {
+                  "mean": 218.99,
+                  "min": 216.15,
+                  "max": 221.83
+                },
+                "temperature_c": {
+                  "mean": 42.0,
+                  "min": 41.0,
+                  "max": 43.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 2,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.625,
+                  "min": 36.58,
+                  "max": 36.67
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": 1,
+          "median_gpu_event_us_per_call": 44.322218745946884,
+          "trial_gpu_event_us_per_call": [
+            44.322218745946884,
+            44.31181401014328,
+            44.352248311042786
+          ],
+          "mean_wall_us_per_call": 44.36142057784309,
+          "mean_cpu_core_us_per_call": 44.37923177083349,
+          "max_sampled_reference_relative_l2": 0.00019347034950846948,
+          "max_sampled_unquantized_activation_relative_l2": 0.00019386540731376322,
+          "telemetry": {
+            "1": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 96.0,
+                  "min": 96.0,
+                  "max": 96.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 58.0,
+                  "min": 58.0,
+                  "max": 58.0
+                },
+                "device_used_mib": {
+                  "mean": 3595.0,
+                  "min": 3595.0,
+                  "max": 3595.0
+                },
+                "power_watts": {
+                  "mean": 221.32,
+                  "min": 221.32,
+                  "max": 221.32
+                },
+                "temperature_c": {
+                  "mean": 43.0,
+                  "min": 43.0,
+                  "max": 43.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 1,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 0.0,
+                  "min": 0.0,
+                  "max": 0.0
+                },
+                "device_used_mib": {
+                  "mean": 3651.0,
+                  "min": 3651.0,
+                  "max": 3651.0
+                },
+                "power_watts": {
+                  "mean": 36.58,
+                  "min": 36.58,
+                  "max": 36.58
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 33.0,
+                  "max": 33.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1230.0,
+                  "min": 1230.0,
+                  "max": 1230.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "median_fused_operator_ratio": 0.9982880586993698,
+  "minimum_operator_ratio": 0.9905660504724756,
+  "median_fused_gate": 1.05,
+  "minimum_cell_gate": 0.98,
+  "promote_to_model": false,
+  "decision": "Do not integrate: dominant fused median misses predeclared operator gate"
+}

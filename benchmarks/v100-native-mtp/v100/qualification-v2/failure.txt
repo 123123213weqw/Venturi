@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/wzu/codex-build/Venturi/v100-mtp-qualification-v2/worker.py", line 17, in <module>
+    run(cmd,f'mtp-{mode}.log',timeout=900)
+  File "/home/wzu/codex-build/Venturi/v100-mtp-qualification-v2/worker.py", line 6, in run
+    with (out/name).open('w') as f:subprocess.run(cmd,cwd=src,env=env,stdout=f,stderr=subprocess.STDOUT,timeout=timeout,check=True)
+  File "/usr/lib/python3.10/subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/data/wangyue/repos/codex-build/.venvs/b2-v100/bin/python', '-u', 'tools/qualify_qwen_mtp.py', '/home/wzu/codex-build/Venturi/models/qwen3.5-27b-text-q8.ninfer', '--mtp-artifact', '/home/wzu/codex-build/Venturi/models/qwen3.5-27b-mtp-q8.ninfer', '--library', '/home/data/wangyue/repos/codex-build/Venturi/v100-mtp-build/1402b93ce328ef77/libventuri_blocks.so', '--source', '/home/wzu/codex-build/Venturi/models/qwen3.5-27b-bf16', '--cases', '/home/wzu/codex-build/Venturi/venturi-mtp-cases.json', '--mode', 'tp', '--output-directory', '/home/wzu/codex-build/Venturi/v100-mtp-qualification-v2/mtp-tp']' returned non-zero exit status 1.

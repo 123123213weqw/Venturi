@@ -1,0 +1,660 @@
+"""Loopback-only completion adapter for matched benchmarks, not a production server.
+
+Python owns HTTP and admission only; native generate (cohorts) or native step
+(explicit continuous mode) owns model execution. Greedy, no prefix reuse or HTTP
+streaming. Continuous token-availability timings are not HTTP streaming TTFT.
+"""
+
+
+import argparse
+from concurrent.futures import Future
+from queue import Queue, Empty
+import time
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import json
+from pathlib import Path
+import signal
+import threading
+
+
+def request_values(body, slots, capacity, vocab, *, max_prompt_tokens=32):
+    if not isinstance(body, dict):
+        raise ValueError("Expected a JSON object")
+    ids = body.get("prompt")
+    count, slot = body.get("n_predict"), body.get("id_slot")
+    if (
+        not isinstance(ids, list)
+        or not ids
+        or len(ids) > max_prompt_tokens
+        or any(type(t) is not int or not 0 <= t < vocab for t in ids)
+    ):
+        raise ValueError("Expected nonempty pretokenized prompt")
+    if type(count) is not int or not 1 <= count <= 128 or len(ids) + count > capacity:
+        raise ValueError("Output budget exceeds benchmark slot capacity")
+    if type(slot) is not int or not 0 <= slot < slots:
+        raise ValueError("Explicit valid slot required")
+    if body.get("stream") or body.get("cache_prompt") or not body.get("ignore_eos"):
+        raise ValueError("Benchmark requires nonstreaming, uncached, fixed output work")
+    if body.get("temperature") != 0 or body.get("repeat_penalty", 1) != 1:
+        raise ValueError("Benchmark supports unpenalized greedy only")
+    return ids, count, slot
+
+
+class CompletionBatcher:
+    """Bounded cohort admission only; all token execution is one native call."""
+
+    def __init__(self, batch, slots, window_seconds):
+        self.batch, self.slots, self.window = batch, slots, window_seconds
+        self.queue, self.lock, self.closed = Queue(), threading.Lock(), False
+        self.cohort = 0
+        self.thread = threading.Thread(
+            target=self._run, name="native-batch-admission", daemon=False
+        )
+        self.thread.start()
+
+    def submit(self, slot, prompt, maximum):
+        with self.lock:
+            if self.closed:
+                raise RuntimeError("Batch admission is closed")
+            future = Future()
+            self.queue.put((slot, prompt, maximum, future, time.perf_counter()))
+            return future
+
+    def _run(self):
+        while True:
+            first = self.queue.get()
+            if first is None:
+                return
+            tasks = [first]
+            end = time.perf_counter() + self.window
+            closing = False
+            while len(tasks) < self.slots:
+                remaining = end - time.perf_counter()
+                if remaining <= 0:
+                    break
+                try:
+                    next_task = self.queue.get(timeout=remaining)
+                except Empty:
+                    break
+                if next_task is None:
+                    closing = True
+                    break
+                tasks.append(next_task)
+            tasks = [t for t in tasks if not t[3].cancelled()]
+            if tasks:
+                try:
+                    began = time.perf_counter()
+                    selected = [t[0] for t in tasks]
+                    adaptive = hasattr(self.batch, "policy")
+                    if not adaptive:
+                        self.batch.reset(slots=selected)
+                    outputs = self.batch.generate(
+                        [t[1] for t in tasks],
+                        max_new_tokens=[t[2] for t in tasks],
+                        eos_token_ids=[],
+                        slots=selected,
+                    )
+                    info = self.batch.info()
+                    adaptive_info = info if adaptive else None
+                    if adaptive:
+                        info = info["native"]
+                    self.cohort += 1
+                    stats = {
+                        k: info.get(k) if adaptive else info[k]
+                        for k in (
+                            "group_forward_calls",
+                            "input_rows",
+                            "decode_group_calls",
+                            "prefill_group_calls",
+                            "head_calls",
+                            "head_rows",
+                            "max_group_rows",
+                        )
+                    }
+                    for task, output in zip(tasks, outputs):
+                        slot, prompt, _, future, enqueued = task
+                        if future.done():
+                            continue
+                        timing = info["requests"][slot]
+                        future.set_result(
+                            dict(
+                                tokens=output,
+                                tokens_predicted=len(output),
+                                tokens_evaluated=len(prompt),
+                                tokens_cached=0,
+                                id_slot=slot,
+                                native_timings={
+                                    k: timing[k]
+                                    for k in (
+                                        "native_time_to_first_token_seconds",
+                                        "native_generation_seconds",
+                                    )
+                                },
+                                batch_cohort_id=self.cohort,
+                                batch_request_count=len(tasks),
+                                batch_admission_delay_seconds=began - enqueued,
+                                batch_stats=stats,
+                                batch_stats_scope="Shared per cohort, do not sum across responses",
+                                **(
+                                    {
+                                        "adaptive_mtp": {
+                                            k: v
+                                            for k, v in adaptive_info.items()
+                                            if k != "native"
+                                        },
+                                        "adaptive_mtp_scope": "Shared cohort decision, costs and token totals; count once, not per response",
+                                    }
+                                    if adaptive_info is not None
+                                    else {}
+                                ),
+                                **(
+                                    {
+                                        "mtp_stats": timing["mtp"],
+                                        "mtp_batch_stats": {
+                                            k: info.get(k) if adaptive else info[k]
+                                            for k in (
+                                                "shared_verification_wall_seconds",
+                                                "shared_prefill_complete_seconds",
+                                                "shared_native_generation_seconds",
+                                                "mtp_model_device_bytes",
+                                                "all_mtp_request_device_bytes",
+                                                "all_target_backup_device_bytes",
+                                                "shared_mtp_selection_device_bytes",
+                                                "prefill_strategy",
+                                                "draft_strategy",
+                                                "target_verification",
+                                            )
+                                        },
+                                        "mtp_batch_stats_scope": "Shared per cohort; count once, not per response",
+                                    }
+                                    if "mtp" in timing
+                                    else {}
+                                ),
+                            )
+                        )
+                except Exception as error:
+                    for task in tasks:
+                        if not task[3].done():
+                            task[3].set_exception(error)
+            if closing:
+                return
+
+    def close(self):
+        with self.lock:
+            if self.closed:
+                return
+            self.closed = True
+            self.queue.put(None)
+        self.thread.join(timeout=180)
+        if self.thread.is_alive():
+            raise RuntimeError("Native batch admission did not settle")
+
+
+class ContinuousCompletionBatcher:
+    """Loopback adapter; client lanes are NOT native cache-slot identities.
+
+    One explicitly started owner schedules private slots and resolves each
+    request independently. Callbacks only bridge small token/timing metadata;
+    HTTP JSON work stays on request threads. No device introspection per response.
+    """
+
+    def __init__(
+        self,
+        batch,
+        *,
+        token_budget,
+        prefill_chunk_size,
+        max_pending,
+        prefill_policy="round-robin",
+    ):
+        from venturi.runtime import ContinuousScheduler, ContinuousWorker
+
+        self.worker = ContinuousWorker(
+            ContinuousScheduler(
+                batch,
+                token_budget=token_budget,
+                prefill_chunk_size=prefill_chunk_size,
+                max_pending=max_pending,
+                prefill_policy=prefill_policy,
+            )
+        ).start()
+
+    def submit(self, slot, prompt, maximum):
+        prompt_tokens = len(prompt)
+        ticket = self.worker.submit(prompt, max_new_tokens=maximum, eos_token_ids=())
+        response = Future()
+
+        def cancel_request(future):
+            if future.cancelled():
+                self.worker.cancel(ticket)
+
+        def complete(source):
+            if source.cancelled():
+                response.cancel()
+                return
+            # Cancellation can win until this final publication boundary.
+            if not response.set_running_or_notify_cancel():
+                return
+            try:
+                value = source.result()
+                response.set_result(
+                    dict(
+                        tokens=list(value.output_ids),
+                        tokens_predicted=len(value.output_ids),
+                        tokens_evaluated=prompt_tokens,
+                        tokens_cached=0,
+                        id_slot=slot,
+                        request_id=value.request_id,
+                        finish_reason=value.finish_reason,
+                        native_timings=None,
+                        scheduler_timings=dict(
+                            queue_seconds=value.queue_seconds,
+                            time_to_first_token_seconds=value.time_to_first_token_seconds,
+                            wall_seconds=value.wall_seconds,
+                            max_inter_token_seconds=value.max_inter_token_seconds,
+                        ),
+                        scheduler_timings_scope=(
+                            "Submission to this request's native token availability/completion; "
+                            "includes queue/scheduling, not native-only or HTTP streaming timing"
+                        ),
+                        id_slot_scope="HTTP client lane only; private native slot assigned dynamically",
+                    )
+                )
+            except BaseException as error:
+                response.set_exception(error)
+
+        response.add_done_callback(cancel_request)
+        ticket.future.add_done_callback(complete)
+        return response
+
+    def close(self):
+        # A timeout must propagate: callers MUST NOT free a still-owned batch.
+        self.worker.close(timeout=180)
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("artifact")
+    p.add_argument("--library", required=True)
+    p.add_argument(
+        "--projection-rows",
+        type=int,
+        choices=(32, 64, 128, 256),
+        default=32,
+        help="Internal projection workspace rows; not per-slot context capacity",
+    )
+    p.add_argument("--mtp-checkpoint")
+    p.add_argument("--target-layer-graph", action="store_true")
+    p.add_argument("--mtp-depth", type=int, choices=(1, 2), default=1)
+    p.add_argument("--mtp-recovery", choices=("replay", "prefix"), default="replay")
+    p.add_argument("--mode", choices=("tp", "pp"), required=True)
+    p.add_argument("--port", type=int, required=True)
+    p.add_argument("--slots", type=int, default=8)
+    p.add_argument("--capacity", type=int, default=256)
+    p.add_argument("--ready-file", required=True)
+    p.add_argument("--batch-target", action="store_true")
+    p.add_argument(
+        "--continuous-target",
+        action="store_true",
+        help="Opt-in ordinary TP decode-step scheduling; no MTP/graphs/PP",
+    )
+    p.add_argument("--prefill-chunk-size", type=int, default=16)
+    p.add_argument(
+        "--prefill-policy",
+        choices=("round-robin", "balanced", "balanced-short"),
+        default="round-robin",
+        help="Experimental balanced prefill sharing; continuous-target only",
+    )
+    p.add_argument("--max-pending", type=int, default=128)
+    p.add_argument(
+        "--metadata-mode",
+        choices=("checked-json", "sealed"),
+        default="checked-json",
+        help="Experimental immutable loaded descriptors; does not disable source-file guards",
+    )
+    p.add_argument(
+        "--adaptive-mtp",
+        action="store_true",
+        help="Opt-in fresh-cohort measured-cost routing: ordinary, packed MTP1 or scalar MTP2",
+    )
+    p.add_argument("--mtp-probe-interval", type=int, default=16)
+    p.add_argument(
+        "--batch-mtp",
+        action="store_true",
+        help="Native MTP1 target-verification cohorts; serial native drafting/prefill",
+    )
+    p.add_argument(
+        "--projection-profile",
+        choices=(
+            "fp16",
+            "q8-residual",
+            "q8-residual-column-mlp",
+            "q8-residual-column-mlp-head-gdn",
+        ),
+        default="fp16",
+    )
+    p.add_argument("--batch-window-ms", type=float, default=5.0)
+    p.add_argument(
+        "--mtp-draft-projection-profile",
+        choices=("fp16", "q8-residual"),
+        default="fp16",
+    )
+    p.add_argument("--qwen-library", required=True)
+    args = p.parse_args()
+    if args.prefill_policy != "round-robin" and not args.continuous_target:
+        p.error("Balanced prefill requires an explicit continuous target")
+    if args.metadata_mode == "sealed" and args.mode != "tp":
+        p.error(
+            "Sealed metadata benchmark mode currently requires an explicit TP target"
+        )
+    if args.continuous_target and (
+        args.mode != "tp"
+        or args.mtp_checkpoint
+        or args.adaptive_mtp
+        or args.batch_target
+        or args.batch_mtp
+        or args.target_layer_graph
+        or args.mtp_depth != 1
+        or args.mtp_recovery != "replay"
+        or not 1 <= args.prefill_chunk_size <= args.projection_rows
+        or not 1 <= args.max_pending <= 65536
+    ):
+        p.error(
+            "Continuous target requires ordinary TP, bounded prefill/pending and no fixed/MTP/graph overrides"
+        )
+    if args.adaptive_mtp and (
+        args.mode != "tp"
+        or not args.mtp_checkpoint
+        or args.batch_target
+        or args.batch_mtp
+        or args.target_layer_graph
+        or args.mtp_depth != 1
+        or args.mtp_recovery != "replay"
+        or args.mtp_probe_interval < 0
+    ):
+        p.error(
+            "Adaptive MTP requires TP, a draft artifact, nonnegative probe interval and no fixed-mode overrides"
+        )
+    if args.mtp_draft_projection_profile != "fp16" and (
+        not args.mtp_checkpoint or args.mode != "tp"
+    ):
+        p.error(
+            "Residual MTP draft requires an explicit draft artifact and non-PP target"
+        )
+    if args.target_layer_graph and (
+        args.mode != "tp"
+        or not args.mtp_checkpoint
+        or args.mtp_depth != 2
+        or args.mtp_recovery != "prefix"
+        or args.projection_profile != "q8-residual"
+        or args.batch_target
+        or args.batch_mtp
+    ):
+        p.error(
+            "Target layer graphs require scalar resident TP residual MTP2 prefix mode"
+        )
+    if not 1 <= args.slots <= 8 or args.capacity < 55:
+        p.error("Use 1..8 slots with capacity >= 55")
+    if args.batch_mtp and (
+        args.batch_target
+        or args.mode != "tp"
+        or not args.mtp_checkpoint
+        or args.mtp_depth != 1
+        or args.mtp_recovery != "replay"
+    ):
+        p.error(
+            "Batch MTP requires TP, an MTP artifact, depth one and no scalar recovery/batch-target override"
+        )
+    if args.mtp_recovery != "replay" and (
+        not args.mtp_checkpoint or args.mtp_depth != 2
+    ):
+        p.error("Prefix recovery requires MTP depth two")
+    if args.mtp_depth != 1 and not args.mtp_checkpoint:
+        p.error("--mtp-depth requires --mtp-checkpoint")
+    if args.batch_target and (args.mode != "tp" or args.mtp_checkpoint):
+        p.error("Grouped target batching currently requires TP without MTP")
+    if args.projection_profile != "fp16" and args.mode != "tp":
+        p.error("Explicit residual profile currently supports TP, not PP")
+    if not 0 <= args.batch_window_ms <= 100:
+        p.error("Batch admission window must be 0..100 ms")
+    import torch
+    from venturi.models import (
+        NativeQwenModel,
+        NativeQwenPipelineModel,
+        NativeQwenMTPModel,
+        QwenWeights,
+        QwenMTPWeights,
+    )
+    from venturi.container.safetensors import SafetensorsContainer
+    from venturi.ops import CudaBackend
+    from venturi.models.qwen.native_runtime import QwenRuntime
+
+    torch.set_num_threads(4)
+    weights = QwenWeights.open(args.artifact)
+    backend = CudaBackend(args.library)
+    kw = dict(
+        weight_mode="resident",
+        dtype=torch.float16,
+        device="cuda:0",
+        max_tokens=args.projection_rows,
+    )
+    target = (
+        NativeQwenModel.from_q8(
+            weights,
+            QwenRuntime(args.qwen_library, backend),
+            tensor_parallel_device="cuda:1",
+            tensor_parallel_transport="host",
+            projection_profile=args.projection_profile,
+            metadata_mode=args.metadata_mode,
+            **kw,
+        )
+        if args.mode == "tp"
+        else NativeQwenPipelineModel.from_q8(
+            weights,
+            QwenRuntime(args.qwen_library, backend),
+            pipeline_device="cuda:1",
+            split_layer=32,
+            transport="host",
+            **kw,
+        )
+    )
+    model = target
+    sessions = []
+    batch = admission = None
+    try:
+        if args.mtp_checkpoint:
+            model = NativeQwenMTPModel.from_q8(
+                target,
+                QwenMTPWeights.open(args.mtp_checkpoint),
+                draft_projection_profile=args.mtp_draft_projection_profile,
+            )
+        if (
+            args.batch_target
+            or args.batch_mtp
+            or args.adaptive_mtp
+            or args.continuous_target
+        ):
+            if args.adaptive_mtp:
+                from venturi.models.qwen.adaptive_mtp import AdaptiveMTPPolicy
+
+                batch = model.create_adaptive_batch(
+                    [args.capacity] * args.slots,
+                    policy=AdaptiveMTPPolicy(probe_interval=args.mtp_probe_interval),
+                )
+                batch.prepare()
+            else:
+                batch = model.create_batch([args.capacity] * args.slots)
+            if args.continuous_target:
+                admission = ContinuousCompletionBatcher(
+                    batch,
+                    token_budget=args.projection_rows,
+                    prefill_chunk_size=args.prefill_chunk_size,
+                    max_pending=args.max_pending,
+                    prefill_policy=args.prefill_policy,
+                )
+            else:
+                admission = CompletionBatcher(
+                    batch, args.slots, args.batch_window_ms / 1000
+                )
+        else:
+            sessions = [model.create_session(args.capacity) for _ in range(args.slots)]
+        if args.mtp_checkpoint and args.mtp_recovery == "prefix":
+            for session in sessions:
+                session.prepare_prefix()
+        if args.target_layer_graph:
+            for session in sessions:
+                session.enable_target_layer_graph()
+        locks = [threading.Lock() for _ in range(args.slots)]
+        metadata = dict(
+            adaptive_mtp=args.adaptive_mtp,
+            mtp_probe_interval=args.mtp_probe_interval if args.adaptive_mtp else None,
+            target_layer_graph=args.target_layer_graph,
+            engine="Venturi native",
+            mode=args.mode,
+            slots=args.slots,
+            capacity=args.capacity,
+            projection_rows=args.projection_rows,
+            mtp_depth=(
+                "adaptive-0/1/scalar2"
+                if args.adaptive_mtp
+                else args.mtp_depth if args.mtp_checkpoint else 0
+            ),
+            mtp_recovery=(
+                "request-prefix1-trace"
+                if args.batch_mtp
+                else args.mtp_recovery if args.mtp_checkpoint else None
+            ),
+            scope=__doc__,
+            continuous_target=args.continuous_target,
+            prefill_chunk_size=(
+                args.prefill_chunk_size if args.continuous_target else None
+            ),
+            prefill_policy=args.prefill_policy if args.continuous_target else None,
+            max_pending=args.max_pending if args.continuous_target else None,
+            batched_target=args.batch_target
+            or args.batch_mtp
+            or args.adaptive_mtp
+            or args.continuous_target,
+            batched_mtp=args.batch_mtp,
+            batch_window_ms=(
+                0
+                if args.continuous_target
+                else (
+                    args.batch_window_ms
+                    if args.batch_target or args.batch_mtp or args.adaptive_mtp
+                    else None
+                )
+            ),
+            projection_profile=args.projection_profile,
+            metadata_mode=args.metadata_mode,
+            mtp_draft_projection_profile=(
+                model.projection_info["mtp_draft_projection_profile"]
+                if args.mtp_checkpoint
+                else None
+            ),
+        )
+
+        class Handler(BaseHTTPRequestHandler):
+            def reply(self, code, value):
+                payload = json.dumps(value, allow_nan=False).encode()
+                self.send_response(code)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+
+            def log_message(self, *args):
+                pass
+
+            def do_GET(self):
+                self.reply(200 if self.path == "/health" else 404, metadata)
+
+            def do_POST(self):
+                if self.path != "/completion":
+                    self.reply(404, dict(error="Unknown route"))
+                    return
+                try:
+                    size = int(self.headers.get("Content-Length", 0))
+                    if not 0 < size <= 1024 * 1024:
+                        raise ValueError("Invalid request size")
+                    ids, count, slot = request_values(
+                        json.loads(self.rfile.read(size)),
+                        args.slots,
+                        args.capacity,
+                        weights.config["vocab_size"],
+                        max_prompt_tokens=(
+                            args.capacity if args.continuous_target else 32
+                        ),
+                    )
+                    with locks[slot]:
+                        if admission is not None:
+                            response = admission.submit(slot, ids, count)
+                            try:
+                                result = response.result(timeout=180)
+                            except TimeoutError:
+                                response.cancel()
+                                raise
+                        else:
+                            session = sessions[slot]
+                            session.reset()
+                            output = session.generate(
+                                ids,
+                                max_new_tokens=count,
+                                eos_token_ids=[],
+                                **(
+                                    {
+                                        "draft_tokens": args.mtp_depth,
+                                        "recovery": args.mtp_recovery,
+                                    }
+                                    if args.mtp_checkpoint
+                                    else {}
+                                ),
+                            )
+                            timings = session.generation_timings()
+                            result = dict(
+                                tokens=output,
+                                tokens_predicted=len(output),
+                                tokens_evaluated=len(ids),
+                                tokens_cached=0,
+                                id_slot=slot,
+                                native_timings=timings,
+                                mtp_stats=(
+                                    session.stats() if args.mtp_checkpoint else None
+                                ),
+                            )
+                    self.reply(200, result)
+                except (ValueError, TypeError, json.JSONDecodeError) as error:
+                    self.reply(400, dict(error=str(error)))
+                except Exception as error:
+                    self.reply(500, dict(error=str(error)))
+
+        def stop(*unused):
+            raise KeyboardInterrupt
+
+        signal.signal(signal.SIGTERM, stop)
+
+        class Server(ThreadingHTTPServer):
+            request_queue_size = 128
+
+        server = Server(("127.0.0.1", args.port), Handler)
+        Path(args.ready_file).write_text(json.dumps(metadata, indent=2) + "\n")
+        try:
+            server.serve_forever(poll_interval=0.2)
+        except KeyboardInterrupt:
+            pass
+        finally:
+            server.server_close()
+    finally:
+        if admission is not None:
+            admission.close()
+        if batch is not None:
+            batch.close()
+        for session in sessions:
+            session.close()
+        if model is not target:
+            model.close()
+        target.close()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,59 @@
+........................................................................ [  6%]
+........................................................................ [ 13%]
+..................................sssssss............................... [ 20%]
+...................................s.s.ss........................s.s.... [ 27%]
+........................................................................ [ 34%]
+..............................ssss...................................... [ 41%]
+........................................................................ [ 48%]
+................................sss..................................... [ 55%]
+........................................................................ [ 62%]
+.......................s................................................ [ 68%]
+..............................................................ss........ [ 75%]
+sssssss....................................................s.s.s.s....sF [ 82%]
+F.....................................................................ss [ 89%]
+sFFFsss......................................................s.......... [ 96%]
+.....................................                                    [100%]
+=================================== FAILURES ===================================
+_____________ test_remote_launcher_quotes_prompt_and_paths[False] ______________
+tests/test_remote_launcher.py:37: in test_remote_launcher_quotes_prompt_and_paths
+    result = subprocess.run(
+/usr/lib/python3.12/subprocess.py:571: in run
+    raise CalledProcessError(retcode, process.args,
+E   subprocess.CalledProcessError: Command '['bash', '/home/test/wangyue/venturi-work/qwen/greedy-src-v2/scripts/venturi-4090d', 'generate', '--prompt', 'don\'t expand $(touch UNWANTED); "quotes"\nsecond line']' returned non-zero exit status 127.
+______________ test_remote_launcher_quotes_prompt_and_paths[True] ______________
+tests/test_remote_launcher.py:37: in test_remote_launcher_quotes_prompt_and_paths
+    result = subprocess.run(
+/usr/lib/python3.12/subprocess.py:571: in run
+    raise CalledProcessError(retcode, process.args,
+E   subprocess.CalledProcessError: Command '['bash', '/home/test/wangyue/venturi-work/qwen/greedy-src-v2/scripts/venturi-qwen-4090d', 'generate', '--prompt', 'don\'t expand $(touch UNWANTED); "quotes"\nsecond line']' returned non-zero exit status 127.
+_ test_native_capture_no_allocations_fallback_sync_or_scalar_read[native-fp16] _
+tests/test_sampling.py:143: in test_native_capture_no_allocations_fallback_sync_or_scalar_read
+    with torch.cuda.graph(graph):
+../../../rwkv-distill-2.9b/.venv/lib/python3.12/site-packages/torch/cuda/graphs.py:242: in __enter__
+    torch.cuda.synchronize()
+tests/test_sampling.py:128: in forbidden
+    raise AssertionError("No allocation/numerical Torch fallback/host sync/read")
+E   AssertionError: No allocation/numerical Torch fallback/host sync/read
+_ test_native_capture_no_allocations_fallback_sync_or_scalar_read[native-bf16] _
+tests/test_sampling.py:143: in test_native_capture_no_allocations_fallback_sync_or_scalar_read
+    with torch.cuda.graph(graph):
+../../../rwkv-distill-2.9b/.venv/lib/python3.12/site-packages/torch/cuda/graphs.py:242: in __enter__
+    torch.cuda.synchronize()
+tests/test_sampling.py:128: in forbidden
+    raise AssertionError("No allocation/numerical Torch fallback/host sync/read")
+E   AssertionError: No allocation/numerical Torch fallback/host sync/read
+_ test_native_capture_no_allocations_fallback_sync_or_scalar_read[native-fp32] _
+tests/test_sampling.py:143: in test_native_capture_no_allocations_fallback_sync_or_scalar_read
+    with torch.cuda.graph(graph):
+../../../rwkv-distill-2.9b/.venv/lib/python3.12/site-packages/torch/cuda/graphs.py:242: in __enter__
+    torch.cuda.synchronize()
+tests/test_sampling.py:128: in forbidden
+    raise AssertionError("No allocation/numerical Torch fallback/host sync/read")
+E   AssertionError: No allocation/numerical Torch fallback/host sync/read
+=========================== short test summary info ============================
+FAILED tests/test_remote_launcher.py::test_remote_launcher_quotes_prompt_and_paths[False]
+FAILED tests/test_remote_launcher.py::test_remote_launcher_quotes_prompt_and_paths[True]
+FAILED tests/test_sampling.py::test_native_capture_no_allocations_fallback_sync_or_scalar_read[native-fp16]
+FAILED tests/test_sampling.py::test_native_capture_no_allocations_fallback_sync_or_scalar_read[native-bf16]
+FAILED tests/test_sampling.py::test_native_capture_no_allocations_fallback_sync_or_scalar_read[native-fp32]
+5 failed, 998 passed, 42 skipped in 45.19s

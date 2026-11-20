@@ -1,0 +1,37 @@
+from pathlib import Path
+import json,hashlib
+n={};exec(Path('/tmp/venturi-dispatch-helper.py').read_text(),n)
+root=Path.cwd();cap=root/'benchmarks/v100-gdn-head-pilot'
+expected=json.loads((cap/'source-manifest-v3.json').read_text())
+base=Path('/tmp/venturi-gdn-head-pilot-fixtures-v3-worker.py').read_text().split('try:\n expected=')[0].replace("out=root/'artifacts/venturi-gdn-head-pilot-fixtures-v3'", "out=root/'artifacts/venturi-gdn-head-pilot-trained-v4'")
+identity=json.loads((root/'benchmarks/v100-source-scope/reused-full-payload-pins.json').read_text())
+source=base+'try:\n expected='+repr(expected)+'\n pinned='+repr(identity)+r'''
+ fixture=root/'artifacts/venturi-gdn-head-pilot-fixtures-v3';assert (fixture/'exit-code.txt').read_text().strip()=='0'
+ actual={str(p.relative_to(src)):sha(p) for d in ['src','tests','tools'] for p in (src/d).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix!='.pyc'};assert actual==expected
+ (out/'executed-source.json').write_text(json.dumps(actual,indent=2)+chr(10))
+ build=json.loads((fixture/'build.json').read_text());blocks=pathlib.Path(build['blocks_library']);library=pathlib.Path(build['library']);assert sha(blocks)==build['blocks_library_sha256']=='6d43160ce4e993b4be5ed600d9be21aad070634729d8e5f7b3f74b734da85de2';assert sha(library)==build['library_sha256']=='e37860dc902f6c0229fb00f3639915ca26e86ce06bc788523b9f023087a27e41'
+ assert sha(src/'tools/projection/gdn_head_pilot.cpp')==build['host_cpp_sha256']
+ (out/'build.json').write_text(json.dumps(build,indent=2)+chr(10))
+ def identity(p):
+  s=p.stat();return dict(device=s.st_dev,inode=s.st_ino,bytes=s.st_size,mtime_ns=s.st_mtime_ns,ctime_ns=s.st_ctime_ns)
+ target=root/'repos/codex-build/Venturi/models/qwen3.5-27b-text-q8.ninfer';bf16=root/'models/qwen3.5-27b-bf16'
+ before={str(target):identity(target)};assert before[str(target)]==pinned['identity'][str(target)]
+ (out/'payload-before.json').write_text(json.dumps(before,indent=2)+chr(10))
+ (out/'reused-payload-pins.json').write_text(json.dumps(pinned,indent=2)+chr(10))
+ run(['nvidia-smi','--query-gpu=index,name,memory.used,utilization.gpu','--format=csv,noheader'],'gpu-before.txt')
+ run([py,'tools/benchmark_gdn_head_tp.py',str(target),'--source',str(bf16),'--blocks',str(blocks),'--host-library',str(library),'--output-directory',str(out/'measurement')],'benchmark.log',timeout=1800)
+ report=json.loads((out/'measurement/report.json').read_text());assert report['completed'] and len(report['cells'])==6
+ after={str(target):identity(target)};assert after==before
+ (out/'payload-after.json').write_text(json.dumps(after,indent=2)+chr(10))
+ (out/'completed.json').write_text(json.dumps(dict(completed=True,model_integration=False,model_tps_claim=False,integration_gate=report['integration_gate'],ended_unix=time.time()),indent=2)+chr(10));rc=0
+except BaseException:(out/'failure.txt').write_text(traceback.format_exc());rc=1
+finally:
+ run(['nvidia-smi','--query-gpu=index,name,memory.used,utilization.gpu','--format=csv,noheader'],'gpu-after.txt')
+ (out/'counter-policy.txt').write_text(pathlib.Path('/proc/driver/nvidia/params').read_text())
+(out/'exit-code.txt').write_text(str(rc)+chr(10));raise SystemExit(rc)
+'''
+(cap/'trained-v4-launcher.py').write_text(Path(__file__).read_text())
+for rel,h in expected.items():
+ p=root/rel;assert hashlib.sha256(p.read_bytes()).hexdigest()==h,rel
+ dst=cap/'executed-source-v3'/rel;dst.parent.mkdir(parents=True,exist_ok=True);dst.write_bytes(p.read_bytes())
+n['dispatch']('venturi-gdn-head-pilot-trained-v4',source)

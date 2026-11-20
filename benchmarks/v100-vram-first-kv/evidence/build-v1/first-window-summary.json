@@ -1,0 +1,4443 @@
+{
+  "path": "/home/data/wangyue/artifacts/venturi-kv-tier-window-v1",
+  "timings": [
+    {
+      "name": "timing-0-auto",
+      "variant": "vram-first",
+      "count": 1,
+      "decode_tps": 32.99310857554774,
+      "complete_tps": 31.36613615162222,
+      "ttft_seconds": 0.08671634799975436,
+      "decode_wall": 0.939590154986945,
+      "decode_cpu": 0.946343082999995,
+      "decode_cpu_cores": 1.007187099585078,
+      "kv_delta": {
+        "evictions": 0,
+        "reloads": 0,
+        "device_to_host_bytes": 0,
+        "host_to_device_bytes": 0,
+        "allocation_ooms": 0
+      },
+      "info": {
+        "position": 47,
+        "failed": 0,
+        "model_device_bytes": 15019776128,
+        "request_device_bytes": 99091680,
+        "pinned_host_bytes": 18104320,
+        "mapped_payload_bytes": 28601624576,
+        "model_weight_upload_bytes": 28549120000,
+        "streaming_embedding_upload_bytes": 0,
+        "peer_device_index": 1,
+        "peer_transport": "host",
+        "peer_device_bytes": 13664176128,
+        "peer_input_copy_bytes": 213516288,
+        "peer_output_copy_bytes": 391151616,
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "peer_request_device_bytes": 76972032,
+        "request_memory_scope": "request_device_bytes is primary; peer_request_device_bytes is additional private distributed GDN cache, excluding shared model workspaces",
+        "shared_model_kv_cache": {
+          "mode": "vram-first",
+          "enabled": 1,
+          "page_bytes": 2097152,
+          "gpu_pool_bytes": 67108864,
+          "gpu_mapped_bytes": 67108864,
+          "virtual_reserved_bytes": 603979776,
+          "cpu_backing_bytes": 0,
+          "logical_valid_bytes": 3080192,
+          "evictions": 0,
+          "reloads": 0,
+          "device_to_host_bytes": 0,
+          "host_to_device_bytes": 0,
+          "allocation_ooms": 0,
+          "preflights": 96,
+          "peak_gpu_pool_bytes": 67108864,
+          "peak_cpu_backing_bytes": 0,
+          "gpu_budget_bytes": 0,
+          "ram_budget_bytes": 4294967296,
+          "entries": 144
+        }
+      }
+    },
+    {
+      "name": "timing-0-auto",
+      "variant": "vram-first",
+      "count": 8,
+      "decode_tps": 134.75411120413392,
+      "complete_tps": 104.85996567837056,
+      "ttft_seconds": 0.6121502649912145,
+      "decode_wall": 1.8403891189955175,
+      "decode_cpu": 1.850566169000004,
+      "decode_cpu_cores": 1.0055298360001395,
+      "kv_delta": {
+        "evictions": 0,
+        "reloads": 0,
+        "device_to_host_bytes": 0,
+        "host_to_device_bytes": 0,
+        "allocation_ooms": 0
+      },
+      "info": {
+        "slot_count": 8,
+        "shared_batch_workspace_device_bytes": 22299616,
+        "all_request_device_bytes": 792733440,
+        "model_device_bytes": 15019776128,
+        "peer_model_device_bytes": 13664176128,
+        "shared_model_pinned_host_bytes": 17448960,
+        "group_forward_calls": 35,
+        "input_rows": 376,
+        "decode_group_calls": 31,
+        "prefill_group_calls": 4,
+        "head_calls": 32,
+        "head_rows": 256,
+        "max_group_rows": 32,
+        "peer_input_copy_bytes": 1921646592,
+        "peer_output_copy_bytes": 3520364544,
+        "requests": [
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6058637240057578,
+            "native_generation_seconds": 2.435475423000753
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6058637240057578,
+            "native_generation_seconds": 2.435475485995994
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6058637240057578,
+            "native_generation_seconds": 2.4354755230015144
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6058637240057578,
+            "native_generation_seconds": 2.435475560996565
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6058637240057578,
+            "native_generation_seconds": 2.4354755969980033
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6058637240057578,
+            "native_generation_seconds": 2.4354756390093826
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6058637240057578,
+            "native_generation_seconds": 2.4354756780085154
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6058637240057578,
+            "native_generation_seconds": 2.435475717007648
+          }
+        ],
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "all_peer_request_device_bytes": 615776256,
+        "all_peer_target_backup_device_bytes": 0,
+        "distributed_memory_scope": "all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
+        "shared_model_kv_cache": {
+          "mode": "vram-first",
+          "enabled": 1,
+          "page_bytes": 2097152,
+          "gpu_pool_bytes": 536870912,
+          "gpu_mapped_bytes": 536870912,
+          "virtual_reserved_bytes": 603979776,
+          "cpu_backing_bytes": 0,
+          "logical_valid_bytes": 24641536,
+          "evictions": 0,
+          "reloads": 0,
+          "device_to_host_bytes": 0,
+          "host_to_device_bytes": 0,
+          "allocation_ooms": 0,
+          "preflights": 201,
+          "peak_gpu_pool_bytes": 536870912,
+          "peak_cpu_backing_bytes": 0,
+          "gpu_budget_bytes": 0,
+          "ram_budget_bytes": 4294967296,
+          "entries": 144
+        },
+        "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+      }
+    },
+    {
+      "name": "timing-0-spill",
+      "variant": "spill",
+      "count": 1,
+      "decode_tps": 32.84576260408742,
+      "complete_tps": 31.30728735241233,
+      "ttft_seconds": 0.08628640399547294,
+      "decode_wall": 0.9438051530014491,
+      "decode_cpu": 0.9481718530000052,
+      "decode_cpu_cores": 1.004626696500511,
+      "kv_delta": {
+        "evictions": 0,
+        "reloads": 0,
+        "device_to_host_bytes": 0,
+        "host_to_device_bytes": 0,
+        "allocation_ooms": 0
+      },
+      "info": {
+        "position": 47,
+        "failed": 0,
+        "model_device_bytes": 15019776128,
+        "request_device_bytes": 99091680,
+        "pinned_host_bytes": 18104320,
+        "mapped_payload_bytes": 28601624576,
+        "model_weight_upload_bytes": 28549120000,
+        "streaming_embedding_upload_bytes": 0,
+        "peer_device_index": 1,
+        "peer_transport": "host",
+        "peer_device_bytes": 13664176128,
+        "peer_input_copy_bytes": 213516288,
+        "peer_output_copy_bytes": 391151616,
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "peer_request_device_bytes": 76972032,
+        "request_memory_scope": "request_device_bytes is primary; peer_request_device_bytes is additional private distributed GDN cache, excluding shared model workspaces",
+        "shared_model_kv_cache": {
+          "mode": "vram-first",
+          "enabled": 1,
+          "page_bytes": 2097152,
+          "gpu_pool_bytes": 67108864,
+          "gpu_mapped_bytes": 67108864,
+          "virtual_reserved_bytes": 603979776,
+          "cpu_backing_bytes": 0,
+          "logical_valid_bytes": 3080192,
+          "evictions": 0,
+          "reloads": 0,
+          "device_to_host_bytes": 0,
+          "host_to_device_bytes": 0,
+          "allocation_ooms": 0,
+          "preflights": 96,
+          "peak_gpu_pool_bytes": 67108864,
+          "peak_cpu_backing_bytes": 0,
+          "gpu_budget_bytes": 134217728,
+          "ram_budget_bytes": 4294967296,
+          "entries": 144
+        }
+      }
+    },
+    {
+      "name": "timing-0-spill",
+      "variant": "spill",
+      "count": 8,
+      "decode_tps": 80.1143907124666,
+      "complete_tps": 66.630040844571,
+      "ttft_seconds": 0.8028337209980236,
+      "decode_wall": 3.0955736890027765,
+      "decode_cpu": 3.0859879919999997,
+      "decode_cpu_cores": 0.9969034182462428,
+      "kv_delta": {
+        "evictions": 3968,
+        "reloads": 3968,
+        "device_to_host_bytes": 516030464,
+        "host_to_device_bytes": 503840768,
+        "allocation_ooms": 0
+      },
+      "info": {
+        "slot_count": 8,
+        "shared_batch_workspace_device_bytes": 22299616,
+        "all_request_device_bytes": 792733440,
+        "model_device_bytes": 15019776128,
+        "peer_model_device_bytes": 13664176128,
+        "shared_model_pinned_host_bytes": 17448960,
+        "group_forward_calls": 35,
+        "input_rows": 376,
+        "decode_group_calls": 31,
+        "prefill_group_calls": 4,
+        "head_calls": 32,
+        "head_rows": 256,
+        "max_group_rows": 32,
+        "peer_input_copy_bytes": 1921646592,
+        "peer_output_copy_bytes": 3520364544,
+        "requests": [
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7567791039909935,
+            "native_generation_seconds": 3.8361247799912235
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7567791039909935,
+            "native_generation_seconds": 3.836124869994819
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7567791039909935,
+            "native_generation_seconds": 3.836124903988093
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7567791039909935,
+            "native_generation_seconds": 3.836124939000001
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7567791039909935,
+            "native_generation_seconds": 3.836124977999134
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7567791039909935,
+            "native_generation_seconds": 3.836125263987924
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7567791039909935,
+            "native_generation_seconds": 3.836125298999832
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7567791039909935,
+            "native_generation_seconds": 3.836125331989024
+          }
+        ],
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "all_peer_request_device_bytes": 615776256,
+        "all_peer_target_backup_device_bytes": 0,
+        "distributed_memory_scope": "all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
+        "shared_model_kv_cache": {
+          "mode": "vram-first",
+          "enabled": 1,
+          "page_bytes": 2097152,
+          "gpu_pool_bytes": 134217728,
+          "gpu_mapped_bytes": 134217728,
+          "virtual_reserved_bytes": 603979776,
+          "cpu_backing_bytes": 536870912,
+          "logical_valid_bytes": 24641536,
+          "evictions": 13408,
+          "reloads": 13056,
+          "device_to_host_bytes": 1604714496,
+          "host_to_device_bytes": 1549271040,
+          "allocation_ooms": 0,
+          "preflights": 201,
+          "peak_gpu_pool_bytes": 134217728,
+          "peak_cpu_backing_bytes": 536870912,
+          "gpu_budget_bytes": 134217728,
+          "ram_budget_bytes": 4294967296,
+          "entries": 144
+        },
+        "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+      }
+    },
+    {
+      "name": "timing-0-static",
+      "variant": "static",
+      "count": 1,
+      "decode_tps": 33.002828178145776,
+      "complete_tps": 31.341767962010834,
+      "ttft_seconds": 0.08663388600689359,
+      "decode_wall": 0.9393134380079573,
+      "decode_cpu": 0.9464021349999996,
+      "decode_cpu_cores": 1.0075466789946874,
+      "kv_delta": {},
+      "info": {
+        "position": 47,
+        "failed": 0,
+        "model_device_bytes": 15019776128,
+        "request_device_bytes": 115868896,
+        "pinned_host_bytes": 18104320,
+        "mapped_payload_bytes": 28601624576,
+        "model_weight_upload_bytes": 28549120000,
+        "streaming_embedding_upload_bytes": 0,
+        "peer_device_index": 1,
+        "peer_transport": "host",
+        "peer_device_bytes": 13664176128,
+        "peer_input_copy_bytes": 213516288,
+        "peer_output_copy_bytes": 391151616,
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "peer_request_device_bytes": 76972032,
+        "request_memory_scope": "request_device_bytes is primary; peer_request_device_bytes is additional private distributed GDN cache, excluding shared model workspaces"
+      }
+    },
+    {
+      "name": "timing-0-static",
+      "variant": "static",
+      "count": 8,
+      "decode_tps": 134.85832189585423,
+      "complete_tps": 104.81180121545798,
+      "ttft_seconds": 0.611145328002749,
+      "decode_wall": 1.8389669729949674,
+      "decode_cpu": 1.8521666120000049,
+      "decode_cpu_cores": 1.0071777466364937,
+      "kv_delta": {},
+      "info": {
+        "slot_count": 8,
+        "shared_batch_workspace_device_bytes": 22299616,
+        "all_request_device_bytes": 926951168,
+        "model_device_bytes": 15019776128,
+        "peer_model_device_bytes": 13664176128,
+        "shared_model_pinned_host_bytes": 17448960,
+        "group_forward_calls": 35,
+        "input_rows": 376,
+        "decode_group_calls": 31,
+        "prefill_group_calls": 4,
+        "head_calls": 32,
+        "head_rows": 256,
+        "max_group_rows": 32,
+        "peer_input_copy_bytes": 1921646592,
+        "peer_output_copy_bytes": 3520364544,
+        "requests": [
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6058625480072806,
+            "native_generation_seconds": 2.4368232730048476
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6058625480072806,
+            "native_generation_seconds": 2.436823469004594
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6058625480072806,
+            "native_generation_seconds": 2.436823505006032
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6058625480072806,
+            "native_generation_seconds": 2.436823538999306
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6058625480072806,
+            "native_generation_seconds": 2.4368237300077453
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6058625480072806,
+            "native_generation_seconds": 2.436823802010622
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6058625480072806,
+            "native_generation_seconds": 2.4368238470051438
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6058625480072806,
+            "native_generation_seconds": 2.4368238810129697
+          }
+        ],
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "all_peer_request_device_bytes": 615776256,
+        "all_peer_target_backup_device_bytes": 0,
+        "distributed_memory_scope": "all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
+        "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+      }
+    },
+    {
+      "name": "timing-1-auto",
+      "variant": "vram-first",
+      "count": 8,
+      "decode_tps": 134.53657529906846,
+      "complete_tps": 104.45571521619297,
+      "ttft_seconds": 0.612637928003096,
+      "decode_wall": 1.8433648950012866,
+      "decode_cpu": 1.8579900269999996,
+      "decode_cpu_cores": 1.007933932146789,
+      "kv_delta": {
+        "evictions": 0,
+        "reloads": 0,
+        "device_to_host_bytes": 0,
+        "host_to_device_bytes": 0,
+        "allocation_ooms": 0
+      },
+      "info": {
+        "slot_count": 8,
+        "shared_batch_workspace_device_bytes": 22299616,
+        "all_request_device_bytes": 792733440,
+        "model_device_bytes": 15019776128,
+        "peer_model_device_bytes": 13664176128,
+        "shared_model_pinned_host_bytes": 17448960,
+        "group_forward_calls": 35,
+        "input_rows": 376,
+        "decode_group_calls": 31,
+        "prefill_group_calls": 4,
+        "head_calls": 32,
+        "head_rows": 256,
+        "max_group_rows": 32,
+        "peer_input_copy_bytes": 1708130304,
+        "peer_output_copy_bytes": 3129212928,
+        "requests": [
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6064869440015173,
+            "native_generation_seconds": 2.444567685990478
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6064869440015173,
+            "native_generation_seconds": 2.444569697996485
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6064869440015173,
+            "native_generation_seconds": 2.4445697379997
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6064869440015173,
+            "native_generation_seconds": 2.444569771992974
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6064869440015173,
+            "native_generation_seconds": 2.4445698060008
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6064869440015173,
+            "native_generation_seconds": 2.4445698670024285
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6064869440015173,
+            "native_generation_seconds": 2.4445699019997846
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6064869440015173,
+            "native_generation_seconds": 2.4445699359930586
+          }
+        ],
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "all_peer_request_device_bytes": 615776256,
+        "all_peer_target_backup_device_bytes": 0,
+        "distributed_memory_scope": "all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
+        "shared_model_kv_cache": {
+          "mode": "vram-first",
+          "enabled": 1,
+          "page_bytes": 2097152,
+          "gpu_pool_bytes": 536870912,
+          "gpu_mapped_bytes": 536870912,
+          "virtual_reserved_bytes": 603979776,
+          "cpu_backing_bytes": 0,
+          "logical_valid_bytes": 24641536,
+          "evictions": 0,
+          "reloads": 0,
+          "device_to_host_bytes": 0,
+          "host_to_device_bytes": 0,
+          "allocation_ooms": 0,
+          "preflights": 105,
+          "peak_gpu_pool_bytes": 536870912,
+          "peak_cpu_backing_bytes": 0,
+          "gpu_budget_bytes": 0,
+          "ram_budget_bytes": 4294967296,
+          "entries": 144
+        },
+        "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+      }
+    },
+    {
+      "name": "timing-1-auto",
+      "variant": "vram-first",
+      "count": 1,
+      "decode_tps": 32.966992696043334,
+      "complete_tps": 31.302611191116043,
+      "ttft_seconds": 0.08674922499631066,
+      "decode_wall": 0.940334482002072,
+      "decode_cpu": 0.9449907139999993,
+      "decode_cpu_cores": 1.0049516763311857,
+      "kv_delta": {
+        "evictions": 0,
+        "reloads": 0,
+        "device_to_host_bytes": 0,
+        "host_to_device_bytes": 0,
+        "allocation_ooms": 0
+      },
+      "info": {
+        "position": 47,
+        "failed": 0,
+        "model_device_bytes": 15019776128,
+        "request_device_bytes": 99091680,
+        "pinned_host_bytes": 18104320,
+        "mapped_payload_bytes": 28601624576,
+        "model_weight_upload_bytes": 28549120000,
+        "streaming_embedding_upload_bytes": 0,
+        "peer_device_index": 1,
+        "peer_transport": "host",
+        "peer_device_bytes": 13664176128,
+        "peer_input_copy_bytes": 1921646592,
+        "peer_output_copy_bytes": 3520364544,
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "peer_request_device_bytes": 76972032,
+        "request_memory_scope": "request_device_bytes is primary; peer_request_device_bytes is additional private distributed GDN cache, excluding shared model workspaces",
+        "shared_model_kv_cache": {
+          "mode": "vram-first",
+          "enabled": 1,
+          "page_bytes": 2097152,
+          "gpu_pool_bytes": 536870912,
+          "gpu_mapped_bytes": 67108864,
+          "virtual_reserved_bytes": 603979776,
+          "cpu_backing_bytes": 0,
+          "logical_valid_bytes": 3080192,
+          "evictions": 0,
+          "reloads": 0,
+          "device_to_host_bytes": 0,
+          "host_to_device_bytes": 0,
+          "allocation_ooms": 0,
+          "preflights": 201,
+          "peak_gpu_pool_bytes": 536870912,
+          "peak_cpu_backing_bytes": 0,
+          "gpu_budget_bytes": 0,
+          "ram_budget_bytes": 4294967296,
+          "entries": 144
+        }
+      }
+    },
+    {
+      "name": "timing-1-spill",
+      "variant": "spill",
+      "count": 8,
+      "decode_tps": 78.46359974799293,
+      "complete_tps": 65.22905556765514,
+      "ttft_seconds": 0.7635046760115074,
+      "decode_wall": 3.160701278000488,
+      "decode_cpu": 3.1779781689999993,
+      "decode_cpu_cores": 1.0054661575011103,
+      "kv_delta": {
+        "evictions": 3968,
+        "reloads": 3968,
+        "device_to_host_bytes": 516030464,
+        "host_to_device_bytes": 503840768,
+        "allocation_ooms": 0
+      },
+      "info": {
+        "slot_count": 8,
+        "shared_batch_workspace_device_bytes": 22299616,
+        "all_request_device_bytes": 792733440,
+        "model_device_bytes": 15019776128,
+        "peer_model_device_bytes": 13664176128,
+        "shared_model_pinned_host_bytes": 17448960,
+        "group_forward_calls": 35,
+        "input_rows": 376,
+        "decode_group_calls": 31,
+        "prefill_group_calls": 4,
+        "head_calls": 32,
+        "head_rows": 256,
+        "max_group_rows": 32,
+        "peer_input_copy_bytes": 1708130304,
+        "peer_output_copy_bytes": 3129212928,
+        "requests": [
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.812205989001086,
+            "native_generation_seconds": 3.9183736609993502
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.812205989001086,
+            "native_generation_seconds": 3.91837389000284
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.812205989001086,
+            "native_generation_seconds": 3.9183739389991388
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.812205989001086,
+            "native_generation_seconds": 3.918373973996495
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.812205989001086,
+            "native_generation_seconds": 3.918374008004321
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.812205989001086,
+            "native_generation_seconds": 3.9183740419975948
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.812205989001086,
+            "native_generation_seconds": 3.9183740759908687
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.812205989001086,
+            "native_generation_seconds": 3.9183741110027768
+          }
+        ],
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "all_peer_request_device_bytes": 615776256,
+        "all_peer_target_backup_device_bytes": 0,
+        "distributed_memory_scope": "all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
+        "shared_model_kv_cache": {
+          "mode": "vram-first",
+          "enabled": 1,
+          "page_bytes": 2097152,
+          "gpu_pool_bytes": 134217728,
+          "gpu_mapped_bytes": 134217728,
+          "virtual_reserved_bytes": 603979776,
+          "cpu_backing_bytes": 536870912,
+          "logical_valid_bytes": 24641536,
+          "evictions": 13408,
+          "reloads": 13056,
+          "device_to_host_bytes": 1604714496,
+          "host_to_device_bytes": 1549271040,
+          "allocation_ooms": 0,
+          "preflights": 105,
+          "peak_gpu_pool_bytes": 134217728,
+          "peak_cpu_backing_bytes": 536870912,
+          "gpu_budget_bytes": 134217728,
+          "ram_budget_bytes": 4294967296,
+          "entries": 144
+        },
+        "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+      }
+    },
+    {
+      "name": "timing-1-spill",
+      "variant": "spill",
+      "count": 1,
+      "decode_tps": 33.01077743109412,
+      "complete_tps": 31.372271682682936,
+      "ttft_seconds": 0.08645517399418168,
+      "decode_wall": 0.939087243998074,
+      "decode_cpu": 0.9437117870000051,
+      "decode_cpu_cores": 1.0049245083792668,
+      "kv_delta": {
+        "evictions": 0,
+        "reloads": 0,
+        "device_to_host_bytes": 0,
+        "host_to_device_bytes": 0,
+        "allocation_ooms": 0
+      },
+      "info": {
+        "position": 47,
+        "failed": 0,
+        "model_device_bytes": 15019776128,
+        "request_device_bytes": 99091680,
+        "pinned_host_bytes": 18104320,
+        "mapped_payload_bytes": 28601624576,
+        "model_weight_upload_bytes": 28549120000,
+        "streaming_embedding_upload_bytes": 0,
+        "peer_device_index": 1,
+        "peer_transport": "host",
+        "peer_device_bytes": 13664176128,
+        "peer_input_copy_bytes": 1921646592,
+        "peer_output_copy_bytes": 3520364544,
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "peer_request_device_bytes": 76972032,
+        "request_memory_scope": "request_device_bytes is primary; peer_request_device_bytes is additional private distributed GDN cache, excluding shared model workspaces",
+        "shared_model_kv_cache": {
+          "mode": "vram-first",
+          "enabled": 1,
+          "page_bytes": 2097152,
+          "gpu_pool_bytes": 134217728,
+          "gpu_mapped_bytes": 67108864,
+          "virtual_reserved_bytes": 603979776,
+          "cpu_backing_bytes": 0,
+          "logical_valid_bytes": 3080192,
+          "evictions": 13408,
+          "reloads": 13056,
+          "device_to_host_bytes": 1604714496,
+          "host_to_device_bytes": 1549271040,
+          "allocation_ooms": 0,
+          "preflights": 201,
+          "peak_gpu_pool_bytes": 134217728,
+          "peak_cpu_backing_bytes": 536870912,
+          "gpu_budget_bytes": 134217728,
+          "ram_budget_bytes": 4294967296,
+          "entries": 144
+        }
+      }
+    },
+    {
+      "name": "timing-1-static",
+      "variant": "static",
+      "count": 8,
+      "decode_tps": 134.63599821574613,
+      "complete_tps": 104.57471959714212,
+      "ttft_seconds": 0.6119684989971574,
+      "decode_wall": 1.8420036489987979,
+      "decode_cpu": 1.8540140719999982,
+      "decode_cpu_cores": 1.006520303587742,
+      "kv_delta": {},
+      "info": {
+        "slot_count": 8,
+        "shared_batch_workspace_device_bytes": 22299616,
+        "all_request_device_bytes": 926951168,
+        "model_device_bytes": 15019776128,
+        "peer_model_device_bytes": 13664176128,
+        "shared_model_pinned_host_bytes": 17448960,
+        "group_forward_calls": 35,
+        "input_rows": 376,
+        "decode_group_calls": 31,
+        "prefill_group_calls": 4,
+        "head_calls": 32,
+        "head_rows": 256,
+        "max_group_rows": 32,
+        "peer_input_copy_bytes": 1708130304,
+        "peer_output_copy_bytes": 3129212928,
+        "requests": [
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6065855839988217,
+            "native_generation_seconds": 2.4422044459934114
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6065855839988217,
+            "native_generation_seconds": 2.442204623002908
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6065855839988217,
+            "native_generation_seconds": 2.442204656996182
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6065855839988217,
+            "native_generation_seconds": 2.4422046919935383
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6065855839988217,
+            "native_generation_seconds": 2.4422047339903656
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6065855839988217,
+            "native_generation_seconds": 2.4422047970001586
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6065855839988217,
+            "native_generation_seconds": 2.4422048309934326
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6065855839988217,
+            "native_generation_seconds": 2.4422048659907887
+          }
+        ],
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "all_peer_request_device_bytes": 615776256,
+        "all_peer_target_backup_device_bytes": 0,
+        "distributed_memory_scope": "all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
+        "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+      }
+    },
+    {
+      "name": "timing-1-static",
+      "variant": "static",
+      "count": 1,
+      "decode_tps": 32.957445937040355,
+      "complete_tps": 31.333712725751738,
+      "ttft_seconds": 0.08647564299462829,
+      "decode_wall": 0.9406068679963937,
+      "decode_cpu": 0.9486098429999998,
+      "decode_cpu_cores": 1.0085083101940915,
+      "kv_delta": {},
+      "info": {
+        "position": 47,
+        "failed": 0,
+        "model_device_bytes": 15019776128,
+        "request_device_bytes": 115868896,
+        "pinned_host_bytes": 18104320,
+        "mapped_payload_bytes": 28601624576,
+        "model_weight_upload_bytes": 28549120000,
+        "streaming_embedding_upload_bytes": 0,
+        "peer_device_index": 1,
+        "peer_transport": "host",
+        "peer_device_bytes": 13664176128,
+        "peer_input_copy_bytes": 1921646592,
+        "peer_output_copy_bytes": 3520364544,
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "peer_request_device_bytes": 76972032,
+        "request_memory_scope": "request_device_bytes is primary; peer_request_device_bytes is additional private distributed GDN cache, excluding shared model workspaces"
+      }
+    },
+    {
+      "name": "timing-2-auto",
+      "variant": "vram-first",
+      "count": 1,
+      "decode_tps": 32.88157845348901,
+      "complete_tps": 31.254418013486635,
+      "ttft_seconds": 0.0865397190063959,
+      "decode_wall": 0.9427771250047954,
+      "decode_cpu": 0.9488795529999976,
+      "decode_cpu_cores": 1.0064728214477745,
+      "kv_delta": {
+        "evictions": 0,
+        "reloads": 0,
+        "device_to_host_bytes": 0,
+        "host_to_device_bytes": 0,
+        "allocation_ooms": 0
+      },
+      "info": {
+        "position": 47,
+        "failed": 0,
+        "model_device_bytes": 15019776128,
+        "request_device_bytes": 99091680,
+        "pinned_host_bytes": 18104320,
+        "mapped_payload_bytes": 28601624576,
+        "model_weight_upload_bytes": 28549120000,
+        "streaming_embedding_upload_bytes": 0,
+        "peer_device_index": 1,
+        "peer_transport": "host",
+        "peer_device_bytes": 13664176128,
+        "peer_input_copy_bytes": 213516288,
+        "peer_output_copy_bytes": 391151616,
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "peer_request_device_bytes": 76972032,
+        "request_memory_scope": "request_device_bytes is primary; peer_request_device_bytes is additional private distributed GDN cache, excluding shared model workspaces",
+        "shared_model_kv_cache": {
+          "mode": "vram-first",
+          "enabled": 1,
+          "page_bytes": 2097152,
+          "gpu_pool_bytes": 67108864,
+          "gpu_mapped_bytes": 67108864,
+          "virtual_reserved_bytes": 603979776,
+          "cpu_backing_bytes": 0,
+          "logical_valid_bytes": 3080192,
+          "evictions": 0,
+          "reloads": 0,
+          "device_to_host_bytes": 0,
+          "host_to_device_bytes": 0,
+          "allocation_ooms": 0,
+          "preflights": 96,
+          "peak_gpu_pool_bytes": 67108864,
+          "peak_cpu_backing_bytes": 0,
+          "gpu_budget_bytes": 0,
+          "ram_budget_bytes": 4294967296,
+          "entries": 144
+        }
+      }
+    },
+    {
+      "name": "timing-2-auto",
+      "variant": "vram-first",
+      "count": 8,
+      "decode_tps": 134.18549534756175,
+      "complete_tps": 104.60560371488916,
+      "ttft_seconds": 0.6151805429981323,
+      "decode_wall": 1.8481878339953255,
+      "decode_cpu": 1.8545914720000027,
+      "decode_cpu_cores": 1.0034648199100165,
+      "kv_delta": {
+        "evictions": 0,
+        "reloads": 0,
+        "device_to_host_bytes": 0,
+        "host_to_device_bytes": 0,
+        "allocation_ooms": 0
+      },
+      "info": {
+        "slot_count": 8,
+        "shared_batch_workspace_device_bytes": 22299616,
+        "all_request_device_bytes": 792733440,
+        "model_device_bytes": 15019776128,
+        "peer_model_device_bytes": 13664176128,
+        "shared_model_pinned_host_bytes": 17448960,
+        "group_forward_calls": 35,
+        "input_rows": 376,
+        "decode_group_calls": 31,
+        "prefill_group_calls": 4,
+        "head_calls": 32,
+        "head_rows": 256,
+        "max_group_rows": 32,
+        "peer_input_copy_bytes": 1921646592,
+        "peer_output_copy_bytes": 3520364544,
+        "requests": [
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6066810990014346,
+            "native_generation_seconds": 2.4419105620036134
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6066810990014346,
+            "native_generation_seconds": 2.4419106249988545
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6066810990014346,
+            "native_generation_seconds": 2.4419106600107625
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6066810990014346,
+            "native_generation_seconds": 2.4419106950081186
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6066810990014346,
+            "native_generation_seconds": 2.4419107280118624
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6066810990014346,
+            "native_generation_seconds": 2.441910840003402
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6066810990014346,
+            "native_generation_seconds": 2.441910875000758
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.6066810990014346,
+            "native_generation_seconds": 2.441910908004502
+          }
+        ],
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "all_peer_request_device_bytes": 615776256,
+        "all_peer_target_backup_device_bytes": 0,
+        "distributed_memory_scope": "all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
+        "shared_model_kv_cache": {
+          "mode": "vram-first",
+          "enabled": 1,
+          "page_bytes": 2097152,
+          "gpu_pool_bytes": 536870912,
+          "gpu_mapped_bytes": 536870912,
+          "virtual_reserved_bytes": 603979776,
+          "cpu_backing_bytes": 0,
+          "logical_valid_bytes": 24641536,
+          "evictions": 0,
+          "reloads": 0,
+          "device_to_host_bytes": 0,
+          "host_to_device_bytes": 0,
+          "allocation_ooms": 0,
+          "preflights": 201,
+          "peak_gpu_pool_bytes": 536870912,
+          "peak_cpu_backing_bytes": 0,
+          "gpu_budget_bytes": 0,
+          "ram_budget_bytes": 4294967296,
+          "entries": 144
+        },
+        "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+      }
+    },
+    {
+      "name": "timing-2-spill",
+      "variant": "spill",
+      "count": 1,
+      "decode_tps": 33.02776348382002,
+      "complete_tps": 31.319259238432913,
+      "ttft_seconds": 0.08643322599527892,
+      "decode_wall": 0.9386042750120396,
+      "decode_cpu": 0.9471557669999981,
+      "decode_cpu_cores": 1.0091108598326477,
+      "kv_delta": {
+        "evictions": 0,
+        "reloads": 0,
+        "device_to_host_bytes": 0,
+        "host_to_device_bytes": 0,
+        "allocation_ooms": 0
+      },
+      "info": {
+        "position": 47,
+        "failed": 0,
+        "model_device_bytes": 15019776128,
+        "request_device_bytes": 99091680,
+        "pinned_host_bytes": 18104320,
+        "mapped_payload_bytes": 28601624576,
+        "model_weight_upload_bytes": 28549120000,
+        "streaming_embedding_upload_bytes": 0,
+        "peer_device_index": 1,
+        "peer_transport": "host",
+        "peer_device_bytes": 13664176128,
+        "peer_input_copy_bytes": 213516288,
+        "peer_output_copy_bytes": 391151616,
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "peer_request_device_bytes": 76972032,
+        "request_memory_scope": "request_device_bytes is primary; peer_request_device_bytes is additional private distributed GDN cache, excluding shared model workspaces",
+        "shared_model_kv_cache": {
+          "mode": "vram-first",
+          "enabled": 1,
+          "page_bytes": 2097152,
+          "gpu_pool_bytes": 67108864,
+          "gpu_mapped_bytes": 67108864,
+          "virtual_reserved_bytes": 603979776,
+          "cpu_backing_bytes": 0,
+          "logical_valid_bytes": 3080192,
+          "evictions": 0,
+          "reloads": 0,
+          "device_to_host_bytes": 0,
+          "host_to_device_bytes": 0,
+          "allocation_ooms": 0,
+          "preflights": 96,
+          "peak_gpu_pool_bytes": 67108864,
+          "peak_cpu_backing_bytes": 0,
+          "gpu_budget_bytes": 134217728,
+          "ram_budget_bytes": 4294967296,
+          "entries": 144
+        }
+      }
+    },
+    {
+      "name": "timing-2-spill",
+      "variant": "spill",
+      "count": 8,
+      "decode_tps": 79.48037639972175,
+      "complete_tps": 65.47416290694414,
+      "ttft_seconds": 0.7602591769973515,
+      "decode_wall": 3.1202670550119365,
+      "decode_cpu": 3.131176251999996,
+      "decode_cpu_cores": 1.0034962382372163,
+      "kv_delta": {
+        "evictions": 3968,
+        "reloads": 3968,
+        "device_to_host_bytes": 516030464,
+        "host_to_device_bytes": 503840768,
+        "allocation_ooms": 0
+      },
+      "info": {
+        "slot_count": 8,
+        "shared_batch_workspace_device_bytes": 22299616,
+        "all_request_device_bytes": 792733440,
+        "model_device_bytes": 15019776128,
+        "peer_model_device_bytes": 13664176128,
+        "shared_model_pinned_host_bytes": 17448960,
+        "group_forward_calls": 35,
+        "input_rows": 376,
+        "decode_group_calls": 31,
+        "prefill_group_calls": 4,
+        "head_calls": 32,
+        "head_rows": 256,
+        "max_group_rows": 32,
+        "peer_input_copy_bytes": 1921646592,
+        "peer_output_copy_bytes": 3520364544,
+        "requests": [
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7542845389980357,
+            "native_generation_seconds": 3.9035053639963735
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7542845389980357,
+            "native_generation_seconds": 3.903505526992376
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7542845389980357,
+            "native_generation_seconds": 3.903505567999673
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7542845389980357,
+            "native_generation_seconds": 3.903505601992947
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7542845389980357,
+            "native_generation_seconds": 3.903505636000773
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7542845389980357,
+            "native_generation_seconds": 3.903505693990155
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7542845389980357,
+            "native_generation_seconds": 3.903505726993899
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 99091680,
+            "native_time_to_first_token_seconds": 0.7542845389980357,
+            "native_generation_seconds": 3.9035057610017247
+          }
+        ],
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "all_peer_request_device_bytes": 615776256,
+        "all_peer_target_backup_device_bytes": 0,
+        "distributed_memory_scope": "all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
+        "shared_model_kv_cache": {
+          "mode": "vram-first",
+          "enabled": 1,
+          "page_bytes": 2097152,
+          "gpu_pool_bytes": 134217728,
+          "gpu_mapped_bytes": 134217728,
+          "virtual_reserved_bytes": 603979776,
+          "cpu_backing_bytes": 536870912,
+          "logical_valid_bytes": 24641536,
+          "evictions": 13408,
+          "reloads": 13056,
+          "device_to_host_bytes": 1604714496,
+          "host_to_device_bytes": 1549271040,
+          "allocation_ooms": 0,
+          "preflights": 201,
+          "peak_gpu_pool_bytes": 134217728,
+          "peak_cpu_backing_bytes": 536870912,
+          "gpu_budget_bytes": 134217728,
+          "ram_budget_bytes": 4294967296,
+          "entries": 144
+        },
+        "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+      }
+    },
+    {
+      "name": "timing-2-static",
+      "variant": "static",
+      "count": 1,
+      "decode_tps": 32.96270367039248,
+      "complete_tps": 31.28605231713409,
+      "ttft_seconds": 0.08641543600242585,
+      "decode_wall": 0.9404568360041594,
+      "decode_cpu": 0.9476257180000047,
+      "decode_cpu_cores": 1.0076227655766794,
+      "kv_delta": {},
+      "info": {
+        "position": 47,
+        "failed": 0,
+        "model_device_bytes": 15019776128,
+        "request_device_bytes": 115868896,
+        "pinned_host_bytes": 18104320,
+        "mapped_payload_bytes": 28601624576,
+        "model_weight_upload_bytes": 28549120000,
+        "streaming_embedding_upload_bytes": 0,
+        "peer_device_index": 1,
+        "peer_transport": "host",
+        "peer_device_bytes": 13664176128,
+        "peer_input_copy_bytes": 213516288,
+        "peer_output_copy_bytes": 391151616,
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "peer_request_device_bytes": 76972032,
+        "request_memory_scope": "request_device_bytes is primary; peer_request_device_bytes is additional private distributed GDN cache, excluding shared model workspaces"
+      }
+    },
+    {
+      "name": "timing-2-static",
+      "variant": "static",
+      "count": 8,
+      "decode_tps": 134.5619229726831,
+      "complete_tps": 104.59040599757863,
+      "ttft_seconds": 0.6128270420012996,
+      "decode_wall": 1.8430176570109325,
+      "decode_cpu": 1.8573654679999976,
+      "decode_cpu_cores": 1.0077849557949081,
+      "kv_delta": {},
+      "info": {
+        "slot_count": 8,
+        "shared_batch_workspace_device_bytes": 22299616,
+        "all_request_device_bytes": 926951168,
+        "model_device_bytes": 15019776128,
+        "peer_model_device_bytes": 13664176128,
+        "shared_model_pinned_host_bytes": 17448960,
+        "group_forward_calls": 35,
+        "input_rows": 376,
+        "decode_group_calls": 31,
+        "prefill_group_calls": 4,
+        "head_calls": 32,
+        "head_rows": 256,
+        "max_group_rows": 32,
+        "peer_input_copy_bytes": 1921646592,
+        "peer_output_copy_bytes": 3520364544,
+        "requests": [
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6057181889918866,
+            "native_generation_seconds": 2.4419059659994673
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6057181889918866,
+            "native_generation_seconds": 2.4419061209919164
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6057181889918866,
+            "native_generation_seconds": 2.4419061549997423
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6057181889918866,
+            "native_generation_seconds": 2.4419061899970984
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6057181889918866,
+            "native_generation_seconds": 2.441906223000842
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6057181889918866,
+            "native_generation_seconds": 2.44190630299272
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6057181889918866,
+            "native_generation_seconds": 2.441906337000546
+          },
+          {
+            "position": 47,
+            "failed": false,
+            "capacity": 256,
+            "request_device_bytes": 115868896,
+            "native_time_to_first_token_seconds": 0.6057181889918866,
+            "native_generation_seconds": 2.4419063949899282
+          }
+        ],
+        "projection_profile": "q8-residual-column-mlp-head-gdn",
+        "activation_quantization_passes": 2,
+        "primary_projection_workspace_bytes": 1253376,
+        "peer_projection_workspace_bytes": 1253376,
+        "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity. Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity.",
+        "swiglu_quant_fusion": {
+          "compiled_opt_in": true,
+          "eligible_intermediate_per_rank": 8704,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "model_has_eligible_mlp": true,
+          "precision": "Original F16 rounding and both residual-A8 passes preserved"
+        },
+        "rms_quant_fusion": {
+          "compiled_opt_in": true,
+          "model_has_eligible_norm": true,
+          "eligible_token_range": [
+            1,
+            32
+          ],
+          "location": "post-attention norm and primary MLP input packing",
+          "peer_input": "Original materialized FP16 normalized values; peer packing unchanged"
+        },
+        "column_mlp_enabled": true,
+        "column_mlp_buffers": {
+          "enabled": 1,
+          "primary_local_fp32_bytes": 655360,
+          "primary_remote_fp32_bytes": 655360,
+          "peer_partial_fp32_bytes": 655360,
+          "peer_gate_up_bytes": 1114112,
+          "peer_activation_bytes": 557056,
+          "pinned_fp32_partial_bytes": 655360,
+          "column_down_matrices": 64
+        },
+        "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+        "partial_and_host_transport_dtype": "float32",
+        "head_gdn_enabled": true,
+        "head_gdn_primary_workspace_bytes": 1254400,
+        "head_gdn_peer_workspace_bytes": 1254400,
+        "gdn_weight_layout": "bit-preserved semantic Q/K/V head rows and group32 output-column halves",
+        "gdn_state_layout": "private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
+        "all_peer_request_device_bytes": 615776256,
+        "all_peer_target_backup_device_bytes": 0,
+        "distributed_memory_scope": "all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
+        "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+      }
+    }
+  ],
+  "qualification": {
+    "capacity-65536": {
+      "completed": true,
+      "exact_reference_bytes_equal": true,
+      "capacity": 65536,
+      "prompt_tokens": 16,
+      "output_tokens": 32,
+      "kv_cache": {
+        "mode": "vram-first",
+        "enabled": 1,
+        "page_bytes": 2097152,
+        "gpu_pool_bytes": 536870912,
+        "gpu_mapped_bytes": 536870912,
+        "virtual_reserved_bytes": 38654705664,
+        "cpu_backing_bytes": 0,
+        "logical_valid_bytes": 24641536,
+        "evictions": 0,
+        "reloads": 0,
+        "device_to_host_bytes": 0,
+        "host_to_device_bytes": 0,
+        "allocation_ooms": 0,
+        "preflights": 105,
+        "peak_gpu_pool_bytes": 536870912,
+        "peak_cpu_backing_bytes": 0,
+        "gpu_budget_bytes": 0,
+        "ram_budget_bytes": 4294967296,
+        "entries": 144
+      }
+    },
+    "qualify-auto": {
+      "completed": true,
+      "exact_reference_bytes_equal": true,
+      "capacity": 256,
+      "prompt_tokens": 16,
+      "output_tokens": 32,
+      "kv_cache": {
+        "mode": "vram-first",
+        "enabled": 1,
+        "page_bytes": 2097152,
+        "gpu_pool_bytes": 536870912,
+        "gpu_mapped_bytes": 536870912,
+        "virtual_reserved_bytes": 603979776,
+        "cpu_backing_bytes": 0,
+        "logical_valid_bytes": 24641536,
+        "evictions": 0,
+        "reloads": 0,
+        "device_to_host_bytes": 0,
+        "host_to_device_bytes": 0,
+        "allocation_ooms": 0,
+        "preflights": 105,
+        "peak_gpu_pool_bytes": 536870912,
+        "peak_cpu_backing_bytes": 0,
+        "gpu_budget_bytes": 0,
+        "ram_budget_bytes": 4294967296,
+        "entries": 144
+      }
+    },
+    "qualify-spill": {
+      "completed": true,
+      "exact_reference_bytes_equal": true,
+      "capacity": 256,
+      "prompt_tokens": 16,
+      "output_tokens": 32,
+      "kv_cache": {
+        "mode": "vram-first",
+        "enabled": 1,
+        "page_bytes": 2097152,
+        "gpu_pool_bytes": 134217728,
+        "gpu_mapped_bytes": 134217728,
+        "virtual_reserved_bytes": 603979776,
+        "cpu_backing_bytes": 536870912,
+        "logical_valid_bytes": 24641536,
+        "evictions": 4960,
+        "reloads": 4736,
+        "device_to_host_bytes": 553779200,
+        "host_to_device_bytes": 529006592,
+        "allocation_ooms": 0,
+        "preflights": 105,
+        "peak_gpu_pool_bytes": 134217728,
+        "peak_cpu_backing_bytes": 536870912,
+        "gpu_budget_bytes": 134217728,
+        "ram_budget_bytes": 4294967296,
+        "entries": 144
+      }
+    },
+    "qualify-static": {
+      "completed": true,
+      "exact_reference_bytes_equal": true,
+      "capacity": 256,
+      "prompt_tokens": 16,
+      "output_tokens": 32,
+      "kv_cache": {
+        "mode": "static"
+      }
+    }
+  },
+  "context": {
+    "context-512-static": {
+      "completed": true,
+      "mode": "static",
+      "prompt_tokens": 512,
+      "output_tokens": 8,
+      "batch": 8,
+      "capacity": 1024,
+      "prefill": {
+        "started_unix": 1792724473.1062126,
+        "wall_seconds": 23.977178788991296,
+        "process_cpu_seconds": 23.999478026000006,
+        "process_cpu_cores": 1.0009300192155612,
+        "output_tokens": 4096,
+        "tps": 170.8291052940977
+      },
+      "decode": {
+        "started_unix": 1792724503.766142,
+        "wall_seconds": 1.0639157599944156,
+        "process_cpu_seconds": 1.0828713440000115,
+        "process_cpu_cores": 1.0178168091106155,
+        "output_tokens": 64,
+        "tps": 60.15513859888299
+      },
+      "kv_before_decode": {
+        "mode": "static"
+      },
+      "kv_after_decode": {
+        "mode": "static"
+      },
+      "max_rss_kib": 29065176,
+      "exact_reference_bytes_equal": null
+    },
+    "context-512-vram-first": {
+      "completed": true,
+      "mode": "vram-first",
+      "prompt_tokens": 512,
+      "output_tokens": 8,
+      "batch": 8,
+      "capacity": 1024,
+      "prefill": {
+        "started_unix": 1792724553.749233,
+        "wall_seconds": 37.82049461599672,
+        "process_cpu_seconds": 37.781358428000004,
+        "process_cpu_cores": 0.9989652121582735,
+        "output_tokens": 4096,
+        "tps": 108.30106907876181
+      },
+      "decode": {
+        "started_unix": 1792724597.6241436,
+        "wall_seconds": 3.054952235004748,
+        "process_cpu_seconds": 3.0717968960000093,
+        "process_cpu_cores": 1.0055138868628613,
+        "output_tokens": 64,
+        "tps": 20.949591049792804
+      },
+      "kv_before_decode": {
+        "mode": "vram-first",
+        "enabled": 1,
+        "page_bytes": 2097152,
+        "gpu_pool_bytes": 134217728,
+        "gpu_mapped_bytes": 134217728,
+        "virtual_reserved_bytes": 536870912,
+        "cpu_backing_bytes": 536870912,
+        "logical_valid_bytes": 268435456,
+        "evictions": 16352,
+        "reloads": 16256,
+        "device_to_host_bytes": 17246978048,
+        "host_to_device_bytes": 17045651456,
+        "allocation_ooms": 0,
+        "preflights": 128,
+        "peak_gpu_pool_bytes": 134217728,
+        "peak_cpu_backing_bytes": 536870912,
+        "gpu_budget_bytes": 134217728,
+        "ram_budget_bytes": 4294967296,
+        "entries": 128
+      },
+      "kv_after_decode": {
+        "mode": "vram-first",
+        "enabled": 1,
+        "page_bytes": 2097152,
+        "gpu_pool_bytes": 134217728,
+        "gpu_mapped_bytes": 134217728,
+        "virtual_reserved_bytes": 536870912,
+        "cpu_backing_bytes": 536870912,
+        "logical_valid_bytes": 272629760,
+        "evictions": 17376,
+        "reloads": 17280,
+        "device_to_host_bytes": 19412287488,
+        "host_to_device_bytes": 19207815168,
+        "allocation_ooms": 0,
+        "preflights": 136,
+        "peak_gpu_pool_bytes": 134217728,
+        "peak_cpu_backing_bytes": 536870912,
+        "gpu_budget_bytes": 134217728,
+        "ram_budget_bytes": 4294967296,
+        "entries": 128
+      },
+      "max_rss_kib": 29325008,
+      "exact_reference_bytes_equal": true
+    }
+  },
+  "timeline": {
+    "timeline-spill": {
+      "scope": "Four profiled C8 post-first steps, NOT unprofiled TPS; idle means no recorded kernel/copy/memset on a common two-device activity span",
+      "kernel_count": 14112,
+      "copy_count": 5148,
+      "span_ms": 417.687329,
+      "devices": {
+        "0": {
+          "recorded_activity_ms": 191.557082,
+          "kernel_union_ms": 161.896274,
+          "idle_fraction": 0.5413864182602485
+        },
+        "1": {
+          "recorded_activity_ms": 163.328738,
+          "kernel_union_ms": 146.046399,
+          "idle_fraction": 0.6089688945292377
+        }
+      },
+      "copies": {
+        "0:Host-to-Device": {
+          "count": 1736,
+          "bytes": 128008448,
+          "summed_gpu_ms": 20.350202999999993
+        },
+        "0:Device-to-Host": {
+          "count": 1608,
+          "bytes": 86835712,
+          "summed_gpu_ms": 8.313394999999971
+        },
+        "1:Host-to-Device": {
+          "count": 580,
+          "bytes": 48562176,
+          "summed_gpu_ms": 8.257880999999998
+        },
+        "1:Device-to-Host": {
+          "count": 580,
+          "bytes": 91308032,
+          "summed_gpu_ms": 9.024458
+        },
+        "0:Device-to-Device": {
+          "count": 644,
+          "bytes": 12271616,
+          "summed_gpu_ms": 0.9972100000000059
+        }
+      },
+      "kernel_summed_ms": {
+        "void vpf::row_pair<(bool)0, (int)2>(const signed char *, const float *, vqf::Group, int, int, int, int)": {
+          "count": 1024,
+          "ms": 125.76718399999996
+        },
+        "void vpf::row_pair<(bool)1, (int)2>(const signed char *, const float *, vqf::Group, int, int, int, int)": {
+          "count": 512,
+          "ms": 54.504410999999976
+        },
+        "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)": {
+          "count": 3072,
+          "ms": 49.90070799999971
+        },
+        "void vct::partial<(int)8, (int)16, (bool)1, (int)2>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)": {
+          "count": 384,
+          "ms": 17.44238500000001
+        },
+        "void vdt::dot<(int)8, (int)2, (int)16>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)": {
+          "count": 136,
+          "ms": 17.197878
+        },
+        "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)": {
+          "count": 3072,
+          "ms": 10.49610800000002
+        },
+        "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)": {
+          "count": 768,
+          "ms": 8.207614999999997
+        },
+        "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)": {
+          "count": 512,
+          "ms": 8.170665000000028
+        },
+        "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)": {
+          "count": 1288,
+          "ms": 3.56684299999996
+        },
+        "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)": {
+          "count": 260,
+          "ms": 3.337594999999999
+        },
+        "void vproducer::fused<(int)256, (bool)0>(const __half *, const __half *, signed char *, float *, __half *, int, int, int)": {
+          "count": 512,
+          "ms": 2.1023689999999995
+        },
+        "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)": {
+          "count": 512,
+          "ms": 1.4826680000000034
+        },
+        "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)": {
+          "count": 384,
+          "ms": 1.2383019999999985
+        },
+        "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)": {
+          "count": 512,
+          "ms": 1.1791310000000013
+        },
+        "void vrq::fused<(int)8, (bool)1>(const __half *, const float *, signed char *, float *, __half *, int, int, int, float)": {
+          "count": 256,
+          "ms": 1.1048240000000007
+        },
+        "vct::sum(const float *, const float *, __half *, int)": {
+          "count": 448,
+          "ms": 1.008794000000001
+        },
+        "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)": {
+          "count": 384,
+          "ms": 1.0026260000000042
+        },
+        "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)": {
+          "count": 64,
+          "ms": 0.17266499999999993
+        },
+        "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)": {
+          "count": 4,
+          "ms": 0.040127
+        },
+        "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)": {
+          "count": 4,
+          "ms": 0.010431
+        },
+        "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)": {
+          "count": 4,
+          "ms": 0.009344
+        }
+      },
+      "api": {
+        "cuProfilerStart": {
+          "count": 1,
+          "summed_host_ms": 0.004779
+        },
+        "cudaStreamIsCapturing_v10000": {
+          "count": 1,
+          "summed_host_ms": 0.006222
+        },
+        "cudaMemGetInfo_v3020": {
+          "count": 4,
+          "summed_host_ms": 4.646982
+        },
+        "cudaMemcpyAsync_v3020": {
+          "count": 4820,
+          "summed_host_ms": 36.91910600000001
+        },
+        "cudaLaunchKernel_v7000": {
+          "count": 14112,
+          "summed_host_ms": 61.45048400000023
+        },
+        "cudaEventRecord_v3020": {
+          "count": 1160,
+          "summed_host_ms": 3.1326450000000006
+        },
+        "cudaStreamWaitEvent_v3020": {
+          "count": 1160,
+          "summed_host_ms": 4.001567
+        },
+        "cudaMemcpy2DAsync_v3020": {
+          "count": 328,
+          "summed_host_ms": 2.104401
+        },
+        "cudaStreamSynchronize_v3020": {
+          "count": 3088,
+          "summed_host_ms": 158.43728199999995
+        },
+        "cuMemUnmap": {
+          "count": 1024,
+          "summed_host_ms": 44.452780000000004
+        },
+        "cuMemMap": {
+          "count": 1024,
+          "summed_host_ms": 2.813558999999997
+        },
+        "cuMemSetAccess": {
+          "count": 1024,
+          "summed_host_ms": 65.9371650000001
+        }
+      },
+      "driver_table_present": false
+    },
+    "timeline-static": {
+      "scope": "Four profiled C8 post-first steps, NOT unprofiled TPS; idle means no recorded kernel/copy/memset on a common two-device activity span",
+      "kernel_count": 14112,
+      "copy_count": 3100,
+      "span_ms": 243.100506,
+      "devices": {
+        "0": {
+          "recorded_activity_ms": 183.92129,
+          "kernel_union_ms": 164.622397,
+          "idle_fraction": 0.24343518231920092
+        },
+        "1": {
+          "recorded_activity_ms": 163.423252,
+          "kernel_union_ms": 146.09648,
+          "idle_fraction": 0.32775437332902957
+        }
+      },
+      "copies": {
+        "0:Host-to-Device": {
+          "count": 712,
+          "bytes": 91308288,
+          "summed_gpu_ms": 14.186632000000005
+        },
+        "0:Device-to-Host": {
+          "count": 584,
+          "bytes": 48562688,
+          "summed_gpu_ms": 4.117258999999993
+        },
+        "1:Host-to-Device": {
+          "count": 580,
+          "bytes": 48562176,
+          "summed_gpu_ms": 8.276149000000004
+        },
+        "1:Device-to-Host": {
+          "count": 580,
+          "bytes": 91308032,
+          "summed_gpu_ms": 9.050623000000002
+        },
+        "0:Device-to-Device": {
+          "count": 644,
+          "bytes": 12271616,
+          "summed_gpu_ms": 0.9950020000000048
+        }
+      },
+      "kernel_summed_ms": {
+        "void vpf::row_pair<(bool)0, (int)2>(const signed char *, const float *, vqf::Group, int, int, int, int)": {
+          "count": 1024,
+          "ms": 125.54662000000009
+        },
+        "void vpf::row_pair<(bool)1, (int)2>(const signed char *, const float *, vqf::Group, int, int, int, int)": {
+          "count": 512,
+          "ms": 54.64374600000004
+        },
+        "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)": {
+          "count": 3072,
+          "ms": 49.792673999999785
+        },
+        "void vct::partial<(int)8, (int)16, (bool)1, (int)2>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)": {
+          "count": 384,
+          "ms": 17.41390600000002
+        },
+        "void vdt::dot<(int)8, (int)2, (int)16>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)": {
+          "count": 136,
+          "ms": 17.149208000000005
+        },
+        "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)": {
+          "count": 512,
+          "ms": 11.214519000000001
+        },
+        "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)": {
+          "count": 3072,
+          "ms": 10.492500000000025
+        },
+        "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)": {
+          "count": 768,
+          "ms": 8.215959000000002
+        },
+        "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)": {
+          "count": 1288,
+          "ms": 3.5897569999999592
+        },
+        "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)": {
+          "count": 260,
+          "ms": 3.3289079999999953
+        },
+        "void vproducer::fused<(int)256, (bool)0>(const __half *, const __half *, signed char *, float *, __half *, int, int, int)": {
+          "count": 512,
+          "ms": 2.0948880000000005
+        },
+        "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)": {
+          "count": 512,
+          "ms": 1.4778310000000034
+        },
+        "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)": {
+          "count": 384,
+          "ms": 1.2348330000000007
+        },
+        "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)": {
+          "count": 512,
+          "ms": 1.1821320000000013
+        },
+        "void vrq::fused<(int)8, (bool)1>(const __half *, const float *, signed char *, float *, __half *, int, int, int, float)": {
+          "count": 256,
+          "ms": 1.0987510000000011
+        },
+        "vct::sum(const float *, const float *, __half *, int)": {
+          "count": 448,
+          "ms": 1.0084400000000007
+        },
+        "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)": {
+          "count": 384,
+          "ms": 1.0029800000000046
+        },
+        "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)": {
+          "count": 64,
+          "ms": 0.17148400000000003
+        },
+        "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)": {
+          "count": 4,
+          "ms": 0.039902
+        },
+        "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)": {
+          "count": 4,
+          "ms": 0.010431000000000001
+        },
+        "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)": {
+          "count": 4,
+          "ms": 0.009408
+        }
+      },
+      "api": {
+        "cuProfilerStart": {
+          "count": 1,
+          "summed_host_ms": 0.008079
+        },
+        "cudaStreamIsCapturing_v10000": {
+          "count": 1,
+          "summed_host_ms": 0.00799
+        },
+        "cudaMemcpyAsync_v3020": {
+          "count": 2772,
+          "summed_host_ms": 25.44625900000002
+        },
+        "cudaLaunchKernel_v7000": {
+          "count": 14112,
+          "summed_host_ms": 81.80703100000031
+        },
+        "cudaEventRecord_v3020": {
+          "count": 1160,
+          "summed_host_ms": 3.5359029999999954
+        },
+        "cudaStreamWaitEvent_v3020": {
+          "count": 1160,
+          "summed_host_ms": 5.004020999999997
+        },
+        "cudaMemcpy2DAsync_v3020": {
+          "count": 328,
+          "summed_host_ms": 2.1027959999999988
+        },
+        "cudaStreamSynchronize_v3020": {
+          "count": 16,
+          "summed_host_ms": 102.27841600000002
+        }
+      },
+      "driver_table_present": false
+    }
+  },
+  "counters": {
+    "counter-spill": {
+      "scope": "One C8 causal_attention kernel on primary GPU only; not whole-model occupancy/bandwidth or unprofiled TPS; caches/clocks uncontrolled",
+      "kernel": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+      "device": "0",
+      "block": "(256, 1, 1)",
+      "grid": "(24, 1, 1)",
+      "metrics": {
+        "dram__bytes_read.avg": {
+          "value": 2732.0,
+          "unit": "byte"
+        },
+        "dram__bytes_read.max": {
+          "value": 4224.0,
+          "unit": "byte"
+        },
+        "dram__bytes_read.min": {
+          "value": 0.0,
+          "unit": "byte"
+        },
+        "dram__bytes_read.sum": {
+          "value": 87424.0,
+          "unit": "byte"
+        },
+        "dram__bytes_write.avg": {
+          "value": 0.0,
+          "unit": "byte"
+        },
+        "dram__bytes_write.max": {
+          "value": 0.0,
+          "unit": "byte"
+        },
+        "dram__bytes_write.min": {
+          "value": 0.0,
+          "unit": "byte"
+        },
+        "dram__bytes_write.sum": {
+          "value": 0.0,
+          "unit": "byte"
+        },
+        "dram__throughput.avg.pct_of_peak_sustained_elapsed": {
+          "value": 0.64,
+          "unit": "%"
+        },
+        "dram__throughput.max.pct_of_peak_sustained_elapsed": {
+          "value": 0.98,
+          "unit": "%"
+        },
+        "dram__throughput.min.pct_of_peak_sustained_elapsed": {
+          "value": 0.0,
+          "unit": "%"
+        },
+        "dram__throughput.sum.pct_of_peak_sustained_elapsed": {
+          "value": 0.64,
+          "unit": "%"
+        },
+        "gpu__time_duration.avg": {
+          "value": 23648.0,
+          "unit": "ns"
+        },
+        "gpu__time_duration.max": {
+          "value": 23648.0,
+          "unit": "ns"
+        },
+        "gpu__time_duration.min": {
+          "value": 23648.0,
+          "unit": "ns"
+        },
+        "gpu__time_duration.sum": {
+          "value": 23648.0,
+          "unit": "ns"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_ld.avg": {
+          "value": 5376.0,
+          "unit": "byte"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_ld.max": {
+          "value": 17920.0,
+          "unit": "byte"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_ld.min": {
+          "value": 0.0,
+          "unit": "byte"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum": {
+          "value": 430080.0,
+          "unit": "byte"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_st.avg": {
+          "value": 153.6,
+          "unit": "byte"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_st.max": {
+          "value": 512.0,
+          "unit": "byte"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_st.min": {
+          "value": 0.0,
+          "unit": "byte"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_st.sum": {
+          "value": 12288.0,
+          "unit": "byte"
+        },
+        "lts__t_sectors_op_read.avg": {
+          "value": 225.61,
+          "unit": "sector"
+        },
+        "lts__t_sectors_op_read.max": {
+          "value": 432.0,
+          "unit": "sector"
+        },
+        "lts__t_sectors_op_read.min": {
+          "value": 0.0,
+          "unit": "sector"
+        },
+        "lts__t_sectors_op_read.sum": {
+          "value": 14439.0,
+          "unit": "sector"
+        },
+        "lts__t_sectors_op_write.avg": {
+          "value": 6.25,
+          "unit": "sector"
+        },
+        "lts__t_sectors_op_write.max": {
+          "value": 16.0,
+          "unit": "sector"
+        },
+        "lts__t_sectors_op_write.min": {
+          "value": 0.0,
+          "unit": "sector"
+        },
+        "lts__t_sectors_op_write.sum": {
+          "value": 400.0,
+          "unit": "sector"
+        },
+        "sm__maximum_warps_avg_per_active_cycle": {
+          "value": 64.0,
+          "unit": "warp"
+        },
+        "sm__maximum_warps_per_active_cycle_pct": {
+          "value": 100.0,
+          "unit": "%"
+        },
+        "sm__throughput.avg.pct_of_peak_sustained_elapsed": {
+          "value": 3.05,
+          "unit": "%"
+        },
+        "sm__throughput.max.pct_of_peak_sustained_elapsed": {
+          "value": 10.15,
+          "unit": "%"
+        },
+        "sm__throughput.min.pct_of_peak_sustained_elapsed": {
+          "value": 0.0,
+          "unit": "%"
+        },
+        "sm__throughput.sum.pct_of_peak_sustained_elapsed": {
+          "value": 3.05,
+          "unit": "%"
+        },
+        "sm__warps_active.avg.pct_of_peak_sustained_active": {
+          "value": 12.49,
+          "unit": "%"
+        },
+        "sm__warps_active.max.pct_of_peak_sustained_active": {
+          "value": 42.1,
+          "unit": "%"
+        },
+        "sm__warps_active.min.pct_of_peak_sustained_active": {
+          "value": 0.0,
+          "unit": "%"
+        },
+        "sm__warps_active.sum.pct_of_peak_sustained_active": {
+          "value": 12.49,
+          "unit": "%"
+        },
+        "smsp__maximum_warps_avg_per_active_cycle": {
+          "value": 16.0,
+          "unit": "warp"
+        },
+        "smsp__warp_issue_stalled_long_scoreboard_per_warp_active.pct": {
+          "value": 33.19,
+          "unit": "%"
+        },
+        "smsp__warp_issue_stalled_short_scoreboard_per_warp_active.pct": {
+          "value": 10.57,
+          "unit": "%"
+        }
+      },
+      "derived_dram_read_write_GBps": 3.696887686062246
+    },
+    "counter-static": {
+      "scope": "One C8 causal_attention kernel on primary GPU only; not whole-model occupancy/bandwidth or unprofiled TPS; caches/clocks uncontrolled",
+      "kernel": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+      "device": "0",
+      "block": "(256, 1, 1)",
+      "grid": "(24, 1, 1)",
+      "metrics": {
+        "dram__bytes_read.avg": {
+          "value": 2740.0,
+          "unit": "byte"
+        },
+        "dram__bytes_read.max": {
+          "value": 5376.0,
+          "unit": "byte"
+        },
+        "dram__bytes_read.min": {
+          "value": 0.0,
+          "unit": "byte"
+        },
+        "dram__bytes_read.sum": {
+          "value": 87680.0,
+          "unit": "byte"
+        },
+        "dram__bytes_write.avg": {
+          "value": 0.0,
+          "unit": "byte"
+        },
+        "dram__bytes_write.max": {
+          "value": 0.0,
+          "unit": "byte"
+        },
+        "dram__bytes_write.min": {
+          "value": 0.0,
+          "unit": "byte"
+        },
+        "dram__bytes_write.sum": {
+          "value": 0.0,
+          "unit": "byte"
+        },
+        "dram__throughput.avg.pct_of_peak_sustained_elapsed": {
+          "value": 0.63,
+          "unit": "%"
+        },
+        "dram__throughput.max.pct_of_peak_sustained_elapsed": {
+          "value": 1.23,
+          "unit": "%"
+        },
+        "dram__throughput.min.pct_of_peak_sustained_elapsed": {
+          "value": 0.0,
+          "unit": "%"
+        },
+        "dram__throughput.sum.pct_of_peak_sustained_elapsed": {
+          "value": 0.63,
+          "unit": "%"
+        },
+        "gpu__time_duration.avg": {
+          "value": 24352.0,
+          "unit": "ns"
+        },
+        "gpu__time_duration.max": {
+          "value": 24352.0,
+          "unit": "ns"
+        },
+        "gpu__time_duration.min": {
+          "value": 24352.0,
+          "unit": "ns"
+        },
+        "gpu__time_duration.sum": {
+          "value": 24352.0,
+          "unit": "ns"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_ld.avg": {
+          "value": 5376.0,
+          "unit": "byte"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_ld.max": {
+          "value": 17920.0,
+          "unit": "byte"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_ld.min": {
+          "value": 0.0,
+          "unit": "byte"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum": {
+          "value": 430080.0,
+          "unit": "byte"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_st.avg": {
+          "value": 153.6,
+          "unit": "byte"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_st.max": {
+          "value": 512.0,
+          "unit": "byte"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_st.min": {
+          "value": 0.0,
+          "unit": "byte"
+        },
+        "l1tex__t_bytes_pipe_lsu_mem_global_op_st.sum": {
+          "value": 12288.0,
+          "unit": "byte"
+        },
+        "lts__t_sectors_op_read.avg": {
+          "value": 225.73,
+          "unit": "sector"
+        },
+        "lts__t_sectors_op_read.max": {
+          "value": 488.0,
+          "unit": "sector"
+        },
+        "lts__t_sectors_op_read.min": {
+          "value": 0.0,
+          "unit": "sector"
+        },
+        "lts__t_sectors_op_read.sum": {
+          "value": 14447.0,
+          "unit": "sector"
+        },
+        "lts__t_sectors_op_write.avg": {
+          "value": 6.25,
+          "unit": "sector"
+        },
+        "lts__t_sectors_op_write.max": {
+          "value": 20.0,
+          "unit": "sector"
+        },
+        "lts__t_sectors_op_write.min": {
+          "value": 0.0,
+          "unit": "sector"
+        },
+        "lts__t_sectors_op_write.sum": {
+          "value": 400.0,
+          "unit": "sector"
+        },
+        "sm__maximum_warps_avg_per_active_cycle": {
+          "value": 64.0,
+          "unit": "warp"
+        },
+        "sm__maximum_warps_per_active_cycle_pct": {
+          "value": 100.0,
+          "unit": "%"
+        },
+        "sm__throughput.avg.pct_of_peak_sustained_elapsed": {
+          "value": 3.05,
+          "unit": "%"
+        },
+        "sm__throughput.max.pct_of_peak_sustained_elapsed": {
+          "value": 10.16,
+          "unit": "%"
+        },
+        "sm__throughput.min.pct_of_peak_sustained_elapsed": {
+          "value": 0.0,
+          "unit": "%"
+        },
+        "sm__throughput.sum.pct_of_peak_sustained_elapsed": {
+          "value": 3.05,
+          "unit": "%"
+        },
+        "sm__warps_active.avg.pct_of_peak_sustained_active": {
+          "value": 12.49,
+          "unit": "%"
+        },
+        "sm__warps_active.max.pct_of_peak_sustained_active": {
+          "value": 41.84,
+          "unit": "%"
+        },
+        "sm__warps_active.min.pct_of_peak_sustained_active": {
+          "value": 0.0,
+          "unit": "%"
+        },
+        "sm__warps_active.sum.pct_of_peak_sustained_active": {
+          "value": 12.49,
+          "unit": "%"
+        },
+        "smsp__maximum_warps_avg_per_active_cycle": {
+          "value": 16.0,
+          "unit": "warp"
+        },
+        "smsp__warp_issue_stalled_long_scoreboard_per_warp_active.pct": {
+          "value": 33.2,
+          "unit": "%"
+        },
+        "smsp__warp_issue_stalled_short_scoreboard_per_warp_active.pct": {
+          "value": 10.56,
+          "unit": "%"
+        }
+      },
+      "derived_dram_read_write_GBps": 3.6005256241787125
+    }
+  },
+  "aggregates": {
+    "vram-first/C1": {
+      "repeats": 3,
+      "decode_mean": 32.9472265750267,
+      "decode_median": 32.966992696043334,
+      "decode_range": [
+        32.88157845348901,
+        32.99310857554774
+      ],
+      "complete_mean": 31.3077217854083,
+      "mean_decode_cpu_cores": 1.0062038657880128
+    },
+    "vram-first/C8": {
+      "repeats": 3,
+      "decode_mean": 134.49206061692138,
+      "decode_median": 134.53657529906846,
+      "decode_range": [
+        134.18549534756175,
+        134.75411120413392
+      ],
+      "complete_mean": 104.64042820315089,
+      "mean_decode_cpu_cores": 1.0056428626856484
+    },
+    "spill/C1": {
+      "repeats": 3,
+      "decode_mean": 32.96143450633385,
+      "decode_median": 33.01077743109412,
+      "decode_range": [
+        32.84576260408742,
+        33.02776348382002
+      ],
+      "complete_mean": 31.332939424509394,
+      "mean_decode_cpu_cores": 1.0062206882374751
+    },
+    "spill/C8": {
+      "repeats": 3,
+      "decode_mean": 79.35278895339376,
+      "decode_median": 79.48037639972175,
+      "decode_range": [
+        78.46359974799293,
+        80.1143907124666
+      ],
+      "complete_mean": 65.7777531063901,
+      "mean_decode_cpu_cores": 1.0019552713281898
+    },
+    "static/C1": {
+      "repeats": 3,
+      "decode_mean": 32.974325928526206,
+      "decode_median": 32.96270367039248,
+      "decode_range": [
+        32.957445937040355,
+        33.002828178145776
+      ],
+      "complete_mean": 31.32051100163222,
+      "mean_decode_cpu_cores": 1.0078925849218194
+    },
+    "static/C8": {
+      "repeats": 3,
+      "decode_mean": 134.68541436142783,
+      "decode_median": 134.63599821574613,
+      "decode_range": [
+        134.5619229726831,
+        134.85832189585423
+      ],
+      "complete_mean": 104.6589756033929,
+      "mean_decode_cpu_cores": 1.0071610020063813
+    }
+  },
+  "nvml_decode": {
+    "timing-0-auto/C1/GPU0": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 16231.0,
+        "min": 16231.0,
+        "max": 16231.0
+      },
+      "gpu_busy_pct": {
+        "mean": 77.75,
+        "min": 75.0,
+        "max": 80.0
+      },
+      "power_W": {
+        "mean": 122.5225,
+        "min": 122.1,
+        "max": 122.91
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 38.75,
+        "min": 38.0,
+        "max": 39.0
+      }
+    },
+    "timing-0-auto/C1/GPU1": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 70.75,
+        "min": 69.0,
+        "max": 72.0
+      },
+      "power_W": {
+        "mean": 127.2675,
+        "min": 125.88,
+        "max": 128.74
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 37.75,
+        "min": 37.0,
+        "max": 38.0
+      }
+    },
+    "timing-0-auto/C8/GPU0": {
+      "samples": 7,
+      "vram_MiB": {
+        "mean": 16679.0,
+        "min": 16679.0,
+        "max": 16679.0
+      },
+      "gpu_busy_pct": {
+        "mean": 82.71428571428571,
+        "min": 80.0,
+        "max": 84.0
+      },
+      "power_W": {
+        "mean": 156.1342857142857,
+        "min": 151.46,
+        "max": 160.42
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 42.285714285714285,
+        "min": 42.0,
+        "max": 43.0
+      }
+    },
+    "timing-0-auto/C8/GPU1": {
+      "samples": 7,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 71.42857142857143,
+        "min": 70.0,
+        "max": 74.0
+      },
+      "power_W": {
+        "mean": 161.29142857142858,
+        "min": 145.98,
+        "max": 168.51
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 42.857142857142854,
+        "min": 42.0,
+        "max": 43.0
+      }
+    },
+    "timing-0-spill/C1/GPU0": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 16231.0,
+        "min": 16231.0,
+        "max": 16231.0
+      },
+      "gpu_busy_pct": {
+        "mean": 77.25,
+        "min": 73.0,
+        "max": 79.0
+      },
+      "power_W": {
+        "mean": 122.0525,
+        "min": 120.3,
+        "max": 123.56
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 39.0,
+        "min": 39.0,
+        "max": 39.0
+      }
+    },
+    "timing-0-spill/C1/GPU1": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 70.75,
+        "min": 68.0,
+        "max": 72.0
+      },
+      "power_W": {
+        "mean": 124.5925,
+        "min": 119.56,
+        "max": 128.47
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 38.0,
+        "min": 38.0,
+        "max": 38.0
+      }
+    },
+    "timing-0-spill/C8/GPU0": {
+      "samples": 13,
+      "vram_MiB": {
+        "mean": 16295.0,
+        "min": 16295.0,
+        "max": 16295.0
+      },
+      "gpu_busy_pct": {
+        "mean": 54.15384615384615,
+        "min": 51.0,
+        "max": 63.0
+      },
+      "power_W": {
+        "mean": 102.23461538461538,
+        "min": 92.25,
+        "max": 115.63
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 40.46153846153846,
+        "min": 40.0,
+        "max": 41.0
+      }
+    },
+    "timing-0-spill/C8/GPU1": {
+      "samples": 13,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 44.30769230769231,
+        "min": 39.0,
+        "max": 64.0
+      },
+      "power_W": {
+        "mean": 94.39384615384616,
+        "min": 80.94,
+        "max": 107.81
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 40.07692307692308,
+        "min": 40.0,
+        "max": 41.0
+      }
+    },
+    "timing-0-static/C1/GPU0": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 16167.0,
+        "min": 16167.0,
+        "max": 16167.0
+      },
+      "gpu_busy_pct": {
+        "mean": 77.75,
+        "min": 73.0,
+        "max": 80.0
+      },
+      "power_W": {
+        "mean": 122.41499999999999,
+        "min": 121.53,
+        "max": 122.88
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 38.0,
+        "min": 38.0,
+        "max": 38.0
+      }
+    },
+    "timing-0-static/C1/GPU1": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 71.0,
+        "min": 68.0,
+        "max": 72.0
+      },
+      "power_W": {
+        "mean": 126.20500000000001,
+        "min": 125.98,
+        "max": 126.54
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 37.0,
+        "min": 37.0,
+        "max": 37.0
+      }
+    },
+    "timing-0-static/C8/GPU0": {
+      "samples": 7,
+      "vram_MiB": {
+        "mean": 16167.0,
+        "min": 16167.0,
+        "max": 16167.0
+      },
+      "gpu_busy_pct": {
+        "mean": 83.42857142857143,
+        "min": 83.0,
+        "max": 84.0
+      },
+      "power_W": {
+        "mean": 152.31,
+        "min": 147.3,
+        "max": 157.22
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 42.0,
+        "min": 42.0,
+        "max": 42.0
+      }
+    },
+    "timing-0-static/C8/GPU1": {
+      "samples": 7,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 71.28571428571429,
+        "min": 69.0,
+        "max": 73.0
+      },
+      "power_W": {
+        "mean": 162.21571428571428,
+        "min": 151.88,
+        "max": 168.25
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 42.0,
+        "min": 42.0,
+        "max": 42.0
+      }
+    },
+    "timing-1-auto/C8/GPU0": {
+      "samples": 8,
+      "vram_MiB": {
+        "mean": 16679.0,
+        "min": 16679.0,
+        "max": 16679.0
+      },
+      "gpu_busy_pct": {
+        "mean": 83.0,
+        "min": 81.0,
+        "max": 84.0
+      },
+      "power_W": {
+        "mean": 150.56125,
+        "min": 146.09,
+        "max": 156.02
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 41.125,
+        "min": 41.0,
+        "max": 42.0
+      }
+    },
+    "timing-1-auto/C8/GPU1": {
+      "samples": 8,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 71.25,
+        "min": 69.0,
+        "max": 73.0
+      },
+      "power_W": {
+        "mean": 157.0,
+        "min": 151.05,
+        "max": 161.65
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 41.125,
+        "min": 41.0,
+        "max": 42.0
+      }
+    },
+    "timing-1-auto/C1/GPU0": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 16679.0,
+        "min": 16679.0,
+        "max": 16679.0
+      },
+      "gpu_busy_pct": {
+        "mean": 78.5,
+        "min": 75.0,
+        "max": 80.0
+      },
+      "power_W": {
+        "mean": 122.955,
+        "min": 119.96,
+        "max": 124.76
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 41.0,
+        "min": 41.0,
+        "max": 41.0
+      }
+    },
+    "timing-1-auto/C1/GPU1": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 71.0,
+        "min": 68.0,
+        "max": 72.0
+      },
+      "power_W": {
+        "mean": 125.7375,
+        "min": 119.19,
+        "max": 128.18
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 41.0,
+        "min": 41.0,
+        "max": 41.0
+      }
+    },
+    "timing-1-spill/C8/GPU0": {
+      "samples": 14,
+      "vram_MiB": {
+        "mean": 16295.0,
+        "min": 16295.0,
+        "max": 16295.0
+      },
+      "gpu_busy_pct": {
+        "mean": 53.642857142857146,
+        "min": 51.0,
+        "max": 69.0
+      },
+      "power_W": {
+        "mean": 106.52857142857142,
+        "min": 91.85,
+        "max": 158.23
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 40.07142857142857,
+        "min": 40.0,
+        "max": 41.0
+      }
+    },
+    "timing-1-spill/C8/GPU1": {
+      "samples": 14,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 44.0,
+        "min": 39.0,
+        "max": 65.0
+      },
+      "power_W": {
+        "mean": 98.93785714285714,
+        "min": 85.6,
+        "max": 141.57
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 39.142857142857146,
+        "min": 39.0,
+        "max": 41.0
+      }
+    },
+    "timing-1-spill/C1/GPU0": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 16295.0,
+        "min": 16295.0,
+        "max": 16295.0
+      },
+      "gpu_busy_pct": {
+        "mean": 77.75,
+        "min": 72.0,
+        "max": 80.0
+      },
+      "power_W": {
+        "mean": 124.2675,
+        "min": 123.46,
+        "max": 125.44
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 41.0,
+        "min": 41.0,
+        "max": 41.0
+      }
+    },
+    "timing-1-spill/C1/GPU1": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 71.0,
+        "min": 68.0,
+        "max": 72.0
+      },
+      "power_W": {
+        "mean": 128.4175,
+        "min": 128.0,
+        "max": 129.39
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 40.0,
+        "min": 40.0,
+        "max": 40.0
+      }
+    },
+    "timing-1-static/C8/GPU0": {
+      "samples": 7,
+      "vram_MiB": {
+        "mean": 16167.0,
+        "min": 16167.0,
+        "max": 16167.0
+      },
+      "gpu_busy_pct": {
+        "mean": 83.0,
+        "min": 80.0,
+        "max": 84.0
+      },
+      "power_W": {
+        "mean": 153.97857142857143,
+        "min": 149.4,
+        "max": 157.91
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 41.0,
+        "min": 41.0,
+        "max": 41.0
+      }
+    },
+    "timing-1-static/C8/GPU1": {
+      "samples": 7,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 71.14285714285714,
+        "min": 70.0,
+        "max": 73.0
+      },
+      "power_W": {
+        "mean": 156.64,
+        "min": 153.24,
+        "max": 159.89
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 41.0,
+        "min": 41.0,
+        "max": 41.0
+      }
+    },
+    "timing-1-static/C1/GPU0": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 16167.0,
+        "min": 16167.0,
+        "max": 16167.0
+      },
+      "gpu_busy_pct": {
+        "mean": 79.0,
+        "min": 78.0,
+        "max": 80.0
+      },
+      "power_W": {
+        "mean": 125.8625,
+        "min": 125.1,
+        "max": 126.85
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 41.0,
+        "min": 41.0,
+        "max": 41.0
+      }
+    },
+    "timing-1-static/C1/GPU1": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 71.75,
+        "min": 71.0,
+        "max": 72.0
+      },
+      "power_W": {
+        "mean": 128.95499999999998,
+        "min": 128.4,
+        "max": 129.5
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 41.0,
+        "min": 41.0,
+        "max": 41.0
+      }
+    },
+    "timing-2-auto/C1/GPU0": {
+      "samples": 3,
+      "vram_MiB": {
+        "mean": 16231.0,
+        "min": 16231.0,
+        "max": 16231.0
+      },
+      "gpu_busy_pct": {
+        "mean": 78.33333333333333,
+        "min": 77.0,
+        "max": 79.0
+      },
+      "power_W": {
+        "mean": 123.49666666666667,
+        "min": 121.61,
+        "max": 124.73
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 38.0,
+        "min": 38.0,
+        "max": 38.0
+      }
+    },
+    "timing-2-auto/C1/GPU1": {
+      "samples": 3,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 70.66666666666667,
+        "min": 68.0,
+        "max": 72.0
+      },
+      "power_W": {
+        "mean": 126.78666666666666,
+        "min": 124.62,
+        "max": 128.1
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 37.666666666666664,
+        "min": 37.0,
+        "max": 38.0
+      }
+    },
+    "timing-2-auto/C8/GPU0": {
+      "samples": 8,
+      "vram_MiB": {
+        "mean": 16679.0,
+        "min": 16679.0,
+        "max": 16679.0
+      },
+      "gpu_busy_pct": {
+        "mean": 83.25,
+        "min": 81.0,
+        "max": 85.0
+      },
+      "power_W": {
+        "mean": 151.73874999999998,
+        "min": 145.26,
+        "max": 156.29
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 42.0,
+        "min": 42.0,
+        "max": 42.0
+      }
+    },
+    "timing-2-auto/C8/GPU1": {
+      "samples": 8,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 71.375,
+        "min": 69.0,
+        "max": 77.0
+      },
+      "power_W": {
+        "mean": 155.45625,
+        "min": 146.6,
+        "max": 162.78
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 42.125,
+        "min": 42.0,
+        "max": 43.0
+      }
+    },
+    "timing-2-spill/C1/GPU0": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 16231.0,
+        "min": 16231.0,
+        "max": 16231.0
+      },
+      "gpu_busy_pct": {
+        "mean": 78.5,
+        "min": 74.0,
+        "max": 80.0
+      },
+      "power_W": {
+        "mean": 122.7475,
+        "min": 121.98,
+        "max": 123.45
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 38.0,
+        "min": 38.0,
+        "max": 38.0
+      }
+    },
+    "timing-2-spill/C1/GPU1": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 71.0,
+        "min": 68.0,
+        "max": 72.0
+      },
+      "power_W": {
+        "mean": 126.12,
+        "min": 125.38,
+        "max": 127.55
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 37.25,
+        "min": 37.0,
+        "max": 38.0
+      }
+    },
+    "timing-2-spill/C8/GPU0": {
+      "samples": 13,
+      "vram_MiB": {
+        "mean": 16295.0,
+        "min": 16295.0,
+        "max": 16295.0
+      },
+      "gpu_busy_pct": {
+        "mean": 54.15384615384615,
+        "min": 51.0,
+        "max": 69.0
+      },
+      "power_W": {
+        "mean": 108.97153846153846,
+        "min": 93.55,
+        "max": 118.07
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 40.15384615384615,
+        "min": 40.0,
+        "max": 41.0
+      }
+    },
+    "timing-2-spill/C8/GPU1": {
+      "samples": 13,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 44.07692307692308,
+        "min": 39.0,
+        "max": 64.0
+      },
+      "power_W": {
+        "mean": 102.71153846153847,
+        "min": 98.46,
+        "max": 109.14
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 40.07692307692308,
+        "min": 40.0,
+        "max": 41.0
+      }
+    },
+    "timing-2-static/C1/GPU0": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 16167.0,
+        "min": 16167.0,
+        "max": 16167.0
+      },
+      "gpu_busy_pct": {
+        "mean": 79.25,
+        "min": 78.0,
+        "max": 80.0
+      },
+      "power_W": {
+        "mean": 122.9925,
+        "min": 122.59,
+        "max": 123.95
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 38.0,
+        "min": 38.0,
+        "max": 38.0
+      }
+    },
+    "timing-2-static/C1/GPU1": {
+      "samples": 4,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 72.0,
+        "min": 71.0,
+        "max": 73.0
+      },
+      "power_W": {
+        "mean": 126.5375,
+        "min": 125.78,
+        "max": 127.89
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 37.5,
+        "min": 37.0,
+        "max": 38.0
+      }
+    },
+    "timing-2-static/C8/GPU0": {
+      "samples": 8,
+      "vram_MiB": {
+        "mean": 16167.0,
+        "min": 16167.0,
+        "max": 16167.0
+      },
+      "gpu_busy_pct": {
+        "mean": 83.125,
+        "min": 81.0,
+        "max": 84.0
+      },
+      "power_W": {
+        "mean": 150.95625,
+        "min": 146.01,
+        "max": 154.68
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 42.0,
+        "min": 42.0,
+        "max": 42.0
+      }
+    },
+    "timing-2-static/C8/GPU1": {
+      "samples": 8,
+      "vram_MiB": {
+        "mean": 14501.0,
+        "min": 14501.0,
+        "max": 14501.0
+      },
+      "gpu_busy_pct": {
+        "mean": 71.625,
+        "min": 69.0,
+        "max": 75.0
+      },
+      "power_W": {
+        "mean": 159.58125,
+        "min": 153.15,
+        "max": 165.36
+      },
+      "sm_clock_MHz": {
+        "mean": 1380.0,
+        "min": 1380.0,
+        "max": 1380.0
+      },
+      "memory_clock_MHz": {
+        "mean": 877.0,
+        "min": 877.0,
+        "max": 877.0
+      },
+      "temperature_C": {
+        "mean": 42.0,
+        "min": 42.0,
+        "max": 42.0
+      }
+    }
+  }
+}

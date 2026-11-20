@@ -1,0 +1,656 @@
+....F.......................FFFFF                                        [100%]
+=================================== FAILURES ===================================
+__________________ test_feedback_can_disable_and_reenable_mtp __________________
+
+    def test_feedback_can_disable_and_reenable_mtp():
+        p, w = AdaptiveMTPPolicy(alpha=1, probe_interval=4), workload()
+        for d, cost in [(0, 0.03), (1, 0.02), (2, 0.025)]:
+            observe(p, w, d, cost)
+        assert p.choose(w).depth == 1
+        observe(p, w, 1, 0.04, proposed_tokens=20, accepted_tokens=0)
+        assert p.choose(w).depth == 2
+        observe(p, w, 2, 0.05, proposed_tokens=30, accepted_tokens=0)
+        assert p.choose(w).depth == 0
+        observe(p, w, 0, 0.03)
+>       assert p.choose(w).reason == "periodic-recheck"
+E       AssertionError: assert 'baseline-or-...fficient-gain' == 'periodic-recheck'
+E         
+E         - periodic-recheck
+E         + baseline-or-insufficient-gain
+
+tests/test_adaptive_mtp.py:47: AssertionError
+___ test_switching_ragged_eos_reset_state[q8-residual-column-mlp-head-gdn-1] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-wzu/pytest-139/test_switching_ragged_eos_rese4')
+engine = <venturi.ops.blocks.CudaBackend object at 0x7bdd5d39a290>, count = 1
+profile = 'q8-residual-column-mlp-head-gdn'
+
+    @pytest.mark.parametrize("count", [1, 2, 4, 8])
+    @pytest.mark.parametrize("profile", ["fp16", "q8-residual-column-mlp-head-gdn"])
+    def test_switching_ragged_eos_reset_state(tmp_path, engine, count, profile):
+>       target, model = models(tmp_path, engine, True, profile=profile)
+
+tests/test_qwen_adaptive_mtp.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_qwen_mtp_batch.py:31: in models
+    target = NativeQwenModel.from_q8(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'venturi.models.qwen_native.NativeQwenModel'>
+weights = QwenQ8Weights(artifact=<venturi.ninfer.NInferArtifact object at 0x7bdd627b2e00>, plan=QwenSourcePlan(config={'attentio..._norm', source_shape=(64,), shape=(64,), format='bf16', transform='identity')), prefix='model', tied_embeddings=False))
+backend = <venturi.ops.blocks.CudaBackend object at 0x7bdd5d39a290>
+weight_mode = 'resident', dtype = torch.float16, device = 'cuda:0'
+max_tokens = 32, reserve_bytes = 0, tensor_parallel_device = 'cuda:1'
+tensor_parallel_transport = 'host'
+projection_profile = 'q8-residual-column-mlp-head-gdn', _stage_range = None
+
+    @classmethod
+    def from_q8(
+        cls,
+        weights,
+        backend,
+        *,
+        weight_mode,
+        dtype=torch.bfloat16,
+        device="cuda:0",
+        max_tokens=128,
+        reserve_bytes=512 * 2**20,
+        tensor_parallel_device=None,
+        tensor_parallel_transport="peer",
+        projection_profile="fp16",
+        _stage_range=None,
+    ):
+        if not isinstance(weights, QwenQ8Weights) or not isinstance(
+            backend, CudaBackend
+        ):
+            raise TypeError(
+                "Native Qwen requires preflighted Q8 weights and explicit CudaBackend"
+            )
+        if weight_mode not in ("streaming", "resident"):
+            raise ValueError("Select explicit streaming or resident weight_mode")
+        if type(max_tokens) is not int or not 1 <= max_tokens <= 1024:
+            raise ValueError(
+                "Native Qwen max_tokens must be 1..1024; longer prompts are chunked"
+            )
+        if dtype not in (torch.float16, torch.bfloat16):
+            raise ValueError("Native Qwen supports explicit FP16/BF16 only")
+        head_profile = projection_profile == "q8-residual-column-mlp-head-gdn"
+        column_profile = projection_profile in (
+            "q8-residual-column-mlp",
+            "q8-residual-column-mlp-head-gdn",
+        )
+        if projection_profile not in (
+            "fp16",
+            "q8-residual",
+            "q8-residual-column-mlp",
+            "q8-residual-column-mlp-head-gdn",
+        ):
+            raise ValueError(
+                "Projection profile must be explicit fp16/q8-residual/q8-residual-column-mlp/q8-residual-column-mlp-head-gdn"
+            )
+        if column_profile and (
+            tensor_parallel_device is None or tensor_parallel_transport != "host"
+        ):
+            raise ValueError("Column MLP requires explicit two-device host TP")
+        if projection_profile != "fp16" and (
+            dtype != torch.float16
+            or weight_mode != "resident"
+            or _stage_range is not None
+        ):
+            raise ValueError(
+                "q8-residual requires a complete resident FP16 target, not PP"
+            )
+        profiled_create = None
+        if projection_profile != "fp16":
+            try:
+                profiled_create = getattr(
+                    backend._native,
+                    "venturi_qwen_create_head_gdn"
+                    if head_profile
+                    else "venturi_qwen_create_column_mlp"
+                    if column_profile
+                    else "venturi_qwen_create_profiled",
+                )
+            except AttributeError as e:
+                raise RuntimeError(
+                    "Explicit projection profile exports absent; rebuild blocks"
+                ) from e
+        target = backend._device(dtype, device)
+        if tensor_parallel_transport not in ("peer", "host"):
+            raise ValueError("Tensor parallel transport must be explicit peer or host")
+        if tensor_parallel_device is None and tensor_parallel_transport != "peer":
+            raise ValueError(
+                "Host transport requires an explicit tensor parallel device"
+            )
+        peer = None
+        if tensor_parallel_device is not None:
+            if weight_mode != "resident":
+                raise ValueError("Tensor parallel requires explicit resident weights")
+            peer = backend._device(dtype, tensor_parallel_device)
+            if peer == target:
+                raise ValueError("Tensor parallel peer must be a different CUDA device")
+            if tensor_parallel_transport == "peer" and not (
+                torch.cuda.can_device_access_peer(target.index, peer.index)
+                and torch.cuda.can_device_access_peer(peer.index, target.index)
+            ):
+                raise ValueError("Bidirectional CUDA peer access is required")
+        if column_profile and torch.cuda.get_device_capability(target) != (7, 0):
+            raise ValueError("Column MLP requires an explicit SM70 target")
+        _outside_capture(target)
+        owned = QwenQ8Weights.from_ninfer(NInferArtifact(weights.artifact.path))
+        cfg = copy.deepcopy(owned.config)
+        if _stage_range is not None:
+            if (
+                not isinstance(_stage_range, tuple)
+                or len(_stage_range) != 2
+                or any(type(i) is not int for i in _stage_range)
+                or not 0
+                <= _stage_range[0]
+                < _stage_range[1]
+                <= cfg["num_hidden_layers"]
+                or weight_mode != "resident"
+                or peer is not None
+            ):
+                raise ValueError(
+                    "Internal pipeline stage requires a valid resident non-TP range"
+                )
+        if column_profile and cfg["intermediate_size"] % 64:
+            raise ValueError("Column MLP requires group-aligned equal input halves")
+        if head_profile and (
+            cfg["linear_num_key_heads"] % 2
+            or cfg["linear_num_key_heads"] < 2
+            or cfg["linear_num_value_heads"] > 128
+            or cfg["linear_value_head_dim"] % 64
+            or not 1 <= cfg["linear_value_head_dim"] <= 256
+            or cfg["hidden_size"] % 32
+            or cfg["hidden_size"] > 32768
+            or not 2 <= cfg["linear_conv_kernel_dim"] <= 8
+        ):
+>           raise ValueError(
+                "Head GDN requires aligned semantic heads and convolution geometry"
+            )
+E           ValueError: Head GDN requires aligned semantic heads and convolution geometry
+
+src/venturi/models/qwen_native.py:298: ValueError
+___ test_switching_ragged_eos_reset_state[q8-residual-column-mlp-head-gdn-2] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-wzu/pytest-139/test_switching_ragged_eos_rese5')
+engine = <venturi.ops.blocks.CudaBackend object at 0x7bdd6274f580>, count = 2
+profile = 'q8-residual-column-mlp-head-gdn'
+
+    @pytest.mark.parametrize("count", [1, 2, 4, 8])
+    @pytest.mark.parametrize("profile", ["fp16", "q8-residual-column-mlp-head-gdn"])
+    def test_switching_ragged_eos_reset_state(tmp_path, engine, count, profile):
+>       target, model = models(tmp_path, engine, True, profile=profile)
+
+tests/test_qwen_adaptive_mtp.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_qwen_mtp_batch.py:31: in models
+    target = NativeQwenModel.from_q8(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'venturi.models.qwen_native.NativeQwenModel'>
+weights = QwenQ8Weights(artifact=<venturi.ninfer.NInferArtifact object at 0x7bdd6274f1c0>, plan=QwenSourcePlan(config={'attentio..._norm', source_shape=(64,), shape=(64,), format='bf16', transform='identity')), prefix='model', tied_embeddings=False))
+backend = <venturi.ops.blocks.CudaBackend object at 0x7bdd6274f580>
+weight_mode = 'resident', dtype = torch.float16, device = 'cuda:0'
+max_tokens = 32, reserve_bytes = 0, tensor_parallel_device = 'cuda:1'
+tensor_parallel_transport = 'host'
+projection_profile = 'q8-residual-column-mlp-head-gdn', _stage_range = None
+
+    @classmethod
+    def from_q8(
+        cls,
+        weights,
+        backend,
+        *,
+        weight_mode,
+        dtype=torch.bfloat16,
+        device="cuda:0",
+        max_tokens=128,
+        reserve_bytes=512 * 2**20,
+        tensor_parallel_device=None,
+        tensor_parallel_transport="peer",
+        projection_profile="fp16",
+        _stage_range=None,
+    ):
+        if not isinstance(weights, QwenQ8Weights) or not isinstance(
+            backend, CudaBackend
+        ):
+            raise TypeError(
+                "Native Qwen requires preflighted Q8 weights and explicit CudaBackend"
+            )
+        if weight_mode not in ("streaming", "resident"):
+            raise ValueError("Select explicit streaming or resident weight_mode")
+        if type(max_tokens) is not int or not 1 <= max_tokens <= 1024:
+            raise ValueError(
+                "Native Qwen max_tokens must be 1..1024; longer prompts are chunked"
+            )
+        if dtype not in (torch.float16, torch.bfloat16):
+            raise ValueError("Native Qwen supports explicit FP16/BF16 only")
+        head_profile = projection_profile == "q8-residual-column-mlp-head-gdn"
+        column_profile = projection_profile in (
+            "q8-residual-column-mlp",
+            "q8-residual-column-mlp-head-gdn",
+        )
+        if projection_profile not in (
+            "fp16",
+            "q8-residual",
+            "q8-residual-column-mlp",
+            "q8-residual-column-mlp-head-gdn",
+        ):
+            raise ValueError(
+                "Projection profile must be explicit fp16/q8-residual/q8-residual-column-mlp/q8-residual-column-mlp-head-gdn"
+            )
+        if column_profile and (
+            tensor_parallel_device is None or tensor_parallel_transport != "host"
+        ):
+            raise ValueError("Column MLP requires explicit two-device host TP")
+        if projection_profile != "fp16" and (
+            dtype != torch.float16
+            or weight_mode != "resident"
+            or _stage_range is not None
+        ):
+            raise ValueError(
+                "q8-residual requires a complete resident FP16 target, not PP"
+            )
+        profiled_create = None
+        if projection_profile != "fp16":
+            try:
+                profiled_create = getattr(
+                    backend._native,
+                    "venturi_qwen_create_head_gdn"
+                    if head_profile
+                    else "venturi_qwen_create_column_mlp"
+                    if column_profile
+                    else "venturi_qwen_create_profiled",
+                )
+            except AttributeError as e:
+                raise RuntimeError(
+                    "Explicit projection profile exports absent; rebuild blocks"
+                ) from e
+        target = backend._device(dtype, device)
+        if tensor_parallel_transport not in ("peer", "host"):
+            raise ValueError("Tensor parallel transport must be explicit peer or host")
+        if tensor_parallel_device is None and tensor_parallel_transport != "peer":
+            raise ValueError(
+                "Host transport requires an explicit tensor parallel device"
+            )
+        peer = None
+        if tensor_parallel_device is not None:
+            if weight_mode != "resident":
+                raise ValueError("Tensor parallel requires explicit resident weights")
+            peer = backend._device(dtype, tensor_parallel_device)
+            if peer == target:
+                raise ValueError("Tensor parallel peer must be a different CUDA device")
+            if tensor_parallel_transport == "peer" and not (
+                torch.cuda.can_device_access_peer(target.index, peer.index)
+                and torch.cuda.can_device_access_peer(peer.index, target.index)
+            ):
+                raise ValueError("Bidirectional CUDA peer access is required")
+        if column_profile and torch.cuda.get_device_capability(target) != (7, 0):
+            raise ValueError("Column MLP requires an explicit SM70 target")
+        _outside_capture(target)
+        owned = QwenQ8Weights.from_ninfer(NInferArtifact(weights.artifact.path))
+        cfg = copy.deepcopy(owned.config)
+        if _stage_range is not None:
+            if (
+                not isinstance(_stage_range, tuple)
+                or len(_stage_range) != 2
+                or any(type(i) is not int for i in _stage_range)
+                or not 0
+                <= _stage_range[0]
+                < _stage_range[1]
+                <= cfg["num_hidden_layers"]
+                or weight_mode != "resident"
+                or peer is not None
+            ):
+                raise ValueError(
+                    "Internal pipeline stage requires a valid resident non-TP range"
+                )
+        if column_profile and cfg["intermediate_size"] % 64:
+            raise ValueError("Column MLP requires group-aligned equal input halves")
+        if head_profile and (
+            cfg["linear_num_key_heads"] % 2
+            or cfg["linear_num_key_heads"] < 2
+            or cfg["linear_num_value_heads"] > 128
+            or cfg["linear_value_head_dim"] % 64
+            or not 1 <= cfg["linear_value_head_dim"] <= 256
+            or cfg["hidden_size"] % 32
+            or cfg["hidden_size"] > 32768
+            or not 2 <= cfg["linear_conv_kernel_dim"] <= 8
+        ):
+>           raise ValueError(
+                "Head GDN requires aligned semantic heads and convolution geometry"
+            )
+E           ValueError: Head GDN requires aligned semantic heads and convolution geometry
+
+src/venturi/models/qwen_native.py:298: ValueError
+___ test_switching_ragged_eos_reset_state[q8-residual-column-mlp-head-gdn-4] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-wzu/pytest-139/test_switching_ragged_eos_rese6')
+engine = <venturi.ops.blocks.CudaBackend object at 0x7bdd6274c790>, count = 4
+profile = 'q8-residual-column-mlp-head-gdn'
+
+    @pytest.mark.parametrize("count", [1, 2, 4, 8])
+    @pytest.mark.parametrize("profile", ["fp16", "q8-residual-column-mlp-head-gdn"])
+    def test_switching_ragged_eos_reset_state(tmp_path, engine, count, profile):
+>       target, model = models(tmp_path, engine, True, profile=profile)
+
+tests/test_qwen_adaptive_mtp.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_qwen_mtp_batch.py:31: in models
+    target = NativeQwenModel.from_q8(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'venturi.models.qwen_native.NativeQwenModel'>
+weights = QwenQ8Weights(artifact=<venturi.ninfer.NInferArtifact object at 0x7bdd67bc3d30>, plan=QwenSourcePlan(config={'attentio..._norm', source_shape=(64,), shape=(64,), format='bf16', transform='identity')), prefix='model', tied_embeddings=False))
+backend = <venturi.ops.blocks.CudaBackend object at 0x7bdd6274c790>
+weight_mode = 'resident', dtype = torch.float16, device = 'cuda:0'
+max_tokens = 32, reserve_bytes = 0, tensor_parallel_device = 'cuda:1'
+tensor_parallel_transport = 'host'
+projection_profile = 'q8-residual-column-mlp-head-gdn', _stage_range = None
+
+    @classmethod
+    def from_q8(
+        cls,
+        weights,
+        backend,
+        *,
+        weight_mode,
+        dtype=torch.bfloat16,
+        device="cuda:0",
+        max_tokens=128,
+        reserve_bytes=512 * 2**20,
+        tensor_parallel_device=None,
+        tensor_parallel_transport="peer",
+        projection_profile="fp16",
+        _stage_range=None,
+    ):
+        if not isinstance(weights, QwenQ8Weights) or not isinstance(
+            backend, CudaBackend
+        ):
+            raise TypeError(
+                "Native Qwen requires preflighted Q8 weights and explicit CudaBackend"
+            )
+        if weight_mode not in ("streaming", "resident"):
+            raise ValueError("Select explicit streaming or resident weight_mode")
+        if type(max_tokens) is not int or not 1 <= max_tokens <= 1024:
+            raise ValueError(
+                "Native Qwen max_tokens must be 1..1024; longer prompts are chunked"
+            )
+        if dtype not in (torch.float16, torch.bfloat16):
+            raise ValueError("Native Qwen supports explicit FP16/BF16 only")
+        head_profile = projection_profile == "q8-residual-column-mlp-head-gdn"
+        column_profile = projection_profile in (
+            "q8-residual-column-mlp",
+            "q8-residual-column-mlp-head-gdn",
+        )
+        if projection_profile not in (
+            "fp16",
+            "q8-residual",
+            "q8-residual-column-mlp",
+            "q8-residual-column-mlp-head-gdn",
+        ):
+            raise ValueError(
+                "Projection profile must be explicit fp16/q8-residual/q8-residual-column-mlp/q8-residual-column-mlp-head-gdn"
+            )
+        if column_profile and (
+            tensor_parallel_device is None or tensor_parallel_transport != "host"
+        ):
+            raise ValueError("Column MLP requires explicit two-device host TP")
+        if projection_profile != "fp16" and (
+            dtype != torch.float16
+            or weight_mode != "resident"
+            or _stage_range is not None
+        ):
+            raise ValueError(
+                "q8-residual requires a complete resident FP16 target, not PP"
+            )
+        profiled_create = None
+        if projection_profile != "fp16":
+            try:
+                profiled_create = getattr(
+                    backend._native,
+                    "venturi_qwen_create_head_gdn"
+                    if head_profile
+                    else "venturi_qwen_create_column_mlp"
+                    if column_profile
+                    else "venturi_qwen_create_profiled",
+                )
+            except AttributeError as e:
+                raise RuntimeError(
+                    "Explicit projection profile exports absent; rebuild blocks"
+                ) from e
+        target = backend._device(dtype, device)
+        if tensor_parallel_transport not in ("peer", "host"):
+            raise ValueError("Tensor parallel transport must be explicit peer or host")
+        if tensor_parallel_device is None and tensor_parallel_transport != "peer":
+            raise ValueError(
+                "Host transport requires an explicit tensor parallel device"
+            )
+        peer = None
+        if tensor_parallel_device is not None:
+            if weight_mode != "resident":
+                raise ValueError("Tensor parallel requires explicit resident weights")
+            peer = backend._device(dtype, tensor_parallel_device)
+            if peer == target:
+                raise ValueError("Tensor parallel peer must be a different CUDA device")
+            if tensor_parallel_transport == "peer" and not (
+                torch.cuda.can_device_access_peer(target.index, peer.index)
+                and torch.cuda.can_device_access_peer(peer.index, target.index)
+            ):
+                raise ValueError("Bidirectional CUDA peer access is required")
+        if column_profile and torch.cuda.get_device_capability(target) != (7, 0):
+            raise ValueError("Column MLP requires an explicit SM70 target")
+        _outside_capture(target)
+        owned = QwenQ8Weights.from_ninfer(NInferArtifact(weights.artifact.path))
+        cfg = copy.deepcopy(owned.config)
+        if _stage_range is not None:
+            if (
+                not isinstance(_stage_range, tuple)
+                or len(_stage_range) != 2
+                or any(type(i) is not int for i in _stage_range)
+                or not 0
+                <= _stage_range[0]
+                < _stage_range[1]
+                <= cfg["num_hidden_layers"]
+                or weight_mode != "resident"
+                or peer is not None
+            ):
+                raise ValueError(
+                    "Internal pipeline stage requires a valid resident non-TP range"
+                )
+        if column_profile and cfg["intermediate_size"] % 64:
+            raise ValueError("Column MLP requires group-aligned equal input halves")
+        if head_profile and (
+            cfg["linear_num_key_heads"] % 2
+            or cfg["linear_num_key_heads"] < 2
+            or cfg["linear_num_value_heads"] > 128
+            or cfg["linear_value_head_dim"] % 64
+            or not 1 <= cfg["linear_value_head_dim"] <= 256
+            or cfg["hidden_size"] % 32
+            or cfg["hidden_size"] > 32768
+            or not 2 <= cfg["linear_conv_kernel_dim"] <= 8
+        ):
+>           raise ValueError(
+                "Head GDN requires aligned semantic heads and convolution geometry"
+            )
+E           ValueError: Head GDN requires aligned semantic heads and convolution geometry
+
+src/venturi/models/qwen_native.py:298: ValueError
+___ test_switching_ragged_eos_reset_state[q8-residual-column-mlp-head-gdn-8] ___
+
+tmp_path = PosixPath('/tmp/pytest-of-wzu/pytest-139/test_switching_ragged_eos_rese7')
+engine = <venturi.ops.blocks.CudaBackend object at 0x7bdd67bc3dc0>, count = 8
+profile = 'q8-residual-column-mlp-head-gdn'
+
+    @pytest.mark.parametrize("count", [1, 2, 4, 8])
+    @pytest.mark.parametrize("profile", ["fp16", "q8-residual-column-mlp-head-gdn"])
+    def test_switching_ragged_eos_reset_state(tmp_path, engine, count, profile):
+>       target, model = models(tmp_path, engine, True, profile=profile)
+
+tests/test_qwen_adaptive_mtp.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_qwen_mtp_batch.py:31: in models
+    target = NativeQwenModel.from_q8(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cls = <class 'venturi.models.qwen_native.NativeQwenModel'>
+weights = QwenQ8Weights(artifact=<venturi.ninfer.NInferArtifact object at 0x7bdd62759810>, plan=QwenSourcePlan(config={'attentio..._norm', source_shape=(64,), shape=(64,), format='bf16', transform='identity')), prefix='model', tied_embeddings=False))
+backend = <venturi.ops.blocks.CudaBackend object at 0x7bdd67bc3dc0>
+weight_mode = 'resident', dtype = torch.float16, device = 'cuda:0'
+max_tokens = 32, reserve_bytes = 0, tensor_parallel_device = 'cuda:1'
+tensor_parallel_transport = 'host'
+projection_profile = 'q8-residual-column-mlp-head-gdn', _stage_range = None
+
+    @classmethod
+    def from_q8(
+        cls,
+        weights,
+        backend,
+        *,
+        weight_mode,
+        dtype=torch.bfloat16,
+        device="cuda:0",
+        max_tokens=128,
+        reserve_bytes=512 * 2**20,
+        tensor_parallel_device=None,
+        tensor_parallel_transport="peer",
+        projection_profile="fp16",
+        _stage_range=None,
+    ):
+        if not isinstance(weights, QwenQ8Weights) or not isinstance(
+            backend, CudaBackend
+        ):
+            raise TypeError(
+                "Native Qwen requires preflighted Q8 weights and explicit CudaBackend"
+            )
+        if weight_mode not in ("streaming", "resident"):
+            raise ValueError("Select explicit streaming or resident weight_mode")
+        if type(max_tokens) is not int or not 1 <= max_tokens <= 1024:
+            raise ValueError(
+                "Native Qwen max_tokens must be 1..1024; longer prompts are chunked"
+            )
+        if dtype not in (torch.float16, torch.bfloat16):
+            raise ValueError("Native Qwen supports explicit FP16/BF16 only")
+        head_profile = projection_profile == "q8-residual-column-mlp-head-gdn"
+        column_profile = projection_profile in (
+            "q8-residual-column-mlp",
+            "q8-residual-column-mlp-head-gdn",
+        )
+        if projection_profile not in (
+            "fp16",
+            "q8-residual",
+            "q8-residual-column-mlp",
+            "q8-residual-column-mlp-head-gdn",
+        ):
+            raise ValueError(
+                "Projection profile must be explicit fp16/q8-residual/q8-residual-column-mlp/q8-residual-column-mlp-head-gdn"
+            )
+        if column_profile and (
+            tensor_parallel_device is None or tensor_parallel_transport != "host"
+        ):
+            raise ValueError("Column MLP requires explicit two-device host TP")
+        if projection_profile != "fp16" and (
+            dtype != torch.float16
+            or weight_mode != "resident"
+            or _stage_range is not None
+        ):
+            raise ValueError(
+                "q8-residual requires a complete resident FP16 target, not PP"
+            )
+        profiled_create = None
+        if projection_profile != "fp16":
+            try:
+                profiled_create = getattr(
+                    backend._native,
+                    "venturi_qwen_create_head_gdn"
+                    if head_profile
+                    else "venturi_qwen_create_column_mlp"
+                    if column_profile
+                    else "venturi_qwen_create_profiled",
+                )
+            except AttributeError as e:
+                raise RuntimeError(
+                    "Explicit projection profile exports absent; rebuild blocks"
+                ) from e
+        target = backend._device(dtype, device)
+        if tensor_parallel_transport not in ("peer", "host"):
+            raise ValueError("Tensor parallel transport must be explicit peer or host")
+        if tensor_parallel_device is None and tensor_parallel_transport != "peer":
+            raise ValueError(
+                "Host transport requires an explicit tensor parallel device"
+            )
+        peer = None
+        if tensor_parallel_device is not None:
+            if weight_mode != "resident":
+                raise ValueError("Tensor parallel requires explicit resident weights")
+            peer = backend._device(dtype, tensor_parallel_device)
+            if peer == target:
+                raise ValueError("Tensor parallel peer must be a different CUDA device")
+            if tensor_parallel_transport == "peer" and not (
+                torch.cuda.can_device_access_peer(target.index, peer.index)
+                and torch.cuda.can_device_access_peer(peer.index, target.index)
+            ):
+                raise ValueError("Bidirectional CUDA peer access is required")
+        if column_profile and torch.cuda.get_device_capability(target) != (7, 0):
+            raise ValueError("Column MLP requires an explicit SM70 target")
+        _outside_capture(target)
+        owned = QwenQ8Weights.from_ninfer(NInferArtifact(weights.artifact.path))
+        cfg = copy.deepcopy(owned.config)
+        if _stage_range is not None:
+            if (
+                not isinstance(_stage_range, tuple)
+                or len(_stage_range) != 2
+                or any(type(i) is not int for i in _stage_range)
+                or not 0
+                <= _stage_range[0]
+                < _stage_range[1]
+                <= cfg["num_hidden_layers"]
+                or weight_mode != "resident"
+                or peer is not None
+            ):
+                raise ValueError(
+                    "Internal pipeline stage requires a valid resident non-TP range"
+                )
+        if column_profile and cfg["intermediate_size"] % 64:
+            raise ValueError("Column MLP requires group-aligned equal input halves")
+        if head_profile and (
+            cfg["linear_num_key_heads"] % 2
+            or cfg["linear_num_key_heads"] < 2
+            or cfg["linear_num_value_heads"] > 128
+            or cfg["linear_value_head_dim"] % 64
+            or not 1 <= cfg["linear_value_head_dim"] <= 256
+            or cfg["hidden_size"] % 32
+            or cfg["hidden_size"] > 32768
+            or not 2 <= cfg["linear_conv_kernel_dim"] <= 8
+        ):
+>           raise ValueError(
+                "Head GDN requires aligned semantic heads and convolution geometry"
+            )
+E           ValueError: Head GDN requires aligned semantic heads and convolution geometry
+
+src/venturi/models/qwen_native.py:298: ValueError
+_______________ test_failure_is_not_fallback_or_training_sample ________________
+
+tmp_path = PosixPath('/tmp/pytest-of-wzu/pytest-139/test_failure_is_not_fallback_o0')
+engine = <venturi.ops.blocks.CudaBackend object at 0x7bdd62728940>
+
+    def test_failure_is_not_fallback_or_training_sample(tmp_path, engine):
+        target, model = models(tmp_path, engine, True)
+        adaptive = model.create_adaptive_batch([32] * 4)
+        try:
+            adaptive.prepare()
+            adaptive._banks[1]._inject_failure(slot=3, layer=3, position=0)
+>           with pytest.raises(RuntimeError, match="injected"):
+E           Failed: DID NOT RAISE RuntimeError
+
+tests/test_qwen_adaptive_mtp.py:85: Failed
+=========================== short test summary info ============================
+FAILED tests/test_adaptive_mtp.py::test_feedback_can_disable_and_reenable_mtp
+FAILED tests/test_qwen_adaptive_mtp.py::test_switching_ragged_eos_reset_state[q8-residual-column-mlp-head-gdn-1]
+FAILED tests/test_qwen_adaptive_mtp.py::test_switching_ragged_eos_reset_state[q8-residual-column-mlp-head-gdn-2]
+FAILED tests/test_qwen_adaptive_mtp.py::test_switching_ragged_eos_reset_state[q8-residual-column-mlp-head-gdn-4]
+FAILED tests/test_qwen_adaptive_mtp.py::test_switching_ragged_eos_reset_state[q8-residual-column-mlp-head-gdn-8]
+FAILED tests/test_qwen_adaptive_mtp.py::test_failure_is_not_fallback_or_training_sample
+6 failed, 27 passed in 4.64s

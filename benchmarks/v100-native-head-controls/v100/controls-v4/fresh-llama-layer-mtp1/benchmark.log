@@ -1,0 +1,39 @@
+{"request_count": 1, "repeat": 0, "wall_seconds": 1.3793207699782215, "server_cpu_core_seconds": 1.379999999999999, "start_unix": 1792471476.887216, "end_unix": 1792471478.2668421, "emitted_tokens": 32}
+{"request_count": 1, "repeat": 1, "wall_seconds": 1.1327008160296828, "server_cpu_core_seconds": 1.1300000000000008, "start_unix": 1792471478.2677426, "end_unix": 1792471479.4008012, "emitted_tokens": 32}
+{"request_count": 1, "repeat": 2, "wall_seconds": 1.1391811830108054, "server_cpu_core_seconds": 1.1399999999999988, "start_unix": 1792471479.4032938, "end_unix": 1792471480.5428426, "emitted_tokens": 32}
+Traceback (most recent call last):
+  File "/home/data/wangyue/repos/codex-build/Venturi/native-head-gdn-src-v3/tools/benchmark_completion_api.py", line 120, in <module>
+    main()
+  File "/home/data/wangyue/repos/codex-build/Venturi/native-head-gdn-src-v3/tools/benchmark_completion_api.py", line 107, in main
+    rows = [j.result(timeout=180) for j in jobs]
+  File "/home/data/wangyue/repos/codex-build/Venturi/native-head-gdn-src-v3/tools/benchmark_completion_api.py", line 107, in <listcomp>
+    rows = [j.result(timeout=180) for j in jobs]
+  File "/usr/lib/python3.10/concurrent/futures/_base.py", line 458, in result
+    return self.__get_result()
+  File "/usr/lib/python3.10/concurrent/futures/_base.py", line 403, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.10/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/home/data/wangyue/repos/codex-build/Venturi/native-head-gdn-src-v3/tools/benchmark_completion_api.py", line 98, in run
+    result = post(args.url+"/completion",body)
+  File "/home/data/wangyue/repos/codex-build/Venturi/native-head-gdn-src-v3/tools/benchmark_completion_api.py", line 20, in post
+    with urlopen(request, timeout=180) as response:
+  File "/usr/lib/python3.10/urllib/request.py", line 216, in urlopen
+    return opener.open(url, data, timeout)
+  File "/usr/lib/python3.10/urllib/request.py", line 519, in open
+    response = self._open(req, data)
+  File "/usr/lib/python3.10/urllib/request.py", line 536, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+  File "/usr/lib/python3.10/urllib/request.py", line 496, in _call_chain
+    result = func(*args)
+  File "/usr/lib/python3.10/urllib/request.py", line 1377, in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+  File "/usr/lib/python3.10/urllib/request.py", line 1352, in do_open
+    r = h.getresponse()
+  File "/usr/lib/python3.10/http/client.py", line 1404, in getresponse
+    response.begin()
+  File "/usr/lib/python3.10/http/client.py", line 323, in begin
+    version, status, reason = self._read_status()
+  File "/usr/lib/python3.10/http/client.py", line 292, in _read_status
+    raise RemoteDisconnected("Remote end closed connection without"
+http.client.RemoteDisconnected: Remote end closed connection without response

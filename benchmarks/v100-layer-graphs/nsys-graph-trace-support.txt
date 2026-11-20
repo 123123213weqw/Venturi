@@ -1,0 +1,33 @@
+--cuda-graph-trace=<granularity>[:<launch origin>]
+
+	   Set the granularity and launch origin for CUDA graph trace.
+	   Applicable only when CUDA tracing is enabled.
+
+	   Possible values for <granularity> are 'graph' or 'node'.
+	   If 'graph' is selected, CUDA graphs will be traced as a whole and node
+	   activities will not be collected. This can reduce overhead to the minimal,
+	   but requires CUDA driver version 11.7 or higher.
+	   If 'node' is selected, node activities will be collected, but CUDA graphs
+	   will not be traced as a whole. This may cause significant runtime overhead.
+	   If CUDA driver version is 11.7 or higher, default is 'graph', otherwise default is 'node'.
+
+	   Possible values for <launch origin> are 'host-only' or 'host-and-device'.
+	   If 'host-only' is selected, only CUDA graphs launched from host codes will be traced.
+	   If 'host-and-device' is selected, CUDA graphs launched from host codes and device codes
+	   will both be traced. This is only supported when the granularity is set to 'graph' and
+	   the CUDA driver is version 12.3 or higher. This may cause significant runtime overhead.
+	   If granularity is set to 'graph' and the CUDA driver version is 12.3 or higher,
+	   the default is 'host-and-device', otherwise default is 'host-only'.'.
+
+	   Application scope.
+
+	--cuda-memory-usage=
+
+	   Possible values are 'true' or 'false'.
+	   Track the GPU memory usage. Applicable only when CUDA tracing is enabled.
+	   This feature may cause significant runtime overhead.
+	   Default is 'false'. Application scope.
+
+	--cuda-um-cpu-page-faults=
+
+	   Possibl

@@ -1,0 +1,143 @@
+{
+  "scope": "Separate native MTP1/2 timeline; not unprofiled serving throughput.",
+  "profiled": true,
+  "depth": 2,
+  "target_recovery": "prefix",
+  "target_layer_graph": true,
+  "logical_requests": 1,
+  "native_call_ranges": 1,
+  "projection_rows": 32,
+  "capacity_per_slot": 256,
+  "projection_profile": "q8-residual",
+  "draft_profile": "fp16",
+  "instrumented_wave": {
+    "wall_seconds": 0.9906075830222107,
+    "process_cpu_seconds": 0.9941050000000047,
+    "start_unix": 1792442925.7824287,
+    "end_unix": 1792442926.7730637,
+    "emitted_tokens": 32,
+    "aggregate_output_tokens_per_wall_second": 32.30340706899527,
+    "mean_completion_latency_seconds": 0.9905195159954019,
+    "max_completion_latency_seconds": 0.9905195159954019,
+    "requests": [
+      {
+        "request": 0,
+        "ids": [
+          4413,
+          220,
+          22,
+          18,
+          19,
+          11,
+          3750,
+          310,
+          279,
+          2342,
+          12313,
+          852,
+          11653,
+          279,
+          13626,
+          430,
+          328,
+          57517,
+          1288,
+          557,
+          5995,
+          364,
+          15579,
+          13,
+          11116,
+          27374,
+          24296,
+          1362,
+          10817,
+          264,
+          36320,
+          314
+        ],
+        "completion_latency_seconds": 0.9905195159954019,
+        "native_call_wall_seconds": 0.9904986879555508,
+        "thread_cpu_seconds": 0.9904625680000001
+      }
+    ]
+  },
+  "stats": [
+    {
+      "proposed_tokens": 26,
+      "accepted_tokens": 17,
+      "verification_calls": 13,
+      "replayed_input_tokens": 0,
+      "rollback_calls": 7,
+      "target_forward_calls": 15,
+      "target_input_tokens": 63,
+      "draft_forward_calls": 45,
+      "draft_input_tokens": 67,
+      "emitted_tokens": 32,
+      "forced_proposals": 0,
+      "draft_position": 54,
+      "mtp_model_device_bytes": 455514240,
+      "mtp_request_device_bytes": 27357408,
+      "primary_target_backup_bytes": 153944064,
+      "secondary_target_backup_bytes": 0,
+      "mtp_remote_embedding_bytes": 0,
+      "mtp_pinned_bridge_bytes": 0,
+      "mtp_device_index": 0,
+      "secondary_target_request_bytes": 0,
+      "draft_wall_seconds_including_warmup_catchup": 0.08019439096096903,
+      "verification_wall_seconds": 0.6748172410298139,
+      "rollback_replay_wall_seconds": 0.005020001030061394,
+      "prefill_wall_seconds": 0.18725988297956064,
+      "checkpoint_save_wall_seconds": 0.0,
+      "draft_tokens_per_round": 2,
+      "acceptance_rate": 0.6538461538461539,
+      "accepted_by_depth": [
+        11,
+        6
+      ],
+      "proposed_by_depth": [
+        13,
+        13
+      ],
+      "sampling": "target greedy; overall acceptance counts accepted prefix tokens / all drafted proposals; conditional depth acceptance uses verified proposals only",
+      "fresh_generation_only": true,
+      "verified_by_depth": [
+        13,
+        11
+      ],
+      "draft_rewind_calls": 13,
+      "verified_draft_catchup_inputs": 17,
+      "verification_calls_by_input_width": {
+        "2": 0,
+        "3": 13
+      },
+      "forced_by_depth": [
+        0,
+        0
+      ],
+      "unused_suffix_proposals": 2,
+      "conditional_acceptance_by_depth": [
+        0.8461538461538461,
+        0.5454545454545454
+      ],
+      "prefix_trace_extra_primary_bytes": 153944064,
+      "prefix_trace_extra_secondary_bytes": 0,
+      "target_recovery": "prefix-trace",
+      "target_layer_graph": {
+        "enabled": 1,
+        "ready": 1,
+        "captures": 1,
+        "replays": 25,
+        "fallback_calls": 4,
+        "eager_positioned_warm_calls": 1,
+        "nodes": 3040,
+        "device_position_bytes": 4,
+        "pinned_position_bytes": 4,
+        "last_position": 51,
+        "value_workspace_bytes": 0,
+        "scope": "Request-lifetime counters; target layers only, fixed T3/prefix2; embedding/head/selection and other widths remain eager"
+      }
+    }
+  ],
+  "library_sha256": "4c997ecd1e45728b83e8e23f1573c9b79a398a3afb6b9e4acfcd97a58cb3eda5"
+}

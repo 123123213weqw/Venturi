@@ -1,0 +1,96 @@
+{
+  "single": {
+    "native_tps": 52.95940567000609,
+    "trial_tps": [
+      52.92175576027658,
+      53.01174171968318,
+      52.944802012248324
+    ],
+    "best_retained_external_tps": 49.80330372625105,
+    "required_floor": 52.293468912563604,
+    "ratio": 1.0633713369920774,
+    "all_trials_clear_floor": true
+  },
+  "selected_http": {
+    "1": {
+      "mode": "mtp2",
+      "mtp_depth": 2,
+      "http_tps": 42.26711616282104,
+      "prior_best_native_tps": 38.345963143844386,
+      "over_prior_best_native_ratio": 1.102257257283316,
+      "retained_external": {
+        "capsule": "v100-strided-output/v100/external-depth-v9",
+        "label": "repeat-llama-tensor-mtp2-c1",
+        "requests": 1,
+        "depth": 2,
+        "http_tps": 30.173088033202983,
+        "post_first_tps": 49.80330372625105
+      },
+      "over_retained_external_ratio": 1.400821689722629,
+      "all_three_trials_clear_external_floor": true
+    },
+    "2": {
+      "mode": "mtp-batch",
+      "mtp_depth": 1,
+      "http_tps": 57.297529727161375,
+      "prior_best_native_tps": 51.821209499085654,
+      "over_prior_best_native_ratio": 1.105677198216926,
+      "retained_external": {
+        "capsule": "v100-q8-wmma/v100/campaign-v5",
+        "label": "repeat-llama-tensor-off",
+        "requests": 2,
+        "depth": 0,
+        "http_tps": 37.90744399336179
+      },
+      "over_retained_external_ratio": 1.5115112941193056,
+      "all_three_trials_clear_external_floor": true
+    },
+    "4": {
+      "mode": "mtp-batch",
+      "mtp_depth": 1,
+      "http_tps": 70.28686834299322,
+      "prior_best_native_tps": 63.65978850991032,
+      "over_prior_best_native_ratio": 1.104101505647497,
+      "retained_external": {
+        "capsule": "v100-q8-wmma/v100/campaign-v5",
+        "label": "repeat-llama-tensor-off",
+        "requests": 4,
+        "depth": 0,
+        "http_tps": 50.253690240757734
+      },
+      "over_retained_external_ratio": 1.3986409357454068,
+      "all_three_trials_clear_external_floor": true
+    },
+    "8": {
+      "mode": "mtp-batch",
+      "mtp_depth": 1,
+      "http_tps": 76.45903008360489,
+      "prior_best_native_tps": 73.83633062538635,
+      "over_prior_best_native_ratio": 1.0355204468586743,
+      "retained_external": {
+        "capsule": "v100-q8-wmma/v100/campaign-v5",
+        "label": "repeat-llama-tensor-off",
+        "requests": 8,
+        "depth": 0,
+        "http_tps": 67.28721679090569
+      },
+      "over_retained_external_ratio": 1.1363084064124767,
+      "all_three_trials_clear_external_floor": true
+    }
+  },
+  "profile_comparisons": {
+    "mtp2-c1": {
+      "h2d_byte_ratio": 0.8728748263438442,
+      "d2h_byte_ratio": 0.8728748391904368,
+      "summed_kernel_ratio": 1.0322504271630575,
+      "instrumented_host_ratio": 0.9136176645851157
+    },
+    "mtp-batch-c8": {
+      "h2d_byte_ratio": 0.871749069479175,
+      "d2h_byte_ratio": 0.8717490327053684,
+      "summed_kernel_ratio": 1.0192821653186834,
+      "instrumented_host_ratio": 0.8990665996961859
+    }
+  },
+  "full_goal_complete": false
+}

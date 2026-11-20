@@ -1,0 +1,2427 @@
+{
+  "scope": "Matched Q8 projection-only tile ablation using real checkpoint matrices.\n\nAll libraries share the same immutable GPU Q8 planes and activation values.\nEvery candidate must match original output bytes before timing. Graph replay\namortizes Python launch overhead for this microbenchmark only; it does not imply\nwhole-model graph support. CUDA-event intervals include graph/timeline gaps and\nare not hardware-counter bandwidth or full-engine serving measurements.\n",
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "gpu": "Tesla V100-PCIE-32GB",
+  "dtype": "fp16",
+  "libraries": [
+    {
+      "name": "baseline",
+      "library": "/home/data/wangyue/repos/codex-build/Venturi/v100-mtp-build/1402b93ce328ef77/libventuri_blocks.so",
+      "sha256": "063bff27acf57fa51b88c90394dc4b116eed9372e8b79f6ae92885fadb12367a"
+    },
+    {
+      "name": "two-token-verification",
+      "library": "/home/data/wangyue/repos/codex-build/Venturi/v100-mtp-build/fb11e6eff12b2fbf/libventuri_blocks.so",
+      "sha256": "dd8476377133a506aa49ff7b25f839e6a1b9931a9774a0c5c3230025cd404af0"
+    }
+  ],
+  "graph_nodes": 5,
+  "graph_replays_per_wave": 5,
+  "warmup_replays": 3,
+  "decode_only": false,
+  "verification_pairs": true,
+  "hardware_counters_available": false,
+  "cases": [
+    {
+      "shape": [
+        248320,
+        5120
+      ],
+      "role": "text/output_head",
+      "occurrences": 2,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.4070565795898435,
+          "wall_seconds": 0.06030476401792839,
+          "process_cpu_seconds": 0.060300000000001575
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.407957763671875,
+          "wall_seconds": 0.06029391597257927,
+          "process_cpu_seconds": 0.060347999999997626
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.413363189697266,
+          "wall_seconds": 0.060419489978812635,
+          "process_cpu_seconds": 0.060423000000000116
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.408282928466797,
+          "wall_seconds": 0.06027382303727791,
+          "process_cpu_seconds": 0.06031100000000045
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.407792663574219,
+          "wall_seconds": 0.06024810398230329,
+          "process_cpu_seconds": 0.06031199999999792
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.419425354003906,
+          "wall_seconds": 0.060539007012266666,
+          "process_cpu_seconds": 0.060539999999999594
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.4183193969726564,
+          "wall_seconds": 0.060506592970341444,
+          "process_cpu_seconds": 0.06057399999999902
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.4083251953125,
+          "wall_seconds": 0.060265275998972356,
+          "process_cpu_seconds": 0.06026499999999935
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 2.408037796020508,
+        "two-token-verification": 2.415841293334961
+      }
+    },
+    {
+      "shape": [
+        248320,
+        5120
+      ],
+      "role": "text/output_head",
+      "occurrences": 2,
+      "tokens": 2,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 5.548236694335937,
+          "wall_seconds": 0.1387912349891849,
+          "process_cpu_seconds": 0.1389099999999992
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.439494323730469,
+          "wall_seconds": 0.0860490239574574,
+          "process_cpu_seconds": 0.08605100000000121
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.5672882080078123,
+          "wall_seconds": 0.08924062002915889,
+          "process_cpu_seconds": 0.08926400000000001
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 5.637078857421875,
+          "wall_seconds": 0.14099215099122375,
+          "process_cpu_seconds": 0.14109300000000147
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 5.360598754882813,
+          "wall_seconds": 0.1340690689976327,
+          "process_cpu_seconds": 0.13410799999999945
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.457516784667969,
+          "wall_seconds": 0.0864848589990288,
+          "process_cpu_seconds": 0.08654600000000023
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.556597900390625,
+          "wall_seconds": 0.08897380100097507,
+          "process_cpu_seconds": 0.08900400000000097
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 5.7212109375,
+          "wall_seconds": 0.1430837379884906,
+          "process_cpu_seconds": 0.14312799999999903
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 5.592657775878906,
+        "two-token-verification": 3.507057342529297
+      }
+    },
+    {
+      "shape": [
+        17408,
+        5120
+      ],
+      "role": "text/layers/63/mlp/up",
+      "occurrences": 128,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1703936004638672,
+          "wall_seconds": 0.004315505037084222,
+          "process_cpu_seconds": 0.004310999999997733
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1701478385925293,
+          "wall_seconds": 0.004292521043680608,
+          "process_cpu_seconds": 0.004295000000002602
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17002496719360352,
+          "wall_seconds": 0.004285416973289102,
+          "process_cpu_seconds": 0.004286999999997931
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16994304656982423,
+          "wall_seconds": 0.0042828869773074985,
+          "process_cpu_seconds": 0.0042839999999984
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16977920532226562,
+          "wall_seconds": 0.004280395049136132,
+          "process_cpu_seconds": 0.004281999999999897
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1698611259460449,
+          "wall_seconds": 0.0042807639692910016,
+          "process_cpu_seconds": 0.004281999999999897
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16977920532226562,
+          "wall_seconds": 0.004277425992768258,
+          "process_cpu_seconds": 0.004277999999999338
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16957439422607423,
+          "wall_seconds": 0.004274258972145617,
+          "process_cpu_seconds": 0.0042750000000033594
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.1698611259460449,
+        "two-token-verification": 0.16994304656982423
+      }
+    },
+    {
+      "shape": [
+        17408,
+        5120
+      ],
+      "role": "text/layers/63/mlp/up",
+      "occurrences": 128,
+      "tokens": 2,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.38379520416259766,
+          "wall_seconds": 0.009654808964114636,
+          "process_cpu_seconds": 0.009650999999998078
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23982080459594726,
+          "wall_seconds": 0.006047567003406584,
+          "process_cpu_seconds": 0.006049000000000859
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23945215225219726,
+          "wall_seconds": 0.006034559977706522,
+          "process_cpu_seconds": 0.006034999999997126
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3830579376220703,
+          "wall_seconds": 0.00961321999784559,
+          "process_cpu_seconds": 0.009614000000002676
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3831398391723633,
+          "wall_seconds": 0.009617080970201641,
+          "process_cpu_seconds": 0.009686000000002082
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23937023162841797,
+          "wall_seconds": 0.006019633030518889,
+          "process_cpu_seconds": 0.006021000000000498
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23928831100463868,
+          "wall_seconds": 0.006017523992341012,
+          "process_cpu_seconds": 0.006019000000001995
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3859251022338867,
+          "wall_seconds": 0.00968315900536254,
+          "process_cpu_seconds": 0.009684999999997501
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.38346752166748044,
+        "two-token-verification": 0.23941119194030763
+      }
+    },
+    {
+      "shape": [
+        17408,
+        5120
+      ],
+      "role": "text/layers/63/mlp/up",
+      "occurrences": 128,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39985153198242185,
+          "wall_seconds": 0.010054154030513018,
+          "process_cpu_seconds": 0.010051000000000698
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3991961669921875,
+          "wall_seconds": 0.010018457018304616,
+          "process_cpu_seconds": 0.010019999999997253
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3995238494873047,
+          "wall_seconds": 0.010041401023045182,
+          "process_cpu_seconds": 0.010042999999996027
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3990732955932617,
+          "wall_seconds": 0.010013171995524317,
+          "process_cpu_seconds": 0.010013999999998191
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3989913558959961,
+          "wall_seconds": 0.010010300029534847,
+          "process_cpu_seconds": 0.01001099999999866
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3990323257446289,
+          "wall_seconds": 0.010010488971602172,
+          "process_cpu_seconds": 0.01001099999999866
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39890945434570313,
+          "wall_seconds": 0.010009618999902159,
+          "process_cpu_seconds": 0.0100750000000005
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3990323257446289,
+          "wall_seconds": 0.010015787032898515,
+          "process_cpu_seconds": 0.010018000000002303
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.39905281066894527,
+        "two-token-verification": 0.3991142463684082
+      }
+    },
+    {
+      "shape": [
+        17408,
+        5120
+      ],
+      "role": "text/layers/63/mlp/up",
+      "occurrences": 128,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7244952392578123,
+          "wall_seconds": 0.06819226598599926,
+          "process_cpu_seconds": 0.06826800000000333
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7235531616210937,
+          "wall_seconds": 0.06813562096795067,
+          "process_cpu_seconds": 0.06813700000000011
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7228570556640626,
+          "wall_seconds": 0.06811740098055452,
+          "process_cpu_seconds": 0.06813400000000058
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.72400390625,
+          "wall_seconds": 0.06814438698347658,
+          "process_cpu_seconds": 0.06819100000000233
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7480062866210937,
+          "wall_seconds": 0.06874569895444438,
+          "process_cpu_seconds": 0.06874600000000086
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7382168579101562,
+          "wall_seconds": 0.06850587896769866,
+          "process_cpu_seconds": 0.06856600000000057
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7379302978515625,
+          "wall_seconds": 0.06849700800376013,
+          "process_cpu_seconds": 0.06854400000000282
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.736947326660156,
+          "wall_seconds": 0.06847155396826565,
+          "process_cpu_seconds": 0.0684730000000009
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 2.730721282958984,
+        "two-token-verification": 2.7307417297363283
+      }
+    },
+    {
+      "shape": [
+        5120,
+        17408
+      ],
+      "role": "text/layers/63/mlp/down",
+      "occurrences": 64,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17784832000732423,
+          "wall_seconds": 0.004507081990595907,
+          "process_cpu_seconds": 0.004502999999999702
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17784832000732423,
+          "wall_seconds": 0.004486778983846307,
+          "process_cpu_seconds": 0.004488000000002046
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17793024063110352,
+          "wall_seconds": 0.004484055971261114,
+          "process_cpu_seconds": 0.004484999999998962
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17743871688842774,
+          "wall_seconds": 0.004471996042411774,
+          "process_cpu_seconds": 0.004473000000000837
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17760255813598633,
+          "wall_seconds": 0.004476709000300616,
+          "process_cpu_seconds": 0.0044780000000024245
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17702911376953126,
+          "wall_seconds": 0.004468881990760565,
+          "process_cpu_seconds": 0.004470999999995229
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17707008361816406,
+          "wall_seconds": 0.0044615770457312465,
+          "process_cpu_seconds": 0.004463000000001216
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17698816299438477,
+          "wall_seconds": 0.004459663003217429,
+          "process_cpu_seconds": 0.00446099999999916
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.17752063751220704,
+        "two-token-verification": 0.17745920181274416
+      }
+    },
+    {
+      "shape": [
+        5120,
+        17408
+      ],
+      "role": "text/layers/63/mlp/down",
+      "occurrences": 64,
+      "tokens": 2,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.36573184967041017,
+          "wall_seconds": 0.00920915900496766,
+          "process_cpu_seconds": 0.009235999999997802
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.22945791244506836,
+          "wall_seconds": 0.005787511996459216,
+          "process_cpu_seconds": 0.005787999999999016
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2290483283996582,
+          "wall_seconds": 0.005764353962149471,
+          "process_cpu_seconds": 0.005765999999997717
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3649126434326172,
+          "wall_seconds": 0.009160573012195528,
+          "process_cpu_seconds": 0.009160999999998864
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3647078323364258,
+          "wall_seconds": 0.009159495995845646,
+          "process_cpu_seconds": 0.009160999999998864
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2290073585510254,
+          "wall_seconds": 0.005764219968114048,
+          "process_cpu_seconds": 0.005765000000003795
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2288844871520996,
+          "wall_seconds": 0.005756495986133814,
+          "process_cpu_seconds": 0.005758000000000152
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3647078323364258,
+          "wall_seconds": 0.009214398975018412,
+          "process_cpu_seconds": 0.009223999999999677
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.3648102378845215,
+        "two-token-verification": 0.22902784347534177
+      }
+    },
+    {
+      "shape": [
+        5120,
+        17408
+      ],
+      "role": "text/layers/63/mlp/down",
+      "occurrences": 64,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.38871040344238283,
+          "wall_seconds": 0.009787215967662632,
+          "process_cpu_seconds": 0.009783999999999793
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.38825984954833986,
+          "wall_seconds": 0.009751238976605237,
+          "process_cpu_seconds": 0.009776000000002227
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3880960083007812,
+          "wall_seconds": 0.00974121899344027,
+          "process_cpu_seconds": 0.009741999999999251
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.39268352508544924,
+          "wall_seconds": 0.009857868950348347,
+          "process_cpu_seconds": 0.009859999999999758
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3974758529663086,
+          "wall_seconds": 0.009982143994420767,
+          "process_cpu_seconds": 0.009983999999999327
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.4005081558227539,
+          "wall_seconds": 0.010053746053017676,
+          "process_cpu_seconds": 0.010055000000001257
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.4059968185424805,
+          "wall_seconds": 0.010187295032665133,
+          "process_cpu_seconds": 0.01018799999999942
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.40726528167724607,
+          "wall_seconds": 0.010218832991085947,
+          "process_cpu_seconds": 0.010221000000001368
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.3950796890258789,
+        "two-token-verification": 0.39438400268554685
+      }
+    },
+    {
+      "shape": [
+        5120,
+        17408
+      ],
+      "role": "text/layers/63/mlp/down",
+      "occurrences": 64,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.74366455078125,
+          "wall_seconds": 0.06866495200665668,
+          "process_cpu_seconds": 0.06869900000000229
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7560345458984377,
+          "wall_seconds": 0.06895472895121202,
+          "process_cpu_seconds": 0.06898400000000038
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.744853820800781,
+          "wall_seconds": 0.06866925599751994,
+          "process_cpu_seconds": 0.0686700000000009
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.740060119628906,
+          "wall_seconds": 0.06855109200114384,
+          "process_cpu_seconds": 0.06859799999999794
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7563623046875,
+          "wall_seconds": 0.06896995299030095,
+          "process_cpu_seconds": 0.06903400000000204
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.742763671875,
+          "wall_seconds": 0.06862986495252699,
+          "process_cpu_seconds": 0.06863199999999736
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7452621459960938,
+          "wall_seconds": 0.06878966803196818,
+          "process_cpu_seconds": 0.06884400000000213
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7543960571289063,
+          "wall_seconds": 0.06896552100079134,
+          "process_cpu_seconds": 0.06898400000000038
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 2.7490303039550783,
+        "two-token-verification": 2.7450579833984374
+      }
+    },
+    {
+      "shape": [
+        10240,
+        5120
+      ],
+      "role": "text/layers/62/gdn/qkv",
+      "occurrences": 48,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.10354687690734864,
+          "wall_seconds": 0.0026543340063653886,
+          "process_cpu_seconds": 0.0026500000000027057
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.10309632301330567,
+          "wall_seconds": 0.0026146689779125154,
+          "process_cpu_seconds": 0.0026149999999987017
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.10305536270141602,
+          "wall_seconds": 0.0026134730433113873,
+          "process_cpu_seconds": 0.0026149999999987017
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.10297344207763671,
+          "wall_seconds": 0.0026171549689024687,
+          "process_cpu_seconds": 0.0026180000000017856
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.10289152145385742,
+          "wall_seconds": 0.0026078619994223118,
+          "process_cpu_seconds": 0.0026089999999996394
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.10289152145385742,
+          "wall_seconds": 0.002609160030260682,
+          "process_cpu_seconds": 0.00261000000000422
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.10309632301330567,
+          "wall_seconds": 0.002619005972519517,
+          "process_cpu_seconds": 0.0026200000000002888
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.10297344207763671,
+          "wall_seconds": 0.0026083739940077066,
+          "process_cpu_seconds": 0.0026100000000006673
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.10297344207763671,
+        "two-token-verification": 0.10307584285736085
+      }
+    },
+    {
+      "shape": [
+        10240,
+        5120
+      ],
+      "role": "text/layers/62/gdn/qkv",
+      "occurrences": 48,
+      "tokens": 2,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.22745088577270509,
+          "wall_seconds": 0.005748164025135338,
+          "process_cpu_seconds": 0.0057760000000008915
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1429094409942627,
+          "wall_seconds": 0.0036125059705227613,
+          "process_cpu_seconds": 0.0036140000000024486
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14278656005859375,
+          "wall_seconds": 0.003604258003178984,
+          "process_cpu_seconds": 0.0036050000000003024
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2270822334289551,
+          "wall_seconds": 0.00571144197601825,
+          "process_cpu_seconds": 0.005713000000000079
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2267545509338379,
+          "wall_seconds": 0.005714176979381591,
+          "process_cpu_seconds": 0.00571599999999961
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14254079818725585,
+          "wall_seconds": 0.0036005330039188266,
+          "process_cpu_seconds": 0.0036020000000007713
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14249983787536621,
+          "wall_seconds": 0.003600183001253754,
+          "process_cpu_seconds": 0.0036009999999997433
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.22663167953491212,
+          "wall_seconds": 0.005701037996914238,
+          "process_cpu_seconds": 0.00570199999999943
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.22691839218139648,
+        "two-token-verification": 0.1426636791229248
+      }
+    },
+    {
+      "shape": [
+        10240,
+        5120
+      ],
+      "role": "text/layers/62/gdn/qkv",
+      "occurrences": 48,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23191551208496095,
+          "wall_seconds": 0.005858846008777618,
+          "process_cpu_seconds": 0.005855000000000388
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23162879943847656,
+          "wall_seconds": 0.005843131977599114,
+          "process_cpu_seconds": 0.005845000000000766
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23207935333251953,
+          "wall_seconds": 0.005849376029800624,
+          "process_cpu_seconds": 0.005850000000002353
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23150592803955078,
+          "wall_seconds": 0.005823598999995738,
+          "process_cpu_seconds": 0.005825000000001523
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2314240074157715,
+          "wall_seconds": 0.0058210669667460024,
+          "process_cpu_seconds": 0.0058219999999984395
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2314240074157715,
+          "wall_seconds": 0.005820436985231936,
+          "process_cpu_seconds": 0.0058219999999984395
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23130111694335936,
+          "wall_seconds": 0.00581812096061185,
+          "process_cpu_seconds": 0.005819999999999936
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2313420867919922,
+          "wall_seconds": 0.005819785001222044,
+          "process_cpu_seconds": 0.0058219999999984395
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.23146496772766112,
+        "two-token-verification": 0.23152640342712402
+      }
+    },
+    {
+      "shape": [
+        10240,
+        5120
+      ],
+      "role": "text/layers/62/gdn/qkv",
+      "occurrences": 48,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.5978495788574218,
+          "wall_seconds": 0.04001873201923445,
+          "process_cpu_seconds": 0.04001599999999783
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.6059187316894532,
+          "wall_seconds": 0.040195380977820605,
+          "process_cpu_seconds": 0.04023600000000016
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.6055500793457032,
+          "wall_seconds": 0.04018521396210417,
+          "process_cpu_seconds": 0.0401859999999985
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.5989144897460938,
+          "wall_seconds": 0.04001582000637427,
+          "process_cpu_seconds": 0.04005000000000081
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.612349395751953,
+          "wall_seconds": 0.040349351009353995,
+          "process_cpu_seconds": 0.04034899999999908
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.61406982421875,
+          "wall_seconds": 0.040395408985204995,
+          "process_cpu_seconds": 0.040396999999998684
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.6142745971679688,
+          "wall_seconds": 0.04040594300022349,
+          "process_cpu_seconds": 0.04044800000000137
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.614151611328125,
+          "wall_seconds": 0.04049406701233238,
+          "process_cpu_seconds": 0.04051099999999863
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 1.6056319427490235,
+        "two-token-verification": 1.6099942779541014
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "role": "text/layers/62/gdn/z",
+      "occurrences": 48,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06524928092956543,
+          "wall_seconds": 0.0016843590419739485,
+          "process_cpu_seconds": 0.0016800000000003479
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06475776195526123,
+          "wall_seconds": 0.0016533000161871314,
+          "process_cpu_seconds": 0.0016540000000020427
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06455296039581299,
+          "wall_seconds": 0.0016459100297652185,
+          "process_cpu_seconds": 0.0016469999999983997
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06467584133148194,
+          "wall_seconds": 0.001648640027269721,
+          "process_cpu_seconds": 0.0016500000000014836
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0644710397720337,
+          "wall_seconds": 0.0016427270020358264,
+          "process_cpu_seconds": 0.0016439999999988686
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0644710397720337,
+          "wall_seconds": 0.0016457349993288517,
+          "process_cpu_seconds": 0.001581000000001609
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06463488101959229,
+          "wall_seconds": 0.0016497100004926324,
+          "process_cpu_seconds": 0.001649999999997931
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06467584133148194,
+          "wall_seconds": 0.00164892798056826,
+          "process_cpu_seconds": 0.0016500000000014836
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.06467584133148194,
+        "two-token-verification": 0.06459392070770265
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "role": "text/layers/62/gdn/z",
+      "occurrences": 48,
+      "tokens": 2,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1378713607788086,
+          "wall_seconds": 0.003517207980621606,
+          "process_cpu_seconds": 0.0035120000000006257
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08704000473022461,
+          "wall_seconds": 0.0022114799940027297,
+          "process_cpu_seconds": 0.0022120000000001028
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08683520317077636,
+          "wall_seconds": 0.002206675009801984,
+          "process_cpu_seconds": 0.0022079999999995437
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13668352127075195,
+          "wall_seconds": 0.0034581610234454274,
+          "process_cpu_seconds": 0.0034600000000004627
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13668352127075195,
+          "wall_seconds": 0.003454966004937887,
+          "process_cpu_seconds": 0.0034559999999999036
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08699904441833496,
+          "wall_seconds": 0.002216742024756968,
+          "process_cpu_seconds": 0.002217999999999165
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08679424285888672,
+          "wall_seconds": 0.0022029480314813554,
+          "process_cpu_seconds": 0.0022039999999989845
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.136560640335083,
+          "wall_seconds": 0.0034596759942360222,
+          "process_cpu_seconds": 0.003461999999998966
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.13668352127075195,
+        "two-token-verification": 0.08691712379455566
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "role": "text/layers/62/gdn/z",
+      "occurrences": 48,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14016511917114258,
+          "wall_seconds": 0.0035599220427684486,
+          "process_cpu_seconds": 0.0035549999999986426
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1396735954284668,
+          "wall_seconds": 0.0035283470060676336,
+          "process_cpu_seconds": 0.0035300000000013654
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1396735954284668,
+          "wall_seconds": 0.0035261510056443512,
+          "process_cpu_seconds": 0.003578000000004522
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13955072402954102,
+          "wall_seconds": 0.00353128497954458,
+          "process_cpu_seconds": 0.0035319999999998686
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1393868827819824,
+          "wall_seconds": 0.003518090001307428,
+          "process_cpu_seconds": 0.003519000000000716
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13979647636413575,
+          "wall_seconds": 0.0035283199977129698,
+          "process_cpu_seconds": 0.0035299999999978127
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13950976371765136,
+          "wall_seconds": 0.003525716019794345,
+          "process_cpu_seconds": 0.003528000000002862
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.13946880340576173,
+          "wall_seconds": 0.003524342959281057,
+          "process_cpu_seconds": 0.003525000000003331
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.1395097637176514,
+        "two-token-verification": 0.1396735954284668
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "role": "text/layers/62/gdn/z",
+      "occurrences": 48,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.933601303100586,
+          "wall_seconds": 0.02340755402110517,
+          "process_cpu_seconds": 0.023405000000000342
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9574400329589844,
+          "wall_seconds": 0.023982543032616377,
+          "process_cpu_seconds": 0.024027000000000243
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9678848266601563,
+          "wall_seconds": 0.024236694967839867,
+          "process_cpu_seconds": 0.024238000000000426
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9679257965087891,
+          "wall_seconds": 0.024237328034359962,
+          "process_cpu_seconds": 0.024238000000000426
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.966983642578125,
+          "wall_seconds": 0.024219866027124226,
+          "process_cpu_seconds": 0.02418299999999718
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9623551940917969,
+          "wall_seconds": 0.024099880014546216,
+          "process_cpu_seconds": 0.02410099999999815
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9622732543945313,
+          "wall_seconds": 0.024095972999930382,
+          "process_cpu_seconds": 0.02413100000000057
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.962314224243164,
+          "wall_seconds": 0.024098607013002038,
+          "process_cpu_seconds": 0.02409499999999909
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.9646489334106445,
+        "two-token-verification": 0.9623142242431642
+      }
+    },
+    {
+      "shape": [
+        5120,
+        6144
+      ],
+      "role": "text/layers/63/attention/o",
+      "occurrences": 64,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06676479816436767,
+          "wall_seconds": 0.0017211230006068945,
+          "process_cpu_seconds": 0.0017159999999982745
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06623231887817382,
+          "wall_seconds": 0.0016910720150917768,
+          "process_cpu_seconds": 0.0016929999999995005
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06631423950195313,
+          "wall_seconds": 0.0016908010002225637,
+          "process_cpu_seconds": 0.0016919999999984725
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06635519981384277,
+          "wall_seconds": 0.0016923180082812905,
+          "process_cpu_seconds": 0.0016940000000005284
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06651904106140137,
+          "wall_seconds": 0.0017035260098055005,
+          "process_cpu_seconds": 0.0017619999999993752
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06602752208709717,
+          "wall_seconds": 0.0016827319632284343,
+          "process_cpu_seconds": 0.001684000000000907
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06627327919006348,
+          "wall_seconds": 0.001689633005298674,
+          "process_cpu_seconds": 0.0016899999999999693
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.06631423950195313,
+          "wall_seconds": 0.0016905159573070705,
+          "process_cpu_seconds": 0.0016919999999949198
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.06643712043762207,
+        "two-token-verification": 0.06625279903411865
+      }
+    },
+    {
+      "shape": [
+        5120,
+        6144
+      ],
+      "role": "text/layers/63/attention/o",
+      "occurrences": 64,
+      "tokens": 2,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.141844482421875,
+          "wall_seconds": 0.003601111995521933,
+          "process_cpu_seconds": 0.003596999999999184
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08982527732849122,
+          "wall_seconds": 0.0022824150510132313,
+          "process_cpu_seconds": 0.0022829999999984807
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08970239639282226,
+          "wall_seconds": 0.0022780169965699315,
+          "process_cpu_seconds": 0.0022799999999989495
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1410662364959717,
+          "wall_seconds": 0.0035614839871414006,
+          "process_cpu_seconds": 0.003562999999999761
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1410662364959717,
+          "wall_seconds": 0.0035621579736471176,
+          "process_cpu_seconds": 0.003562999999999761
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0899891185760498,
+          "wall_seconds": 0.002282382978592068,
+          "process_cpu_seconds": 0.0022839999999995086
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08970239639282226,
+          "wall_seconds": 0.0022779450519010425,
+          "process_cpu_seconds": 0.0022789999999979216
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14123007774353027,
+          "wall_seconds": 0.0035715289996005595,
+          "process_cpu_seconds": 0.0035729999999993822
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.14114815711975098,
+        "two-token-verification": 0.08976383686065674
+      }
+    },
+    {
+      "shape": [
+        5120,
+        6144
+      ],
+      "role": "text/layers/63/attention/o",
+      "occurrences": 64,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14417920112609864,
+          "wall_seconds": 0.003661120019387454,
+          "process_cpu_seconds": 0.0036559999999994375
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14401535987854003,
+          "wall_seconds": 0.0036398160154931247,
+          "process_cpu_seconds": 0.003640999999998229
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14401535987854003,
+          "wall_seconds": 0.0036381770041771233,
+          "process_cpu_seconds": 0.003638999999999726
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14376959800720215,
+          "wall_seconds": 0.0036274890298955142,
+          "process_cpu_seconds": 0.0036290000000001044
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1439743995666504,
+          "wall_seconds": 0.0036350199952721596,
+          "process_cpu_seconds": 0.0036360000000001946
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1439743995666504,
+          "wall_seconds": 0.0036359779769554734,
+          "process_cpu_seconds": 0.0036360000000001946
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1438924789428711,
+          "wall_seconds": 0.003630519029684365,
+          "process_cpu_seconds": 0.0036319999999996355
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14393343925476074,
+          "wall_seconds": 0.0036316110054031014,
+          "process_cpu_seconds": 0.0036330000000006635
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.14395391941070557,
+        "two-token-verification": 0.14399487972259523
+      }
+    },
+    {
+      "shape": [
+        5120,
+        6144
+      ],
+      "role": "text/layers/63/attention/o",
+      "occurrences": 64,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9560063934326172,
+          "wall_seconds": 0.024017375020775944,
+          "process_cpu_seconds": 0.024004999999998944
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9530982208251954,
+          "wall_seconds": 0.023879110987763852,
+          "process_cpu_seconds": 0.023880000000005452
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9528934478759765,
+          "wall_seconds": 0.023864479968324304,
+          "process_cpu_seconds": 0.023866000000005272
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.952647705078125,
+          "wall_seconds": 0.023865844996180385,
+          "process_cpu_seconds": 0.02391399999999777
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9528934478759765,
+          "wall_seconds": 0.02386915497481823,
+          "process_cpu_seconds": 0.02387000000000228
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9527705383300781,
+          "wall_seconds": 0.023862825008109212,
+          "process_cpu_seconds": 0.023864000000003216
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.9529344177246094,
+          "wall_seconds": 0.023865785042289644,
+          "process_cpu_seconds": 0.02386699999999564
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.952811508178711,
+          "wall_seconds": 0.023864615010097623,
+          "process_cpu_seconds": 0.023866000000005272
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.9528524780273437,
+        "two-token-verification": 0.9529139328002929
+      }
+    },
+    {
+      "shape": [
+        12288,
+        5120
+      ],
+      "role": "text/layers/63/attention/q",
+      "occurrences": 16,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.124518404006958,
+          "wall_seconds": 0.003172079974319786,
+          "process_cpu_seconds": 0.0031669999999976994
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12410880088806152,
+          "wall_seconds": 0.003138804982881993,
+          "process_cpu_seconds": 0.003140000000001919
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12386303901672363,
+          "wall_seconds": 0.003131742007099092,
+          "process_cpu_seconds": 0.003132999999998276
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12410880088806152,
+          "wall_seconds": 0.0031445270287804306,
+          "process_cpu_seconds": 0.0031460000000009813
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12423168182373047,
+          "wall_seconds": 0.003149116993881762,
+          "process_cpu_seconds": 0.0031510000000025684
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12398591995239258,
+          "wall_seconds": 0.00313458195887506,
+          "process_cpu_seconds": 0.003136999999998835
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12406784057617187,
+          "wall_seconds": 0.0031472519622184336,
+          "process_cpu_seconds": 0.0031500000000015405
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12435456275939942,
+          "wall_seconds": 0.0031466110376641154,
+          "process_cpu_seconds": 0.0031479999999994845
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.12429312229156494,
+        "two-token-verification": 0.12402688026428223
+      }
+    },
+    {
+      "shape": [
+        12288,
+        5120
+      ],
+      "role": "text/layers/63/attention/q",
+      "occurrences": 16,
+      "tokens": 2,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.27893760681152346,
+          "wall_seconds": 0.0070296539925038815,
+          "process_cpu_seconds": 0.007026000000003307
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17498111724853516,
+          "wall_seconds": 0.004417427000589669,
+          "process_cpu_seconds": 0.004419999999996094
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17518592834472657,
+          "wall_seconds": 0.004437755036633462,
+          "process_cpu_seconds": 0.0044399999999953366
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.27869184494018556,
+          "wall_seconds": 0.007009338994976133,
+          "process_cpu_seconds": 0.007010000000001071
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.27832319259643556,
+          "wall_seconds": 0.006997027026955038,
+          "process_cpu_seconds": 0.0069990000000004216
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17485824584960938,
+          "wall_seconds": 0.004417332005687058,
+          "process_cpu_seconds": 0.0044199999999996464
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.17518592834472657,
+          "wall_seconds": 0.004425494000315666,
+          "process_cpu_seconds": 0.004426999999999737
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.27840511322021483,
+          "wall_seconds": 0.006996840995270759,
+          "process_cpu_seconds": 0.0069990000000004216
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.2785484790802002,
+        "two-token-verification": 0.17508352279663086
+      }
+    },
+    {
+      "shape": [
+        12288,
+        5120
+      ],
+      "role": "text/layers/63/attention/q",
+      "occurrences": 16,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.28495872497558594,
+          "wall_seconds": 0.007187117007561028,
+          "process_cpu_seconds": 0.007183999999998747
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.28446720123291014,
+          "wall_seconds": 0.007151372963562608,
+          "process_cpu_seconds": 0.007152999999998855
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2841804885864258,
+          "wall_seconds": 0.0071509809931740165,
+          "process_cpu_seconds": 0.007152999999998855
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2851225662231445,
+          "wall_seconds": 0.007171362987719476,
+          "process_cpu_seconds": 0.007215999999999667
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.284139518737793,
+          "wall_seconds": 0.007142791990190744,
+          "process_cpu_seconds": 0.007144000000000261
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2843852806091309,
+          "wall_seconds": 0.007149263983592391,
+          "process_cpu_seconds": 0.0071499999999993236
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2841804885864258,
+          "wall_seconds": 0.007141099020373076,
+          "process_cpu_seconds": 0.007141999999998205
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.284139518737793,
+          "wall_seconds": 0.0071406729985028505,
+          "process_cpu_seconds": 0.007142000000001758
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.28454912185668946,
+        "two-token-verification": 0.28428288459777834
+      }
+    },
+    {
+      "shape": [
+        12288,
+        5120
+      ],
+      "role": "text/layers/63/attention/q",
+      "occurrences": 16,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.935564727783203,
+          "wall_seconds": 0.04846584005281329,
+          "process_cpu_seconds": 0.048462999999998146
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.9344589233398437,
+          "wall_seconds": 0.04841167700942606,
+          "process_cpu_seconds": 0.04845100000000002
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.9343769836425782,
+          "wall_seconds": 0.04840595100540668,
+          "process_cpu_seconds": 0.048406999999997424
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.9341311645507813,
+          "wall_seconds": 0.04839957196963951,
+          "process_cpu_seconds": 0.04840099999999836
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.9340902709960937,
+          "wall_seconds": 0.04840253799920902,
+          "process_cpu_seconds": 0.04840899999999948
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.9340492248535157,
+          "wall_seconds": 0.04839301103493199,
+          "process_cpu_seconds": 0.048392999999997244
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.933885498046875,
+          "wall_seconds": 0.048388559953309596,
+          "process_cpu_seconds": 0.04842400000000424
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 1.934254150390625,
+          "wall_seconds": 0.04839582002023235,
+          "process_cpu_seconds": 0.048397000000001356
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 1.9341926574707031,
+        "two-token-verification": 1.9342131042480468
+      }
+    },
+    {
+      "shape": [
+        1024,
+        5120
+      ],
+      "role": "text/layers/63/attention/v",
+      "occurrences": 32,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.015155199766159057,
+          "wall_seconds": 0.0004369189846329391,
+          "process_cpu_seconds": 0.00043099999999896
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.014581760168075561,
+          "wall_seconds": 0.00039259297773241997,
+          "process_cpu_seconds": 0.0003930000000025302
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.014499839544296265,
+          "wall_seconds": 0.00039157201535999775,
+          "process_cpu_seconds": 0.0003929999999989775
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.01462272047996521,
+          "wall_seconds": 0.00039322703378275037,
+          "process_cpu_seconds": 0.0003929999999989775
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.014499839544296265,
+          "wall_seconds": 0.00039187102811411023,
+          "process_cpu_seconds": 0.0003929999999989775
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.014827519655227661,
+          "wall_seconds": 0.00040126097155734897,
+          "process_cpu_seconds": 0.0004010000000000957
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.014458880424499512,
+          "wall_seconds": 0.00039369496516883373,
+          "process_cpu_seconds": 0.00039400000000000546
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.014909440279006958,
+          "wall_seconds": 0.0004077620105817914,
+          "process_cpu_seconds": 0.000408000000000186
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.014766080379486084,
+        "two-token-verification": 0.014540799856185914
+      }
+    },
+    {
+      "shape": [
+        1024,
+        5120
+      ],
+      "role": "text/layers/63/attention/v",
+      "occurrences": 32,
+      "tokens": 2,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.027238399982452394,
+          "wall_seconds": 0.0007321229786612093,
+          "process_cpu_seconds": 0.0007260000000002265
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.018186240196228026,
+          "wall_seconds": 0.00048338802298530936,
+          "process_cpu_seconds": 0.00048300000000267573
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.01802240014076233,
+          "wall_seconds": 0.00048287701793015003,
+          "process_cpu_seconds": 0.000484000000000151
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.02678783893585205,
+          "wall_seconds": 0.0006995489820837975,
+          "process_cpu_seconds": 0.0007009999999993966
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.026910719871520997,
+          "wall_seconds": 0.0007121070520952344,
+          "process_cpu_seconds": 0.0007130000000010739
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.018186240196228026,
+          "wall_seconds": 0.00048407900612801313,
+          "process_cpu_seconds": 0.00048500000000117893
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.018350080251693726,
+          "wall_seconds": 0.0004868230316787958,
+          "process_cpu_seconds": 0.00048699999999968213
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.02637824058532715,
+          "wall_seconds": 0.0006890909862704575,
+          "process_cpu_seconds": 0.0006909999999997751
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.026849279403686525,
+        "two-token-verification": 0.018186240196228026
+      }
+    },
+    {
+      "shape": [
+        1024,
+        5120
+      ],
+      "role": "text/layers/63/attention/v",
+      "occurrences": 32,
+      "tokens": 4,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.02752511978149414,
+          "wall_seconds": 0.0007396750152111053,
+          "process_cpu_seconds": 0.0007359999999998479
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.027156479358673095,
+          "wall_seconds": 0.0007094949833117425,
+          "process_cpu_seconds": 0.0007100000000015427
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.027197439670562745,
+          "wall_seconds": 0.0007167979492805898,
+          "process_cpu_seconds": 0.000718000000002661
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.026869759559631348,
+          "wall_seconds": 0.0007016970193944871,
+          "process_cpu_seconds": 0.0007029999999978997
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.027156479358673095,
+          "wall_seconds": 0.0007088170386850834,
+          "process_cpu_seconds": 0.0007100000000015427
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.027115519046783446,
+          "wall_seconds": 0.0007059410563670099,
+          "process_cpu_seconds": 0.0007060000000009836
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.027197439670562745,
+          "wall_seconds": 0.0007186810253188014,
+          "process_cpu_seconds": 0.0007230000000006953
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.027402238845825197,
+          "wall_seconds": 0.0007187890005297959,
+          "process_cpu_seconds": 0.0007190000000001362
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.027279359102249146,
+        "two-token-verification": 0.027176959514617918
+      }
+    },
+    {
+      "shape": [
+        1024,
+        5120
+      ],
+      "role": "text/layers/63/attention/v",
+      "occurrences": 32,
+      "tokens": 26,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15597567558288575,
+          "wall_seconds": 0.003955074003897607,
+          "process_cpu_seconds": 0.004006000000000398
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15548416137695312,
+          "wall_seconds": 0.004018529027234763,
+          "process_cpu_seconds": 0.0040300000000002
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15806464195251466,
+          "wall_seconds": 0.004024191002827138,
+          "process_cpu_seconds": 0.004025999999999641
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1558118438720703,
+          "wall_seconds": 0.0039434650097973645,
+          "process_cpu_seconds": 0.003944000000000614
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1555660820007324,
+          "wall_seconds": 0.00392663903767243,
+          "process_cpu_seconds": 0.003928999999999405
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15560704231262207,
+          "wall_seconds": 0.003925248980522156,
+          "process_cpu_seconds": 0.003927000000000902
+        },
+        {
+          "name": "two-token-verification",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15540224075317383,
+          "wall_seconds": 0.003918074013199657,
+          "process_cpu_seconds": 0.003918999999999784
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.15540224075317383,
+          "wall_seconds": 0.0039204180357046425,
+          "process_cpu_seconds": 0.003921999999999315
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.15568896293640136,
+        "two-token-verification": 0.1555456018447876
+      }
+    }
+  ],
+  "completed": true
+}

@@ -1,0 +1,211 @@
+--- qualified/src/venturi/ops/csrc/q8_shared.cuh
++++ staged16/src/venturi/ops/csrc/q8_shared.cuh
+@@ -127,6 +127,67 @@
+         if(lane==0 && token+t<tokens)out[static_cast<std::int64_t>(token+t)*n+row]=__float2half_rn(sum[t]);
+     }
+ }
++// Reuse weights for sixteen outputs with two eight-token shared stages.
++template<int Passes,int Rows>
++__global__ __launch_bounds__(Rows*32,1) void staged16_dot(const std::int8_t* activations,const float* activation_scales,
++    const std::int8_t* weights,const __half* weight_scales,__half* out,
++    int tokens,int n,int k,int padded,int groups) {
++    const int row=blockIdx.x*Rows+threadIdx.x/32,lane=threadIdx.x&31,token=blockIdx.y*16;
++    extern __shared__ __align__(16) char shared[];
++    constexpr int all=8*Passes*32;
++    auto* a0s=reinterpret_cast<int4*>(shared);auto* a1s=a0s+all;
++    auto* shared_scales=reinterpret_cast<float*>(a1s+all);
++    const auto count=static_cast<std::int64_t>(tokens)*groups;
++    float sum[16]{};
++    for(int base=0;base<k;base+=1024) {
++        const int col=base+lane*32;const bool valid=row<n && col<k;
++        int4 w0=make_int4(0,0,0,0),w1=make_int4(0,0,0,0);float ws=0;
++        if(valid) {
++            const auto* wp=reinterpret_cast<const int4*>(weights+static_cast<std::int64_t>(row)*padded+col);
++            w0=wp[0];w1=wp[1];
++            ws=__half2float(weight_scales[static_cast<std::int64_t>(row)*(padded/32)+col/32]);
++        }
++        #pragma unroll
++        for(int chunk=0;chunk<16;chunk+=8) {
++            for(int i=threadIdx.x;i<all;i+=blockDim.x) {
++                const int p=i/(8*32),t=(i/32)%8,g=base/32+i%32;
++                if(token+chunk+t<tokens && g<groups) {
++                    const auto group=p*count+static_cast<std::int64_t>(token+chunk+t)*groups+g;
++                    const auto* src=reinterpret_cast<const int4*>(activations+group*32);
++                    a0s[i]=src[0];a1s[i]=src[1];shared_scales[i]=activation_scales[group];
++                } else {a0s[i]=make_int4(0,0,0,0);a1s[i]=make_int4(0,0,0,0);shared_scales[i]=0;}
++            }
++            __syncthreads();
++            if(valid) {
++                #pragma unroll
++                for(int t=0;t<8;++t)if(token+chunk+t<tokens) {
++                    #pragma unroll
++                    for(int p=0;p<Passes;++p) {
++                        const int group=(p*8+t)*32+lane;
++                        const int4 a0=a0s[group],a1=a1s[group];
++                        int d0=__dp4a(w0.x,a0.x,0),d1=__dp4a(w1.x,a1.x,0);
++                        d0=__dp4a(w0.y,a0.y,d0);d1=__dp4a(w1.y,a1.y,d1);
++                        d0=__dp4a(w0.z,a0.z,d0);d1=__dp4a(w1.z,a1.z,d1);
++                        d0=__dp4a(w0.w,a0.w,d0);d1=__dp4a(w1.w,a1.w,d1);
++                        sum[chunk+t]=__fmaf_rn(static_cast<float>(d0+d1),__fmul_rn(ws,shared_scales[group]),sum[chunk+t]);
++                    }
++                }
++            }
++            __syncthreads();
++        }
++    }
++    if(row>=n)return;
++    #pragma unroll
++    for(int t=0;t<16;++t) {
++        for(int delta=16;delta;delta>>=1)sum[t]+=__shfl_down_sync(0xffffffff,sum[t],delta);
++        if(lane==0 && token+t<tokens)out[static_cast<std::int64_t>(token+t)*n+row]=__float2half_rn(sum[t]);
++    }
++}
++template<int Passes>void staged16_launch(const void* workspace,const std::int8_t* weights,const __half* scales,void* out,int tokens,int n,int k,int padded,cudaStream_t stream) {
++    const int groups=(k+31)/32;auto* codes=static_cast<const std::int8_t*>(workspace);
++    auto* as=reinterpret_cast<const float*>(codes+static_cast<std::uint64_t>(tokens)*groups*Passes*32);
++    staged16_dot<Passes,8><<<dim3((n+7)/8,(tokens+15)/16),256,8*Passes*32*36,stream>>>(codes,as,weights,scales,static_cast<__half*>(out),tokens,n,k,padded,groups);
++}
+ template<int Tokens,int Passes,int Rows>void launch(const void* workspace,const std::int8_t* weights,const __half* scales,void* out,int tokens,int n,int k,int padded,cudaStream_t stream) {
+     const int groups=(k+31)/32;auto* codes=static_cast<const std::int8_t*>(workspace);
+     auto* as=reinterpret_cast<const float*>(codes+static_cast<std::uint64_t>(tokens)*groups*Passes*32);
+@@ -167,3 +228,14 @@
+         check(cudaGetLastError());return 0;
+     }catch(const std::exception& e){error_text=e.what();return -1;}
+ }
++
++// Explicit T16 research export: the established tile4/8 API is unchanged.
++extern "C" int venturi_q8_token16_run(const void* workspace,std::uint64_t available,const std::int8_t* codes,const __half* scales,void* out,int tokens,int n,int k,int padded,int passes,int rows,void* stream_ptr) {
++    try {
++        const auto needed=vdq::bytes(tokens,k,passes);
++        if(VENTURI_BLOCKS_ARCH!=70 || tokens<3 || rows!=8 || !workspace || available<needed || !codes || !scales || !out || n<=0 || n>INT32_MAX-16 || padded!=(static_cast<std::uint64_t>(k)+127)/128*128 || static_cast<std::uint64_t>(tokens)*n>=INT32_MAX || reinterpret_cast<std::uintptr_t>(workspace)%16 || reinterpret_cast<std::uintptr_t>(codes)%16)throw std::invalid_argument("invalid T16 shared DP4A geometry/buffers (SM70 row8)");
++        auto stream=static_cast<cudaStream_t>(stream_ptr);
++        if(passes==1)vdt::staged16_launch<1>(workspace,codes,scales,out,tokens,n,k,padded,stream);else vdt::staged16_launch<2>(workspace,codes,scales,out,tokens,n,k,padded,stream);
++        check(cudaGetLastError());return 0;
++    }catch(const std::exception& e){error_text=e.what();return -1;}
++}
+--- qualified/src/venturi/ops/csrc/q8_fused.cuh
++++ staged16/src/venturi/ops/csrc/q8_fused.cuh
+@@ -153,6 +153,69 @@
+     }
+ }
+ 
++// Shared-memory footprint stays at eight rows; each weight spans both stages.
++template<int Passes,int Rows>
++__global__ __launch_bounds__(Rows*32,1) void staged16_dot(const std::int8_t* activations,const float* activation_scales,Group group,
++    int tokens,int k,int padded,int groups) {
++    int row;const auto plan=select<Rows>(group,row);
++    const int n=plan.n;const auto* weights=plan.codes;const auto* weight_scales=plan.scales;auto* out=plan.out;
++    const int lane=threadIdx.x&31,token=blockIdx.y*16;
++    extern __shared__ __align__(16) char shared[];
++    constexpr int all=8*Passes*32;
++    auto* a0s=reinterpret_cast<int4*>(shared);auto* a1s=a0s+all;
++    auto* shared_scales=reinterpret_cast<float*>(a1s+all);
++    const auto count=static_cast<std::int64_t>(tokens)*groups;
++    float sum[16]{};
++    for(int base=0;base<k;base+=1024) {
++        const int col=base+lane*32;const bool valid=row<n && col<k;
++        int4 w0=make_int4(0,0,0,0),w1=make_int4(0,0,0,0);float ws=0;
++        if(valid) {
++            const auto* wp=reinterpret_cast<const int4*>(weights+static_cast<std::int64_t>(row)*padded+col);
++            w0=wp[0];w1=wp[1];
++            ws=__half2float(weight_scales[static_cast<std::int64_t>(row)*(padded/32)+col/32]);
++        }
++        #pragma unroll
++        for(int chunk=0;chunk<16;chunk+=8) {
++            for(int i=threadIdx.x;i<all;i+=blockDim.x) {
++                const int p=i/(8*32),t=(i/32)%8,g=base/32+i%32;
++                if(token+chunk+t<tokens && g<groups) {
++                    const auto group=p*count+static_cast<std::int64_t>(token+chunk+t)*groups+g;
++                    const auto* src=reinterpret_cast<const int4*>(activations+group*32);
++                    a0s[i]=src[0];a1s[i]=src[1];shared_scales[i]=activation_scales[group];
++                } else {a0s[i]=make_int4(0,0,0,0);a1s[i]=make_int4(0,0,0,0);shared_scales[i]=0;}
++            }
++            __syncthreads();
++            if(valid) {
++                #pragma unroll
++                for(int t=0;t<8;++t)if(token+chunk+t<tokens) {
++                    #pragma unroll
++                    for(int p=0;p<Passes;++p) {
++                        const int group=(p*8+t)*32+lane;
++                        const int4 a0=a0s[group],a1=a1s[group];
++                        int d0=__dp4a(w0.x,a0.x,0),d1=__dp4a(w1.x,a1.x,0);
++                        d0=__dp4a(w0.y,a0.y,d0);d1=__dp4a(w1.y,a1.y,d1);
++                        d0=__dp4a(w0.z,a0.z,d0);d1=__dp4a(w1.z,a1.z,d1);
++                        d0=__dp4a(w0.w,a0.w,d0);d1=__dp4a(w1.w,a1.w,d1);
++                        sum[chunk+t]=__fmaf_rn(static_cast<float>(d0+d1),__fmul_rn(ws,shared_scales[group]),sum[chunk+t]);
++                    }
++                }
++            }
++            __syncthreads();
++        }
++    }
++    if(row>=n)return;
++    #pragma unroll
++    for(int t=0;t<16;++t) {
++        for(int delta=16;delta;delta>>=1)sum[t]+=__shfl_down_sync(0xffffffff,sum[t],delta);
++        if(lane==0 && token+t<tokens)out[static_cast<std::int64_t>(token+t)*plan.stride+row]=__float2half_rn(sum[t]);
++    }
++}
++template<int Passes>void staged16_launch(const void* workspace,Group g,int tokens,int k,int padded,cudaStream_t stream) {
++    const int groups=(k+31)/32;const auto count=static_cast<std::uint64_t>(tokens)*groups;
++    auto* codes=static_cast<const std::int8_t*>(workspace);auto* scales=reinterpret_cast<const float*>(codes+count*32*Passes);
++    std::uint64_t blocks=0;for(int i=0;i<g.count;++i)blocks+=(g.item[i].n+7)/8;
++    staged16_dot<Passes,8><<<dim3(static_cast<unsigned>(blocks),(tokens+15)/16),256,8*Passes*32*36,stream>>>(codes,scales,g,tokens,k,padded,groups);
++}
+ template<int Tokens,int Passes,int Rows,int Kind>void launch(const void* workspace,Group g,int tokens,int k,int padded,cudaStream_t stream) {
+     const int groups=(k+31)/32;const auto count=static_cast<std::uint64_t>(tokens)*groups;
+     auto* codes=static_cast<const std::int8_t*>(workspace);auto* scales=reinterpret_cast<const float*>(codes+count*32*Passes);
+@@ -167,6 +230,9 @@
+     if(tokens==1)launch<1,Passes,4,0>(w,g,tokens,k,padded,stream);
+     else if(tokens==2 && vdq::bytes(tokens,k,Passes)<=48*1024)launch<2,Passes,16,1>(w,g,tokens,k,padded,stream);
+     else if(tokens==2)launch<2,Passes,4,0>(w,g,tokens,k,padded,stream);
++    // T16 reuses each loaded weight across twice as many token rows, while
++    // keeping tiny/cache-resident groups on their qualified geometry.
++    else if(Passes==2 && tokens>=16 && maxn>=1024 && static_cast<std::uint64_t>(maxn)*padded>6*1024*1024)staged16_launch<Passes>(w,g,tokens,k,padded,stream);
+     else if(tokens>=8 && maxn>=1024)launch<8,Passes,16,2>(w,g,tokens,k,padded,stream);
+     else launch<4,Passes,8,2>(w,g,tokens,k,padded,stream);
+ }
+--- qualified/src/venturi/ops/csrc/qwen_runtime.cuh
++++ staged16/src/venturi/ops/csrc/qwen_runtime.cuh
+@@ -272,7 +272,9 @@
+             // Small row grids retain the measured tile-4 geometry; tile-8
+             // would underfill them even though it wins on larger row shards.
+             const bool wide=t>=8 && rows>=1024;
+-            op(venturi_q8_tiled_shared_run(quant.ptr,quant.bytes,codes,scales,out,t,rows,m.k,padded(m),activation_passes,wide?16:8,wide?8:4,s));return;
++            const bool reuse16=t>=16 && rows>=1024 && static_cast<std::uint64_t>(rows)*padded(m)>6*1024*1024;
++            if(reuse16)op(venturi_q8_token16_run(quant.ptr,quant.bytes,codes,scales,out,t,rows,m.k,padded(m),activation_passes,8,s));
++            else op(venturi_q8_tiled_shared_run(quant.ptr,quant.bytes,codes,scales,out,t,rows,m.k,padded(m),activation_passes,wide?16:8,wide?8:4,s));return;
+         }
+ #endif
+         op(venturi_q8_dp4a_run(quant.ptr,quant.bytes,codes,scales,out,t,rows,m.k,padded(m),activation_passes,s));
+--- qualified/src/venturi/ops/q8_shared.py
++++ staged16/src/venturi/ops/q8_shared.py
+@@ -118,3 +118,28 @@
+     )
+     fn.restype = C.c_int
+     return PreparedQ8Shared(p, rows, fn, token_tile)
++
++
++def prepare_q8_token16(resident, *, tokens, residual_compensation, rows=8):
++    """Explicit T16/row8 research; requires a separately qualified library export."""
++    if (
++        type(tokens) is not int
++        or not 3 <= tokens <= 262140
++        or type(rows) is not int
++        or rows != 8
++    ):
++        raise ValueError("T16 research requires tokens 3..262140 and row8")
++    p = prepare_q8_dp4a(
++        resident, tokens=tokens, residual_compensation=residual_compensation
++    )
++    try:
++        fn = p.resident.backend._native.venturi_q8_token16_run
++    except AttributeError as e:
++        raise RuntimeError(
++            "T16 research export absent; select an explicitly qualified experimental build"
++        ) from e
++    fn.argtypes = (
++        [C.c_void_p, C.c_uint64] + [C.c_void_p] * 3 + [C.c_int] * 6 + [C.c_void_p]
++    )
++    fn.restype = C.c_int
++    return PreparedQ8Shared(p, rows, fn)

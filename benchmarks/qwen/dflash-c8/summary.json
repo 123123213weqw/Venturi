@@ -1,0 +1,262 @@
+{
+  "date": "2026-10-17",
+  "device": "School_4090D / RTX 4090 D / SM89",
+  "decision": "DFlash2 chain8 only slightly faster at C8 on this fixture; retain opt-in experimental status. No production settings, kernels or checkpoint changed.",
+  "method": "Eight-request DFlash2/off comparison through the resident production batch API.\n\nOne generate_many RPC submits eight requests; this is not eight HTTP clients.\nAggregate throughput uses shared client wall time including prefill and JSON\ntransport, never summed overlapping request durations. Startup/warmup excluded.\nNative per-request timings are not streamed client TTFT. No precision changes,\nnew models, external builds, or kernel edits are made.\n",
+  "workload": {
+    "requests_per_wave": 8,
+    "prompts": [
+      "Explain why the sky looks blue. Give a detailed answer.",
+      "Write a Python function to merge two sorted lists and explain its complexity.",
+      "Explain how a CPU cache works and why locality matters.",
+      "Write a Python binary search function and describe its edge cases.",
+      "Explain how rain forms, from evaporation to precipitation.",
+      "Compare TCP and UDP, with examples of when to use each.",
+      "Write a Python function that counts word frequencies and explain its complexity.",
+      "Explain photosynthesis and its role in the carbon cycle."
+    ],
+    "generation": {
+      "max_new_tokens": 128,
+      "ignore_eos": true
+    },
+    "ready_configurations": {
+      "baseline-a": {
+        "cpu_wait": "blocking",
+        "cuda_graph": true,
+        "device": 0,
+        "draft_tokens": 8,
+        "kv_capacity": 16384,
+        "kv_dtype": "bf16",
+        "max_concurrency": 8,
+        "max_context": 2048,
+        "optimized_proposal": false,
+        "pending_timeout_ms": 600000,
+        "prefill_chunk": 512,
+        "speculative": "none",
+        "verify_tree": false
+      },
+      "dflash-a": {
+        "cpu_wait": "blocking",
+        "cuda_graph": true,
+        "device": 0,
+        "draft_tokens": 8,
+        "kv_capacity": 16384,
+        "kv_dtype": "bf16",
+        "max_concurrency": 8,
+        "max_context": 2048,
+        "optimized_proposal": false,
+        "pending_timeout_ms": 600000,
+        "prefill_chunk": 512,
+        "speculative": "dflash2",
+        "verify_tree": false
+      },
+      "dflash-b": {
+        "cpu_wait": "blocking",
+        "cuda_graph": true,
+        "device": 0,
+        "draft_tokens": 8,
+        "kv_capacity": 16384,
+        "kv_dtype": "bf16",
+        "max_concurrency": 8,
+        "max_context": 2048,
+        "optimized_proposal": false,
+        "pending_timeout_ms": 600000,
+        "prefill_chunk": 512,
+        "speculative": "dflash2",
+        "verify_tree": false
+      },
+      "baseline-b": {
+        "cpu_wait": "blocking",
+        "cuda_graph": true,
+        "device": 0,
+        "draft_tokens": 8,
+        "kv_capacity": 16384,
+        "kv_dtype": "bf16",
+        "max_concurrency": 8,
+        "max_context": 2048,
+        "optimized_proposal": false,
+        "pending_timeout_ms": 600000,
+        "prefill_chunk": 512,
+        "speculative": "none",
+        "verify_tree": false
+      }
+    },
+    "session_order": [
+      "baseline-a",
+      "dflash-a",
+      "dflash-b",
+      "baseline-b"
+    ],
+    "warmup_waves_per_session": 1,
+    "measured_waves_per_session": 3,
+    "measured_waves_per_variant": 6,
+    "outputs_per_wave": 1024,
+    "loading_and_warmup_excluded": true,
+    "same_config_except_speculation": true,
+    "latency_scope": "Batch client wall includes all eight requests and JSON transport. First-token and request-total timings are internal native metrics, not streamed HTTP TTFT or per-client completion timestamps."
+  },
+  "results": {
+    "none": {
+      "output_tokens": 6144,
+      "client_wall_seconds": 18.40835000469815,
+      "aggregate_output_tokens_per_second": 333.7615809364738,
+      "median_batch_client_wall_seconds": 3.067968432442285,
+      "native_cpu_seconds": 0.9099999999999993,
+      "python_cpu_seconds": 0.019678999999999114,
+      "native_cpu_percent": 4.943408832229671,
+      "median_native_first_token_seconds": 0.301235265,
+      "median_native_request_total_seconds": 2.991789941,
+      "mean_actual_decode_batch": 7.582089552238806,
+      "speculative_rounds": 0,
+      "drafted_tokens": 0,
+      "accepted_draft_tokens": 0,
+      "accepted_draft_fraction": null,
+      "accepted_drafts_per_round": null,
+      "accepted_per_position": [],
+      "fallback_steps": 0
+    },
+    "dflash2": {
+      "output_tokens": 6144,
+      "client_wall_seconds": 17.729611956048757,
+      "aggregate_output_tokens_per_second": 346.5388873276423,
+      "median_batch_client_wall_seconds": 2.9548330135294236,
+      "native_cpu_seconds": 0.79,
+      "python_cpu_seconds": 0.010044999999998971,
+      "native_cpu_percent": 4.455822281719359,
+      "median_native_first_token_seconds": 0.38032878550000004,
+      "median_native_request_total_seconds": 2.744866874,
+      "mean_actual_decode_batch": 5.368421052631579,
+      "speculative_rounds": 1224,
+      "drafted_tokens": 9528,
+      "accepted_draft_tokens": 4872,
+      "accepted_draft_fraction": 0.5113350125944585,
+      "accepted_drafts_per_round": 3.980392156862745,
+      "accepted_per_position": [
+        1092,
+        912,
+        732,
+        594,
+        492,
+        432,
+        342,
+        276
+      ],
+      "fallback_steps": 0
+    }
+  },
+  "throughput_speedup": 1.0382827357040847,
+  "gpu": {
+    "none": {
+      "samples": 82,
+      "utilization.gpu": {
+        "mean": 97.32926829268293,
+        "minimum": 83.0,
+        "maximum": 99.0
+      },
+      "utilization.memory": {
+        "mean": 97.96341463414635,
+        "minimum": 72.0,
+        "maximum": 100.0
+      },
+      "memory.used": {
+        "mean": 18040.0,
+        "minimum": 18040.0,
+        "maximum": 18040.0
+      },
+      "power.draw": {
+        "mean": 392.70609756097565,
+        "minimum": 383.93,
+        "maximum": 397.6
+      },
+      "temperature.gpu": {
+        "mean": 52.4390243902439,
+        "minimum": 50.0,
+        "maximum": 55.0
+      },
+      "clocks.sm": {
+        "mean": 2775.0,
+        "minimum": 2775.0,
+        "maximum": 2775.0
+      },
+      "clocks.mem": {
+        "mean": 10251.0,
+        "minimum": 10251.0,
+        "maximum": 10251.0
+      }
+    },
+    "dflash2": {
+      "samples": 80,
+      "utilization.gpu": {
+        "mean": 98.675,
+        "minimum": 85.0,
+        "maximum": 100.0
+      },
+      "utilization.memory": {
+        "mean": 46.425,
+        "minimum": 30.0,
+        "maximum": 100.0
+      },
+      "memory.used": {
+        "mean": 19980.0,
+        "minimum": 19980.0,
+        "maximum": 19980.0
+      },
+      "power.draw": {
+        "mean": 400.2205,
+        "minimum": 379.14,
+        "maximum": 423.72
+      },
+      "temperature.gpu": {
+        "mean": 54.4625,
+        "minimum": 52.0,
+        "maximum": 57.0
+      },
+      "clocks.sm": {
+        "mean": 2771.25,
+        "minimum": 2730.0,
+        "maximum": 2775.0
+      },
+      "clocks.mem": {
+        "mean": 10251.0,
+        "minimum": 10251.0,
+        "maximum": 10251.0
+      }
+    }
+  },
+  "correctness": {
+    "ordinary_rows_matching_reference": 48,
+    "ordinary_rows_total": 48,
+    "dflash_rows_matching_reference": 36,
+    "dflash_rows_total": 48,
+    "changed_prompt_indices": [
+      2,
+      6
+    ],
+    "first_difference_zero_based": {
+      "2": 61,
+      "6": 42
+    },
+    "all_within_session_replays_match_warm": true,
+    "all_native_processes_exited_cleanly": true,
+    "limitation": "Two of eight prompt continuations differ consistently from the C8 ordinary baseline. Not established as lossless; plausible text is not an independent numerical oracle."
+  },
+  "current_counter_policy": "RmProfilingAdminOnly: 1 (read before the run; existing ERR_NVGPUCTRPERM limitation unchanged)",
+  "diagnostics_scope": "200ms whole-device NVIDIA telemetry; first second of each three-wave measured phase excluded. No Nsight run or bottleneck attribution is claimed by this throughput test.",
+  "runner_sha256": "3c7da6aeb337ee374ce912934c9335252e39326cd9cba3e2163696c06d15dfb4",
+  "limitations": [
+    "Fixed 128 outputs, EOS ignored; not an EOS-respecting chat or HTTP load test.",
+    "Greedy differences are retained, not declared lossless.",
+    "GPU telemetry is coarse whole-device measurement, not achieved occupancy or bandwidth utilization.",
+    "Prior counter restriction unchanged; achieved occupancy/compute/DRAM/cache/stall counters unavailable.",
+    "Memory-controller busy is not DRAM bandwidth percentage. Power samples do not establish causal energy efficiency.",
+    "Native timing/CPU counters for concurrent requests are not summed to compute throughput.",
+    "This compares two execution modes of one quantized checkpoint, not full-precision model quality or eight HTTP clients."
+  ],
+  "validation": {
+    "cpu_tests_passed": 332,
+    "cpu_tests_skipped": 56,
+    "ruff": "passed",
+    "diff_check": "passed"
+  },
+  "command": "PYTHONPATH=src /home/test/wangyue/rwkv-distill-2.9b/.venv/bin/python tools/benchmark_qwen_dflash.py \"$(cat /home/test/wangyue/venturi-work/qwen/staged-path.txt)\" --runner /home/test/wangyue/venturi-work/qwen/native/venturi-qwen-runner --output-directory /home/test/wangyue/venturi-work/qwen/dflash-c8 --repeats 3"
+}

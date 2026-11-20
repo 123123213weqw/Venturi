@@ -1,0 +1,16 @@
+{
+  "completed_stage": "Single-A8 operator implementation, implementation-correctness tests, two unprofiled screens and separate hardware counters.",
+  "implementation_tests": 225,
+  "unprofiled_operator_cases": 40,
+  "output_precision_changed": true,
+  "production_deployed": false,
+  "default_profile": "Two-pass residual A8 unchanged",
+  "single_request_result": "Do not enable: negligible gain; MLP-down consistently regresses about 4%.",
+  "multi_request_result": "T4/T8/T23/T32 pass the predefined operator speed screen; T1/T2 do not. T8 quantization+projection latency reductions approximately 16.5%-25%. Not full-model TPS.",
+  "quality": "Synthetic operator relative-L2 error approximately 0.51%-0.58% for Gaussian inputs; up to 0.814% for group-outlier inputs. Constructed small-feature loss retained as a counterexample. No corpus or complete-model quality gate.",
+  "numerical_reference": "Same production Q8 weight bytes; reference leaves activations in F16, computes projection in F32, sampled independent F64 validation. Not original BF16 checkpoint/model reference.",
+  "next_gate": "Use actual native model activations, teacher logits, trajectories and corpus metrics before considering a model-level lower-precision mode. Full model would need memory currently held by production.",
+  "local_code": "Only parameterized existing row-pair and column kernels with a default two-pass template parameter; one-pass C ABI lives in the standalone research TU and is not included by the native build.",
+  "production_health": "Same container/config/start time, healthy before and after. Mac API health check returned status ok.",
+  "analysis_repair": "Offline audit normalizes the GPU- prefix in NVML UUIDs; raw measurements were unchanged."
+}

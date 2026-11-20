@@ -1,0 +1,37 @@
+{
+  "checked_at_utc": "2026-10-18T17:50:25.472496+00:00",
+  "pipeline": {
+    "status": "export-running",
+    "watcher_pid": 2826083,
+    "source_pid": 2573351,
+    "source": "/home/wzu/codex-build/Venturi/models/qwen3.5-27b-bf16",
+    "output": "/home/wzu/codex-build/Venturi/models/qwen3.5-27b-text-q8.ninfer",
+    "report": "/home/wzu/codex-build/Venturi/q8-export-validation/export-report.json",
+    "started_unix": 1792345578.2743413,
+    "source_status": "complete",
+    "source_revision": "fc05daec18b0a78c049392ed2e771dde82bdf654",
+    "checked_unix": 1792345578.27449,
+    "export_pid": 2826085,
+    "export_started_unix": 1792345578.2752552
+  },
+  "live": {
+    "watcher_pid": {
+      "pid": 2826083,
+      "present": true,
+      "matches": true
+    },
+    "export_pid": {
+      "pid": 2826085,
+      "present": true,
+      "matches": true
+    }
+  },
+  "temporary_files": [
+    {
+      "name": ".venturi-q8-ca2p_1h8.partial",
+      "logical_bytes": 28601956352,
+      "allocated_bytes": 14431592448
+    }
+  ],
+  "last_log": "me/data/wangyue/repos/codex-build/.venvs/b2-v100/lib/python3.10/site-packages/torch/_subclasses/functional_tensor.py:295: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:84.)\n  cpu = _conversion_method_template(device=torch.device(\"cpu\"))\nTraceback (most recent call last):\n  File \"/home/data/wangyue/repos/codex-build/Venturi/q8-export-src/tools/export_qwen_q8.py\", line 42, in <module>\n    main()\n  File \"/home/data/wangyue/repos/codex-build/Venturi/q8-export-src/tools/export_qwen_q8.py\", line 27, in main\n    report = export_qwen_q8(\n  File \"/home/data/wangyue/repos/codex-build/Venturi/q8-export-src/src/venturi/qwen_export.py\", line 158, in export_qwen_q8\n    ignored = plan.validate_checkpoint(checkpoint)\n  File \"/home/data/wangyue/repos/codex-build/Venturi/q8-export-src/src/venturi/models/qwen_source.py\", line 242, in validate_checkpoint\n    raise CheckpointError(\nventuri.checkpoint.CheckpointError: Qwen source shape/dtype mismatch: model.language_model.layers.0.linear_attn.norm.weight\n/home/data/wangyue/repos/codex-build/.venvs/b2-v100/lib/python3.10/site-packages/torch/_subclasses/functional_tensor.py:295: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:84.)\n  cpu = _conversion_method_template(device=torch.device(\"cpu\"))\n"
+}

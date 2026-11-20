@@ -1,0 +1,51 @@
+{
+  "scope": "GDN geometry microbenchmark; warmed primitive calls, not serving TPS.",
+  "profiled": true,
+  "completed": true,
+  "precision": "FP16 packed QKV/output; FP32 decay/beta/state; original eight logical warp reduction order",
+  "arms": [
+    "control-256",
+    "candidate-256",
+    "candidate-compact"
+  ],
+  "library_sha256": "031b377c5b2caba6a0b4f558870da934f34a2bd4e7217a212f0962da65119d69",
+  "baseline_library_sha256": "698452e2b2a39f3a5bb4d08d58e37a3330857f6444cc462f96147f53a7ab5e3d",
+  "cases": [
+    {
+      "tokens": 1,
+      "qk_heads": 16,
+      "value_heads": 48,
+      "key_dim": 128,
+      "value_dim": 128,
+      "qwen27b_geometry": true,
+      "output_state_bytes_equal": true,
+      "independent_fp64_output_relative_l2": 0.00020884378041570602,
+      "independent_fp64_state_relative_l2": 6.13370058942747e-08,
+      "waves": []
+    },
+    {
+      "tokens": 2,
+      "qk_heads": 16,
+      "value_heads": 48,
+      "key_dim": 128,
+      "value_dim": 128,
+      "qwen27b_geometry": true,
+      "output_state_bytes_equal": true,
+      "independent_fp64_output_relative_l2": 0.0002051276046597419,
+      "independent_fp64_state_relative_l2": 7.141444153896731e-08,
+      "waves": []
+    },
+    {
+      "tokens": 8,
+      "qk_heads": 16,
+      "value_heads": 48,
+      "key_dim": 128,
+      "value_dim": 128,
+      "qwen27b_geometry": true,
+      "output_state_bytes_equal": true,
+      "independent_fp64_output_relative_l2": 0.00020796622430603064,
+      "independent_fp64_state_relative_l2": 9.809026139334345e-08,
+      "waves": []
+    }
+  ]
+}

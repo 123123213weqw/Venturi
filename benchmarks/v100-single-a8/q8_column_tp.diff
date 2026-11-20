@@ -1,0 +1,47 @@
+--- before/src/venturi/ops/csrc/q8_column_tp.cuh
++++ after/src/venturi/ops/csrc/q8_column_tp.cuh
+@@ -3,7 +3,7 @@
+ // partials in FP32 across transport; sum once before the final FP16 cast.
+ #pragma once
+ namespace vct {
+-template<int Tokens,int Rows,bool Staged>
++template<int Tokens,int Rows,bool Staged,int Passes=2>
+ __global__ void partial(const std::int8_t* activations,const float* activation_scales,
+     const std::int8_t* weights,const __half* weight_scales,float* out,
+     int tokens,int n,int k,int padded,int groups) {
+@@ -12,7 +12,8 @@
+     const auto count=static_cast<std::int64_t>(tokens)*groups;
+     float sums[Tokens]{};
+     extern __shared__ __align__(16) char shared[];
+-    constexpr int all=Tokens*2*32;
++    static_assert(Passes==1 || Passes==2);
++    constexpr int all=Tokens*Passes*32;
+     auto* a0s=reinterpret_cast<int4*>(shared);auto* a1s=a0s+all;
+     auto* ss=reinterpret_cast<float*>(a1s+all);
+     if constexpr (!Staged) {if(row>=n)return;}
+@@ -36,7 +37,7 @@
+             #pragma unroll
+             for(int t=0;t<Tokens;++t)if(token+t<tokens) {
+                 #pragma unroll
+-                for(int p=0;p<2;++p) {
++                for(int p=0;p<Passes;++p) {
+                     const auto group=p*count+static_cast<std::int64_t>(token+t)*groups+col/32;
+                     int4 a0,a1;float scale;
+                     if constexpr (Staged) {const int i=(p*Tokens+t)*32+lane;a0=a0s[i];a1=a1s[i];scale=ss[i];}
+@@ -62,13 +63,13 @@
+     for(std::int64_t i=blockIdx.x*blockDim.x+threadIdx.x;i<count;i+=blockDim.x*gridDim.x)
+         out[i]=__float2half_rn(__fadd_rn(a[i],b[i]));
+ }
+-template<int Tokens,int Rows,bool Staged>
++template<int Tokens,int Rows,bool Staged,int Passes=2>
+ void launch(const void* workspace,const std::int8_t* w,const __half* s,float* out,
+     int tokens,int n,int k,int padded,cudaStream_t stream) {
+     const int groups=(k+31)/32;
+     const auto* codes=static_cast<const std::int8_t*>(workspace);
+-    const auto* scales=reinterpret_cast<const float*>(codes+static_cast<std::uint64_t>(tokens)*groups*2*32);
+-    partial<Tokens,Rows,Staged><<<dim3((n+Rows-1)/Rows,(tokens+Tokens-1)/Tokens),Rows*32,Staged?Tokens*2*32*36:0,stream>>>(codes,scales,w,s,out,tokens,n,k,padded,groups);
++    const auto* scales=reinterpret_cast<const float*>(codes+static_cast<std::uint64_t>(tokens)*groups*Passes*32);
++    partial<Tokens,Rows,Staged,Passes><<<dim3((n+Rows-1)/Rows,(tokens+Tokens-1)/Tokens),Rows*32,Staged?Tokens*Passes*32*36:0,stream>>>(codes,scales,w,s,out,tokens,n,k,padded,groups);
+ }
+ }
+ extern "C" int venturi_q8_column_partial_run(const void* workspace,std::uint64_t available,

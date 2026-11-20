@@ -1,0 +1,1220 @@
+--- before/src/venturi/models/qwen_batch.py
++++ after/src/venturi/models/qwen_batch.py
+@@ -253,6 +253,24 @@
+                 for i in range(len(self.capacities))
+             ]
+             result.update(self.model.projection_info)
++            if result.get("head_gdn_enabled"):
++                name = (
++                    "venturi_qwen_mtp_batch_head_gdn_memory"
++                    if hasattr(self.model, "_mtp_weights")
++                    else "venturi_qwen_batch_head_gdn_memory"
++                )
++                query = getattr(self.model._backend._native, name)
++                query.argtypes, query.restype = (
++                    [C.c_void_p, C.POINTER(C.c_uint64)],
++                    C.c_int,
++                )
++                memory = (C.c_uint64 * 2)()
++                self.model._backend._check(query(self._handle, memory))
++                result.update(
++                    all_peer_request_device_bytes=int(memory[0]),
++                    all_peer_target_backup_device_bytes=int(memory[1]),
++                    distributed_memory_scope="all_request_device_bytes is primary; all_peer_request_device_bytes is additional GDN cache. MTP backup totals already include their reported peer component.",
++                )
+             result["scope"] = (
+                 "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+             )
+--- before/src/venturi/models/qwen_mtp_native.py
++++ after/src/venturi/models/qwen_mtp_native.py
+@@ -86,6 +86,8 @@
+         ("generate2_prefix", signatures["generate"][0]),
+         ("prepare_prefix", [p]),
+         ("prefix_info", [p, C.POINTER(u)]),
++        ("head_gdn_session_info", [p, C.POINTER(u)]),
++        ("head_gdn_memory", [p, C.POINTER(u)]),
+         ("layer_graph", [p, i]),
+         ("layer_graph_info", [p, C.POINTER(u)]),
+         ("verification_trace", [p, i]),
+@@ -591,6 +593,23 @@
+                         if extra[2]
+                         else "checkpoint-replay",
+                     )
++            if self.model.projection_info.get("head_gdn_enabled"):
++                memory = (C.c_uint64 * 3)()
++                self.model._backend._check(
++                    self.model._native.venturi_qwen_head_gdn_memory(
++                        self._handle, memory
++                    )
++                )
++                result.update(
++                    peer_target_request_device_bytes=int(memory[0]),
++                    peer_target_backup_device_bytes=int(memory[1]),
++                    peer_target_prefix_extra_device_bytes=int(memory[2]),
++                    physical_primary_target_backup_device_bytes=result[
++                        "primary_target_backup_bytes"
++                    ]
++                    - int(memory[1]),
++                    backup_memory_scope="Legacy primary_target_backup_bytes/prefix_trace_extra_primary_bytes are first-target-stage totals across both TP ranks; peer fields split these totals, not additional duplicated backups.",
++                )
+             if getattr(self, "_target_graph_enabled", False):
+                 result["target_layer_graph"] = self._target_layer_graph_info_unchecked()
+             return result
+--- before/src/venturi/models/qwen_native.py
++++ after/src/venturi/models/qwen_native.py
+@@ -24,6 +24,16 @@
+ from .qwen_rope import QwenTextRoPE
+ from .qwen_model import _memory_guard, qwen_resident_bytes
+ from .decoder_layer import _outside_capture
++
++
++def _head_gdn_workspace(cfg, rows):
++    heads = cfg["linear_num_value_heads"] // 2
++    channels = (
++        cfg["linear_num_key_heads"] * cfg["linear_key_head_dim"]
++        + heads * cfg["linear_value_head_dim"]
++    )
++    values = heads * cfg["linear_value_head_dim"]
++    return rows * ((channels * 2 + values * 3 + heads * 2) * 2 + heads * 8)
+ 
+ 
+ class Config(C.Structure):
+@@ -133,6 +143,9 @@
+         "venturi_qwen_snapshot": ([ptr, integer, integer, ptr, u64], integer),
+         "venturi_qwen_debug_failure": ([ptr, integer, integer], integer),
+     }
++    fn = getattr(n, "venturi_qwen_head_gdn_session_info", None)
++    if fn is not None:
++        fn.argtypes, fn.restype = [ptr, C.POINTER(u64)], integer
+     for name, (args, result) in signatures.items():
+         fn = getattr(n, name)
+         fn.argtypes, fn.restype = args, result
+@@ -190,10 +203,19 @@
+             )
+         if dtype not in (torch.float16, torch.bfloat16):
+             raise ValueError("Native Qwen supports explicit FP16/BF16 only")
+-        column_profile = projection_profile == "q8-residual-column-mlp"
+-        if projection_profile not in ("fp16", "q8-residual", "q8-residual-column-mlp"):
++        head_profile = projection_profile == "q8-residual-column-mlp-head-gdn"
++        column_profile = projection_profile in (
++            "q8-residual-column-mlp",
++            "q8-residual-column-mlp-head-gdn",
++        )
++        if projection_profile not in (
++            "fp16",
++            "q8-residual",
++            "q8-residual-column-mlp",
++            "q8-residual-column-mlp-head-gdn",
++        ):
+             raise ValueError(
+-                "Projection profile must be explicit fp16/q8-residual/q8-residual-column-mlp"
++                "Projection profile must be explicit fp16/q8-residual/q8-residual-column-mlp/q8-residual-column-mlp-head-gdn"
+             )
+         if column_profile and (
+             tensor_parallel_device is None or tensor_parallel_transport != "host"
+@@ -212,7 +234,9 @@
+             try:
+                 profiled_create = getattr(
+                     backend._native,
+-                    "venturi_qwen_create_column_mlp"
++                    "venturi_qwen_create_head_gdn"
++                    if head_profile
++                    else "venturi_qwen_create_column_mlp"
+                     if column_profile
+                     else "venturi_qwen_create_profiled",
+                 )
+@@ -261,6 +285,20 @@
+                 )
+         if column_profile and cfg["intermediate_size"] % 64:
+             raise ValueError("Column MLP requires group-aligned equal input halves")
++        if head_profile and (
++            cfg["linear_num_key_heads"] % 2
++            or cfg["linear_num_key_heads"] < 2
++            or cfg["linear_num_value_heads"] > 128
++            or cfg["linear_value_head_dim"] % 64
++            or not 1 <= cfg["linear_value_head_dim"] <= 256
++            or cfg["hidden_size"] % 32
++            or cfg["hidden_size"] > 32768
++            or not 2 <= cfg["linear_conv_kernel_dim"] <= 8
++        ):
++            raise ValueError(
++                "Head GDN requires aligned semantic heads and convolution geometry"
++            )
++        head_workspace = _head_gdn_workspace(cfg, max_tokens) if head_profile else 0
+         rope = QwenTextRoPE.from_config(cfg)
+         q8_bytes = []
+         for spec in owned.plan.bindings:
+@@ -320,7 +358,11 @@
+                 padded = (k + 127) // 128 * 128
+                 half = 1 + (n - 1) // 2
+                 embedding = spec.binding == "text/token_embedding"
+-                if column_profile and spec.binding.endswith("/mlp/down"):
++                if column_profile and (
++                    spec.binding.endswith("/mlp/down")
++                    or head_profile
++                    and spec.binding.endswith("/gdn/output")
++                ):
+                     local_pad = ((k // 2 + 127) // 128) * 128
+                     encoded = n * (local_pad + local_pad // 32 * 2)
+                     primary += encoded
+@@ -344,6 +386,7 @@
+             required = (
+                 primary
+                 + column_partial * 2
++                + head_workspace
+                 + 2 * small
+                 + 4 * 2**20
+                 + rope.rotary_dim * 2
+@@ -354,7 +397,9 @@
+                 secondary
+                 + max_tokens * (max_k + max_rows) * 2
+                 + quant_bytes
+-                + column_peer_extra,
++                + column_peer_extra
++                + head_workspace
++                + (2 * small if head_profile else 0),
+                 reserve_bytes,
+                 None,
+             )
+@@ -602,6 +647,35 @@
+                         mlp_down_weight_layout="bit-preserving input-column halves, original group32 scales",
+                         partial_and_host_transport_dtype="float32",
+                     )
++                if head_profile:
++                    query = native.venturi_qwen_head_gdn_info
++                    query.argtypes, query.restype = (
++                        [C.c_void_p, C.POINTER(C.c_uint64)],
++                        C.c_int,
++                    )
++                    values = (C.c_uint64 * 5)()
++                    backend._check(query(handle, values))
++                    gdn_count = cfg["layer_types"].count("linear_attention")
++                    if list(values) != [
++                        1,
++                        head_workspace,
++                        head_workspace,
++                        gdn_count,
++                        gdn_count,
++                    ]:
++                        raise RuntimeError(
++                            "Native head GDN workspace/layout accounting mismatch"
++                        )
++                    self._projection_info.update(
++                        head_gdn_enabled=True,
++                        head_gdn_primary_workspace_bytes=head_workspace,
++                        head_gdn_peer_workspace_bytes=head_workspace,
++                        gdn_weight_layout="bit-preserved semantic Q/K/V head rows and group32 output-column halves",
++                        gdn_state_layout="private packed FP32 value-head halves, split convolution histories and MTP prefixes on both devices; canonical joining diagnostics only",
++                    )
++                    self._projection_info["projection_precision_scope"] += (
++                        " Head-local GDN output also uses FP32 column partial/host transport/sum before one FP16 cast; changed FP32 association, not prior-profile byte parity."
++                    )
+             except Exception:
+                 native.venturi_qwen_destroy(handle)
+                 raise
+@@ -751,6 +825,17 @@
+                 peer_output_copy_bytes=int(peer[3]),
+                 **self.model.projection_info,
+             )
++            if result.get("head_gdn_enabled"):
++                peer_request = (C.c_uint64 * 1)()
++                self.model._backend._check(
++                    self.model._native.venturi_qwen_head_gdn_session_info(
++                        self._handle, peer_request
++                    )
++                )
++                result["peer_request_device_bytes"] = int(peer_request[0])
++                result["request_memory_scope"] = (
++                    "request_device_bytes is primary; peer_request_device_bytes is additional private distributed GDN cache, excluding shared model workspaces"
++                )
+             return result
+ 
+     def generation_timings(self):
+--- before/src/venturi/ops/build.py
++++ after/src/venturi/ops/build.py
+@@ -56,6 +56,7 @@
+         [
+             source / "blocks.cu",
+             source / "qwen_runtime.cuh",
++            source / "qwen_head_gdn.cuh",
+             source / "qwen_pipeline.cuh",
+             source / "qwen_mtp.cuh",
+             source / "qwen_batch.cuh",
+@@ -74,6 +75,7 @@
+             not in (
+                 "blocks.cu",
+                 "qwen_runtime.cuh",
++                "qwen_head_gdn.cuh",
+                 "qwen_pipeline.cuh",
+                 "qwen_mtp.cuh",
+                 "qwen_batch.cuh",
+--- before/src/venturi/ops/csrc/qwen_batch.cuh
++++ after/src/venturi/ops/csrc/qwen_batch.cuh
+@@ -17,6 +17,7 @@
+         for(int i=0;i<count;++i)needed=add(needed,Session::estimate(*model,capacities[i]));
+         const auto additional=add(mul(mul(c.max_tokens,c.hkv*c.dim),2),add(mul(mul(count,c.hidden),4),mul(count,16+Session::min_tiles(c.vocab)*16)));
+         model->guard(add(needed,additional));
++        if(model->head_gdn_enabled){Device device(c.second_device);model->guard(mul(count,Session::estimate_peer(*model)));}
+         work=std::make_unique<Session>(model,std::min(c.max_tokens,c.max_position),false);
+         for(int i=0;i<count;++i)requests.push_back(std::make_unique<Session>(model,capacities[i]));
+         auto alloc=[&](Buffer& b,std::uint64_t n){b.allocate(n);extra_bytes=add(extra_bytes,n);};
+@@ -50,10 +51,15 @@
+         const int n=static_cast<int>(tokens.size()),width=2*c.gqk*c.gkd+c.gvh*c.gvd,qw=c.hq*c.dim,kw=c.hkv*c.dim;
+         require(n>0 && n<=c.max_tokens,"batch row tile exceeds model workspace");
+         w.embedding(tokens.data(),n,w.p("x"));void* x=w.p("x");void* out=w.p("out");
++        std::vector<HeadGDNSegment> private_segments;if(m.head_gdn_enabled)private_segments.reserve(segments.size());
+         for(int index=0;index<c.layers;++index) {
+             const auto& l=m.layers[index];
+             op(venturi_rms_run(x,static_cast<const float*>(l.norm),w.p("normalized"),n,c.hidden,c.dtype,c.epsilon,stream));
+-            if(l.kind==0) {
++            if(l.kind==0 && m.head_gdn_enabled) {
++                private_segments.clear();
++                for(const auto& segment:segments)private_segments.push_back(requests[segment.slot]->head_segment(index,segment.row,segment.count));
++                head_gdn_forward(m,index,w.p("normalized"),w.p("projected"),n,private_segments);
++            } else if(l.kind==0) {
+                 m.shared_linears(w.p("normalized"),n,{{&l.matrix[0],w.p("qkv")},{&l.matrix[1],w.p("z")}});
+                 for(int j=0;j<2;++j) {
+                     auto weight=j?l.b:l.a;auto output=w.p(j?"b":"a");
+@@ -188,12 +194,13 @@
+ }
+ extern "C" int venturi_qwen_batch_snapshot(void* h,int slot,int layer,int kind,void* target,std::uint64_t bytes) {
+     try {vr::require(h,"null batch snapshot");auto& b=*static_cast<vr::Batch*>(h);std::lock_guard<std::mutex> a(b.mutex),lock(b.model->mutex);vr::Device device(b.model->c.device);vr::require(slot>=0 && slot<static_cast<int>(b.requests.size()) && layer>=0 && layer<b.model->c.layers && kind>=0 && kind<=3,"invalid batch snapshot slot/layer/kind");
+-        auto& s=*b.requests[slot];const auto* source=kind==0?s.history[layer].get():kind==1?s.state[layer].get():kind==2?s.keys[layer].get():s.values[layer].get();vr::require(source,"batch snapshot state kind absent");
+-        const auto expected=kind<2?source->bytes:vr::mul(vr::mul(s.position,b.model->c.hkv*b.model->c.dim),2);vr::require(bytes==expected && (target || !bytes),"batch snapshot byte shape mismatch");
+-        if(bytes)check(cudaMemcpyAsync(target,source->ptr,bytes,cudaMemcpyDeviceToHost,b.model->stream.ptr));b.model->sync();return 0;}
++        b.requests[slot]->snapshot(layer,kind,target,bytes);return 0;}
+     catch(const std::exception& e){error_text=e.what();return -1;}
+ }
+ extern "C" int venturi_qwen_batch_debug_failure(void* h,int slot,int layer,int position) {
+     try {vr::require(h,"null batch failure hook");auto& b=*static_cast<vr::Batch*>(h);std::lock_guard<std::mutex> a(b.mutex),lock(b.model->mutex);vr::require(slot>=0 && slot<static_cast<int>(b.requests.size()) && layer>=0 && layer<b.model->c.layers && position>=0,"invalid batch failure hook");b.requests[slot]->fault_layer=layer;b.requests[slot]->fault_position=position;return 0;}
+     catch(const std::exception& e){error_text=e.what();return -1;}
+ }
++extern "C" int venturi_qwen_batch_head_gdn_memory(void* h,std::uint64_t* out) {
++    try{vr::require(h && out,"null distributed batch memory info");auto& b=*static_cast<vr::Batch*>(h);std::lock_guard<std::mutex> lock(b.mutex);std::uint64_t peer=0;for(const auto& r:b.requests)peer=vr::add(peer,r->peer_device_bytes);out[0]=peer;out[1]=0;return 0;}catch(const std::exception& e){error_text=e.what();return -1;}
++}
+--- before/src/venturi/ops/csrc/qwen_head_gdn.cuh
++++ after/src/venturi/ops/csrc/qwen_head_gdn.cuh
+@@ -0,0 +1,98 @@
++// Included inside namespace vr, after Buffer/VRMatrix and before Model.
++// Stored weights/scales are preserved. The output column sum is an explicit
++// alternate FP32 association; it never claims original FP16-output byte parity.
++#pragma once
++struct HeadGDNPart {void *history=nullptr,*state=nullptr;void* prefix_history[2]{};void* prefix_state[2]{};};
++struct HeadGDNSegment {int row=0,count=0,prefixes=0;HeadGDNPart rank[2];};
++struct HeadGDNWork {
++    std::map<std::string,std::unique_ptr<Buffer>> buffers;
++    std::uint64_t bytes=0;
++    void allocate(const char* name,std::uint64_t n) {auto b=std::make_unique<Buffer>();b->allocate(n);bytes=add(bytes,n);buffers.emplace(name,std::move(b));}
++    char* p(const char* name) const {return buffers.at(name)->at();}
++    static std::uint64_t estimate(const VRConfig& c) {
++        const std::uint64_t channels=add(mul(c.gqk,c.gkd),mul(c.gvh/2,c.gvd)),values=mul(c.gvh/2,c.gvd),heads=c.gvh/2;
++        return mul(c.max_tokens,add(mul(add(mul(channels,2),add(mul(values,3),mul(heads,2))),2),mul(heads,8)));
++    }
++    void allocate(const VRConfig& c) {
++        const std::uint64_t channels=add(mul(c.gqk,c.gkd),mul(c.gvh/2,c.gvd)),values=mul(c.gvh/2,c.gvd),heads=c.gvh/2,t=c.max_tokens;
++        for(auto name:{"qkv","convolved"})allocate(name,mul(mul(t,channels),2));
++        for(auto name:{"z","recurrent","mixed"})allocate(name,mul(mul(t,values),2));
++        for(auto name:{"a","b"})allocate(name,mul(mul(t,heads),2));
++        for(auto name:{"decay","beta"})allocate(name,mul(mul(t,heads),4));
++        require(bytes==estimate(c),"head GDN workspace estimate mismatch");
++    }
++};
++inline std::vector<int> head_gdn_rows(const VRConfig& c,int rank) {
++    require(rank==0 || rank==1,"invalid GDN head rank");
++    const int q=c.gqk*c.gkd,v=c.gvh*c.gvd;std::vector<int> rows;rows.reserve(q+v/2);
++    for(auto part:{std::pair<int,int>{rank*q/2,(rank+1)*q/2},{q+rank*q/2,q+(rank+1)*q/2},{2*q+rank*v/2,2*q+(rank+1)*v/2}})
++        for(int i=part.first;i<part.second;++i)rows.push_back(i);
++    return rows;
++}
++template<class M> void head_gdn_upload_rows(M& m,Buffer& target,const VRMatrix& matrix,int rank) {
++    const auto indices=head_gdn_rows(m.c,rank);const auto local=static_cast<std::uint64_t>(indices.size());
++    for(bool scale:{false,true}) {
++        const auto stride=scale?mul(padded(matrix)/32,2):static_cast<std::uint64_t>(padded(matrix));
++        require(stride<=m.stage_bytes,"head GDN encoded row exceeds staging");
++        for(std::uint64_t start=0;start<local;) {
++            const auto count=std::min(local-start,m.stage_bytes/stride);
++            for(std::uint64_t j=0;j<count;++j)m.read_bytes(static_cast<char*>(m.staging.ptr)+mul(j,stride),add(scale?matrix.scales:matrix.offset,mul(indices[start+j],stride)),stride);
++            const auto offset=add(scale?mul(local,padded(matrix)):0,mul(start,stride));
++            {Device device(rank?m.c.second_device:m.c.device);const auto stream=rank?m.second_stream.ptr:m.stream.ptr;
++                check(cudaMemcpyAsync(target.at(offset),m.staging.ptr,mul(count,stride),cudaMemcpyHostToDevice,stream));check(cudaStreamSynchronize(stream));}
++            m.uploaded=add(m.uploaded,mul(count,stride));start+=count;
++        }
++    }
++}
++// Load-time only: gather source constants on CPU without changing their bytes.
++// No full tensor expansion or new GPU gathering kernel is used during forward.
++template<class M> const void* head_gdn_constant(M& m,const void* source,int rows,int cols,int scalar_bytes,const std::vector<int>& indices,int rank) {
++    require(source && rows>0 && cols>0 && (scalar_bytes==2 || scalar_bytes==4),"invalid head GDN constant source");
++    cudaPointerAttributes attr{};check(cudaPointerGetAttributes(&attr,source));require(attr.type==cudaMemoryTypeDevice && attr.device==m.c.device,"head GDN constant source device mismatch");
++    std::vector<unsigned char> input(mul(mul(rows,cols),scalar_bytes)),selected(mul(mul(rows,indices.size()),scalar_bytes));
++    check(cudaMemcpy(input.data(),source,input.size(),cudaMemcpyDeviceToHost));
++    for(int row=0;row<rows;++row)for(std::size_t j=0;j<indices.size();++j){require(indices[j]>=0 && indices[j]<cols,"head GDN constant column out of range");std::memcpy(selected.data()+mul(add(mul(row,indices.size()),j),scalar_bytes),input.data()+mul(add(mul(row,cols),indices[j]),scalar_bytes),scalar_bytes);}
++    auto b=std::make_unique<Buffer>();{Device device(rank?m.c.second_device:m.c.device);b->allocate(selected.size());check(cudaMemcpy(b->ptr,selected.data(),selected.size(),cudaMemcpyHostToDevice));}
++    const void* result=b->ptr;if(rank)m.second_device_bytes=add(m.second_device_bytes,b->bytes);else m.device_bytes=add(m.device_bytes,b->bytes);m.constants.push_back(std::move(b));return result;
++}
++template<class M> void head_gdn_constants(M& m,const VRLayer& source,VRLayer& target,int rank) {
++    const auto& c=m.c;const int packed=2*c.gqk*c.gkd+c.gvh*c.gvd;
++    auto rows=head_gdn_rows(c,rank);std::vector<int> heads,ab,gamma;
++    for(int i=rank*c.gvh/2;i<(rank+1)*c.gvh/2;++i){heads.push_back(i);for(int k=0;k<c.hidden;++k)ab.push_back(i*c.hidden+k);}
++    for(int i=0;i<c.gvd;++i)gamma.push_back(i);
++    target.conv=head_gdn_constant(m,source.conv,c.convolution,packed,source.conv_fp32?4:2,rows,rank);
++    target.rate=head_gdn_constant(m,source.rate,1,c.gvh,4,heads,rank);target.bias=head_gdn_constant(m,source.bias,1,c.gvh,4,heads,rank);
++    target.a=head_gdn_constant(m,source.a,1,c.gvh*c.hidden,4,ab,rank);target.b=head_gdn_constant(m,source.b,1,c.gvh*c.hidden,4,ab,rank);
++    target.gamma=head_gdn_constant(m,source.gamma,1,c.gvd,source.gamma_fp32?4:2,gamma,rank);
++}
++template<class M> void head_gdn_rank(M& m,int rank,const VRLayer& layer,const void* input,int t,std::span<const HeadGDNSegment> segments) {
++    const auto& c=m.c;const auto stream=rank?m.second_stream.ptr:m.stream.ptr;auto& work=m.head_work[rank];auto& quant=rank?m.second_quant:m.first_quant;
++    auto& weights=rank?m.second_weights:m.resident_weights;const int h=c.gvh/2,qk=c.gqk/2,v=h*c.gvd,width=2*qk*c.gkd+v;
++    VQFOutput out[2]{};
++    for(int i=0;i<2;++i){const auto& matrix=layer.matrix[i];const auto& b=*weights.at(matrix.offset);const int n=i?v:width;out[i]={static_cast<const std::int8_t*>(b.ptr),reinterpret_cast<const __half*>(b.at(mul(n,padded(matrix)))),reinterpret_cast<__half*>(work.p(i?"z":"qkv")),n,n};}
++    op(venturi_q8_dp4a_quantize(input,quant.ptr,quant.bytes,t,c.hidden,2,stream));op(venturi_q8_fused_run(quant.ptr,quant.bytes,out,2,t,c.hidden,padded(layer.matrix[0]),2,stream));
++    for(int j=0;j<2;++j)op(venturi_fp32_linear_run(input,static_cast<const float*>(j?layer.b:layer.a),work.p(j?"b":"a"),t,h,c.hidden,0,stream));
++    op(venturi_gates_run(work.p("a"),work.p("b"),static_cast<const float*>(layer.rate),static_cast<const float*>(layer.bias),reinterpret_cast<float*>(work.p("decay")),reinterpret_cast<float*>(work.p("beta")),t,h,0,1,stream));
++    for(const auto& segment:segments) {
++        const auto& cache=segment.rank[rank];auto at=[&](const char* name,int stride,int bytes=2){return work.p(name)+mul(mul(segment.row,stride),bytes);};
++        if(segment.prefixes)op(venturi_history_prefix_run(at("qkv",width),cache.history,cache.prefix_history[0],cache.prefix_history[1],width,c.convolution,segment.prefixes,0,stream));
++        op(venturi_conv_run(at("qkv",width),layer.conv,cache.history,at("convolved",width),cache.history,segment.count,width,c.convolution,0,layer.conv_fp32,stream));
++        auto* q=at("convolved",width);const auto stride=mul(qk*c.gkd,2);auto* decay=reinterpret_cast<float*>(at("decay",h,4));auto* beta=reinterpret_cast<float*>(at("beta",h,4));
++        if(segment.prefixes)op(venturi_gdn_prefix_run(q,q+stride,q+2*stride,decay,beta,static_cast<const float*>(cache.state),at("recurrent",v),static_cast<float*>(cache.state),segment.count,qk,h,c.gkd,c.gvd,1,1,0,c.gdn_scale,cache.prefix_state[0],cache.prefix_state[1],segment.prefixes,stream));
++        else op(venturi_gdn_compact_run(q,q+stride,q+2*stride,decay,beta,static_cast<const float*>(cache.state),at("recurrent",v),static_cast<float*>(cache.state),segment.count,qk,h,c.gkd,c.gvd,1,1,0,c.gdn_scale,stream));
++    }
++    op(venturi_gated_rms_run(work.p("recurrent"),work.p("z"),layer.gamma,work.p("mixed"),t,h,c.gvd,0,layer.gamma_fp32,c.epsilon,stream));
++    const auto local=m.column_descriptor(layer.matrix[2]);const auto& b=*weights.at(local.offset);auto& partial=rank?m.column_peer:m.column_local;
++    op(venturi_q8_dp4a_quantize(work.p("mixed"),quant.ptr,quant.bytes,t,v,2,stream));
++    op(venturi_q8_column_partial_run(quant.ptr,quant.bytes,static_cast<const std::int8_t*>(b.ptr),reinterpret_cast<const __half*>(b.at(mul(local.n,padded(local)))),static_cast<float*>(partial.ptr),t,c.hidden,v,padded(local),stream));
++}
++template<class M> void head_gdn_forward(M& m,int index,const void* normalized,void* output,int t,std::span<const HeadGDNSegment> segments) {
++    require(m.head_gdn_enabled && t>0 && t<=m.c.max_tokens && !segments.empty(),"invalid head GDN invocation");
++    int end=0;for(const auto& segment:segments){require(segment.row==end && segment.count>0 && segment.count<=t-end && (segment.prefixes==0 || ((segment.prefixes==1 || segment.prefixes==2) && segment.count==segment.prefixes+1)),"invalid private head GDN segment partition");for(const auto& rank:segment.rank){require(rank.history && rank.state,"missing private head GDN cache");for(int j=0;j<segment.prefixes;++j)require(rank.prefix_history[j] && rank.prefix_state[j],"missing private peer prefix cache");}end+=segment.count;}require(end==t,"head GDN segment rows incomplete");
++    m.source();const auto bytes=mul(mul(t,m.c.hidden),2),partial_bytes=mul(bytes,2);
++    check(cudaMemcpyAsync(m.host_input.ptr,normalized,bytes,cudaMemcpyDeviceToHost,m.stream.ptr));check(cudaEventRecord(m.first_ready.ptr,m.stream.ptr));
++    {Device device(m.c.second_device);check(cudaStreamWaitEvent(m.second_stream.ptr,m.first_ready.ptr,0));check(cudaMemcpyAsync(m.second_input.ptr,m.host_input.ptr,bytes,cudaMemcpyHostToDevice,m.second_stream.ptr));
++        head_gdn_rank(m,1,m.head_peer_layers[index],m.second_input.ptr,t,segments);check(cudaMemcpyAsync(m.column_host.ptr,m.column_peer.ptr,partial_bytes,cudaMemcpyDeviceToHost,m.second_stream.ptr));check(cudaEventRecord(m.second_ready.ptr,m.second_stream.ptr));}
++    head_gdn_rank(m,0,m.layers[index],normalized,t,segments);check(cudaStreamWaitEvent(m.stream.ptr,m.second_ready.ptr,0));check(cudaMemcpyAsync(m.column_remote.ptr,m.column_host.ptr,partial_bytes,cudaMemcpyHostToDevice,m.stream.ptr));op(venturi_q8_column_sum(static_cast<const float*>(m.column_local.ptr),static_cast<const float*>(m.column_remote.ptr),output,static_cast<int>(mul(t,m.c.hidden)),m.stream.ptr));
++    m.peer_input_bytes=add(m.peer_input_bytes,bytes);m.peer_output_bytes=add(m.peer_output_bytes,partial_bytes);
++}
+--- before/src/venturi/ops/csrc/qwen_mtp.cuh
++++ after/src/venturi/ops/csrc/qwen_mtp.cuh
+@@ -31,51 +31,40 @@
+ 
+ struct MTPCheckpoint {
+     Session& session;
+-    struct Slot {Buffer* source;std::unique_ptr<Buffer> saved;};
+-    std::vector<Slot> slots;
+-    int position=0;std::uint64_t bytes=0;
++    struct Slot {Buffer* source;std::unique_ptr<Buffer> saved;int layer,kind,rank;};
++    std::vector<Slot> slots;int position=0;std::uint64_t bytes=0,peer_bytes=0;
+     explicit MTPCheckpoint(Session& s):session(s) {
+         auto& m=*s.model;std::lock_guard<std::mutex> lock(m.mutex);Device d(m.c.device);
+-        for (int i=m.begin;i<m.end;++i) for (auto* p:{s.history[i].get(),s.state[i].get()}) if (p) bytes=add(bytes,p->bytes);
+-        m.guard(bytes);
+-        for (int i=m.begin;i<m.end;++i) for (auto* p:{s.history[i].get(),s.state[i].get()}) if (p) {
+-            auto saved=std::make_unique<Buffer>();saved->allocate(p->bytes);slots.push_back({p,std::move(saved)});
+-        }
++        for(int i=m.begin;i<m.end;++i){auto buffers=s.recurrent_buffers(i);for(std::size_t j=0;j<buffers.size();++j)if(buffers[j]){bytes=add(bytes,buffers[j]->bytes);if(j>=2)peer_bytes=add(peer_bytes,buffers[j]->bytes);}}
++        m.guard(bytes-peer_bytes);if(m.head_gdn_enabled){Device peer(m.c.second_device);m.guard(peer_bytes);}
++        for(int i=m.begin;i<m.end;++i){auto buffers=s.recurrent_buffers(i);for(std::size_t j=0;j<buffers.size();++j)if(auto* p=buffers[j]){
++            Device device(p->device);auto saved=std::make_unique<Buffer>();saved->allocate(p->bytes);slots.push_back({p,std::move(saved),i,static_cast<int>(j%2),static_cast<int>(j/2)});
++        }}
+     }
+     void copy(bool save) {
+-        auto& m=*session.model;std::lock_guard<std::mutex> lock(m.mutex);Device d(m.c.device);
+-        if (save) position=session.position;
+-        for (const auto& slot:slots) if (slot.source->bytes)
+-            check(cudaMemcpyAsync(save?slot.saved->ptr:slot.source->ptr,save?slot.source->ptr:slot.saved->ptr,slot.source->bytes,cudaMemcpyDeviceToDevice,m.stream.ptr));
+-        m.sync();if (!save) session.position=position;
++        auto& m=*session.model;std::lock_guard<std::mutex> lock(m.mutex);Device d(m.c.device);if(save)position=session.position;
++        for(int rank=0;rank<(m.head_gdn_enabled?2:1);++rank){Device device(rank?m.c.second_device:m.c.device);const auto stream=rank?m.second_stream.ptr:m.stream.ptr;
++            for(const auto& slot:slots)if(slot.rank==rank && slot.source->bytes)check(cudaMemcpyAsync(save?slot.saved->ptr:slot.source->ptr,save?slot.source->ptr:slot.saved->ptr,slot.source->bytes,cudaMemcpyDeviceToDevice,stream));}
++        m.sync();if(!save)session.position=position;
+     }
+ };
+ 
+-// Prefix one reuses the existing backup allocation. Only prefix two needs
+-// additional storage; attention tails remain protected by the committed cursor.
++// Both devices' prefix one reuse the request's existing checkpoint buffers.
++// Prefix two adds one equally distributed private backup, never a host mirror.
+ struct MTPPrefixes {
+-    MTPCheckpoint& checkpoint;
+-    PrefixTrace trace;
+-    std::vector<std::unique_ptr<Buffer>> extra;
+-    std::uint64_t bytes=0;
++    MTPCheckpoint& checkpoint;PrefixTrace trace;
++    std::vector<std::unique_ptr<Buffer>> extra;std::uint64_t bytes=0;
+     explicit MTPPrefixes(MTPCheckpoint& p):checkpoint(p) {
+-        auto& session=p.session;auto& m=*session.model;std::lock_guard<std::mutex> lock(m.mutex);Device d(m.c.device);m.guard(p.bytes);
+-        for(int j=0;j<2;++j){trace.history[j].resize(m.c.layers);trace.state[j].resize(m.c.layers);}
+-        std::size_t slot=0;
+-        for(int i=m.begin;i<m.end;++i)for(auto* source:{session.history[i].get(),session.state[i].get()})if(source) {
+-            require(p.slots[slot].source==source,"prefix backup mapping mismatch");
+-            auto b=std::make_unique<Buffer>();b->allocate(source->bytes);bytes=add(bytes,b->bytes);
+-            auto* pointers=source==session.history[i].get()?trace.history:trace.state;
+-            pointers[0][i]=p.slots[slot].saved->ptr;pointers[1][i]=b->ptr;extra.push_back(std::move(b));++slot;
+-        }
++        auto& m=*p.session.model;std::lock_guard<std::mutex> lock(m.mutex);Device d(m.c.device);m.guard(p.bytes-p.peer_bytes);
++        if(m.head_gdn_enabled){Device peer(m.c.second_device);m.guard(p.peer_bytes);}trace.resize(m.c.layers);
++        for(const auto& slot:p.slots){Device device(slot.source->device);auto b=std::make_unique<Buffer>();b->allocate(slot.source->bytes);bytes=add(bytes,b->bytes);
++            trace.slots(slot.rank,slot.kind,0)[slot.layer]=slot.saved->ptr;trace.slots(slot.rank,slot.kind,1)[slot.layer]=b->ptr;extra.push_back(std::move(b));}
+         require(bytes==p.bytes,"prefix memory estimate mismatch");
+     }
+     void restore(int prefix,int position) {
+-        require(prefix==1 || prefix==2,"invalid committed prefix");auto& session=checkpoint.session;auto& m=*session.model;
+-        std::lock_guard<std::mutex> lock(m.mutex);Device d(m.c.device);
+-        for(std::size_t i=0;i<checkpoint.slots.size();++i) {
+-            auto& slot=checkpoint.slots[i];if(slot.source->bytes)check(cudaMemcpyAsync(slot.source->ptr,prefix==1?slot.saved->ptr:extra[i]->ptr,slot.source->bytes,cudaMemcpyDeviceToDevice,m.stream.ptr));
+-        }
++        require(prefix==1 || prefix==2,"invalid committed prefix");auto& session=checkpoint.session;auto& m=*session.model;std::lock_guard<std::mutex> lock(m.mutex);Device d(m.c.device);
++        for(int rank=0;rank<(m.head_gdn_enabled?2:1);++rank){Device device(rank?m.c.second_device:m.c.device);const auto stream=rank?m.second_stream.ptr:m.stream.ptr;
++            for(std::size_t i=0;i<checkpoint.slots.size();++i){const auto& slot=checkpoint.slots[i];if(slot.rank==rank && slot.source->bytes)check(cudaMemcpyAsync(slot.source->ptr,prefix==1?slot.saved->ptr:extra[i]->ptr,slot.source->bytes,cudaMemcpyDeviceToDevice,stream));}}
+         m.sync();session.position=position+prefix;
+     }
+ };
+@@ -352,12 +341,8 @@
+         for(int slot=0;slot<count;++slot) {
+             requests.push_back(std::make_unique<MTPSession>(model,capacities[slot],batch->requests[slot].get()));
+             auto& s=*requests.back();auto& trace=traces[slot];trace.prefixes=1;
+-            for(int p=0;p<2;++p){trace.history[p].resize(c.layers);trace.state[p].resize(c.layers);}
+-            std::size_t j=0;
+-            for(int i=target.begin;i<target.end;++i)for(auto* src:{s.first().history[i].get(),s.first().state[i].get()})if(src) {
+-                auto& saved=s.checkpoint_first->slots[j++];require(saved.source==src,"MTP batch checkpoint mapping mismatch");
+-                (src==s.first().history[i].get()?trace.history[0]:trace.state[0])[i]=saved.saved->ptr;
+-            }
++            trace.resize(c.layers);
++            for(const auto& saved:s.checkpoint_first->slots)trace.slots(saved.rank,saved.kind,0)[saved.layer]=saved.saved->ptr;
+         }
+         {std::lock_guard<std::mutex> lock(target.mutex);Device d(c.device);target.guard(mul(c.max_tokens,16+Session::min_tiles(c.vocab)*16));selection.allocate(mul(c.max_tokens,16));scratch.allocate(mul(c.max_tokens,Session::min_tiles(c.vocab)*16));}
+     }
+@@ -493,3 +478,12 @@
+ extern "C" int venturi_qwen_mtp_batch_extra_info(void* h,std::uint64_t* out,double* seconds){try{vr::require(h && out && seconds,"null MTP batch extra info");auto& b=*static_cast<vr::MTPBatch*>(h);std::lock_guard<std::mutex> lock(b.mutex);std::uint64_t request=0,backup=0;for(auto& s:b.requests){request=vr::add(request,s->request_bytes());backup=vr::add(backup,s->checkpoint_first->bytes);}out[0]=b.model->base->device_bytes;out[1]=request;out[2]=backup;out[3]=b.selection.bytes+b.scratch.bytes;seconds[0]=b.verification_seconds;return 0;}catch(const std::exception& e){error_text=e.what();return -1;}}
+ 
+ extern "C" int venturi_qwen_mtp_batch_cohort_timings(void* h,double* out){try{vr::require(h && out,"null MTP batch cohort timings");auto& b=*static_cast<vr::MTPBatch*>(h);std::lock_guard<std::mutex> lock(b.mutex);out[0]=b.prefill_seconds;out[1]=b.generation_seconds;return 0;}catch(const std::exception& e){error_text=e.what();return -1;}}
++extern "C" int venturi_qwen_mtp_head_gdn_session_info(void* h,std::uint64_t* out) {
++    try{vr::require(h && out,"null distributed MTP session info");auto& s=*static_cast<vr::MTPSession*>(h);std::lock_guard<std::mutex> lock(s.mutex);out[0]=s.first().peer_device_bytes;return 0;}catch(const std::exception& e){error_text=e.what();return -1;}
++}
++extern "C" int venturi_qwen_mtp_head_gdn_memory(void* h,std::uint64_t* out) {
++    try{vr::require(h && out,"null distributed MTP backup info");auto& s=*static_cast<vr::MTPSession*>(h);std::lock_guard<std::mutex> lock(s.mutex);out[0]=s.first().peer_device_bytes;out[1]=s.checkpoint_first->peer_bytes;out[2]=s.prefix_first?s.checkpoint_first->peer_bytes:0;return 0;}catch(const std::exception& e){error_text=e.what();return -1;}
++}
++extern "C" int venturi_qwen_mtp_batch_head_gdn_memory(void* h,std::uint64_t* out) {
++    try{vr::require(h && out,"null distributed MTP batch memory info");auto& b=*static_cast<vr::MTPBatch*>(h);std::lock_guard<std::mutex> lock(b.mutex);std::uint64_t request=0,backup=0;for(const auto& r:b.requests){request=vr::add(request,r->first().peer_device_bytes);backup=vr::add(backup,r->checkpoint_first->peer_bytes);}out[0]=request;out[1]=backup;return 0;}catch(const std::exception& e){error_text=e.what();return -1;}
++}
+--- before/src/venturi/ops/csrc/qwen_runtime.cuh
++++ after/src/venturi/ops/csrc/qwen_runtime.cuh
+@@ -13,6 +13,8 @@
+ #include <memory>
+ #include <mutex>
+ #include <vector>
++#include <array>
++#include <span>
+ 
+ struct VRConfig {
+     int device, dtype, layers, hidden, intermediate, vocab, hq, hkv, dim, rotary;
+@@ -127,6 +129,8 @@
+         cos[i]=read(cast<T>(cosf(phase)));sin[i]=read(cast<T>(sinf(phase)));
+     }
+ }
++
++#include "qwen_head_gdn.cuh"
+ 
+ // Explicit source ablation: 0=legacy, 1=grouped transport, 2=fused compute.
+ #ifndef VENTURI_Q8_GROUP_MODE
+@@ -146,7 +150,10 @@
+     // Explicit alternate arithmetic only. Scratch is shared by serialized model
+     // calls, not by independent request caches; no quantized weights are copied.
+     int activation_passes=0;
+-    bool column_mlp_enabled=false;
++    bool column_mlp_enabled=false,head_gdn_enabled=false;
++    std::set<std::uint64_t> semantic_qkv,column_gdn;
++    std::vector<VRLayer> head_peer_layers;HeadGDNWork head_work[2];
++    bool column_weight(std::uint64_t offset) const {return column_down.count(offset) || column_gdn.count(offset);}
+     std::set<std::uint64_t> column_down;
+     Buffer column_local,column_remote,column_peer,column_gu,column_activation;
+     Pinned column_host;
+@@ -258,7 +265,7 @@
+         auto result=out->ptr;device_bytes=add(device_bytes,bytes);constants.push_back(std::move(out));return result;
+     }
+     std::pair<const std::int8_t*,const __half*> weight(const VRMatrix& m) {
+-        require(!column_down.count(m.offset),"column-packed down requires the explicit MLP path");
++        require(!column_weight(m.offset) && !semantic_qkv.count(m.offset),"special-packed weight requires its explicit MLP/GDN path");
+         source();const Buffer* b=nullptr;
+         if (c.resident) b=resident_weights.at(m.offset).get();
+         else { upload(arena.ptr,m.offset,codes(m));upload(arena.at(codes(m)),m.scales,scales(m));b=&arena; }
+@@ -395,7 +402,7 @@
+         }
+     }
+     VRMatrix column_descriptor(const VRMatrix& m) const {
+-        require(column_mlp_enabled && column_down.count(m.offset),"matrix is not a column-packed down projection");
++        require(column_mlp_enabled && column_weight(m.offset),"matrix is not an explicit column-packed projection");
+         return VRMatrix{m.offset,m.scales,m.n,m.k/2};
+     }
+     void upload_columns(Buffer& target,const VRMatrix& m,int rank) {
+@@ -467,7 +474,7 @@
+         op(venturi_q8_column_sum(static_cast<const float*>(column_local.ptr),static_cast<const float*>(column_remote.ptr),out,static_cast<int>(mul(t,c.hidden)),stream.ptr));
+         peer_input_bytes=add(peer_input_bytes,xb);peer_output_bytes=add(peer_output_bytes,partial_bytes);
+     }
+-    Model(const VRConfig& cfg,const VRSpan* spans,int count,const VRLayer* ls,const VRMatrix& emb,const VRMatrix& h,const void* final_norm,const float* inv,int first=0,int last=-1,bool staged=false,const VRMatrix* mtp_input=nullptr,int profile=0,bool columns=false):c(cfg),embedding(emb),head(h),begin(first),end(last<0?cfg.layers:last),stage(staged),activation_passes(profile),column_mlp_enabled(columns) {
++    Model(const VRConfig& cfg,const VRSpan* spans,int count,const VRLayer* ls,const VRMatrix& emb,const VRMatrix& h,const void* final_norm,const float* inv,int first=0,int last=-1,bool staged=false,const VRMatrix* mtp_input=nullptr,int profile=0,bool columns=false,bool head_gdn=false):c(cfg),embedding(emb),head(h),begin(first),end(last<0?cfg.layers:last),stage(staged),activation_passes(profile),column_mlp_enabled(columns),head_gdn_enabled(head_gdn) {
+         require(begin>=0 && begin<end && end<=c.layers,"invalid native stage range");
+         require(!stage || (c.resident==1 && c.second_device==-1),"pipeline stages require resident non-TP weights");
+         require(profile==0 || (profile==2 && c.dtype==0 && c.resident==1 && !stage &&
+@@ -476,6 +483,7 @@
+         require(c.second_device>=-1 && c.second_device!=c.device,"invalid native Qwen peer device");
+         require(c.peer_transport==0 || c.peer_transport==1,"invalid native Qwen peer transport");
+         require(!columns || (VENTURI_BLOCKS_ARCH==70 && profile==2 && parallel() && c.peer_transport==1 && c.intermediate>0 && c.intermediate%64==0 && mul(c.max_tokens,c.hidden)<INT32_MAX-256),"column MLP requires resident SM70 FP16 residual host TP and group-aligned halves");
++        require(!head_gdn || (columns && !mtp_input && c.gqk>=2 && c.gqk%2==0 && c.gvh<=128 && c.hidden<=32768 && c.hidden%32==0 && c.gvd>0 && c.gvd<=256 && c.gvd%64==0 && c.convolution>=2 && c.convolution<=8),"head GDN requires an explicit aligned resident SM70 FP16 host-TP column profile");
+         if (parallel()) {
+             require(c.resident==1,"tensor parallel requires explicit resident weights");
+             int count=0;check(cudaGetDeviceCount(&count));require(c.second_device<count,"peer device out of range");
+@@ -521,6 +529,17 @@
+             }
+             validate_matrix(l.matrix[4],c.intermediate,c.hidden);validate_matrix(l.matrix[5],c.intermediate,c.hidden);validate_matrix(l.matrix[6],c.hidden,c.intermediate);
+         }
++        if(head_gdn) {
++            std::set<std::uint64_t> ordinary{embedding.offset,head.offset};
++            for(const auto& l:layers) {
++                if(l.kind==0){require(l.ab_fp32==1,"head GDN requires source-preserved FP32 A/B projections");semantic_qkv.insert(l.matrix[0].offset);column_gdn.insert(l.matrix[2].offset);ordinary.insert(l.matrix[1].offset);}
++                else for(int j=0;j<4;++j)ordinary.insert(l.matrix[j].offset);
++                for(int j=4;j<7;++j)ordinary.insert(l.matrix[j].offset);
++            }
++            for(auto offset:semantic_qkv)require(!ordinary.count(offset) && !column_gdn.count(offset),"semantic QKV aliases an incompatible role");
++            for(auto offset:column_gdn)require(!ordinary.count(offset),"column GDN output aliases an incompatible role");
++            head_peer_layers=layers;
++        }
+         if(columns) {
+             std::set<std::uint64_t> other_roles{embedding.offset,head.offset};
+             for(const auto& l:layers) {
+@@ -540,7 +559,7 @@
+         }
+         std::uint64_t all=0,other=0,maxk=0,maxn=0,peak=mul(c.max_tokens,add(padded(embedding),padded(embedding)/32*2));
+         for (const auto& [_,m]:matrices) {
+-            if(column_down.count(m.offset)) {
++            if(column_weight(m.offset)) {
+                 const auto local=column_descriptor(m);all=add(all,encoded(local,local.n));other=add(other,encoded(local,local.n));
+             } else {all=add(all,encoded(m,first_rows(m)));other=add(other,encoded(m,second_rows(m)));}
+             maxk=std::max(maxk,static_cast<std::uint64_t>(m.k));maxn=std::max(maxn,static_cast<std::uint64_t>(1+(m.n-1)/2));
+@@ -563,9 +582,10 @@
+         const auto column_partial=columns?mul(mul(c.max_tokens,c.hidden),4):0;
+         const auto column_gu_bytes=columns?mul(mul(c.max_tokens,c.intermediate),2):0;
+         const auto column_activation_bytes=columns?mul(c.max_tokens,c.intermediate):0;
+-        guard(add(add(add(add(add(c.resident?all:peak,constant_bytes),scratch),4*1024*1024+mul(c.rotary/2,4)),quant),mul(column_partial,2)));
++        const auto head_scratch=head_gdn?HeadGDNWork::estimate(c):0;
++        guard(add(head_scratch,add(add(add(add(add(c.resident?all:peak,constant_bytes),scratch),4*1024*1024+mul(c.rotary/2,4)),quant),mul(column_partial,2))));
+         if (parallel()) {
+-            Device d(c.second_device);guard(add(add(add(other,add(scratch,mul(mul(c.max_tokens,maxk),2))),quant),add(column_partial,add(column_gu_bytes,column_activation_bytes))));
++            Device d(c.second_device);guard(add(add(head_scratch,head_gdn?constant_bytes:0),add(add(add(other,add(scratch,mul(mul(c.max_tokens,maxk),2))),quant),add(column_partial,add(column_gu_bytes,column_activation_bytes)))));
+             if (c.peer_transport==0) {
+                 auto status=cudaDeviceEnablePeerAccess(c.device,0);
+                 if (status==cudaErrorPeerAccessAlreadyEnabled) (void)cudaGetLastError();else check(status);
+@@ -587,25 +607,28 @@
+         }
+         if(columns) {column_local.allocate(column_partial);column_remote.allocate(column_partial);column_host.allocate(column_partial);device_bytes=add(device_bytes,mul(column_partial,2));}
+         stream.create();staging.allocate(stage_bytes);
++        if(head_gdn){head_work[0].allocate(c);device_bytes=add(device_bytes,head_work[0].bytes);{Device d(c.second_device);head_work[1].allocate(c);second_device_bytes=add(second_device_bytes,head_work[1].bytes);}}
+         if (parallel() && c.peer_transport==0) probe_peer();
+         // No large CPU expansion: validation walks the mapped encoded planes.
+         for (const auto& [_,m]:matrices) validate_codes(m);
+         if (c.resident) {
+             for (const auto& [offset,m]:matrices) {
+-                if(column_down.count(offset)) {
++                if(column_weight(offset)) {
+                     const auto local=column_descriptor(m);auto b=std::make_unique<Buffer>();b->allocate(encoded(local,local.n));
+                     upload_columns(*b,m,0);device_bytes=add(device_bytes,b->bytes);resident_weights.emplace(offset,std::move(b));
+                     {Device d(c.second_device);b=std::make_unique<Buffer>();b->allocate(encoded(local,local.n));}
+                     upload_columns(*b,m,1);second_device_bytes=add(second_device_bytes,b->bytes);second_weights.emplace(offset,std::move(b));continue;
+                 }
+                 const int nf=first_rows(m),ns=second_rows(m);auto b=std::make_unique<Buffer>();b->allocate(encoded(m,nf));
+-                upload(b->ptr,m.offset,plane(m,nf));upload(b->at(plane(m,nf)),m.scales,mul(nf,padded(m)/32*2));
++                if(semantic_qkv.count(offset))head_gdn_upload_rows(*this,*b,m,0);
++                else {upload(b->ptr,m.offset,plane(m,nf));upload(b->at(plane(m,nf)),m.scales,mul(nf,padded(m)/32*2));}
+                 device_bytes=add(device_bytes,b->bytes);resident_weights.emplace(offset,std::move(b));
+                 if (ns) {
+                     { Device d(c.second_device);b=std::make_unique<Buffer>();b->allocate(encoded(m,ns)); }
+                     const auto skip=static_cast<std::uint64_t>(m.n-ns);
+-                    upload_other(b->ptr,add(m.offset,mul(skip,padded(m))),plane(m,ns));
+-                    upload_other(b->at(plane(m,ns)),add(m.scales,mul(skip,padded(m)/32*2)),mul(ns,padded(m)/32*2));
++                    if(semantic_qkv.count(offset))head_gdn_upload_rows(*this,*b,m,1);
++                    else {upload_other(b->ptr,add(m.offset,mul(skip,padded(m))),plane(m,ns));
++                        upload_other(b->at(plane(m,ns)),add(m.scales,mul(skip,padded(m)/32*2)),mul(ns,padded(m)/32*2));}
+                     second_device_bytes=add(second_device_bytes,b->bytes);second_weights.emplace(offset,std::move(b));
+                 }
+             }
+@@ -614,7 +637,9 @@
+         if (end==c.layers) norm=static_cast<const float*>(copy_constant(final_norm,mul(c.hidden,4)));
+         for (int index=begin;index<end;++index) {auto& l=layers[index];
+             l.norm=copy_constant(l.norm,mul(c.hidden,4));l.post=copy_constant(l.post,mul(c.hidden,4));
+-            if (l.kind==0) {
++            if (l.kind==0 && head_gdn) {
++                const auto original=l;head_gdn_constants(*this,original,l,0);head_gdn_constants(*this,original,head_peer_layers[index],1);
++            } else if (l.kind==0) {
+                 l.conv=copy_constant(l.conv,mul(c.convolution*packed,l.conv_fp32?4:2));
+                 l.rate=copy_constant(l.rate,mul(c.gvh,4));l.bias=copy_constant(l.bias,mul(c.gvh,4));
+                 l.gamma=copy_constant(l.gamma,mul(c.gvd,l.gamma_fp32?4:2));
+@@ -632,7 +657,11 @@
+ };
+ 
+ // Optional request-owned verification traces. No model-global pointer cache.
+-struct PrefixTrace {int prefixes=0;std::vector<void*> history[2],state[2];};
++struct PrefixTrace {
++    int prefixes=0;std::vector<void*> history[2],state[2],peer_history[2],peer_state[2];
++    std::vector<void*>& slots(int rank,int kind,int prefix){return rank?(kind?peer_state[prefix]:peer_history[prefix]):(kind?state[prefix]:history[prefix]);}
++    void resize(int layers){for(int rank=0;rank<2;++rank)for(int kind=0;kind<2;++kind)for(int prefix=0;prefix<2;++prefix)slots(rank,kind,prefix).resize(layers);}
++};
+ struct Session {
+     PrefixTrace* verification_trace=nullptr;
+     std::shared_ptr<Model> model;
+@@ -641,10 +670,10 @@
+     int fault_layer=-1,fault_position=-1;
+     std::mutex mutex;
+     std::map<std::string,std::unique_ptr<Buffer>> w;
+-    std::vector<std::unique_ptr<Buffer>> history,state,keys,values;
++    std::vector<std::unique_ptr<Buffer>> history,state,keys,values,peer_history,peer_state;
+     std::vector<std::uint16_t> host_logits;
+     std::vector<std::int64_t> ids;
+-    std::uint64_t device_bytes=0;
++    std::uint64_t device_bytes=0,peer_device_bytes=0;
+     void* alloc(const std::string& name,std::uint64_t n) {
+         auto b=std::make_unique<Buffer>();b->allocate(n);auto p=b->ptr;device_bytes=add(device_bytes,n);w.emplace(name,std::move(b));return p;
+     }
+@@ -653,31 +682,42 @@
+         const auto& c=m.c;require(capacity>0 && capacity<=c.max_position && mul(capacity,c.rotary/2)<INT32_MAX,"native Qwen capacity exceeds context/table bounds");
+         const std::uint64_t packed=2*mul(c.gqk,c.gkd)+mul(c.gvh,c.gvd),qw=mul(c.hq,c.dim),kw=mul(c.hkv,c.dim),t=c.max_tokens;
+         std::uint64_t widths=mul(c.hidden,7); // x,out,normalized,projected,residual,MLP normalized + spare.
+-        widths=add(widths,add(mul(packed,2),add(mul(c.gvh*c.gvd,3),mul(c.gvh,2))));
++        if(!m.head_gdn_enabled)widths=add(widths,add(mul(packed,2),add(mul(c.gvh*c.gvd,3),mul(c.gvh,2))));
+         widths=add(widths,add(mul(c.intermediate,2),add(mul(qw,4),kw)));
+-        std::uint64_t n=add(mul(mul(widths,t),2),mul(mul(t,c.gvh),8));
++        std::uint64_t n=add(mul(mul(widths,t),2),m.head_gdn_enabled?0:mul(mul(t,c.gvh),8));
+         n=add(n,add(mul(mul(t,c.vocab),2),mul(t,8)));
+         n=add(n,add(mul(mul(capacity,c.rotary/2),8),16+min_tiles(c.vocab)*16));
+-        for (int i=m.begin;caches && i<m.end;++i) {const auto& l=m.layers[i];n=add(n,l.kind==0 ? add(mul(mul(c.convolution-1,packed),2),mul(mul(c.gvh*c.gvd,c.gkd),4)) : mul(mul(capacity,kw),4));}
++        for (int i=m.begin;caches && i<m.end;++i) {const auto& l=m.layers[i];n=add(n,l.kind==0 ? (add(mul(mul(c.convolution-1,packed),2),mul(mul(c.gvh*c.gvd,c.gkd),4))/(m.head_gdn_enabled?2:1)) : mul(mul(capacity,kw),4));}
+         return n;
++    }
++    static std::uint64_t estimate_peer(const Model& m,bool caches=true) {
++        if(!m.head_gdn_enabled || !caches)return 0;const auto& c=m.c;std::uint64_t n=0;
++        const auto packed=add(mul(2,mul(c.gqk,c.gkd)),mul(c.gvh,c.gvd));
++        for(int i=m.begin;i<m.end;++i)if(m.layers[i].kind==0)n=add(n,add(mul(mul(c.convolution-1,packed),2),mul(mul(c.gvh*c.gvd,c.gkd),4))/2);return n;
+     }
+     static int min_tiles(int n) { return std::min((n-1)/4096+1,128); }
+     explicit Session(std::shared_ptr<Model> m,int cap,bool caches=true):model(std::move(m)),capacity(cap) {
+-        auto& md=*model;const auto& c=md.c;md.guard(estimate(md,cap,caches));
++        auto& md=*model;const auto& c=md.c;md.guard(estimate(md,cap,caches));if(md.head_gdn_enabled){Device d(c.second_device);md.guard(estimate_peer(md,caches));}
+         const std::uint64_t packed=2*mul(c.gqk,c.gkd)+mul(c.gvh,c.gvd),qw=mul(c.hq,c.dim),kw=mul(c.hkv,c.dim),t=c.max_tokens;
+         for (auto name: {"x","out","normalized","projected","residual","mlp_norm","spare"}) alloc(name,mul(mul(t,c.hidden),2));
++        if(!md.head_gdn_enabled) {
+         for (auto name: {"qkv","convolved"}) alloc(name,mul(mul(t,packed),2));
+         for (auto name: {"z","mixed","recurrent"}) alloc(name,mul(mul(t,c.gvh*c.gvd),2));
+         for (auto name: {"a","b"}) alloc(name,mul(mul(t,c.gvh),2));
+         for (auto name: {"decay","beta"}) alloc(name,mul(mul(t,c.gvh),4));
++        }
+         for (auto name: {"mlp_gate","mlp_up"}) alloc(name,mul(mul(t,c.intermediate),2));
+         alloc("qg",mul(mul(t,qw),4));alloc("query",mul(mul(t,qw),2));alloc("attended",mul(mul(t,qw),2));alloc("key",mul(mul(t,kw),2));
+         alloc("logits",mul(mul(t,c.vocab),2));alloc("ids",mul(t,8));alloc("selection",16);alloc("select_scratch",min_tiles(c.vocab)*16);
+         alloc("cos",mul(mul(cap,c.rotary/2),4));alloc("sin",mul(mul(cap,c.rotary/2),4));
+-        history.resize(c.layers);state.resize(c.layers);keys.resize(c.layers);values.resize(c.layers);
++        history.resize(c.layers);state.resize(c.layers);keys.resize(c.layers);values.resize(c.layers);peer_history.resize(c.layers);peer_state.resize(c.layers);
+         auto statebuf=[&](std::unique_ptr<Buffer>& dst,std::uint64_t bytes,bool zero) { dst=std::make_unique<Buffer>();dst->allocate(bytes);device_bytes=add(device_bytes,bytes);if (zero && bytes) check(cudaMemsetAsync(dst->ptr,0,bytes,md.stream.ptr)); };
+         for (int i=md.begin;caches && i<md.end;++i) {
+-            if (md.layers[i].kind==0) { statebuf(history[i],mul(mul(c.convolution-1,packed),2),true);statebuf(state[i],mul(mul(c.gvh*c.gvd,c.gkd),4),true); }
++            if (md.layers[i].kind==0) {
++                const auto hb=mul(mul(c.convolution-1,packed),2)/(md.head_gdn_enabled?2:1),sb=mul(mul(c.gvh*c.gvd,c.gkd),4)/(md.head_gdn_enabled?2:1);
++                statebuf(history[i],hb,true);statebuf(state[i],sb,true);
++                if(md.head_gdn_enabled){Device d(c.second_device);for(auto pair:{std::pair<std::unique_ptr<Buffer>*,std::uint64_t>{&peer_history[i],hb},{&peer_state[i],sb}}){auto b=std::make_unique<Buffer>();b->allocate(pair.second);check(cudaMemsetAsync(b->ptr,0,b->bytes,md.second_stream.ptr));peer_device_bytes=add(peer_device_bytes,b->bytes);*pair.first=std::move(b);}}
++            }
+             else { statebuf(keys[i],mul(mul(cap,kw),2),false);statebuf(values[i],mul(mul(cap,kw),2),false); }
+         }
+         host_logits.resize(mul(t,c.vocab));ids.resize(t);
+@@ -685,7 +725,25 @@
+         const int grid=std::min((count-1)/256+1,65535);
+         if (c.dtype==0) tables<__half><<<grid,256,0,md.stream.ptr>>>(static_cast<const float*>(md.inverse.ptr),static_cast<float*>(p("cos")),static_cast<float*>(p("sin")),c.rotary/2,count);
+         else tables<__nv_bfloat16><<<grid,256,0,md.stream.ptr>>>(static_cast<const float*>(md.inverse.ptr),static_cast<float*>(p("cos")),static_cast<float*>(p("sin")),c.rotary/2,count);
+-        check(cudaGetLastError());md.sync();require(device_bytes==estimate(md,cap,caches),"native Qwen memory estimate mismatch");
++        check(cudaGetLastError());md.sync();require(device_bytes==estimate(md,cap,caches) && peer_device_bytes==estimate_peer(md,caches),"native Qwen memory estimate mismatch");
++    }
++    ~Session(){try{Device d(model->c.device);model->sync();}catch(...){}}
++    std::array<Buffer*,4> recurrent_buffers(int layer){return {history[layer].get(),state[layer].get(),peer_history[layer].get(),peer_state[layer].get()};}
++    HeadGDNSegment head_segment(int layer,int row,int count) {
++        HeadGDNSegment result;result.row=row;result.count=count;result.prefixes=verification_trace?verification_trace->prefixes:0;
++        for(int rank=0;rank<2;++rank){auto& part=result.rank[rank];part.history=(rank?peer_history:history)[layer]->ptr;part.state=(rank?peer_state:state)[layer]->ptr;
++            for(int prefix=0;prefix<result.prefixes;++prefix){part.prefix_history[prefix]=verification_trace->slots(rank,0,prefix)[layer];part.prefix_state[prefix]=verification_trace->slots(rank,1,prefix)[layer];}}
++        return result;
++    }
++    void snapshot(int layer,int kind,void* target,std::uint64_t bytes) {
++        auto& m=*model;const auto& c=m.c;const auto* src=kind==0?history[layer].get():kind==1?state[layer].get():kind==2?keys[layer].get():values[layer].get();require(src,"native Qwen snapshot slot absent");
++        const bool split=m.head_gdn_enabled && kind<2;const auto n=kind<2?mul(src->bytes,split?2:1):mul(mul(position,c.hkv*c.dim),2);require(bytes==n && (target || !n),"native Qwen snapshot byte size mismatch");
++        m.sync();if(!split){if(n)check(cudaMemcpyAsync(target,src->ptr,n,cudaMemcpyDeviceToHost,m.stream.ptr));m.sync();return;}
++        for(int rank=0;rank<2;++rank){Device d(rank?c.second_device:c.device);auto stream=rank?m.second_stream.ptr:m.stream.ptr;auto* buffer=rank?(kind?peer_state[layer].get():peer_history[layer].get()):src;
++            if(kind==1)check(cudaMemcpyAsync(static_cast<char*>(target)+mul(rank,src->bytes),buffer->ptr,src->bytes,cudaMemcpyDeviceToHost,stream));
++            else {const auto indices=head_gdn_rows(c,rank);const int full=2*c.gqk*c.gkd+c.gvh*c.gvd,local=full/2;const int widths[]={c.gqk*c.gkd/2,c.gqk*c.gkd/2,c.gvh*c.gvd/2};std::uint64_t offset=0;
++                for(int width:widths){check(cudaMemcpy2DAsync(static_cast<char*>(target)+mul(indices[offset],2),mul(full,2),buffer->at(mul(offset,2)),mul(local,2),mul(width,2),c.convolution-1,cudaMemcpyDeviceToHost,stream));offset+=width;}}
++        }m.sync();
+     }
+     void input(const std::int64_t* tokens,int n) {
+         require(!failed,"native Qwen request failed; reset required");
+@@ -717,7 +775,8 @@
+         auto& m=*model;const auto& c=m.c;const auto& l=m.layers[index];auto s=m.stream.ptr;
+         const auto count=mul(t,c.hidden);
+         op(venturi_rms_run(x,static_cast<const float*>(l.norm),p("normalized"),t,c.hidden,c.dtype,c.epsilon,s));
+-        if (l.kind==0) {
++        if(l.kind==0 && m.head_gdn_enabled){const auto segment=head_segment(index,0,t);head_gdn_forward(m,index,p("normalized"),p("projected"),t,std::span<const HeadGDNSegment>(&segment,1));}
++        else if (l.kind==0) {
+             m.shared_linears(p("normalized"),t,{{&l.matrix[0],p("qkv")},{&l.matrix[1],p("z")}});
+             for (int i=0;i<2;++i) {
+                 auto w=i?l.b:l.a;auto target=p(i?"b":"a");
+@@ -790,6 +849,7 @@
+         try { m.sync();for (int i=0;i<m.c.layers;++i) if (state[i]) {
+             if (history[i]->bytes) check(cudaMemsetAsync(history[i]->ptr,0,history[i]->bytes,m.stream.ptr));
+             check(cudaMemsetAsync(state[i]->ptr,0,state[i]->bytes,m.stream.ptr)); }
++            if(m.head_gdn_enabled){Device d(m.c.second_device);for(int i=0;i<m.c.layers;++i)if(peer_state[i]){if(peer_history[i]->bytes)check(cudaMemsetAsync(peer_history[i]->ptr,0,peer_history[i]->bytes,m.second_stream.ptr));check(cudaMemsetAsync(peer_state[i]->ptr,0,peer_state[i]->bytes,m.second_stream.ptr));}}
+             m.sync();position=0;failed=false;fault_layer=-1;
+         } catch (...) { failed=true;throw; }
+     }
+@@ -911,9 +971,7 @@
+ extern "C" int venturi_qwen_snapshot(void* h,int layer,int kind,void* target,std::uint64_t bytes) {
+     try { vr::require(h,"null native Qwen snapshot");auto& s=*static_cast<vr::Session*>(h);auto& m=*s.model;vr::Device d(m.c.device);
+         std::lock_guard<std::mutex> a(s.mutex),b(m.mutex);vr::require(layer>=0 && layer<m.c.layers && kind>=0 && kind<=3,"invalid native Qwen snapshot slot");
+-        const auto* src=kind==0?s.history[layer].get():kind==1?s.state[layer].get():kind==2?s.keys[layer].get():s.values[layer].get();
+-        vr::require(src,"native Qwen snapshot slot absent");const auto n=kind<2?src->bytes:vr::mul(vr::mul(s.position,m.c.hkv*m.c.dim),2);
+-        vr::require(bytes==n && (target || !n),"native Qwen snapshot byte size mismatch");if (n) check(cudaMemcpyAsync(target,src->ptr,n,cudaMemcpyDeviceToHost,m.stream.ptr));m.sync();return 0;
++        s.snapshot(layer,kind,target,bytes);return 0;
+     } catch (const std::exception& e) { error_text=e.what();return -1; }
+ }
+ extern "C" int venturi_qwen_debug_failure(void* h,int layer,int position) {
+@@ -923,3 +981,13 @@
+ }
+ 
+ extern "C" int venturi_qwen_timings(void* h,double* out) {try{vr::require(h && out,"null native Qwen timings");auto& s=*static_cast<vr::Session*>(h);std::lock_guard<std::mutex> lock(s.mutex);out[0]=s.first_token_seconds;out[1]=s.generation_seconds;return 0;}catch(const std::exception& e){error_text=e.what();return -1;}}
++
++extern "C" void* venturi_qwen_create_head_gdn(const VRConfig* c,const VRSpan* spans,int count,const VRLayer* layers,const VRMatrix* embedding,const VRMatrix* head,const void* norm,const float* inverse) {
++    try{vr::require(c && embedding && head,"null head GDN descriptor");vr::Device d(c->device);cudaDeviceProp p{};check(cudaGetDeviceProperties(&p,c->device));vr::require(p.major*10+p.minor==VENTURI_BLOCKS_ARCH,"head GDN architecture mismatch");return new vr::Handle(std::make_shared<vr::Model>(*c,spans,count,layers,*embedding,*head,norm,inverse,0,-1,false,nullptr,2,true,true));}catch(const std::exception& e){error_text=e.what();return nullptr;}
++}
++extern "C" int venturi_qwen_head_gdn_info(void* h,std::uint64_t* out) {
++    try{vr::require(h && out,"null head GDN model info");auto m=*static_cast<vr::Handle*>(h);std::lock_guard<std::mutex> lock(m->mutex);const std::uint64_t values[]={m->head_gdn_enabled?1ULL:0ULL,m->head_work[0].bytes,m->head_work[1].bytes,m->semantic_qkv.size(),m->column_gdn.size()};std::copy(values,values+5,out);return 0;}catch(const std::exception& e){error_text=e.what();return -1;}
++}
++extern "C" int venturi_qwen_head_gdn_session_info(void* h,std::uint64_t* out) {
++    try{vr::require(h && out,"null head GDN session info");auto& s=*static_cast<vr::Session*>(h);std::lock_guard<std::mutex> lock(s.mutex);out[0]=s.peer_device_bytes;return 0;}catch(const std::exception& e){error_text=e.what();return -1;}
++}
+--- before/src/venturi/qwen_native_cli.py
++++ after/src/venturi/qwen_native_cli.py
+@@ -61,7 +61,12 @@
+     p.add_argument("--device", default="cuda:0")
+     p.add_argument(
+         "--projection-profile",
+-        choices=("fp16", "q8-residual", "q8-residual-column-mlp"),
++        choices=(
++            "fp16",
++            "q8-residual",
++            "q8-residual-column-mlp",
++            "q8-residual-column-mlp-head-gdn",
++        ),
+         default="fp16",
+         help="Original typed activation math (default), or explicit experimental residual-A8 FP16 target arithmetic",
+     )
+@@ -189,7 +194,10 @@
+             raise ValueError(
+                 "q8-residual requires resident --dtype fp16 and supports single/TP, not PP"
+             )
+-        if args.projection_profile == "q8-residual-column-mlp" and (
++        if args.projection_profile in (
++            "q8-residual-column-mlp",
++            "q8-residual-column-mlp-head-gdn",
++        ) and (
+             not args.tensor_parallel_device or args.tensor_parallel_transport != "host"
+         ):
+             raise ValueError("Column MLP requires explicit two-device host TP")
+--- before/tests/test_ada_build.py
++++ after/tests/test_ada_build.py
+@@ -168,4 +168,5 @@
+     library = build_blocks_backend(tmp_path, nvcc="fake", architecture="sm70")
+     manifest = json.loads(library.with_name("build.json").read_text())
+     assert "q8_column_tp.cuh" in manifest["source_sha256"]
+-    assert len(manifest["source_sha256"]) == 10
++    assert "qwen_head_gdn.cuh" in manifest["source_sha256"]
++    assert len(manifest["source_sha256"]) == 11
+--- before/tests/test_native_head_gdn.py
++++ after/tests/test_native_head_gdn.py
+@@ -0,0 +1,308 @@
++"""Distributed GDN caches are request-owned, including rollback and diagnostics."""
++
++import copy
++import os
++from types import SimpleNamespace
++from unittest.mock import patch
++
++import pytest
++import torch
++
++from test_qwen_model import hybrid_fixture, independent_forward
++from test_qwen_mtp import mtp_fixture, load_models
++from test_qwen_source import write_source
++from test_qwen_tensor_parallel import same_state
++from venturi.models import NativeQwenModel, QwenQ8Weights, QwenMTPWeights
++from venturi.models.qwen_native import _head_gdn_workspace
++from venturi.ninfer import NInferArtifact
++from venturi.ops import CudaBackend
++from venturi.qwen_export import export_qwen_q8, export_qwen_mtp_q8
++
++PROFILE = "q8-residual-column-mlp-head-gdn"
++
++
++def eligible_mtp(root, *, tied=False):
++    root.mkdir(parents=True, exist_ok=True)
++    (root / "original").mkdir()
++    original, _, raw, _ = mtp_fixture(root / "original", tied=tied)
++    cfg = copy.deepcopy(original.config)
++    cfg.update(linear_num_value_heads=6, linear_value_head_dim=64)
++    generator = torch.Generator().manual_seed(1907)
++    shapes = {
++        "in_proj_qkv.weight": (640, 32),
++        "in_proj_z.weight": (384, 32),
++        "in_proj_a.weight": (6, 32),
++        "in_proj_b.weight": (6, 32),
++        "out_proj.weight": (32, 384),
++        "conv1d.weight": (640, 1, 4),
++        "A_log": (6,),
++        "dt_bias": (6,),
++        "norm.weight": (64,),
++    }
++    for layer, kind in enumerate(cfg["layer_types"]):
++        if kind != "linear_attention":
++            continue
++        prefix = f"model.language_model.layers.{layer}.linear_attn."
++        for name, shape in shapes.items():
++            value = torch.randn(shape, generator=generator) * (
++                0.06 if len(shape) > 1 else 0.03
++            )
++            if name == "norm.weight":
++                value += 0.9
++            raw[prefix + name] = value.to(
++                torch.float32 if name in ("A_log", "norm.weight") else torch.bfloat16
++            )
++    source = write_source(
++        root / "eligible",
++        raw=dict(model_type="qwen3_5", text_config=cfg, tie_word_embeddings=tied),
++        tensors=raw,
++    )
++    target = QwenQ8Weights.from_ninfer(
++        NInferArtifact(export_qwen_q8(source, root / "target.ninfer")["output"])
++    )
++    draft = QwenMTPWeights.from_ninfer(
++        NInferArtifact(export_qwen_mtp_q8(source, root / "draft.ninfer")["output"])
++    )
++    return target, draft, raw, source
++
++
++@pytest.fixture
++def engine():
++    path = os.environ.get("VENTURI_NATIVE_HEAD_GDN_LIBRARY")
++    if not path:
++        pytest.skip("Explicit native head-GDN SM70 library and two V100s required")
++    return CudaBackend(path), torch.float16, "cuda:0"
++
++
++def load(weights, engine, rows=8, profile=PROFILE):
++    backend, dtype, device = engine
++    return NativeQwenModel.from_q8(
++        weights,
++        backend,
++        weight_mode="resident",
++        dtype=dtype,
++        device=device,
++        max_tokens=rows,
++        reserve_bytes=0,
++        tensor_parallel_device="cuda:1",
++        tensor_parallel_transport="host",
++        projection_profile=profile,
++    )
++
++
++def test_head_profile_fails_closed_before_cuda_access():
++    weights, backend = object.__new__(QwenQ8Weights), object.__new__(CudaBackend)
++    backend._native = SimpleNamespace()
++    kw = dict(weight_mode="resident", dtype=torch.float16, projection_profile=PROFILE)
++    with pytest.raises(ValueError, match="two-device host TP"):
++        NativeQwenModel.from_q8(weights, backend, **kw)
++    with pytest.raises(RuntimeError, match="exports absent"):
++        NativeQwenModel.from_q8(
++            weights,
++            backend,
++            tensor_parallel_device="cuda:1",
++            tensor_parallel_transport="host",
++            **kw,
++        )
++    with pytest.raises(ValueError, match="complete resident FP16"):
++        NativeQwenModel.from_q8(
++            weights,
++            backend,
++            tensor_parallel_device="cuda:1",
++            tensor_parallel_transport="host",
++            **{**kw, "weight_mode": "streaming"},
++        )
++
++
++def test_actual_qwen_head_workspace_bound():
++    cfg = dict(
++        linear_num_key_heads=16,
++        linear_num_value_heads=48,
++        linear_key_head_dim=128,
++        linear_value_head_dim=128,
++    )
++    assert _head_gdn_workspace(cfg, 32) == 1_254_400
++
++
++def test_eligible_fixture_preserves_original_odd_fixture(tmp_path):
++    (tmp_path / "odd").mkdir()
++    original, _ = hybrid_fixture(tmp_path / "odd")
++    target, draft, _, _ = eligible_mtp(tmp_path / "aligned")
++    assert original.config["linear_value_head_dim"] == 13
++    assert target.config["linear_value_head_dim"] == 64
++    assert target.config["linear_num_value_heads"] == 6
++    draft.validate_target(target)
++
++
++@pytest.mark.parametrize("rows", [1, 2, 3, 8])
++def test_full_native_teacher_chunks_reset_and_canonical_state(tmp_path, engine, rows):
++    weights, _, raw, _ = eligible_mtp(tmp_path)
++    model = load(weights, engine, rows=rows)
++    request = model.create_session(32)
++    try:
++        ids = [1, 2, 3, 4, 5, 6, 7, 8]
++        expected = independent_forward(raw, weights.config, ids, tied=False)
++        actual = request.forward(ids, all_logits=True)
++        rel = float((actual.double() - expected).norm() / expected.norm())
++        assert rel < 0.02
++        assert torch.equal(actual.argmax(-1), expected.argmax(-1))
++        first = request.snapshot()
++        assert first["gdn"][0][0].shape == (3, 640)
++        assert first["gdn"][0][1].shape == (6, 64, 64)
++        memory = request.info()
++        assert memory["head_gdn_enabled"] and memory["peer_request_device_bytes"] > 0
++        assert memory["head_gdn_primary_workspace_bytes"] == _head_gdn_workspace(
++            weights.config, rows
++        )
++        request.reset()
++        second = request.forward(ids, all_logits=True)
++        assert torch.equal(actual, second)
++        same_state(first, request.snapshot())
++    finally:
++        request.close()
++        model.close()
++
++
++def test_eight_private_ragged_sequences_selective_reset_failure_native_only(
++    tmp_path, engine
++):
++    weights, _, _, _ = eligible_mtp(tmp_path)
++    model = load(weights, engine, rows=8)
++    batch = model.create_batch([40] * 8)
++    references = [model.create_session(40) for _ in range(8)]
++    prompts = [[1, 2, 3, 4][: 1 + i % 4] for i in range(8)]
++    try:
++        expected = [
++            r.generate(p, max_new_tokens=5) for r, p in zip(references, prompts)
++        ]
++        with (
++            patch.object(
++                torch, "matmul", side_effect=AssertionError("Python fallback")
++            ),
++            patch.object(torch, "empty", side_effect=AssertionError("Python fallback")),
++        ):
++            actual = batch.generate(prompts, max_new_tokens=5)
++        assert actual == expected
++        for i, ref in enumerate(references):
++            same_state(batch.snapshot(i), ref.snapshot())
++        assert (
++            batch.info()["all_peer_request_device_bytes"]
++            == 8 * references[0].info()["peer_request_device_bytes"]
++        )
++        untouched = batch.snapshot(4)
++        batch.reset(slots=[7, 0])
++        same_state(untouched, batch.snapshot(4))
++        for i in (7, 0):
++            references[i].reset()
++        actual = batch.generate(
++            [prompts[7], prompts[0]],
++            slots=[7, 0],
++            max_new_tokens=3,
++            eos_token_ids=[[expected[7][0]], []],
++        )
++        assert actual == [
++            references[i].generate(
++                prompts[i],
++                max_new_tokens=3,
++                eos_token_ids=[expected[i][0]] if i == 7 else [],
++            )
++            for i in (7, 0)
++        ]
++        batch.reset(slots=[7, 0])
++        batch._inject_failure(slot=7, layer=2, position=0)
++        with pytest.raises(RuntimeError, match="injected"):
++            batch.generate([prompts[7], prompts[0]], slots=[7, 0], max_new_tokens=3)
++        batch.reset(slots=[7, 0])
++        same_state(untouched, batch.snapshot(4))
++    finally:
++        batch.close()
++        for ref in references:
++            ref.close()
++        model.close()
++
++
++@pytest.mark.parametrize(
++    "forced", ["native", "accept", "reject-first", "reject-second"]
++)
++def test_mtp2_peer_prefixes_correction_eos_and_rollback(
++    tmp_path, engine, monkeypatch, forced
++):
++    import test_qwen_mtp2 as checks
++
++    base_loader = load_models
++
++    def loader(a, b, e, mode, **kw):
++        return base_loader(a, b, e, "tp", profile=PROFILE, draft_profile="q8-residual")
++
++    monkeypatch.setattr(checks, "mtp_fixture", eligible_mtp)
++    monkeypatch.setattr(checks, "load_models", loader)
++    from test_mtp_prefix import prefix as prefix_fixture
++
++    prefix_fixture.__wrapped__(monkeypatch)
++    checks.test_depth2_output_target_and_corrected_draft_caches(
++        tmp_path, engine, "tp", PROFILE, forced
++    )
++
++
++@pytest.fixture
++def head_batch_checks(monkeypatch):
++    import test_qwen_mtp_batch as checks
++
++    original = checks.models
++    monkeypatch.setattr(checks, "mtp_fixture", eligible_mtp)
++
++    def models(
++        root, backend, tp, profile=PROFILE, tied=False, draft_profile="q8-residual"
++    ):
++        return original(
++            root, backend, True, profile=PROFILE, tied=tied, draft_profile="q8-residual"
++        )
++
++    monkeypatch.setattr(checks, "models", models)
++    return checks
++
++
++@pytest.mark.parametrize("count", [1, 2, 4, 8])
++@pytest.mark.parametrize("forced", ["native", "mixed"])
++def test_mtp1_private_target_and_corrected_draft_cohorts(
++    tmp_path, engine, head_batch_checks, count, forced
++):
++    head_batch_checks.test_target_and_corrected_draft_bytes(
++        tmp_path, engine[0], True, PROFILE, count, forced
++    )
++
++
++@pytest.mark.parametrize("maximum", [1, 4, 11])
++def test_mtp1_peer_eos_ragged_and_selective_reset(
++    tmp_path, engine, head_batch_checks, maximum
++):
++    head_batch_checks.test_ragged_budgets_eos_tails_and_selective_reset(
++        tmp_path, engine[0], True, maximum
++    )
++
++
++@pytest.mark.parametrize("position", [0, 3])
++def test_mtp1_peer_failure_reset_close_and_native_only(
++    tmp_path, engine, head_batch_checks, position, monkeypatch
++):
++    head_batch_checks.test_failure_poison_reset_lifetime_no_python_math(
++        tmp_path, engine[0], position, monkeypatch
++    )
++
++
++def test_mtp2_peer_failure_reset_close_and_native_only(tmp_path, engine, monkeypatch):
++    import test_qwen_mtp2 as checks
++
++    original = load_models
++    monkeypatch.setattr(checks, "mtp_fixture", eligible_mtp)
++
++    def loader(a, b, e, mode, **kwargs):
++        return original(a, b, e, "tp", profile=PROFILE, draft_profile="q8-residual")
++
++    monkeypatch.setattr(checks, "load_models", loader)
++    from test_mtp_prefix import prefix as prefix_fixture
++
++    prefix_fixture.__wrapped__(monkeypatch)
++    checks.test_depth2_failure_reset_lifetime_and_native_only(
++        tmp_path, engine, "tp", monkeypatch
++    )
+--- before/tools/profile_qwen_mtp.py
++++ after/tools/profile_qwen_mtp.py
+@@ -31,7 +31,11 @@
+     p.add_argument("--target-layer-graph", action="store_true")
+     p.add_argument(
+         "--projection-profile",
+-        choices=("q8-residual", "q8-residual-column-mlp"),
++        choices=(
++            "q8-residual",
++            "q8-residual-column-mlp",
++            "q8-residual-column-mlp-head-gdn",
++        ),
+         default="q8-residual",
+     )
+     p.add_argument(
+--- before/tools/profile_qwen_mtp_batch.py
++++ after/tools/profile_qwen_mtp_batch.py
+@@ -32,7 +32,11 @@
+     p.add_argument("--output", required=True)
+     p.add_argument(
+         "--projection-profile",
+-        choices=("q8-residual", "q8-residual-column-mlp"),
++        choices=(
++            "q8-residual",
++            "q8-residual-column-mlp",
++            "q8-residual-column-mlp-head-gdn",
++        ),
+         default="q8-residual",
+     )
+     p.add_argument(
+--- before/tools/qualify_qwen_mtp.py
++++ after/tools/qualify_qwen_mtp.py
+@@ -72,7 +72,12 @@
+     p.add_argument("--mode", choices=("tp", "pp"), required=True)
+     p.add_argument(
+         "--projection-profile",
+-        choices=("fp16", "q8-residual", "q8-residual-column-mlp"),
++        choices=(
++            "fp16",
++            "q8-residual",
++            "q8-residual-column-mlp",
++            "q8-residual-column-mlp-head-gdn",
++        ),
+         default="fp16",
+     )
+     p.add_argument("--output-directory", required=True)
+--- before/tools/qualify_qwen_mtp_batch.py
++++ after/tools/qualify_qwen_mtp_batch.py
+@@ -42,7 +42,11 @@
+     p.add_argument("--output-directory", required=True)
+     p.add_argument(
+         "--projection-profile",
+-        choices=("q8-residual", "q8-residual-column-mlp"),
++        choices=(
++            "q8-residual",
++            "q8-residual-column-mlp",
++            "q8-residual-column-mlp-head-gdn",
++        ),
+         default="q8-residual",
+     )
+     p.add_argument(
+--- before/tools/serve_native_benchmark.py
++++ after/tools/serve_native_benchmark.py
+@@ -199,7 +199,12 @@
+     )
+     p.add_argument(
+         "--projection-profile",
+-        choices=("fp16", "q8-residual", "q8-residual-column-mlp"),
++        choices=(
++            "fp16",
++            "q8-residual",
++            "q8-residual-column-mlp",
++            "q8-residual-column-mlp-head-gdn",
++        ),
+         default="fp16",
+     )
+     p.add_argument("--batch-window-ms", type=float, default=5.0)

@@ -1,0 +1,714 @@
+{
+  "scope": "Synthetic Q4 Linear microbenchmark, not model inference",
+  "timestamp_unix": 1792080655.0745504,
+  "python": "3.12.3",
+  "torch": "2.9.1+cu130",
+  "cuda": "13.0",
+  "cpu_threads": 8,
+  "gpu": "NVIDIA GeForce RTX 4090 D",
+  "capability": [
+    8,
+    9
+  ],
+  "build": {
+    "source_sha256": {
+      "q4_linear.cu": "046a4a8ee423a3225cd540e84c82e59ebe8fdef2714b0f542a591f7be0f33112",
+      "third_party/ninfer/LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "third_party/ninfer/NOTICE": "f4375e537963a1a898697d71408ac4d9357e9887ddf44f23180758d5541b72fc",
+      "third_party/ninfer/ada_small_t_mma.cuh": "8026eaf287d9d582101f2e8140b46c4199c10f34b12a18263f9dba4ed3a8b9d7",
+      "third_party/ninfer/ops/common/memory.cuh": "ef5f34d587610759f0707aea08b0dc2e833f94fb686e5d23fb857deec02e5e2b",
+      "third_party/ninfer/ops/common/mma.cuh": "4c4d7d1105b3b660c02bf82576224f323968f17f2d663b89fd38230fac0bf75f",
+      "third_party/ninfer/provenance.json": "559c19f396a7fbac5a529608c9f03f06d0a39441582146ecdfc97ba676d023b2",
+      "third_party/ninfer/upstream-provenance.json": "821a43ee5d7ffd1a36d0c3123128173a93e1841c9e3749073800c1afee0e3b27"
+    },
+    "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Wed_Aug_20_01:58:59_PM_PDT_2025\nCuda compilation tools, release 13.0, V13.0.88\nBuild cuda_13.0.r13.0/compiler.36424714_0\n",
+    "command": [
+      "/usr/local/cuda/bin/nvcc",
+      "-O3",
+      "-std=c++20",
+      "-lineinfo",
+      "-shared",
+      "--cudart=static",
+      "-Xcompiler=-fPIC",
+      "-gencode=arch=compute_89,code=sm_89",
+      "-gencode=arch=compute_89,code=compute_89",
+      "-I/home/test/wangyue/venturi-work/ada-backend/src/venturi/ops/csrc/third_party/ninfer",
+      "/home/test/wangyue/venturi-work/ada-backend/src/venturi/ops/csrc/q4_linear.cu",
+      "-o",
+      "/home/test/wangyue/venturi-work/ada-backend/native-build/7970b63ef5dbb041/build-8xign4an/libventuri_ada.so"
+    ],
+    "library_sha256": "9848fc2ac9a13cea1a118ffcd4775786dcf65497dc3103ae7e02043cb43d7ec1"
+  },
+  "repeats": 5,
+  "iterations": 20,
+  "notes": [
+    "Random signed Q4 codes and FP16 scales, not pretrained weights.",
+    "Alternating auto/generic run order; five warm-up calls per route.",
+    "Eager event times include Python launch gaps; graph times amortize graph launch.",
+    "Resident weights; no disk I/O, quantizer, full-weight decode, or model scheduler.",
+    "Allocator figures cover PyTorch only, not driver/context allocations."
+  ],
+  "results": [
+    {
+      "shape": {
+        "N": 4096,
+        "K": 4096,
+        "T": 1
+      },
+      "activation_dtype": "bfloat16",
+      "physical_weight_bytes": 8912896,
+      "routes": {
+        "auto": {
+          "route": "generic-simt",
+          "eager_ms": [
+            0.043961599469184875,
+            0.04612640142440796,
+            0.04203520119190216,
+            0.04208639860153198,
+            0.04198560118675232
+          ],
+          "graph_kernel_ms": [
+            0.020406720638275148,
+            0.020213758945465087,
+            0.02022144079208374,
+            0.0202239990234375,
+            0.0202239990234375
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.04208639860153198,
+          "median_graph_kernel_ms": 0.0202239990234375
+        },
+        "generic": {
+          "route": "generic-simt",
+          "eager_ms": [
+            0.04249759912490845,
+            0.04229120016098022,
+            0.042449599504470824,
+            0.04229120016098022,
+            0.042289599776268005
+          ],
+          "graph_kernel_ms": [
+            0.020326399803161622,
+            0.02023200035095215,
+            0.020234239101409913,
+            0.020234239101409913,
+            0.0202239990234375
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.04229120016098022,
+          "median_graph_kernel_ms": 0.020234239101409913
+        }
+      },
+      "execution_allocated_bytes_delta": 0,
+      "execution_peak_extra_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 4096,
+        "K": 4096,
+        "T": 8
+      },
+      "activation_dtype": "bfloat16",
+      "physical_weight_bytes": 8912896,
+      "routes": {
+        "auto": {
+          "route": "ada-mma-general",
+          "eager_ms": [
+            0.04487200081348419,
+            0.041915199160575865,
+            0.04193120002746582,
+            0.0434688001871109,
+            0.0421887993812561
+          ],
+          "graph_kernel_ms": [
+            0.012346240282058715,
+            0.012174400091171263,
+            0.012195839881896972,
+            0.012184640169143677,
+            0.012165119647979736
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.0421887993812561,
+          "median_graph_kernel_ms": 0.012184640169143677
+        },
+        "generic": {
+          "route": "generic-simt",
+          "eager_ms": [
+            0.0848367989063263,
+            0.08468480110168457,
+            0.08473600149154663,
+            0.08473280072212219,
+            0.08463360071182251
+          ],
+          "graph_kernel_ms": [
+            0.08192000389099122,
+            0.0818278408050537,
+            0.08178367614746093,
+            0.08179712295532227,
+            0.08179583549499511
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.08473280072212219,
+          "median_graph_kernel_ms": 0.08179712295532227
+        }
+      },
+      "execution_allocated_bytes_delta": 0,
+      "execution_peak_extra_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 4096,
+        "K": 4096,
+        "T": 16
+      },
+      "activation_dtype": "bfloat16",
+      "physical_weight_bytes": 8912896,
+      "routes": {
+        "auto": {
+          "route": "ada-mma-general",
+          "eager_ms": [
+            0.04526239931583405,
+            0.04264959990978241,
+            0.04264959990978241,
+            0.04191679954528808,
+            0.04203520119190216
+          ],
+          "graph_kernel_ms": [
+            0.013035520315170288,
+            0.012890880107879638,
+            0.012861440181732178,
+            0.01285823941230774,
+            0.012881920337677003
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.04264959990978241,
+          "median_graph_kernel_ms": 0.012881920337677003
+        },
+        "generic": {
+          "route": "generic-simt",
+          "eager_ms": [
+            0.1362944006919861,
+            0.1362944006919861,
+            0.1361407995223999,
+            0.1360383987426758,
+            0.13613760471343994
+          ],
+          "graph_kernel_ms": [
+            0.1333350372314453,
+            0.13321215629577637,
+            0.13321215629577637,
+            0.13319007873535155,
+            0.13322239875793457
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.1361407995223999,
+          "median_graph_kernel_ms": 0.13321215629577637
+        }
+      },
+      "execution_allocated_bytes_delta": 0,
+      "execution_peak_extra_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 4096,
+        "K": 4096,
+        "T": 128
+      },
+      "activation_dtype": "bfloat16",
+      "physical_weight_bytes": 8912896,
+      "routes": {
+        "auto": {
+          "route": "ada-mma-general",
+          "eager_ms": [
+            0.053947198390960696,
+            0.053452801704406736,
+            0.05355520248413086,
+            0.05002239942550659,
+            0.049193599820137025
+          ],
+          "graph_kernel_ms": [
+            0.05047264099121094,
+            0.05017600059509277,
+            0.04752384185791016,
+            0.04632448196411133,
+            0.046325759887695314
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.053452801704406736,
+          "median_graph_kernel_ms": 0.04752384185791016
+        },
+        "generic": {
+          "route": "generic-simt",
+          "eager_ms": [
+            1.001523208618164,
+            1.001467227935791,
+            0.9165311813354492,
+            0.9151488304138183,
+            0.9202128410339355
+          ],
+          "graph_kernel_ms": [
+            0.9981721496582031,
+            0.9978265380859375,
+            0.9134694671630859,
+            0.9124143981933595,
+            0.9137459564208985
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.9202128410339355,
+          "median_graph_kernel_ms": 0.9137459564208985
+        }
+      },
+      "execution_allocated_bytes_delta": 0,
+      "execution_peak_extra_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 5120,
+        "T": 1
+      },
+      "activation_dtype": "bfloat16",
+      "physical_weight_bytes": 13926400,
+      "routes": {
+        "auto": {
+          "route": "generic-simt",
+          "eager_ms": [
+            0.03797279894351959,
+            0.03763200044631958,
+            0.034201601147651674,
+            0.0341839998960495,
+            0.03348479866981506
+          ],
+          "graph_kernel_ms": [
+            0.0254640007019043,
+            0.025251839160919186,
+            0.025292799472808835,
+            0.02526911973953247,
+            0.025292799472808835
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.034201601147651674,
+          "median_graph_kernel_ms": 0.025292799472808835
+        },
+        "generic": {
+          "route": "generic-simt",
+          "eager_ms": [
+            0.03404799997806549,
+            0.03475840091705322,
+            0.03389280140399933,
+            0.03439520001411438,
+            0.03343999981880188
+          ],
+          "graph_kernel_ms": [
+            0.025405440330505367,
+            0.025310719013214113,
+            0.025292799472808835,
+            0.025289919376373295,
+            0.025282559394836424
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.03404799997806549,
+          "median_graph_kernel_ms": 0.025292799472808835
+        }
+      },
+      "execution_allocated_bytes_delta": 0,
+      "execution_peak_extra_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 5120,
+        "T": 8
+      },
+      "activation_dtype": "bfloat16",
+      "physical_weight_bytes": 13926400,
+      "routes": {
+        "auto": {
+          "route": "ada-mma-small-t",
+          "eager_ms": [
+            0.038254401087760924,
+            0.035369598865509035,
+            0.03413600027561188,
+            0.03390080034732819,
+            0.03424479961395264
+          ],
+          "graph_kernel_ms": [
+            0.015134719610214235,
+            0.014960639476776122,
+            0.014957120418548584,
+            0.014970879554748535,
+            0.01496832013130188
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.03424479961395264,
+          "median_graph_kernel_ms": 0.01496832013130188
+        },
+        "generic": {
+          "route": "generic-simt",
+          "eager_ms": [
+            0.10117119550704956,
+            0.10117119550704956,
+            0.10091520547866821,
+            0.1011199951171875,
+            0.10096640586853027
+          ],
+          "graph_kernel_ms": [
+            0.09861120223999023,
+            0.09849791526794434,
+            0.0984985637664795,
+            0.09847807884216309,
+            0.09851712226867676
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.1011199951171875,
+          "median_graph_kernel_ms": 0.0984985637664795
+        }
+      },
+      "execution_allocated_bytes_delta": 0,
+      "execution_peak_extra_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 5120,
+        "T": 16
+      },
+      "activation_dtype": "bfloat16",
+      "physical_weight_bytes": 13926400,
+      "routes": {
+        "auto": {
+          "route": "ada-mma-small-t",
+          "eager_ms": [
+            0.03527520000934601,
+            0.03546879887580871,
+            0.03399679958820343,
+            0.03413279950618744,
+            0.034406399726867674
+          ],
+          "graph_kernel_ms": [
+            0.017141760587692262,
+            0.016977920532226562,
+            0.0169760000705719,
+            0.01696768045425415,
+            0.01696768045425415
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.034406399726867674,
+          "median_graph_kernel_ms": 0.0169760000705719
+        },
+        "generic": {
+          "route": "generic-simt",
+          "eager_ms": [
+            0.19548159837722778,
+            0.19553279876708984,
+            0.19532159566879273,
+            0.1953119993209839,
+            0.19537919759750366
+          ],
+          "graph_kernel_ms": [
+            0.1929795265197754,
+            0.1928985595703125,
+            0.19285696029663085,
+            0.19282943725585938,
+            0.19281824111938478
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.19537919759750366,
+          "median_graph_kernel_ms": 0.19285696029663085
+        }
+      },
+      "execution_allocated_bytes_delta": 0,
+      "execution_peak_extra_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 5120,
+        "T": 128
+      },
+      "activation_dtype": "bfloat16",
+      "physical_weight_bytes": 13926400,
+      "routes": {
+        "auto": {
+          "route": "ada-mma-general",
+          "eager_ms": [
+            0.07419040203094482,
+            0.07403519749641418,
+            0.07371039986610413,
+            0.0741375982761383,
+            0.07377920150756836
+          ],
+          "graph_kernel_ms": [
+            0.07094272136688232,
+            0.0712601613998413,
+            0.07114751815795899,
+            0.07124991893768311,
+            0.07119872093200683
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.07403519749641418,
+          "median_graph_kernel_ms": 0.07119872093200683
+        },
+        "generic": {
+          "route": "generic-simt",
+          "eager_ms": [
+            1.4120448112487793,
+            1.4224896430969238,
+            1.4187007904052735,
+            1.4172160148620605,
+            1.4273903846740723
+          ],
+          "graph_kernel_ms": [
+            1.412493438720703,
+            1.414746551513672,
+            1.4148608398437499,
+            1.4146424865722655,
+            1.415362548828125
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 1.4187007904052735,
+          "median_graph_kernel_ms": 1.414746551513672
+        }
+      },
+      "execution_allocated_bytes_delta": 0,
+      "execution_peak_extra_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 25600,
+        "T": 1
+      },
+      "activation_dtype": "bfloat16",
+      "physical_weight_bytes": 69632000,
+      "routes": {
+        "auto": {
+          "route": "generic-simt",
+          "eager_ms": [
+            0.14532320499420165,
+            0.14438400268554688,
+            0.1358240008354187,
+            0.1325487971305847,
+            0.1235967993736267
+          ],
+          "graph_kernel_ms": [
+            0.13310976028442384,
+            0.1329868793487549,
+            0.13287424087524413,
+            0.12031999588012696,
+            0.12058527946472168
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.1358240008354187,
+          "median_graph_kernel_ms": 0.13287424087524413
+        },
+        "generic": {
+          "route": "generic-simt",
+          "eager_ms": [
+            0.15825920104980468,
+            0.15134719610214234,
+            0.1579584002494812,
+            0.14079999923706055,
+            0.14796799421310425
+          ],
+          "graph_kernel_ms": [
+            0.14821375846862792,
+            0.14809087753295896,
+            0.1422319984436035,
+            0.13764448165893556,
+            0.1379430389404297
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.15134719610214234,
+          "median_graph_kernel_ms": 0.1422319984436035
+        }
+      },
+      "execution_allocated_bytes_delta": 0,
+      "execution_peak_extra_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 25600,
+        "T": 8
+      },
+      "activation_dtype": "bfloat16",
+      "physical_weight_bytes": 69632000,
+      "routes": {
+        "auto": {
+          "route": "ada-mma-small-t",
+          "eager_ms": [
+            0.0821295976638794,
+            0.08175039887428284,
+            0.08032159805297852,
+            0.08042399883270264,
+            0.08053759932518005
+          ],
+          "graph_kernel_ms": [
+            0.07818175792694092,
+            0.07694335937499999,
+            0.0769708776473999,
+            0.07700352191925049,
+            0.07688191890716553
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.08053759932518005,
+          "median_graph_kernel_ms": 0.0769708776473999
+        },
+        "generic": {
+          "route": "generic-simt",
+          "eager_ms": [
+            0.6250495910644531,
+            0.6311935901641845,
+            0.5813759803771973,
+            0.590180778503418,
+            0.5838335990905762
+          ],
+          "graph_kernel_ms": [
+            0.6283878326416016,
+            0.6280895996093749,
+            0.5857382583618164,
+            0.587325439453125,
+            0.5873641586303711
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.590180778503418,
+          "median_graph_kernel_ms": 0.5873641586303711
+        }
+      },
+      "execution_allocated_bytes_delta": 0,
+      "execution_peak_extra_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 25600,
+        "T": 16
+      },
+      "activation_dtype": "bfloat16",
+      "physical_weight_bytes": 69632000,
+      "routes": {
+        "auto": {
+          "route": "ada-mma-small-t",
+          "eager_ms": [
+            0.08548640012741089,
+            0.0833519995212555,
+            0.08283360004425049,
+            0.0832368016242981,
+            0.0824832022190094
+          ],
+          "graph_kernel_ms": [
+            0.08123392105102539,
+            0.0791756820678711,
+            0.07912447929382324,
+            0.07911424160003662,
+            0.0790835189819336
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 0.0832368016242981,
+          "median_graph_kernel_ms": 0.07912447929382324
+        },
+        "generic": {
+          "route": "generic-simt",
+          "eager_ms": [
+            1.1220992088317872,
+            1.1249664306640625,
+            1.03372802734375,
+            1.035212802886963,
+            1.0313216209411622
+          ],
+          "graph_kernel_ms": [
+            1.121761245727539,
+            1.0802175903320312,
+            1.0327040100097657,
+            1.0325596618652344,
+            1.0320486450195312
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.0,
+          "median_eager_ms": 1.035212802886963,
+          "median_graph_kernel_ms": 1.0327040100097657
+        }
+      },
+      "execution_allocated_bytes_delta": 0,
+      "execution_peak_extra_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 25600,
+        "T": 128
+      },
+      "activation_dtype": "bfloat16",
+      "physical_weight_bytes": 69632000,
+      "routes": {
+        "auto": {
+          "route": "ada-mma-general",
+          "eager_ms": [
+            0.4423215866088867,
+            0.4123487949371338,
+            0.4108799934387207,
+            0.4128767967224121,
+            0.41559038162231443
+          ],
+          "graph_kernel_ms": [
+            0.41368576049804684,
+            0.3999641418457031,
+            0.4127027130126953,
+            0.40152065277099613,
+            0.4133990478515625
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.25,
+          "median_eager_ms": 0.4128767967224121,
+          "median_graph_kernel_ms": 0.4127027130126953
+        },
+        "generic": {
+          "route": "generic-simt",
+          "eager_ms": [
+            7.702372741699219,
+            7.316275024414063,
+            7.8124031066894535,
+            7.312947082519531,
+            7.602944183349609
+          ],
+          "graph_kernel_ms": [
+            7.296030883789062,
+            7.311112060546876,
+            7.312077026367187,
+            7.311513671875,
+            7.3105712890625
+          ],
+          "workspace_bytes": 0,
+          "max_sample_error_vs_rounded_fp64": 0.00390625,
+          "median_eager_ms": 7.602944183349609,
+          "median_graph_kernel_ms": 7.311112060546876
+        }
+      },
+      "execution_allocated_bytes_delta": 0,
+      "execution_peak_extra_bytes": 0
+    }
+  ],
+  "gpu_telemetry_before": "name, driver_version, temperature.gpu, power.limit [W], clocks.current.sm [MHz], memory.used [MiB]\nNVIDIA GeForce RTX 4090 D, 580.178.04, 38, 425.00 W, 2520 MHz, 387 MiB\n"
+}

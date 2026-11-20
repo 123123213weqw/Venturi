@@ -1,0 +1,14 @@
+--- before/src/venturi/models/qwen_source.py
++++ after/src/venturi/models/qwen_source.py
+@@ -31,8 +31,9 @@
+ 
+     @property
+     def source_dtypes(self):
+-        if self.binding.endswith("gdn/norm"):
+-            return ("F32",)
++        # Qwen3.8 retains the qwen3_5 schema but stores gated-norm parameters
++        # in BF16. Widen them exactly into the existing FP32 payload/operator;
++        # do not reinterpret BF16 bytes or narrow existing FP32 checkpoints.
+         return ("BF16", "F32") if self.format == "fp32" else ("BF16",)
+ 
+ 

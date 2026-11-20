@@ -1,0 +1,1473 @@
+{
+  "scope": "Matched Q8 projection-only tile ablation using real checkpoint matrices.\n\nAll libraries share the same immutable GPU Q8 planes and activation values.\nEvery candidate must match original output bytes before timing. Graph replay\namortizes Python launch overhead for this microbenchmark only; it does not imply\nwhole-model graph support. CUDA-event intervals include graph/timeline gaps and\nare not hardware-counter bandwidth or full-engine serving measurements.\n",
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "gpu": "Tesla V100-PCIE-32GB",
+  "dtype": "fp16",
+  "libraries": [
+    {
+      "name": "baseline",
+      "library": "/home/data/wangyue/repos/codex-build/Venturi/sm70-build/9b826970163c1fb4/libventuri_blocks.so",
+      "sha256": "84d545a5730a1487bac09332c3079f06c91bee327999e4ff1316e1bec3e3e79b"
+    },
+    {
+      "name": "t4-r1",
+      "library": "/home/data/wangyue/repos/codex-build/Venturi/v100-q8-tiling-build/61bd208ddb00d186/libventuri_blocks.so",
+      "sha256": "2321492c2e54fb703fd238e1e22cdccbc1c813076392fd69f2ceb3f71e464438"
+    },
+    {
+      "name": "t4-r4",
+      "library": "/home/data/wangyue/repos/codex-build/Venturi/v100-q8-tiling-build/78bf7865cd726a8a/libventuri_blocks.so",
+      "sha256": "ff1ccdf856cad8b48e15890072db1508448f3d09cfa22018bc10829169fe5a19"
+    },
+    {
+      "name": "t4-r2",
+      "library": "/home/data/wangyue/repos/codex-build/Venturi/v100-q8-tiling-build/5000218d2988a3ca/libventuri_blocks.so",
+      "sha256": "7f27e9829e322cb98adf093f46b9062c16fe055f802b70a9c185daf4621ad6c7"
+    },
+    {
+      "name": "t4-r8",
+      "library": "/home/data/wangyue/repos/codex-build/Venturi/v100-q8-tiling-build/80212a402cbe0ce6/libventuri_blocks.so",
+      "sha256": "02b4b137c62da29305f72856c189103e4b0dc1927223a66029704eab7564557c"
+    }
+  ],
+  "graph_nodes": 5,
+  "graph_replays_per_wave": 5,
+  "warmup_replays": 3,
+  "decode_only": true,
+  "hardware_counters_available": false,
+  "cases": [
+    {
+      "shape": [
+        248320,
+        5120
+      ],
+      "role": "text/output_head",
+      "occurrences": 2,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.723466186523438,
+          "wall_seconds": 0.11816908500622958,
+          "process_cpu_seconds": 0.11823599999999956
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.683407287597657,
+          "wall_seconds": 0.11715735000325367,
+          "process_cpu_seconds": 0.11722100000000069
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7715994262695314,
+          "wall_seconds": 0.06935188098577783,
+          "process_cpu_seconds": 0.0694089999999985
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.842460021972656,
+          "wall_seconds": 0.07111071096733212,
+          "process_cpu_seconds": 0.07116599999999984
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.182428283691406,
+          "wall_seconds": 0.07960404001642019,
+          "process_cpu_seconds": 0.07960499999999726
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.1704678344726562,
+          "wall_seconds": 0.07930601196130738,
+          "process_cpu_seconds": 0.07936299999999896
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.8410675048828127,
+          "wall_seconds": 0.07108695100760087,
+          "process_cpu_seconds": 0.0711479999999991
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.8236184692382813,
+          "wall_seconds": 0.07064700301270932,
+          "process_cpu_seconds": 0.07070599999999949
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.756602783203125,
+          "wall_seconds": 0.11896046495530754,
+          "process_cpu_seconds": 0.1190099999999994
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.714168395996094,
+          "wall_seconds": 0.11792658997001126,
+          "process_cpu_seconds": 0.11798100000000034
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.6921319580078125,
+          "wall_seconds": 0.11735858803149313,
+          "process_cpu_seconds": 0.11744799999999955
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.682711181640625,
+          "wall_seconds": 0.11741182301193476,
+          "process_cpu_seconds": 0.11747799999999842
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.7806106567382813,
+          "wall_seconds": 0.06964463100302964,
+          "process_cpu_seconds": 0.0696930000000009
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.8461874389648436,
+          "wall_seconds": 0.07119837304344401,
+          "process_cpu_seconds": 0.0712489999999999
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.1863192749023437,
+          "wall_seconds": 0.07993357098894194,
+          "process_cpu_seconds": 0.08040899999999951
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 3.1786187744140624,
+          "wall_seconds": 0.07957544398959726,
+          "process_cpu_seconds": 0.07956600000000158
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.838814697265625,
+          "wall_seconds": 0.07102013501571491,
+          "process_cpu_seconds": 0.07107500000000044
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 2.823004150390625,
+          "wall_seconds": 0.07062692003091797,
+          "process_cpu_seconds": 0.07067499999999782
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.748820495605469,
+          "wall_seconds": 0.1187698919675313,
+          "process_cpu_seconds": 0.11844699999999975
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 4.716953735351563,
+          "wall_seconds": 0.11798271798761562,
+          "process_cpu_seconds": 0.11785300000000021
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 4.715561065673828,
+        "t4-r1": 4.716113891601562,
+        "t4-r4": 2.801807403564453,
+        "t4-r2": 2.8417637634277346,
+        "t4-r8": 3.180523529052734
+      }
+    },
+    {
+      "shape": [
+        17408,
+        5120
+      ],
+      "role": "text/layers/63/mlp/up",
+      "occurrences": 128,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3380019378662109,
+          "wall_seconds": 0.008516911999322474,
+          "process_cpu_seconds": 0.008514000000001687
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3378790283203125,
+          "wall_seconds": 0.008504401019308716,
+          "process_cpu_seconds": 0.008506000000000569
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20373504638671874,
+          "wall_seconds": 0.005134363018441945,
+          "process_cpu_seconds": 0.0051360000000002515
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2048819160461426,
+          "wall_seconds": 0.0051618050201795995,
+          "process_cpu_seconds": 0.005163000000003137
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23326719284057618,
+          "wall_seconds": 0.005871798959560692,
+          "process_cpu_seconds": 0.005873000000001127
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2346188735961914,
+          "wall_seconds": 0.005904866033233702,
+          "process_cpu_seconds": 0.005905999999999523
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2045952033996582,
+          "wall_seconds": 0.005161209963262081,
+          "process_cpu_seconds": 0.005162999999999585
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20398080825805665,
+          "wall_seconds": 0.005153128004167229,
+          "process_cpu_seconds": 0.005153999999997438
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.33718273162841794,
+          "wall_seconds": 0.008473172958474606,
+          "process_cpu_seconds": 0.008537000000000461
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.33718273162841794,
+          "wall_seconds": 0.00847093400079757,
+          "process_cpu_seconds": 0.008472000000001145
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3369779205322266,
+          "wall_seconds": 0.008466074999887496,
+          "process_cpu_seconds": 0.008468000000000586
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.33705982208251956,
+          "wall_seconds": 0.008467312960419804,
+          "process_cpu_seconds": 0.008469000000001614
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20316160202026368,
+          "wall_seconds": 0.005120260990224779,
+          "process_cpu_seconds": 0.005110000000001946
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2045132827758789,
+          "wall_seconds": 0.005154739948920906,
+          "process_cpu_seconds": 0.005157000000000522
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23240703582763672,
+          "wall_seconds": 0.005851374997291714,
+          "process_cpu_seconds": 0.005851999999997304
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23252992630004882,
+          "wall_seconds": 0.005853128037415445,
+          "process_cpu_seconds": 0.005855000000000388
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2045132827758789,
+          "wall_seconds": 0.005151058023329824,
+          "process_cpu_seconds": 0.005151999999998935
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20336639404296875,
+          "wall_seconds": 0.005122716014739126,
+          "process_cpu_seconds": 0.005123999999998574
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3369779205322266,
+          "wall_seconds": 0.008463500009384006,
+          "process_cpu_seconds": 0.008465000000001055
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3368960189819336,
+          "wall_seconds": 0.00846126297255978,
+          "process_cpu_seconds": 0.008461999999997971
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.33708032608032223,
+        "t4-r1": 0.3371212768554688,
+        "t4-r4": 0.20355072021484374,
+        "t4-r2": 0.20455424308776854,
+        "t4-r8": 0.2328985595703125
+      }
+    },
+    {
+      "shape": [
+        5120,
+        17408
+      ],
+      "role": "text/layers/63/mlp/down",
+      "occurrences": 64,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3443507385253906,
+          "wall_seconds": 0.00867403601296246,
+          "process_cpu_seconds": 0.00867200000000068
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.344186897277832,
+          "wall_seconds": 0.008648430986795574,
+          "process_cpu_seconds": 0.00864999999999938
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20815872192382812,
+          "wall_seconds": 0.005242687009740621,
+          "process_cpu_seconds": 0.005244000000001137
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.21213184356689452,
+          "wall_seconds": 0.0053406720398925245,
+          "process_cpu_seconds": 0.005341999999998848
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23777280807495116,
+          "wall_seconds": 0.005981063994113356,
+          "process_cpu_seconds": 0.005981999999999488
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23818239212036132,
+          "wall_seconds": 0.005990892008412629,
+          "process_cpu_seconds": 0.005991999999999109
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.21233663558959961,
+          "wall_seconds": 0.005354074004571885,
+          "process_cpu_seconds": 0.005355999999999028
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20738048553466798,
+          "wall_seconds": 0.00522291602101177,
+          "process_cpu_seconds": 0.005223999999998341
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.34353153228759764,
+          "wall_seconds": 0.008625694026704878,
+          "process_cpu_seconds": 0.008627000000000606
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.34349056243896486,
+          "wall_seconds": 0.008625711023341864,
+          "process_cpu_seconds": 0.008627000000000606
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.34349056243896486,
+          "wall_seconds": 0.008625341986771673,
+          "process_cpu_seconds": 0.008627000000000606
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.3436134338378906,
+          "wall_seconds": 0.00862775999121368,
+          "process_cpu_seconds": 0.008630000000000138
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20774911880493163,
+          "wall_seconds": 0.005231632036156952,
+          "process_cpu_seconds": 0.005233000000000487
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.21213184356689452,
+          "wall_seconds": 0.005341314012184739,
+          "process_cpu_seconds": 0.005342999999999876
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23740415573120116,
+          "wall_seconds": 0.005973096995148808,
+          "process_cpu_seconds": 0.006014000000000408
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.23773183822631835,
+          "wall_seconds": 0.005982874950859696,
+          "process_cpu_seconds": 0.005983999999997991
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.21204992294311523,
+          "wall_seconds": 0.005338246002793312,
+          "process_cpu_seconds": 0.005340000000003897
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20725759506225586,
+          "wall_seconds": 0.005219490034505725,
+          "process_cpu_seconds": 0.005220000000001335
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.34349056243896486,
+          "wall_seconds": 0.008626876980997622,
+          "process_cpu_seconds": 0.008628000000001634
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.34357246398925784,
+          "wall_seconds": 0.008627547009382397,
+          "process_cpu_seconds": 0.008629000000002662
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.34353151321411135,
+        "t4-r1": 0.3435724830627441,
+        "t4-r4": 0.2075648021697998,
+        "t4-r2": 0.21213184356689452,
+        "t4-r8": 0.23775232315063477
+      }
+    },
+    {
+      "shape": [
+        10240,
+        5120
+      ],
+      "role": "text/layers/62/gdn/qkv",
+      "occurrences": 48,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20242431640625,
+          "wall_seconds": 0.00512019800953567,
+          "process_cpu_seconds": 0.005116999999998484
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20226047515869142,
+          "wall_seconds": 0.005096236011013389,
+          "process_cpu_seconds": 0.005097999999996716
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12435456275939942,
+          "wall_seconds": 0.003147697017993778,
+          "process_cpu_seconds": 0.00314899999999696
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1237401580810547,
+          "wall_seconds": 0.003130549972411245,
+          "process_cpu_seconds": 0.003130999999999773
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1404518413543701,
+          "wall_seconds": 0.0035494030453264713,
+          "process_cpu_seconds": 0.003485999999998768
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1407795238494873,
+          "wall_seconds": 0.0035678630229085684,
+          "process_cpu_seconds": 0.003569999999999851
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12382207870483398,
+          "wall_seconds": 0.0031359440181404352,
+          "process_cpu_seconds": 0.003135999999997807
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12349439620971679,
+          "wall_seconds": 0.0031196940108202398,
+          "process_cpu_seconds": 0.0031209999999965987
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20168703079223632,
+          "wall_seconds": 0.005074135959148407,
+          "process_cpu_seconds": 0.005075000000001495
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20185087203979493,
+          "wall_seconds": 0.005093798041343689,
+          "process_cpu_seconds": 0.005137999999998755
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20242431640625,
+          "wall_seconds": 0.005105911986902356,
+          "process_cpu_seconds": 0.005107000000002415
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20201471328735351,
+          "wall_seconds": 0.00509025197243318,
+          "process_cpu_seconds": 0.005091000000000179
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1237401580810547,
+          "wall_seconds": 0.00313332601217553,
+          "process_cpu_seconds": 0.003133999999999304
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12345343589782715,
+          "wall_seconds": 0.0031238640076480806,
+          "process_cpu_seconds": 0.0031250000000007105
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14061568260192872,
+          "wall_seconds": 0.0035533769987523556,
+          "process_cpu_seconds": 0.0035549999999986426
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14061568260192872,
+          "wall_seconds": 0.0035533630289137363,
+          "process_cpu_seconds": 0.0035549999999986426
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12361727714538574,
+          "wall_seconds": 0.0031334779923781753,
+          "process_cpu_seconds": 0.003135000000000332
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12390399932861328,
+          "wall_seconds": 0.003144212008919567,
+          "process_cpu_seconds": 0.0031460000000009813
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20201471328735351,
+          "wall_seconds": 0.005085775046609342,
+          "process_cpu_seconds": 0.00508699999999962
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.20197376251220703,
+          "wall_seconds": 0.005085679003968835,
+          "process_cpu_seconds": 0.00508699999999962
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.2021990394592285,
+        "t4-r1": 0.20201471328735351,
+        "t4-r4": 0.12382207870483398,
+        "t4-r2": 0.12367871761322022,
+        "t4-r8": 0.14061568260192872
+      }
+    },
+    {
+      "shape": [
+        6144,
+        5120
+      ],
+      "role": "text/layers/62/gdn/z",
+      "occurrences": 48,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12558336257934571,
+          "wall_seconds": 0.003197657992132008,
+          "process_cpu_seconds": 0.003195000000001613
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1250918388366699,
+          "wall_seconds": 0.0031667770235799253,
+          "process_cpu_seconds": 0.00316800000000228
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0785203218460083,
+          "wall_seconds": 0.002004461013711989,
+          "process_cpu_seconds": 0.0020060000000015066
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07815167903900147,
+          "wall_seconds": 0.0020006360136903822,
+          "process_cpu_seconds": 0.0020019999999973948
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.09375743865966797,
+          "wall_seconds": 0.0023892419994808733,
+          "process_cpu_seconds": 0.00238899999999731
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.09351167678833008,
+          "wall_seconds": 0.0023837449843995273,
+          "process_cpu_seconds": 0.0023850000000003035
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07766016006469727,
+          "wall_seconds": 0.0019757190020754933,
+          "process_cpu_seconds": 0.0019770000000001176
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07770112037658691,
+          "wall_seconds": 0.0019766169716604054,
+          "process_cpu_seconds": 0.0019770000000001176
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12484607696533204,
+          "wall_seconds": 0.003159496991429478,
+          "process_cpu_seconds": 0.003160999999998637
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12492799758911133,
+          "wall_seconds": 0.0031594939646311104,
+          "process_cpu_seconds": 0.003159999999997609
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12488703727722168,
+          "wall_seconds": 0.003158580046147108,
+          "process_cpu_seconds": 0.003160000000001162
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12492799758911133,
+          "wall_seconds": 0.0031599070061929524,
+          "process_cpu_seconds": 0.00316100000000219
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07782400131225586,
+          "wall_seconds": 0.0019802969763986766,
+          "process_cpu_seconds": 0.001980999999997124
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07766016006469727,
+          "wall_seconds": 0.0019770790240727365,
+          "process_cpu_seconds": 0.0019770000000001176
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.09322496414184571,
+          "wall_seconds": 0.0023667949717491865,
+          "process_cpu_seconds": 0.002366999999999564
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0931430435180664,
+          "wall_seconds": 0.0023639080463908613,
+          "process_cpu_seconds": 0.0023640000000000327
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07761919975280762,
+          "wall_seconds": 0.0019748779595829546,
+          "process_cpu_seconds": 0.0019759999999990896
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07770112037658691,
+          "wall_seconds": 0.001976324012503028,
+          "process_cpu_seconds": 0.0019770000000001176
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12476415634155273,
+          "wall_seconds": 0.0031533330329693854,
+          "process_cpu_seconds": 0.0031540000000020996
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12480511665344238,
+          "wall_seconds": 0.003154598001856357,
+          "process_cpu_seconds": 0.003154999999999575
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.1249075174331665,
+        "t4-r1": 0.12488703727722168,
+        "t4-r4": 0.07776256084442139,
+        "t4-r2": 0.07766016006469727,
+        "t4-r8": 0.09336832046508789
+      }
+    },
+    {
+      "shape": [
+        5120,
+        6144
+      ],
+      "role": "text/layers/63/attention/o",
+      "occurrences": 64,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12529664039611815,
+          "wall_seconds": 0.003189954033587128,
+          "process_cpu_seconds": 0.0031879999999979702
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1255014419555664,
+          "wall_seconds": 0.003173999022692442,
+          "process_cpu_seconds": 0.0031740000000013424
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07786496162414551,
+          "wall_seconds": 0.0019782999879680574,
+          "process_cpu_seconds": 0.0019789999999986208
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07827455997467041,
+          "wall_seconds": 0.0019872080301865935,
+          "process_cpu_seconds": 0.001986999999999739
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08806400299072266,
+          "wall_seconds": 0.0022363049793057144,
+          "process_cpu_seconds": 0.002237999999998408
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08843263626098632,
+          "wall_seconds": 0.0022444150527007878,
+          "process_cpu_seconds": 0.002244999999998498
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07806975841522217,
+          "wall_seconds": 0.0019820310408249497,
+          "process_cpu_seconds": 0.001981999999998152
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07774208068847656,
+          "wall_seconds": 0.0019749359926208854,
+          "process_cpu_seconds": 0.0019750000000016144
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12484607696533204,
+          "wall_seconds": 0.0031545370002277195,
+          "process_cpu_seconds": 0.0031560000000041555
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12529664039611815,
+          "wall_seconds": 0.0031639369553886354,
+          "process_cpu_seconds": 0.003165000000002749
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12476415634155273,
+          "wall_seconds": 0.003149227995891124,
+          "process_cpu_seconds": 0.00314899999999696
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12480511665344238,
+          "wall_seconds": 0.0031537290196865797,
+          "process_cpu_seconds": 0.003154999999999575
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07786496162414551,
+          "wall_seconds": 0.0019791030208580196,
+          "process_cpu_seconds": 0.0019789999999986208
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0779468822479248,
+          "wall_seconds": 0.0019801249727606773,
+          "process_cpu_seconds": 0.001980999999997124
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0881049633026123,
+          "wall_seconds": 0.002238198008853942,
+          "process_cpu_seconds": 0.002238999999995883
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.08835071563720703,
+          "wall_seconds": 0.002246149000711739,
+          "process_cpu_seconds": 0.002247000000000554
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.07839744091033936,
+          "wall_seconds": 0.0019946760148741305,
+          "process_cpu_seconds": 0.001995000000000857
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0777830410003662,
+          "wall_seconds": 0.0019772470113821328,
+          "process_cpu_seconds": 0.0019770000000036703
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.12476415634155273,
+          "wall_seconds": 0.003155600978061557,
+          "process_cpu_seconds": 0.003156999999998078
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1254195213317871,
+          "wall_seconds": 0.0031715829973109066,
+          "process_cpu_seconds": 0.0031719999999992865
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.12529664039611815,
+        "t4-r1": 0.12482559680938721,
+        "t4-r4": 0.07782400131225586,
+        "t4-r2": 0.07817215919494629,
+        "t4-r8": 0.08822783946990967
+      }
+    },
+    {
+      "shape": [
+        12288,
+        5120
+      ],
+      "role": "text/layers/63/attention/q",
+      "occurrences": 16,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2413363265991211,
+          "wall_seconds": 0.006094698037486523,
+          "process_cpu_seconds": 0.0060850000000023385
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2410905647277832,
+          "wall_seconds": 0.006072071031667292,
+          "process_cpu_seconds": 0.0060739999999981364
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1468006420135498,
+          "wall_seconds": 0.0037076869630254805,
+          "process_cpu_seconds": 0.0037090000000006285
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14684160232543944,
+          "wall_seconds": 0.003706594987306744,
+          "process_cpu_seconds": 0.0037070000000021253
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.167772159576416,
+          "wall_seconds": 0.004226229968480766,
+          "process_cpu_seconds": 0.004225999999999175
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16752639770507813,
+          "wall_seconds": 0.00421770301181823,
+          "process_cpu_seconds": 0.004217999999998057
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14626815795898437,
+          "wall_seconds": 0.0036930469796061516,
+          "process_cpu_seconds": 0.00369399999999942
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14598143577575684,
+          "wall_seconds": 0.0036839029635302722,
+          "process_cpu_seconds": 0.0036850000000008265
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2407219123840332,
+          "wall_seconds": 0.006054285040590912,
+          "process_cpu_seconds": 0.0060560000000009495
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.24059904098510743,
+          "wall_seconds": 0.0060497940285131335,
+          "process_cpu_seconds": 0.0060499999999983345
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.24031232833862304,
+          "wall_seconds": 0.006041060958523303,
+          "process_cpu_seconds": 0.006042000000000769
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.24059904098510743,
+          "wall_seconds": 0.006049986986909062,
+          "process_cpu_seconds": 0.006095999999999435
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14635007858276367,
+          "wall_seconds": 0.003694989951327443,
+          "process_cpu_seconds": 0.003695999999997923
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1466368007659912,
+          "wall_seconds": 0.0037055370048619807,
+          "process_cpu_seconds": 0.0037070000000021253
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.16785408020019532,
+          "wall_seconds": 0.004234207037370652,
+          "process_cpu_seconds": 0.004235000000001321
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.1679769515991211,
+          "wall_seconds": 0.00423569098347798,
+          "process_cpu_seconds": 0.004236999999999824
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14659584045410157,
+          "wall_seconds": 0.0037004310288466513,
+          "process_cpu_seconds": 0.0037009999999995102
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.14639103889465332,
+          "wall_seconds": 0.0036929530324414372,
+          "process_cpu_seconds": 0.00369399999999942
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.24039424896240236,
+          "wall_seconds": 0.0060450779856182635,
+          "process_cpu_seconds": 0.006046000000001328
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.2406399917602539,
+          "wall_seconds": 0.006054001045413315,
+          "process_cpu_seconds": 0.0060549999999999216
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.24061951637268067,
+        "t4-r1": 0.2406604766845703,
+        "t4-r4": 0.1463705587387085,
+        "t4-r2": 0.14661632061004637,
+        "t4-r8": 0.16781311988830566
+      }
+    },
+    {
+      "shape": [
+        1024,
+        5120
+      ],
+      "role": "text/layers/63/attention/v",
+      "occurrences": 32,
+      "tokens": 1,
+      "exact_baseline_output_bytes": true,
+      "waves": [
+        {
+          "name": "baseline",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.021176319122314453,
+          "wall_seconds": 0.000576393969822675,
+          "process_cpu_seconds": 0.0005710000000007653
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.02101248025894165,
+          "wall_seconds": 0.0005604120087809861,
+          "process_cpu_seconds": 0.0005619999999986192
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0157695996761322,
+          "wall_seconds": 0.0004345760098658502,
+          "process_cpu_seconds": 0.0004349999999995191
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.015237120389938354,
+          "wall_seconds": 0.00040908099617809057,
+          "process_cpu_seconds": 0.0004099999999986892
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 0,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.018268159627914428,
+          "wall_seconds": 0.00048595998669043183,
+          "process_cpu_seconds": 0.00048699999999968213
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.01789952039718628,
+          "wall_seconds": 0.0004764180048368871,
+          "process_cpu_seconds": 0.0004770000000000607
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.015114239454269408,
+          "wall_seconds": 0.00041472003795206547,
+          "process_cpu_seconds": 0.00041499999999672355
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.015196160078048707,
+          "wall_seconds": 0.00040792301297187805,
+          "process_cpu_seconds": 0.000408000000000186
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.020848639011383056,
+          "wall_seconds": 0.0005500889965333045,
+          "process_cpu_seconds": 0.0005510000000015225
+        },
+        {
+          "name": "baseline",
+          "repeat": 1,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.020848639011383056,
+          "wall_seconds": 0.000549798016436398,
+          "process_cpu_seconds": 0.0005509999999979698
+        },
+        {
+          "name": "baseline",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0208076810836792,
+          "wall_seconds": 0.0005486320005729795,
+          "process_cpu_seconds": 0.0005490000000030193
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.0208076810836792,
+          "wall_seconds": 0.0005485059809871018,
+          "process_cpu_seconds": 0.0005489999999994666
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.015196160078048707,
+          "wall_seconds": 0.0004074239986948669,
+          "process_cpu_seconds": 0.000408000000000186
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.014909440279006958,
+          "wall_seconds": 0.0004002409987151623,
+          "process_cpu_seconds": 0.0003990000000015925
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 2,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.017776639461517335,
+          "wall_seconds": 0.00047201296547427773,
+          "process_cpu_seconds": 0.00047200000000202635
+        },
+        {
+          "name": "t4-r8",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.01781759977340698,
+          "wall_seconds": 0.0004731690278276801,
+          "process_cpu_seconds": 0.0004729999999995016
+        },
+        {
+          "name": "t4-r2",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.01499135971069336,
+          "wall_seconds": 0.000401710974983871,
+          "process_cpu_seconds": 0.0004020000000011237
+        },
+        {
+          "name": "t4-r4",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.015155199766159057,
+          "wall_seconds": 0.00040684198029339314,
+          "process_cpu_seconds": 0.00040700000000271075
+        },
+        {
+          "name": "t4-r1",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.020889599323272705,
+          "wall_seconds": 0.0005491729825735092,
+          "process_cpu_seconds": 0.0005489999999994666
+        },
+        {
+          "name": "baseline",
+          "repeat": 3,
+          "calls": 25,
+          "gpu_event_milliseconds_per_call": 0.020848639011383056,
+          "wall_seconds": 0.000551623001229018,
+          "process_cpu_seconds": 0.0005519999999989977
+        }
+      ],
+      "median_gpu_event_ms": {
+        "baseline": 0.020848639011383056,
+        "t4-r1": 0.02086911916732788,
+        "t4-r4": 0.015196160078048707,
+        "t4-r2": 0.015052799582481385,
+        "t4-r8": 0.01785856008529663
+      }
+    }
+  ],
+  "completed": true
+}

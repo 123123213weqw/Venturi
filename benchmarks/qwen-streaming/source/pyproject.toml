@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "venturi-engine"
+version = "0.1.0"
+description = "Model loading, dense text generation, and reusable Ada quantized operators"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["torch>=2.5", "safetensors>=0.5"]
+
+[project.optional-dependencies]
+test = ["pytest>=8", "numpy>=1.24"]
+generate = ["tokenizers>=0.20"]
+reference = ["transformers>=4.48,<6"]
+
+[project.scripts]
+venturi = "venturi.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"venturi.ops" = ["csrc/*.cu", "csrc/third_party/ninfer/*", "csrc/third_party/ninfer/ops/common/*.cuh"]
+"venturi.backends" = ["csrc/*.cpp"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = ["cuda: opt-in CUDA loading or native operator tests"]

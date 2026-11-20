@@ -1,0 +1,26 @@
+{
+  "scope": "CPU FP64 Torch reference, staged convolution+SiLU; native math tolerance unchanged",
+  "kernel": 16,
+  "seed_inputs": 38,
+  "seed_weights": 12,
+  "seed_history": 11,
+  "chunks": [
+    1,
+    2,
+    7,
+    3
+  ],
+  "max_abs_error": 2.7755575615628914e-17,
+  "history_identical": true,
+  "counterexamples": [
+    {
+      "index": [
+        2,
+        35
+      ],
+      "whole": 0.20097851722476304,
+      "chunked": 0.200978517224763
+    }
+  ],
+  "explanation": "Allocating Torch reference is not promised bit-identical across shape-dependent elementwise dispatch. Use an FP64 epsilon-level chunk check only for that reference; native requires exact chunk identity."
+}

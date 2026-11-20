@@ -1,0 +1,41 @@
+{
+  "scope": "Bounded SM70 projection experiment, not full-model/serving performance.\n\nReads the production GGUF Q8_0 bytes without dequantizing/requantizing weights.\nAll arms share encoded GPU weight/activation planes and explicit FP16/F32\noutputs. The production service remains running. No default kernel dispatch is\nchanged. CUDA-graph microbenchmarks are separate from eager counter profiling.\n",
+  "utc": "2026-10-21T13:53:25.835033+00:00",
+  "args": {
+    "gguf": "/home/wzu/models/Qwen3.8-27B-Uncensored-GGUF/Qwen3.8-27B-Uncensored-Q8_0.gguf",
+    "library": "/home/data/wangyue/artifacts/venturi-q8-prefetch-v1/libprefetch_probe.so",
+    "qualified_library": "/home/data/wangyue/artifacts/venturi-native-head-gdn-fixtures-v2/build/68769d5f68c715ef/libventuri_blocks.so",
+    "output_directory": "/home/data/wangyue/artifacts/venturi-q8-prefetch-v1/profile-ahead",
+    "tokens": "8",
+    "repeats": 5,
+    "profile_case": "mlp-fused",
+    "profile_arm": "ahead"
+  },
+  "profiled": true,
+  "cases": [
+    {
+      "name": "mlp-fused",
+      "tokens": 8,
+      "k": 5120,
+      "rows": [
+        8704,
+        8704
+      ],
+      "partial_fp32": false,
+      "complete_output_bytes_equal": true,
+      "sampled_fp64_relative_l2": [
+        0.00021078860071196452,
+        0.00017739741022213034
+      ],
+      "additional_allocated_bytes": 95987712,
+      "additional_reserved_bytes": 115343360,
+      "waves": []
+    }
+  ],
+  "completed": true,
+  "gguf_architecture": "qwen35",
+  "library_sha256": "ad52c5f28ac06b97de36c617c68a2c65d646aaa4b3557b659fc2d658098c887f",
+  "qualified_library_sha256": "33a4becb5f9c8440492e9cc6352ea87fccab2692a01adc48e6cc756fa93bc7b8",
+  "device_uuid": "18fbf081-3c6d-d65b-11b8-288a4ce1ab28",
+  "precision": "Unmodified production Q8_0 codes/F16 scales; synthetic F16 activations, two residual A8 passes/F32 scales; output F16 or F32 partials as declared. Not native full-model Qwen3.8 qualification."
+}

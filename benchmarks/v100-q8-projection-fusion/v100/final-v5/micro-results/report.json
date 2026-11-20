@@ -1,0 +1,201 @@
+{
+  "scope": "Matched same-input projection groups; not serving TPS or full-model quality.\n\nAll unfused arms quantize exactly once, then reuse that explicit packed input.\nThis compares complete row dots, not partial reductions or duplicated packing.\n",
+  "profiled": true,
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "library_sha256": "698452e2b2a39f3a5bb4d08d58e37a3330857f6444cc462f96147f53a7ab5e3d",
+  "baseline_library_sha256": "a6599e636cc0c018261310de7d83e1e8dd41d6edcc635f9161402a89f7775a3f",
+  "precision": "Original Q8/F16-scale weights; unchanged residual A8/F32 arithmetic; FP16 input/output",
+  "tokens": [
+    1,
+    2,
+    8
+  ],
+  "arms": [
+    "control-unfused",
+    "candidate-unfused",
+    "candidate-fused"
+  ],
+  "cases": [
+    {
+      "group": "mlp",
+      "bindings": [
+        "text/layers/0/mlp/gate",
+        "text/layers/0/mlp/up"
+      ],
+      "shard_rows": [
+        8704,
+        8704
+      ],
+      "k": 5120,
+      "tokens": 1,
+      "output_and_workspace_bytes_equal": true,
+      "independent_fp64_relative_l2": [
+        0.0002471639264137965,
+        0.0001313826952999456
+      ],
+      "waves": []
+    },
+    {
+      "group": "mlp",
+      "bindings": [
+        "text/layers/0/mlp/gate",
+        "text/layers/0/mlp/up"
+      ],
+      "shard_rows": [
+        8704,
+        8704
+      ],
+      "k": 5120,
+      "tokens": 2,
+      "output_and_workspace_bytes_equal": true,
+      "independent_fp64_relative_l2": [
+        0.00019372367655719913,
+        0.00018711490920977745
+      ],
+      "waves": []
+    },
+    {
+      "group": "mlp",
+      "bindings": [
+        "text/layers/0/mlp/gate",
+        "text/layers/0/mlp/up"
+      ],
+      "shard_rows": [
+        8704,
+        8704
+      ],
+      "k": 5120,
+      "tokens": 8,
+      "output_and_workspace_bytes_equal": true,
+      "independent_fp64_relative_l2": [
+        0.0001969543241441612,
+        0.00019284855436515862
+      ],
+      "waves": []
+    },
+    {
+      "group": "gdn",
+      "bindings": [
+        "text/layers/0/gdn/qkv",
+        "text/layers/0/gdn/z"
+      ],
+      "shard_rows": [
+        5120,
+        3072
+      ],
+      "k": 5120,
+      "tokens": 1,
+      "output_and_workspace_bytes_equal": true,
+      "independent_fp64_relative_l2": [
+        0.00023630165139958443,
+        0.00018410846903668253
+      ],
+      "waves": []
+    },
+    {
+      "group": "gdn",
+      "bindings": [
+        "text/layers/0/gdn/qkv",
+        "text/layers/0/gdn/z"
+      ],
+      "shard_rows": [
+        5120,
+        3072
+      ],
+      "k": 5120,
+      "tokens": 2,
+      "output_and_workspace_bytes_equal": true,
+      "independent_fp64_relative_l2": [
+        0.00015415645198921008,
+        0.0002247750714483881
+      ],
+      "waves": []
+    },
+    {
+      "group": "gdn",
+      "bindings": [
+        "text/layers/0/gdn/qkv",
+        "text/layers/0/gdn/z"
+      ],
+      "shard_rows": [
+        5120,
+        3072
+      ],
+      "k": 5120,
+      "tokens": 8,
+      "output_and_workspace_bytes_equal": true,
+      "independent_fp64_relative_l2": [
+        0.0002028686784374646,
+        0.0002150724815863749
+      ],
+      "waves": []
+    },
+    {
+      "group": "attention",
+      "bindings": [
+        "text/layers/3/attention/q",
+        "text/layers/3/attention/k",
+        "text/layers/3/attention/v"
+      ],
+      "shard_rows": [
+        6144,
+        512,
+        512
+      ],
+      "k": 5120,
+      "tokens": 1,
+      "output_and_workspace_bytes_equal": true,
+      "independent_fp64_relative_l2": [
+        0.0002197071073319531,
+        0.00022750835164796166,
+        0.000237036352255342
+      ],
+      "waves": []
+    },
+    {
+      "group": "attention",
+      "bindings": [
+        "text/layers/3/attention/q",
+        "text/layers/3/attention/k",
+        "text/layers/3/attention/v"
+      ],
+      "shard_rows": [
+        6144,
+        512,
+        512
+      ],
+      "k": 5120,
+      "tokens": 2,
+      "output_and_workspace_bytes_equal": true,
+      "independent_fp64_relative_l2": [
+        0.00022637988452994568,
+        0.00024087590026896727,
+        0.00019979475218732533
+      ],
+      "waves": []
+    },
+    {
+      "group": "attention",
+      "bindings": [
+        "text/layers/3/attention/q",
+        "text/layers/3/attention/k",
+        "text/layers/3/attention/v"
+      ],
+      "shard_rows": [
+        6144,
+        512,
+        512
+      ],
+      "k": 5120,
+      "tokens": 8,
+      "output_and_workspace_bytes_equal": true,
+      "independent_fp64_relative_l2": [
+        0.00019706599251359704,
+        0.00020283109196266852,
+        0.0002079349960808279
+      ],
+      "waves": []
+    }
+  ],
+  "completed": true
+}

@@ -1,0 +1,886 @@
+{
+  "scope": "Native OFF/ON SwiGLU + residual-A8 producer dispatch on SM70.\n\nMeasures producer, producer+Down, and a single TP-rank MLP projection chain.\nUses production Qwen3.8 Q8_0 weights and synthetic F16 hidden inputs; not actual\nfull-model activations or serving TPS. No production/default dispatch changes.\nSwiGLU is out-of-place for the repeated separate baseline; input tensors are\nnot silently modified between replays. All arms share pinned projection kernels.\n",
+  "args": {
+    "gguf": "/home/wzu/models/Qwen3.8-27B-Uncensored-GGUF/Qwen3.8-27B-Uncensored-Q8_0.gguf",
+    "library": "/home/data/wangyue/artifacts/venturi-producer-fusion-native-v1/build/0765d1f981a26bfa/libventuri_blocks.so",
+    "control_library": "/home/data/wangyue/artifacts/venturi-producer-fusion-native-v1/build/2abf99fc86d5c0c8/libventuri_blocks.so",
+    "output_directory": "/home/data/wangyue/artifacts/venturi-producer-fusion-native-v1/operators/native-confirm",
+    "tokens": "1,8",
+    "layers": "0",
+    "repeats": 7,
+    "profile_arm": null
+  },
+  "utc": "2026-10-22T05:18:29.682413+00:00",
+  "completed": true,
+  "profiled": false,
+  "cases": [
+    {
+      "layer": 0,
+      "tokens": 1,
+      "hidden": 5120,
+      "intermediate_per_rank": 8704,
+      "down_rows": 5120,
+      "weight_pins": [
+        {
+          "codes_sha256": "c8e25a0915540ed5ce482904b50c13c356ffeeab796406008ff9d2637f379353",
+          "scales_sha256": "48a72c63f970bd73a428e8cdb109f357c50d922e1cdcccbd781bff15bba1016a"
+        },
+        {
+          "codes_sha256": "458a432707402da22fba056cf3ce48fd9536595a5bee94fff54316e4ed932eac",
+          "scales_sha256": "dda5d75fbd45392a39acea9baf30bc1d4fe22e69248b43ac17fc66397e3fe747"
+        },
+        {
+          "codes_sha256": "36ae77d1ade46b016fd75e59d9b473ef156b3f7f87f954915d8374ab666cf474",
+          "scales_sha256": "5108cd6bc7d1a8170f696e23f516d64cc81684e3a085daa59559c247039dafdb"
+        }
+      ],
+      "complete_workspace_bytes_equal": true,
+      "complete_down_bytes_equal": true,
+      "materialized_f16_bytes_equal": true,
+      "sampled_independent_fp64_down_relative_l2": 8.0946854944282e-08,
+      "timed_arms_share_intermediate_workspace_and_down_output_addresses": true,
+      "waves": [
+        {
+          "scope": "producer",
+          "arm": "native-off",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.004602879881858825,
+          "wall_seconds": 0.0005251849997875979,
+          "process_cpu_seconds": 0.0005242079999998595
+        },
+        {
+          "scope": "producer",
+          "arm": "native-on",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.002847039997577667,
+          "wall_seconds": 0.0003259029999753693,
+          "process_cpu_seconds": 0.00032632900000040266
+        },
+        {
+          "scope": "producer",
+          "arm": "native-on",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0033792001008987427,
+          "wall_seconds": 0.0003986390001955442,
+          "process_cpu_seconds": 0.0003979370000002369
+        },
+        {
+          "scope": "producer",
+          "arm": "native-off",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.004177919924259186,
+          "wall_seconds": 0.00044601700028579216,
+          "process_cpu_seconds": 0.00044637700000027536
+        },
+        {
+          "scope": "producer",
+          "arm": "native-off",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.004372479915618896,
+          "wall_seconds": 0.00048111099931702483,
+          "process_cpu_seconds": 0.00048132399999989417
+        },
+        {
+          "scope": "producer",
+          "arm": "native-on",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0027750399708747864,
+          "wall_seconds": 0.00030564000007871073,
+          "process_cpu_seconds": 0.0003059650000003522
+        },
+        {
+          "scope": "producer",
+          "arm": "native-on",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.003153919875621796,
+          "wall_seconds": 0.0003691239999170648,
+          "process_cpu_seconds": 0.00036915700000017537
+        },
+        {
+          "scope": "producer",
+          "arm": "native-off",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.004249599874019623,
+          "wall_seconds": 0.00045729399971605744,
+          "process_cpu_seconds": 0.0004576570000001112
+        },
+        {
+          "scope": "producer",
+          "arm": "native-off",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0044646400213241575,
+          "wall_seconds": 0.0004989429999113781,
+          "process_cpu_seconds": 0.000498985999999757
+        },
+        {
+          "scope": "producer",
+          "arm": "native-on",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0028569599986076354,
+          "wall_seconds": 0.00032648100022925064,
+          "process_cpu_seconds": 0.00032693300000019576
+        },
+        {
+          "scope": "producer",
+          "arm": "native-on",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0030105599761009218,
+          "wall_seconds": 0.00034704600147961173,
+          "process_cpu_seconds": 0.00034705199999995884
+        },
+        {
+          "scope": "producer",
+          "arm": "native-off",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.00419840008020401,
+          "wall_seconds": 0.00045996500011824537,
+          "process_cpu_seconds": 0.00046038699999995103
+        },
+        {
+          "scope": "producer",
+          "arm": "native-off",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0045056000351905824,
+          "wall_seconds": 0.00050413499957358,
+          "process_cpu_seconds": 0.0005037940000001129
+        },
+        {
+          "scope": "producer",
+          "arm": "native-on",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.002877439856529236,
+          "wall_seconds": 0.00032052800088422373,
+          "process_cpu_seconds": 0.0003209919999997979
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-off",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.06624608039855957,
+          "wall_seconds": 0.006679467000139994,
+          "process_cpu_seconds": 0.0067523760000005595
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-on",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.06406144142150878,
+          "wall_seconds": 0.00643998899977305,
+          "process_cpu_seconds": 0.006440504999999597
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-on",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.06413311958312988,
+          "wall_seconds": 0.006458017000113614,
+          "process_cpu_seconds": 0.0064580520000001584
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-off",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.06559743881225585,
+          "wall_seconds": 0.006593682999664452,
+          "process_cpu_seconds": 0.0065939940000001585
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-off",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.06583295822143555,
+          "wall_seconds": 0.006628152999837766,
+          "process_cpu_seconds": 0.006628587000000685
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-on",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.06393856048583985,
+          "wall_seconds": 0.006427391999750398,
+          "process_cpu_seconds": 0.006427689999999764
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-on",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.06434815883636474,
+          "wall_seconds": 0.006491902999187005,
+          "process_cpu_seconds": 0.006491135000000092
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-off",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.06548480033874511,
+          "wall_seconds": 0.006582845999218989,
+          "process_cpu_seconds": 0.006583639000000474
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-off",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.06581247806549072,
+          "wall_seconds": 0.006632564000028651,
+          "process_cpu_seconds": 0.007456726000000025
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-on",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.06405119895935059,
+          "wall_seconds": 0.006441320001613349,
+          "process_cpu_seconds": 0.006441693000000193
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-on",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.06410240173339844,
+          "wall_seconds": 0.0064571019993309164,
+          "process_cpu_seconds": 0.006457299000000027
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-off",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.06552576065063477,
+          "wall_seconds": 0.006587604000742431,
+          "process_cpu_seconds": 0.006654133000000506
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-off",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.06569983959197997,
+          "wall_seconds": 0.006658018000962329,
+          "process_cpu_seconds": 0.006631142999999895
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-on",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.06402048110961914,
+          "wall_seconds": 0.006440897999709705,
+          "process_cpu_seconds": 0.006818857999999928
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-off",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.18031328201293945,
+          "wall_seconds": 0.01808767599868588,
+          "process_cpu_seconds": 0.01808693200000011
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-on",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1780838394165039,
+          "wall_seconds": 0.01784536899867817,
+          "process_cpu_seconds": 0.017846213000000333
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-on",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1780838394165039,
+          "wall_seconds": 0.017857050999737112,
+          "process_cpu_seconds": 0.018712658000000104
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-off",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.17965055465698243,
+          "wall_seconds": 0.018003832001340925,
+          "process_cpu_seconds": 0.01807038600000066
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-off",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.17970176696777343,
+          "wall_seconds": 0.018016849000559887,
+          "process_cpu_seconds": 0.0184315220000002
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-on",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.17810432434082032,
+          "wall_seconds": 0.017846875000032014,
+          "process_cpu_seconds": 0.0178475520000001
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-on",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1780940818786621,
+          "wall_seconds": 0.0178538349991868,
+          "process_cpu_seconds": 0.01785398399999938
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-off",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.17963008880615233,
+          "wall_seconds": 0.017996694001340074,
+          "process_cpu_seconds": 0.01799734600000047
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-off",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.17960960388183594,
+          "wall_seconds": 0.01800380500026222,
+          "process_cpu_seconds": 0.018059140000000085
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-on",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1781248092651367,
+          "wall_seconds": 0.01784567100003187,
+          "process_cpu_seconds": 0.017846407000000397
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-on",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1782579231262207,
+          "wall_seconds": 0.01786888700007694,
+          "process_cpu_seconds": 0.017868948000000273
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-off",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.17960960388183594,
+          "wall_seconds": 0.017997099999774946,
+          "process_cpu_seconds": 0.017997778000000686
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-off",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1801318359375,
+          "wall_seconds": 0.01808095799970033,
+          "process_cpu_seconds": 0.01808037500000026
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-on",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.1781964874267578,
+          "wall_seconds": 0.017853809000371257,
+          "process_cpu_seconds": 0.017894894000000328
+        }
+      ],
+      "median_ms": {
+        "producer": {
+          "native-off": 0.004372479915618896,
+          "native-on": 0.002877439856529236
+        },
+        "producer+down": {
+          "native-off": 0.06569983959197997,
+          "native-on": 0.06406144142150878
+        },
+        "mlp-shard": {
+          "native-off": 0.17965055465698243,
+          "native-on": 0.17810432434082032
+        }
+      },
+      "torch_reserved_bytes": 163577856,
+      "torch_allocated_bytes": 142221824
+    },
+    {
+      "layer": 0,
+      "tokens": 8,
+      "hidden": 5120,
+      "intermediate_per_rank": 8704,
+      "down_rows": 5120,
+      "weight_pins": [
+        {
+          "codes_sha256": "c8e25a0915540ed5ce482904b50c13c356ffeeab796406008ff9d2637f379353",
+          "scales_sha256": "48a72c63f970bd73a428e8cdb109f357c50d922e1cdcccbd781bff15bba1016a"
+        },
+        {
+          "codes_sha256": "458a432707402da22fba056cf3ce48fd9536595a5bee94fff54316e4ed932eac",
+          "scales_sha256": "dda5d75fbd45392a39acea9baf30bc1d4fe22e69248b43ac17fc66397e3fe747"
+        },
+        {
+          "codes_sha256": "36ae77d1ade46b016fd75e59d9b473ef156b3f7f87f954915d8374ab666cf474",
+          "scales_sha256": "5108cd6bc7d1a8170f696e23f516d64cc81684e3a085daa59559c247039dafdb"
+        }
+      ],
+      "complete_workspace_bytes_equal": true,
+      "complete_down_bytes_equal": true,
+      "materialized_f16_bytes_equal": true,
+      "sampled_independent_fp64_down_relative_l2": 9.993995655303626e-08,
+      "timed_arms_share_intermediate_workspace_and_down_output_addresses": true,
+      "waves": [
+        {
+          "scope": "producer",
+          "arm": "native-off",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.005609279870986939,
+          "wall_seconds": 0.0006073620006645797,
+          "process_cpu_seconds": 0.000607102000000026
+        },
+        {
+          "scope": "producer",
+          "arm": "native-on",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.003553279936313629,
+          "wall_seconds": 0.00038467600097646937,
+          "process_cpu_seconds": 0.0003849000000002434
+        },
+        {
+          "scope": "producer",
+          "arm": "native-on",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.003676159977912903,
+          "wall_seconds": 0.0004093290008313488,
+          "process_cpu_seconds": 0.000409186999999811
+        },
+        {
+          "scope": "producer",
+          "arm": "native-off",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.005283839702606201,
+          "wall_seconds": 0.0005559390010603238,
+          "process_cpu_seconds": 0.0005562579999995876
+        },
+        {
+          "scope": "producer",
+          "arm": "native-off",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0054169601202011105,
+          "wall_seconds": 0.0005969940011709696,
+          "process_cpu_seconds": 0.0005967909999995413
+        },
+        {
+          "scope": "producer",
+          "arm": "native-on",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0035020801424980163,
+          "wall_seconds": 0.0003839509990939405,
+          "process_cpu_seconds": 0.0003842389999997309
+        },
+        {
+          "scope": "producer",
+          "arm": "native-on",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0037887999415397644,
+          "wall_seconds": 0.0004314980014896719,
+          "process_cpu_seconds": 0.00043026300000015283
+        },
+        {
+          "scope": "producer",
+          "arm": "native-off",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0053043198585510255,
+          "wall_seconds": 0.0005609740001091268,
+          "process_cpu_seconds": 0.0005619420000000375
+        },
+        {
+          "scope": "producer",
+          "arm": "native-off",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.005468159914016724,
+          "wall_seconds": 0.0005876169998373371,
+          "process_cpu_seconds": 0.0005875749999999513
+        },
+        {
+          "scope": "producer",
+          "arm": "native-on",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.003532800078392029,
+          "wall_seconds": 0.00038186299934750423,
+          "process_cpu_seconds": 0.00038219300000008616
+        },
+        {
+          "scope": "producer",
+          "arm": "native-on",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.003686400055885315,
+          "wall_seconds": 0.00040702800106373616,
+          "process_cpu_seconds": 0.00040682900000010846
+        },
+        {
+          "scope": "producer",
+          "arm": "native-off",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.005283839702606201,
+          "wall_seconds": 0.000555665999854682,
+          "process_cpu_seconds": 0.0005560200000003235
+        },
+        {
+          "scope": "producer",
+          "arm": "native-off",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.005447679758071899,
+          "wall_seconds": 0.0005835310003021732,
+          "process_cpu_seconds": 0.0005835449999995745
+        },
+        {
+          "scope": "producer",
+          "arm": "native-on",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.0035225600004196167,
+          "wall_seconds": 0.0003802600003837142,
+          "process_cpu_seconds": 0.0003805520000002005
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-off",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11359392166137695,
+          "wall_seconds": 0.011408570999265066,
+          "process_cpu_seconds": 0.01140883899999956
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-on",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11065343856811523,
+          "wall_seconds": 0.011104237999461475,
+          "process_cpu_seconds": 0.011104817000000544
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-on",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11159551620483399,
+          "wall_seconds": 0.011202617999515496,
+          "process_cpu_seconds": 0.011202563000000332
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-off",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11427840232849121,
+          "wall_seconds": 0.0114596019993769,
+          "process_cpu_seconds": 0.01145987899999934
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-off",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11401215553283692,
+          "wall_seconds": 0.011440756999945734,
+          "process_cpu_seconds": 0.01144072499999993
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-on",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11076607704162597,
+          "wall_seconds": 0.011109271001259913,
+          "process_cpu_seconds": 0.011917781000000183
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-on",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11101183891296387,
+          "wall_seconds": 0.0111432789999526,
+          "process_cpu_seconds": 0.011143503000000443
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-off",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11413503646850585,
+          "wall_seconds": 0.011445778000052087,
+          "process_cpu_seconds": 0.011520319999999806
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-off",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11395071983337403,
+          "wall_seconds": 0.011437470000601024,
+          "process_cpu_seconds": 0.011857582999999394
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-on",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11160575866699218,
+          "wall_seconds": 0.011195041000974015,
+          "process_cpu_seconds": 0.011196056000000176
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-on",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11064319610595703,
+          "wall_seconds": 0.011107412999990629,
+          "process_cpu_seconds": 0.01108467500000021
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-off",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11379712104797363,
+          "wall_seconds": 0.011414763999709976,
+          "process_cpu_seconds": 0.011415387999999638
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-off",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11483136177062989,
+          "wall_seconds": 0.01154676400074095,
+          "process_cpu_seconds": 0.011538199000000304
+        },
+        {
+          "scope": "producer+down",
+          "arm": "native-on",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.11182080268859863,
+          "wall_seconds": 0.011214699999982258,
+          "process_cpu_seconds": 0.011215008000000637
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-off",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.27844480514526365,
+          "wall_seconds": 0.027901888999622315,
+          "process_cpu_seconds": 0.027578945000000132
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-on",
+          "repeat": 0,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.2747494316101074,
+          "wall_seconds": 0.02752001100088819,
+          "process_cpu_seconds": 0.02803293799999995
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-on",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.27457536697387697,
+          "wall_seconds": 0.027515628999026376,
+          "process_cpu_seconds": 0.027566044999999484
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-off",
+          "repeat": 1,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.2776780891418457,
+          "wall_seconds": 0.027841278000778402,
+          "process_cpu_seconds": 0.027843923000000714
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-off",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.2776780891418457,
+          "wall_seconds": 0.027863590999913868,
+          "process_cpu_seconds": 0.0278653990000004
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-on",
+          "repeat": 2,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.2750054359436035,
+          "wall_seconds": 0.02755649700156937,
+          "process_cpu_seconds": 0.027614661000000318
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-on",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.2741964721679688,
+          "wall_seconds": 0.027469079999718815,
+          "process_cpu_seconds": 0.027469347000000255
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-off",
+          "repeat": 3,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.27725824356079104,
+          "wall_seconds": 0.02776347200051532,
+          "process_cpu_seconds": 0.02776420099999921
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-off",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.2771660804748535,
+          "wall_seconds": 0.02776664900011383,
+          "process_cpu_seconds": 0.028623534999999478
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-on",
+          "repeat": 4,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.2747494316101074,
+          "wall_seconds": 0.027525286001036875,
+          "process_cpu_seconds": 0.028073267999999985
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-on",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.27527168273925784,
+          "wall_seconds": 0.02757584000028146,
+          "process_cpu_seconds": 0.027575902000000596
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-off",
+          "repeat": 5,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.2773094367980957,
+          "wall_seconds": 0.02776584700040985,
+          "process_cpu_seconds": 0.027766595000000116
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-off",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.27710464477539065,
+          "wall_seconds": 0.0277576170010434,
+          "process_cpu_seconds": 0.027826155999999713
+        },
+        {
+          "scope": "mlp-shard",
+          "arm": "native-on",
+          "repeat": 6,
+          "calls": 100,
+          "gpu_event_ms_per_call": 0.2741964721679688,
+          "wall_seconds": 0.02745587500066904,
+          "process_cpu_seconds": 0.027456553999999578
+        }
+      ],
+      "median_ms": {
+        "producer": {
+          "native-off": 0.0054169601202011105,
+          "native-on": 0.003553279936313629
+        },
+        "producer+down": {
+          "native-off": 0.11401215553283692,
+          "native-on": 0.11101183891296387
+        },
+        "mlp-shard": {
+          "native-off": 0.2773094367980957,
+          "native-on": 0.2747494316101074
+        }
+      },
+      "torch_reserved_bytes": 163577856,
+      "torch_allocated_bytes": 143421440
+    }
+  ],
+  "precision": "Same Q8 codes/F16 weight scales; stable SwiGLU rounded to F16; group32 TWO-pass residual A8, F32 activation scales/Down partial outputs. No single-A8 arithmetic.",
+  "device_uuid": "18fbf081-3c6d-d65b-11b8-288a4ce1ab28",
+  "gguf": {
+    "path": "/home/wzu/models/Qwen3.8-27B-Uncensored-GGUF/Qwen3.8-27B-Uncensored-Q8_0.gguf",
+    "size": 29047084448,
+    "mtime_ns": 1787148105067877936,
+    "architecture": "qwen35"
+  },
+  "library_sha256": "2297cdf759b15de8be588d12ab9e3368a63efc55c9ea7839e2d730a004485de6",
+  "control_library_sha256": "365adff5e04c15364e8ea8574ccb57fc803b9becbbe9672dfbadad7d39116d9c",
+  "kernels_per_logical_call": {
+    "producer": {
+      "native-off": 2,
+      "native-on": 1
+    },
+    "producer+down": {
+      "native-off": 3,
+      "native-on": 2
+    },
+    "mlp-shard": {
+      "native-off": 5,
+      "native-on": 4
+    }
+  }
+}

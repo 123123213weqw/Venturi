@@ -1,0 +1,28 @@
+{
+  "name": "conv-t1",
+  "tokens": 1,
+  "source": "Actual layer-0 checkpoint constants; synthetic BF16 activation inputs",
+  "timing": "Fixed-state graph replay wrapper; not autoregressive decoding",
+  "qualification": {
+    "native": {
+      "passed": true,
+      "max_rounded_abs_error": 0.0,
+      "max_unrounded_abs_error": 0.0004060636140188201,
+      "elements": 10240,
+      "failed_elements": 0,
+      "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+      "first_failure_indices": [],
+      "history_exact": true
+    },
+    "torch-reference": {
+      "passed": true,
+      "max_rounded_abs_error": 0.0,
+      "max_unrounded_abs_error": 0.0004060636140188201,
+      "elements": 10240,
+      "failed_elements": 0,
+      "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+      "first_failure_indices": [],
+      "history_exact": true
+    }
+  }
+}

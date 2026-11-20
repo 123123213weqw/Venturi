@@ -1,0 +1,37 @@
+{
+  "architecture": "sm70",
+  "source_sha256": {
+    "blocks.cu": "78fb734cdd2aefd143b8af2be5b4ab710ddf4ab443c38b09cac135a87fc8d4e3",
+    "q8_column_tp.cuh": "fb4748026caa0e271b0389b0b4517e0b767f8b4ec4680fa54bdc9afadcbfa3ea",
+    "q8_dp4a.cuh": "bb1163e93285cc1f0c45b86497e7e7bfe871f9e19617a176d08ac7b0c8a5c3ed",
+    "q8_fused.cuh": "f9256a832b7fcf436b0e430bebb3627eb2539d86a7982c830a43f4e4ce1fc0c5",
+    "q8_shared.cuh": "3a7f34d565e03b8633db4f2da2093d9f1890af65e624f83e528ba36d1bfb9726",
+    "q8_wmma.cuh": "5bfea6943f04328bf60a0596a7155e45a5e14823d9b827baa34ebc339f4a9662",
+    "qwen_batch.cuh": "e8fddcbdf68c913fafb184fbf9bbcea7ab629f6def6341ac66c32aa6c2b34a66",
+    "qwen_head_gdn.cuh": "d6ec4220f02e3eda5b477f6d6c9dac850c1e182404d1b1f97640cee115b82424",
+    "qwen_mtp.cuh": "a625afc7fe7cda119589cc371f5a9b80402ae573710691873a65d9980cad15a8",
+    "qwen_pipeline.cuh": "73b4296184cdbf76c90496f01e1222bbc97307cbeb3a62beb4073096aee575e2",
+    "qwen_runtime.cuh": "0a04c58fc8e171b2c48332884d658b0f260ef71e99c1bcb18ffcb17b18ecc4bd"
+  },
+  "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Tue_May_27_02:21:03_PDT_2025\nCuda compilation tools, release 12.9, V12.9.86\nBuild cuda_12.9.r12.9/compiler.36037853_0\n",
+  "command": [
+    "/usr/local/cuda/bin/nvcc",
+    "-O3",
+    "-std=c++20",
+    "-lineinfo",
+    "-shared",
+    "--cudart=static",
+    "-Xcompiler=-fPIC",
+    "-gencode=arch=compute_70,code=sm_70",
+    "-gencode=arch=compute_70,code=compute_70",
+    "-DVENTURI_BLOCKS_ARCH=70",
+    "-DVENTURI_Q8_TOKEN_TILE=4",
+    "-DVENTURI_Q8_ROW_TILE=4",
+    "-DVENTURI_Q8_DECODE_MODE=0",
+    "/home/data/wangyue/repos/codex-build/Venturi/native-head-gdn-src-v1/src/venturi/ops/csrc/blocks.cu",
+    "-lcublas",
+    "-o",
+    "/home/data/wangyue/artifacts/venturi-native-head-gdn-fixtures-v1/build/90f54856b0c29c9a/build-2ji0n8lx/libventuri_blocks.so"
+  ],
+  "library_sha256": "20ba93ae29611d38973991d0be957412f118a08147f1871a81df9b75739c1c8c"
+}

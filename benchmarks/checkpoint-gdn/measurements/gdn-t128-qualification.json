@@ -1,0 +1,37 @@
+{
+  "name": "gdn-t128",
+  "tokens": 128,
+  "qk_heads": 16,
+  "value_heads": 48,
+  "key_dim": 128,
+  "value_dim": 128,
+  "input_dtype": "BF16",
+  "gate_state_dtype": "FP32",
+  "state_bytes": 3145728,
+  "input_source": "Synthetic represented inputs; artifact geometry, not checkpoint hidden states",
+  "timing": "Fixed input and non-mutating initial state; captured graph replay including Python replay wrapper, not autoregressive rollout",
+  "qualification": {
+    "native": {
+      "passed": true,
+      "max_rounded_abs_error": 6.103515625e-05,
+      "max_unrounded_abs_error": 0.00021069307715188001,
+      "elements": 786432,
+      "failed_elements": 0,
+      "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+      "first_failure_indices": [],
+      "fp32_state_passed": true,
+      "fp32_state_max_abs_error": 1.286424211599524e-07
+    },
+    "torch-reference": {
+      "passed": true,
+      "max_rounded_abs_error": 6.103515625e-05,
+      "max_unrounded_abs_error": 0.00021069307715188001,
+      "elements": 786432,
+      "failed_elements": 0,
+      "criterion": "abs(actual-rounded_FP64) <= 2*BF16_eps*abs(FP64) + 2e-05",
+      "first_failure_indices": [],
+      "fp32_state_passed": true,
+      "fp32_state_max_abs_error": 1.3321196479232356e-07
+    }
+  }
+}

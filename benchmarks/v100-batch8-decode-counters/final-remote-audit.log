@@ -1,0 +1,34 @@
+2026-10-21T14:08:53+08:00
+RmProfilingAdminOnly: 1
+index, uuid, name, memory.used [MiB], utilization.gpu [%]
+0, GPU-18fbf081-3c6d-d65b-11b8-288a4ce1ab28, Tesla V100-PCIE-32GB, 26745 MiB, 0 %
+1, GPU-f65db2e8-87bb-c88d-363f-23c79f793548, Tesla V100-PCIE-32GB, 28915 MiB, 0 %
+fc9e37261f26c3127d5b65080b392ddeda97ba293dfd5573519354222328d70d running healthy
+{"status":"ok"}MainPID=0
+Result=success
+ActiveState=inactive
+SubState=dead
+Oct 21 13:54:50 wzu-SYS-4029GP-TRT systemd[1]: Starting /usr/bin/python3 /home/data/wangyue/artifacts/venturi-batch8-decode-counters-v1/run_controlled.py...
+Oct 21 13:54:56 wzu-SYS-4029GP-TRT python3[3077326]: fc9e37261f26c3127d5b65080b392ddeda97ba293dfd5573519354222328d70d
+Oct 21 13:55:51 wzu-SYS-4029GP-TRT python3[3077137]: {"name": "unprofiled-before", "report_count": 1, "unprofiled_summary": {"repeats": 3, "mean_decode_wall_seconds": 2.0896819276579968, "aggregate_decode_tps": 118.6783484690156, "per_request_decode_tps": 14.83479355862695, "mean_process_cpu_seconds": 2.0921333430000026}}
+Oct 21 13:59:08 wzu-SYS-4029GP-TRT python3[3077137]: Traceback (most recent call last):
+Oct 21 13:59:08 wzu-SYS-4029GP-TRT python3[3077137]:   File "/home/data/wangyue/artifacts/venturi-batch8-decode-counters-v1/run_controlled.py", line 213, in <module>
+Oct 21 13:59:08 wzu-SYS-4029GP-TRT python3[3077137]:     main()
+Oct 21 13:59:08 wzu-SYS-4029GP-TRT python3[3077137]:   File "/home/data/wangyue/artifacts/venturi-batch8-decode-counters-v1/run_controlled.py", line 163, in main
+Oct 21 13:59:08 wzu-SYS-4029GP-TRT python3[3077137]:     code = active.wait(timeout=min(180, remaining))
+Oct 21 13:59:08 wzu-SYS-4029GP-TRT python3[3077137]:   File "/usr/lib/python3.10/subprocess.py", line 1209, in wait
+Oct 21 13:59:08 wzu-SYS-4029GP-TRT python3[3077137]:     return self._wait(timeout=timeout)
+Oct 21 13:59:08 wzu-SYS-4029GP-TRT python3[3077137]:   File "/usr/lib/python3.10/subprocess.py", line 1951, in _wait
+Oct 21 13:59:08 wzu-SYS-4029GP-TRT python3[3077137]:     raise TimeoutExpired(self.args, timeout)
+Oct 21 13:59:08 wzu-SYS-4029GP-TRT python3[3077137]: subprocess.TimeoutExpired: Command '['/usr/local/cuda/bin/ncu', '--clock-control', 'none', '--cache-control', 'none', '--target-processes', 'all', '--replay-mode', 'app-range', '--disable-extra-suffixes', '--metrics', 'dram__bytes_read.sum,dram__bytes_write.sum,gpu__time_duration.sum,dram__throughput.avg.pct_of_peak_sustained_elapsed,sm__warps_active.avg.pct_of_peak_sustained_active', '--csv', '--page', 'raw', '--log-file', '/home/data/wangyue/artifacts/venturi-batch8-decode-counters-v1/counters-logical0.csv', '/home/data/wangyue/repos/codex-build/.venvs/b2-v100/bin/python', '/home/data/wangyue/artifacts/venturi-batch8-decode-counters-v1/profile_decode.py', '--artifact', '/home/data/wangyue/repos/codex-build/Venturi/models/qwen3.5-27b-text-q8.ninfer', '--case', '/home/data/wangyue/repos/codex-build/Venturi/v100-pp-final-v1/case.json', '--library', '/home/data/wangyue/artifacts/venturi-native-head-gdn-fixtures-v2/build/68769d5f68c715ef/libventuri_blocks.so', '--mode', 'counters', '--output-directory', '/home/data/wangyue/artifacts/venturi-batch8-decode-counters-v1/counters-logical0', '--selected', '0']' timed out after 180 seconds
+Oct 21 13:59:08 wzu-SYS-4029GP-TRT systemd[1]: venturi-batch8-decode-counters-v1.service: Main process exited, code=exited, status=1/FAILURE
+Oct 21 13:59:09 wzu-SYS-4029GP-TRT docker[3087707]: fc9e37261f26c3127d5b65080b392ddeda97ba293dfd5573519354222328d70d
+Oct 21 13:59:09 wzu-SYS-4029GP-TRT systemd[1]: venturi-batch8-decode-counters-v1.service: Failed with result 'exit-code'.
+Oct 21 13:59:09 wzu-SYS-4029GP-TRT systemd[1]: Failed to start /usr/bin/python3 /home/data/wangyue/artifacts/venturi-batch8-decode-counters-v1/run_controlled.py.
+Oct 21 13:59:09 wzu-SYS-4029GP-TRT systemd[1]: venturi-batch8-decode-counters-v1.service: Consumed 9min 21.069s CPU time.
+Oct 21 14:06:19 wzu-SYS-4029GP-TRT python3[3089711]: {"name": "counters-logical1", "report_count": 2, "ranges": [{"id": "0", "device": "1", "context": "1", "dram__bytes_read.sum": 444615330688.0, "dram__bytes_write.sum": 22336530720.0, "gpu__time_duration.sum": 4587635936.0, "dram__throughput.avg.pct_of_peak_sustained_elapsed": 10.84, "sm__warps_active.avg.pct_of_peak_sustained_active": 47.7, "read_plus_write_GBs": 101.7848556254748}, {"id": "1", "device": "1", "context": "1", "dram__bytes_read.sum": 444616480096.0, "dram__bytes_write.sum": 22335392384.0, "gpu__time_duration.sum": 4531853056.0, "dram__throughput.avg.pct_of_peak_sustained_elapsed": 11.31, "sm__warps_active.avg.pct_of_peak_sustained_active": 47.69, "read_plus_write_GBs": 103.03773461096087}, {"id": "2", "device": "1", "context": "1", "dram__bytes_read.sum": 444614481472.0, "dram__bytes_write.sum": 22335000320.0, "gpu__time_duration.sum": 4665287168.0, "dram__throughput.avg.pct_of_peak_sustained_elapsed": 11.33, "sm__warps_active.avg.pct_of_peak_sustained_active": 47.69, "read_plus_write_GBs": 100.09019058781335}]}
+Oct 21 14:07:14 wzu-SYS-4029GP-TRT python3[3089711]: {"name": "unprofiled-after", "report_count": 1, "unprofiled_summary": {"repeats": 3, "mean_decode_wall_seconds": 2.0901738500300175, "aggregate_decode_tps": 118.65041752217807, "per_request_decode_tps": 14.83130219027226, "mean_process_cpu_seconds": 2.092607687333332}}
+Oct 21 14:07:30 wzu-SYS-4029GP-TRT docker[3112494]: fc9e37261f26c3127d5b65080b392ddeda97ba293dfd5573519354222328d70d
+Oct 21 14:07:30 wzu-SYS-4029GP-TRT systemd[1]: venturi-batch8-decode-counters-v2.service: Deactivated successfully.
+Oct 21 14:07:30 wzu-SYS-4029GP-TRT systemd[1]: Finished /usr/bin/python3 /home/data/wangyue/artifacts/venturi-batch8-decode-counters-v2/run_controlled.py.
+Oct 21 14:07:30 wzu-SYS-4029GP-TRT systemd[1]: venturi-batch8-decode-counters-v2.service: Consumed 15min 50.574s CPU time.

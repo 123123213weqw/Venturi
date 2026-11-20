@@ -1,0 +1,192 @@
+{
+  "scope": "Native-only fixed-length timing with separately measured TTFT and decode.\n\nThe split run generates one token, then continues the same native request for\nN-1 tokens in one C++ call. A separate unsplit run checks identical token IDs.\nEOS stopping is explicitly disabled for fixed work, including tokens after EOS;\nthese are benchmark tokens, not a normal answer-length or quality evaluation.\nLoad, warmup, reset and diagnostics are outside request timing. No Python model\nor per-token generation loop is used. Profiler timings are labelled separately.\n",
+  "case": {
+    "question": "What is the capital of France? Answer with the city name only.",
+    "formatted_prompt": "<|im_start|>user\nWhat is the capital of France? Answer with the city name only.<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+    "prompt_token_ids": [
+      248045,
+      846,
+      198,
+      3710,
+      369,
+      279,
+      6511,
+      314,
+      9338,
+      30,
+      21134,
+      440,
+      279,
+      3177,
+      803,
+      1132,
+      13,
+      248046,
+      198,
+      248045,
+      74455,
+      198,
+      248068,
+      271,
+      248069,
+      271
+    ],
+    "tokenizer_sha256": "5f9e4d4901a92b997e463c1f46055088b6cca5ca61a6522d1b9f64c4bb81cb42",
+    "chat_template_sha256": "a4aee8afcf2e0711942cf848899be66016f8d14a889ff9ede07bca099c28f715",
+    "formatting": "Pinned text-only chat template, add_generation_prompt=true, enable_thinking=false, no tools/system/images",
+    "eos_token_ids": [
+      248046,
+      248044
+    ],
+    "max_new_tokens": 2,
+    "sampling": "Explicit greedy, not the checkpoint default stochastic policy"
+  },
+  "new_tokens": 8,
+  "eos_token_ids": [],
+  "weight_mode": "resident",
+  "dtype": "fp16",
+  "profiled": true,
+  "physical_gpu_index": 1,
+  "tensor_parallel_device": "cuda:1",
+  "tensor_parallel_transport": "host",
+  "physical_peer_gpu_index": 0,
+  "gpu": "Tesla V100-PCIE-32GB",
+  "torch": "2.5.1+cu121",
+  "library_sha256": "1e907186407aa7e6f963a1e5f683179da398f4bbc1373741bca4bef61fef0122",
+  "hardware_counters_available": false,
+  "independent_upstream_quality_qualified": false,
+  "external_engine_comparison": false,
+  "trials": [
+    {
+      "trial": 0,
+      "ttft": {
+        "wall_seconds": 0.5693102739751339,
+        "process_cpu_seconds": 0.5705090000000013,
+        "start_unix": 1792375909.7769563,
+        "end_unix": 1792375910.3463001
+      },
+      "decode": {
+        "wall_seconds": 0.4354790920042433,
+        "process_cpu_seconds": 0.4359450000000038,
+        "start_unix": 1792375910.3465092,
+        "end_unix": 1792375910.782012,
+        "output_tokens": 7
+      },
+      "unsplit": {
+        "wall_seconds": 0.9987708230037242,
+        "process_cpu_seconds": 1.0012760000000043,
+        "start_unix": 1792375910.788046,
+        "end_unix": 1792375911.7868752,
+        "output_tokens": 8
+      },
+      "generated_ids": [
+        57590,
+        248046,
+        198,
+        248044,
+        248045,
+        846,
+        198,
+        3710
+      ],
+      "before_decode": {
+        "position": 26,
+        "failed": 0,
+        "model_device_bytes": 15065595008,
+        "request_device_bytes": 176204336,
+        "pinned_host_bytes": 15750144,
+        "mapped_payload_bytes": 28601624576,
+        "model_weight_upload_bytes": 28549120000,
+        "streaming_embedding_upload_bytes": 0,
+        "peer_device_index": 1,
+        "peer_transport": "host",
+        "peer_device_bytes": 13606491136,
+        "peer_input_copy_bytes": 342288384,
+        "peer_output_copy_bytes": 232299008
+      },
+      "after_decode": {
+        "position": 33,
+        "failed": 0,
+        "model_device_bytes": 15065595008,
+        "request_device_bytes": 176204336,
+        "pinned_host_bytes": 15750144,
+        "mapped_payload_bytes": 28601624576,
+        "model_weight_upload_bytes": 28549120000,
+        "streaming_embedding_upload_bytes": 0,
+        "peer_device_index": 1,
+        "peer_transport": "host",
+        "peer_device_bytes": 13606491136,
+        "peer_input_copy_bytes": 382959616,
+        "peer_output_copy_bytes": 261332992
+      },
+      "consumed_positions": 33
+    }
+  ],
+  "artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "model_load": {
+    "wall_seconds": 39.7626439500018,
+    "process_cpu_seconds": 40.784386999999995,
+    "start_unix": 1792375868.9663424,
+    "end_unix": 1792375908.7290328
+  },
+  "session_load": {
+    "wall_seconds": 0.02423062303569168,
+    "process_cpu_seconds": 0.02396699999999896,
+    "start_unix": 1792375908.7290483,
+    "end_unix": 1792375908.7532997
+  },
+  "initial_native_memory": {
+    "position": 0,
+    "failed": 0,
+    "model_device_bytes": 15065595008,
+    "request_device_bytes": 176204336,
+    "pinned_host_bytes": 15750144,
+    "mapped_payload_bytes": 28601624576,
+    "model_weight_upload_bytes": 28549120000,
+    "streaming_embedding_upload_bytes": 0,
+    "peer_device_index": 1,
+    "peer_transport": "host",
+    "peer_device_bytes": 13606491136,
+    "peer_input_copy_bytes": 0,
+    "peer_output_copy_bytes": 0
+  },
+  "warmup": {
+    "wall_seconds": 1.015027993998956,
+    "process_cpu_seconds": 1.0201980000000077,
+    "start_unix": 1792375908.754005,
+    "end_unix": 1792375909.7690868
+  },
+  "warmup_ids": [
+    57590,
+    248046,
+    198,
+    248044,
+    248045,
+    846,
+    198,
+    3710
+  ],
+  "aggregate": {
+    "ttft": {
+      "mean_wall_seconds": 0.5693102739751339,
+      "min_wall_seconds": 0.5693102739751339,
+      "max_wall_seconds": 0.5693102739751339,
+      "mean_process_cpu_seconds": 0.5705090000000013
+    },
+    "decode": {
+      "mean_wall_seconds": 0.4354790920042433,
+      "min_wall_seconds": 0.4354790920042433,
+      "max_wall_seconds": 0.4354790920042433,
+      "mean_process_cpu_seconds": 0.4359450000000038,
+      "output_tokens_per_wall_second": 16.074250471551437
+    },
+    "unsplit": {
+      "mean_wall_seconds": 0.9987708230037242,
+      "min_wall_seconds": 0.9987708230037242,
+      "max_wall_seconds": 0.9987708230037242,
+      "mean_process_cpu_seconds": 1.0012760000000043,
+      "output_tokens_per_wall_second": 8.00984551785427
+    }
+  },
+  "completed": true
+}

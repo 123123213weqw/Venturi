@@ -1,0 +1,84 @@
+--- benchmarks/v100-producer-fusion-native/pre-edit/src/venturi/ops/build.py	2026-10-21 22:01:10
++++ src/venturi/ops/build.py	2026-10-22 13:09:50
+@@ -20,6 +20,7 @@
+     q8_row_tile=None,
+     q8_decode_mode=0,
+     q8_row_pair=False,
++    q8_swiglu_quant=False,
+ ) -> Path:
+     """Build the optional C ABI library and retain compiler output/provenance."""
+     import sys
+@@ -45,6 +46,10 @@
+         q8_row_pair and (component != "blocks" or architecture != "sm70")
+     ):
+         raise ValueError("Q8 row-pair is an explicit boolean SM70 blocks experiment")
++    if type(q8_swiglu_quant) is not bool or (
++        q8_swiglu_quant and (component != "blocks" or architecture != "sm70")
++    ):
++        raise ValueError("Q8 SwiGLU quantization is an explicit boolean SM70 blocks experiment")
+     if sys.platform != "linux":
+         raise RuntimeError(
+             "Build Venturi CUDA operators on a Linux CUDA machine, not the local Mac"
+@@ -72,6 +77,7 @@
+             source / "q8_fused.cuh",
+             source / "q8_prefetch.cuh",
+             source / "q8_projection_dispatch.cuh",
++            source / "q8_producer.cuh",
+         ]
+         if component == "blocks"
+         else [
+@@ -93,6 +99,7 @@
+                 "q8_fused.cuh",
+                 "q8_prefetch.cuh",
+                 "q8_projection_dispatch.cuh",
++                "q8_producer.cuh",
+             )
+         ]
+     )
+@@ -117,6 +124,7 @@
+                 f"-DVENTURI_Q8_ROW_TILE={q8_row_tile}",
+                 f"-DVENTURI_Q8_DECODE_MODE={q8_decode_mode}",
+                 f"-DVENTURI_Q8_ROW_PAIR={int(q8_row_pair)}",
++                f"-DVENTURI_Q8_SWIGLU_QUANT={int(q8_swiglu_quant)}",
+             ]
+             if component == "blocks"
+             else []
+@@ -197,6 +205,7 @@
+     q8_row_tile=None,
+     q8_decode_mode=0,
+     q8_row_pair=False,
++    q8_swiglu_quant=False,
+ ) -> Path:
+     """Build Venturi-owned blocks and cuBLAS bridge, without an external engine."""
+     return _build_backend(
+@@ -208,6 +217,7 @@
+         q8_row_tile=q8_row_tile,
+         q8_decode_mode=q8_decode_mode,
+         q8_row_pair=q8_row_pair,
++        q8_swiglu_quant=q8_swiglu_quant,
+     )
+ 
+ 
+@@ -221,11 +231,14 @@
+     parser.add_argument("--q8-row-tile", type=int, choices=(1, 2, 4, 8))
+     parser.add_argument("--q8-decode-mode", type=int, choices=(0, 1, 2), default=0)
+     parser.add_argument("--q8-row-pair", action="store_true", help="Experimental SM70 native projection dispatch; default off")
++    parser.add_argument("--q8-swiglu-quant", action="store_true", help="Experimental SM70 native SwiGLU/two-pass activation quantization fusion; default off")
+     args = parser.parse_args()
+     if args.component == "ada" and args.architecture != "sm89":
+         parser.error("Ada Q4 supports sm89 only")
+     if args.q8_row_pair and (args.component != "blocks" or args.architecture != "sm70"):
+         parser.error("--q8-row-pair requires --component blocks --architecture sm70")
++    if args.q8_swiglu_quant and (args.component != "blocks" or args.architecture != "sm70"):
++        parser.error("--q8-swiglu-quant requires --component blocks --architecture sm70")
+     build = build_blocks_backend if args.component == "blocks" else build_cuda_backend
+     print(
+         build(
+@@ -238,6 +251,7 @@
+                     q8_row_tile=args.q8_row_tile,
+                     q8_decode_mode=args.q8_decode_mode,
+                     q8_row_pair=args.q8_row_pair,
++                    q8_swiglu_quant=args.q8_swiglu_quant,
+                 )
+                 if args.component == "blocks"
+                 else {}

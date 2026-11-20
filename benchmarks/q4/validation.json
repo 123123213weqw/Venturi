@@ -1,0 +1,177 @@
+{
+  "scope": "Reusable Q4 Linear operators, not full-model inference",
+  "gpu": "NVIDIA GeForce RTX 4090 D",
+  "compute_capability": [
+    8,
+    9
+  ],
+  "python": "3.12.3",
+  "torch": "2.9.1+cu130",
+  "cuda": "13.0",
+  "cpu_threads": 8,
+  "cuda_test_result": "145 passed; no skips; three expected Siphon ring-depth warnings",
+  "local_cpu_test_result": "107 passed; 38 opt-in CUDA cases skipped",
+  "packaging": "Wheel inspected; all eight native source/attribution assets match the source tree",
+  "tested_source_sha256_manifest": "tested-sources.json",
+  "native_source_sha256_manifest": "rtx4090d-linear.json:build.source_sha256",
+  "test_log": "tests.log",
+  "benchmark": "rtx4090d-linear.json",
+  "performance_scope": [
+    "Synthetic integer Q4 codes and FP16 scales, BF16 activations",
+    "Graph latency amortized over 20 captured operator launches",
+    "Five repetitions, alternating auto/generic timing order",
+    "SIMT is Venturi own general correctness baseline, not llama.cpp",
+    "No model TPS or quality/speed comparison against other engines"
+  ],
+  "not_validated": [
+    "A second physical RTX 4090 card",
+    "Other compute capabilities or quantized formats",
+    "Full-model execution or end-to-end advantage over llama.cpp"
+  ],
+  "summary": [
+    {
+      "shape": {
+        "N": 4096,
+        "K": 4096,
+        "T": 1
+      },
+      "selected_route": "generic-simt",
+      "median_graph_operator_us": 20.2239990234375,
+      "median_eager_us": 42.08639860153198,
+      "median_simt_graph_operator_us": 20.234239101409912,
+      "execution_peak_extra_pytorch_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 4096,
+        "K": 4096,
+        "T": 8
+      },
+      "selected_route": "ada-mma-general",
+      "median_graph_operator_us": 12.184640169143677,
+      "median_eager_us": 42.1887993812561,
+      "median_simt_graph_operator_us": 81.79712295532227,
+      "execution_peak_extra_pytorch_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 4096,
+        "K": 4096,
+        "T": 16
+      },
+      "selected_route": "ada-mma-general",
+      "median_graph_operator_us": 12.881920337677002,
+      "median_eager_us": 42.64959990978241,
+      "median_simt_graph_operator_us": 133.21215629577637,
+      "execution_peak_extra_pytorch_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 4096,
+        "K": 4096,
+        "T": 128
+      },
+      "selected_route": "ada-mma-general",
+      "median_graph_operator_us": 47.523841857910156,
+      "median_eager_us": 53.45280170440674,
+      "median_simt_graph_operator_us": 913.7459564208986,
+      "execution_peak_extra_pytorch_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 5120,
+        "T": 1
+      },
+      "selected_route": "generic-simt",
+      "median_graph_operator_us": 25.292799472808834,
+      "median_eager_us": 34.20160114765167,
+      "median_simt_graph_operator_us": 25.292799472808834,
+      "execution_peak_extra_pytorch_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 5120,
+        "T": 8
+      },
+      "selected_route": "ada-mma-small-t",
+      "median_graph_operator_us": 14.96832013130188,
+      "median_eager_us": 34.24479961395264,
+      "median_simt_graph_operator_us": 98.4985637664795,
+      "execution_peak_extra_pytorch_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 5120,
+        "T": 16
+      },
+      "selected_route": "ada-mma-small-t",
+      "median_graph_operator_us": 16.9760000705719,
+      "median_eager_us": 34.406399726867676,
+      "median_simt_graph_operator_us": 192.85696029663086,
+      "execution_peak_extra_pytorch_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 5120,
+        "T": 128
+      },
+      "selected_route": "ada-mma-general",
+      "median_graph_operator_us": 71.19872093200682,
+      "median_eager_us": 74.03519749641418,
+      "median_simt_graph_operator_us": 1414.7465515136719,
+      "execution_peak_extra_pytorch_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 25600,
+        "T": 1
+      },
+      "selected_route": "generic-simt",
+      "median_graph_operator_us": 132.87424087524414,
+      "median_eager_us": 135.8240008354187,
+      "median_simt_graph_operator_us": 142.23199844360352,
+      "execution_peak_extra_pytorch_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 25600,
+        "T": 8
+      },
+      "selected_route": "ada-mma-small-t",
+      "median_graph_operator_us": 76.9708776473999,
+      "median_eager_us": 80.53759932518005,
+      "median_simt_graph_operator_us": 587.3641586303711,
+      "execution_peak_extra_pytorch_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 25600,
+        "T": 16
+      },
+      "selected_route": "ada-mma-small-t",
+      "median_graph_operator_us": 79.12447929382324,
+      "median_eager_us": 83.2368016242981,
+      "median_simt_graph_operator_us": 1032.7040100097659,
+      "execution_peak_extra_pytorch_bytes": 0
+    },
+    {
+      "shape": {
+        "N": 5120,
+        "K": 25600,
+        "T": 128
+      },
+      "selected_route": "ada-mma-general",
+      "median_graph_operator_us": 412.7027130126953,
+      "median_eager_us": 412.8767967224121,
+      "median_simt_graph_operator_us": 7311.112060546876,
+      "execution_peak_extra_pytorch_bytes": 0
+    }
+  ]
+}

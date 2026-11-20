@@ -1,0 +1,949 @@
+{
+  "method": "Eight-request DFlash2/off comparison through the resident production batch API.\n\nOne generate_many RPC submits eight requests; this is not eight HTTP clients.\nAggregate throughput uses shared client wall time including prefill and JSON\ntransport, never summed overlapping request durations. Startup/warmup excluded.\nNative per-request timings are not streamed client TTFT. No precision changes,\nnew models, external builds, or kernel edits are made.\n",
+  "prompts": [
+    "Explain why the sky looks blue. Give a detailed answer.",
+    "Write a Python function to merge two sorted lists and explain its complexity.",
+    "Explain how a CPU cache works and why locality matters.",
+    "Write a Python binary search function and describe its edge cases.",
+    "Explain how rain forms, from evaporation to precipitation.",
+    "Compare TCP and UDP, with examples of when to use each.",
+    "Write a Python function that counts word frequencies and explain its complexity.",
+    "Explain photosynthesis and its role in the carbon cycle."
+  ],
+  "generation": {
+    "max_new_tokens": 128,
+    "ignore_eos": true
+  },
+  "runner_sha256": "3c7da6aeb337ee374ce912934c9335252e39326cd9cba3e2163696c06d15dfb4",
+  "checkpoint": "/dev/shm/venturi-test/venturi-ninfer-d3ae5782742a48c8b058196297a7ddff-f730fa10d9cd5d08/qwen3_8_27b.ninfer",
+  "session_order": [
+    "baseline-a",
+    "dflash-a",
+    "dflash-b",
+    "baseline-b"
+  ],
+  "summaries": {
+    "none": {
+      "output_tokens": 6144,
+      "client_wall_seconds": 18.40835000469815,
+      "aggregate_output_tokens_per_second": 333.7615809364738,
+      "median_batch_client_wall_seconds": 3.067968432442285,
+      "native_cpu_seconds": 0.9099999999999993,
+      "python_cpu_seconds": 0.019678999999999114,
+      "native_cpu_percent": 4.943408832229671,
+      "median_native_first_token_seconds": 0.301235265,
+      "median_native_request_total_seconds": 2.991789941,
+      "mean_actual_decode_batch": 7.582089552238806,
+      "speculative_rounds": 0,
+      "drafted_tokens": 0,
+      "accepted_draft_tokens": 0,
+      "accepted_draft_fraction": null,
+      "accepted_drafts_per_round": null,
+      "accepted_per_position": [],
+      "fallback_steps": 0
+    },
+    "dflash2": {
+      "output_tokens": 6144,
+      "client_wall_seconds": 17.729611956048757,
+      "aggregate_output_tokens_per_second": 346.5388873276423,
+      "median_batch_client_wall_seconds": 2.9548330135294236,
+      "native_cpu_seconds": 0.79,
+      "python_cpu_seconds": 0.010044999999998971,
+      "native_cpu_percent": 4.455822281719359,
+      "median_native_first_token_seconds": 0.38032878550000004,
+      "median_native_request_total_seconds": 2.744866874,
+      "mean_actual_decode_batch": 5.368421052631579,
+      "speculative_rounds": 1224,
+      "drafted_tokens": 9528,
+      "accepted_draft_tokens": 4872,
+      "accepted_draft_fraction": 0.5113350125944585,
+      "accepted_drafts_per_round": 3.980392156862745,
+      "accepted_per_position": [
+        1092,
+        912,
+        732,
+        594,
+        492,
+        432,
+        342,
+        276
+      ],
+      "fallback_steps": 0
+    }
+  },
+  "output_comparisons": [
+    {
+      "session": "baseline-a",
+      "repeat": 0,
+      "request": 0,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 0,
+      "request": 1,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 0,
+      "request": 2,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 0,
+      "request": 3,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 0,
+      "request": 4,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 0,
+      "request": 5,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 0,
+      "request": 6,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 0,
+      "request": 7,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 1,
+      "request": 0,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 1,
+      "request": 1,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 1,
+      "request": 2,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 1,
+      "request": 3,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 1,
+      "request": 4,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 1,
+      "request": 5,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 1,
+      "request": 6,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 1,
+      "request": 7,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 2,
+      "request": 0,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 2,
+      "request": 1,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 2,
+      "request": 2,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 2,
+      "request": 3,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 2,
+      "request": 4,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 2,
+      "request": 5,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 2,
+      "request": 6,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-a",
+      "repeat": 2,
+      "request": 7,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 0,
+      "request": 0,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 0,
+      "request": 1,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 0,
+      "request": 2,
+      "equal": false,
+      "matching_prefix": 61,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 0,
+      "request": 3,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 0,
+      "request": 4,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 0,
+      "request": 5,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 0,
+      "request": 6,
+      "equal": false,
+      "matching_prefix": 42,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 0,
+      "request": 7,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 1,
+      "request": 0,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 1,
+      "request": 1,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 1,
+      "request": 2,
+      "equal": false,
+      "matching_prefix": 61,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 1,
+      "request": 3,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 1,
+      "request": 4,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 1,
+      "request": 5,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 1,
+      "request": 6,
+      "equal": false,
+      "matching_prefix": 42,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 1,
+      "request": 7,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 2,
+      "request": 0,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 2,
+      "request": 1,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 2,
+      "request": 2,
+      "equal": false,
+      "matching_prefix": 61,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 2,
+      "request": 3,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 2,
+      "request": 4,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 2,
+      "request": 5,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 2,
+      "request": 6,
+      "equal": false,
+      "matching_prefix": 42,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-a",
+      "repeat": 2,
+      "request": 7,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 0,
+      "request": 0,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 0,
+      "request": 1,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 0,
+      "request": 2,
+      "equal": false,
+      "matching_prefix": 61,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 0,
+      "request": 3,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 0,
+      "request": 4,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 0,
+      "request": 5,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 0,
+      "request": 6,
+      "equal": false,
+      "matching_prefix": 42,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 0,
+      "request": 7,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 1,
+      "request": 0,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 1,
+      "request": 1,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 1,
+      "request": 2,
+      "equal": false,
+      "matching_prefix": 61,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 1,
+      "request": 3,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 1,
+      "request": 4,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 1,
+      "request": 5,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 1,
+      "request": 6,
+      "equal": false,
+      "matching_prefix": 42,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 1,
+      "request": 7,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 2,
+      "request": 0,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 2,
+      "request": 1,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 2,
+      "request": 2,
+      "equal": false,
+      "matching_prefix": 61,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 2,
+      "request": 3,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 2,
+      "request": 4,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 2,
+      "request": 5,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 2,
+      "request": 6,
+      "equal": false,
+      "matching_prefix": 42,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "dflash-b",
+      "repeat": 2,
+      "request": 7,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 0,
+      "request": 0,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 0,
+      "request": 1,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 0,
+      "request": 2,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 0,
+      "request": 3,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 0,
+      "request": 4,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 0,
+      "request": 5,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 0,
+      "request": 6,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 0,
+      "request": 7,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 1,
+      "request": 0,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 1,
+      "request": 1,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 1,
+      "request": 2,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 1,
+      "request": 3,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 1,
+      "request": 4,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 1,
+      "request": 5,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 1,
+      "request": 6,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 1,
+      "request": 7,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 2,
+      "request": 0,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 2,
+      "request": 1,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 2,
+      "request": 2,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 2,
+      "request": 3,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 2,
+      "request": 4,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 2,
+      "request": 5,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 2,
+      "request": 6,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    },
+    {
+      "session": "baseline-b",
+      "repeat": 2,
+      "request": 7,
+      "equal": true,
+      "matching_prefix": 128,
+      "reference_length": 128,
+      "actual_length": 128
+    }
+  ],
+  "all_replays_match_warm": true,
+  "all_native_processes_exited_cleanly": true,
+  "throughput_speedup": 1.0382827357040847,
+  "limitations": [
+    "Fixed 128 outputs, EOS ignored; not an EOS-respecting chat or HTTP load test.",
+    "Greedy differences are retained, not declared lossless.",
+    "GPU telemetry is coarse whole-device measurement, not achieved occupancy or bandwidth utilization.",
+    "Prior counter restriction unchanged; achieved occupancy/compute/DRAM/cache/stall counters unavailable."
+  ]
+}

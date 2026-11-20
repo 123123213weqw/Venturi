@@ -1,0 +1,35 @@
+--- before/tests/test_ada_build.py
++++ after/tests/test_ada_build.py
+@@ -209,7 +209,8 @@
+     assert "q8_prefetch.cuh" in manifest["source_sha256"]
+     assert "q8_projection_dispatch.cuh" in manifest["source_sha256"]
+     assert "q8_producer.cuh" in manifest["source_sha256"]
+-    assert len(manifest["source_sha256"]) == 14
++    assert "q8_rms_producer.cuh" in manifest["source_sha256"]
++    assert len(manifest["source_sha256"]) == 15
+ 
+ 
+ def test_swiglu_quant_is_opt_in_sm70_and_in_build_identity(monkeypatch, tmp_path):
+@@ -238,3 +239,22 @@
+             build_blocks_backend(tmp_path, architecture='sm70', q8_swiglu_quant=bad)
+     with pytest.raises(ValueError, match='SwiGLU'):
+         build_blocks_backend(tmp_path, architecture='sm89', q8_swiglu_quant=True)
++
++
++def test_rms_quant_is_opt_in_sm70_and_part_of_build_identity(monkeypatch, tmp_path):
++    import json
++    from venturi.ops.build import build_blocks_backend
++    commands=[]
++    def compiler(command, **kwargs):
++        if command[-1]=='--version':return subprocess.CompletedProcess(command,0,'fake compiler','')
++        commands.append(command);Path(command[-1]).write_bytes(b'fake library; no compilation')
++        return subprocess.CompletedProcess(command,0,'','')
++    monkeypatch.setattr(sys,'platform','linux');monkeypatch.setattr(subprocess,'run',compiler)
++    kwargs=dict(nvcc='fake',architecture='sm70',q8_row_pair=True,q8_swiglu_quant=True)
++    a=build_blocks_backend(tmp_path,**kwargs);b=build_blocks_backend(tmp_path,**kwargs,q8_rms_quant=True)
++    assert a!=b and '-DVENTURI_Q8_RMS_QUANT=0' in commands[0] and '-DVENTURI_Q8_RMS_QUANT=1' in commands[1]
++    assert 'q8_rms_producer.cuh' in json.loads(b.with_name('build.json').read_text())['source_sha256']
++    assert build_blocks_backend(tmp_path,**kwargs,q8_rms_quant=True)==b and len(commands)==2
++    for value in [None,1,'true']:
++        with pytest.raises(ValueError,match='RMS'):build_blocks_backend(tmp_path,architecture='sm70',q8_rms_quant=value)
++    with pytest.raises(ValueError,match='RMS'):build_blocks_backend(tmp_path,architecture='sm89',q8_rms_quant=True)

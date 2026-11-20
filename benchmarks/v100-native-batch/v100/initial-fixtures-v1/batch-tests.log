@@ -1,0 +1,18 @@
+.F
+=================================== FAILURES ===================================
+_ test_ragged_forward_exact_logits_and_state_with_inactive_slots[native-fp16-1-False] _
+tests/test_qwen_batch.py:97: in test_ragged_forward_exact_logits_and_state_with_inactive_slots
+    assert torch.equal(actual.view(torch.uint8), expected.view(torch.uint8))
+E   assert False
+E    +  where False = <built-in method equal of type object at 0x7c05712bf1c0>(tensor([[  0,  32, 194, 188,   0,  32, 132, 188,   0,  64,  11, 188,   0,  96,\n         130, 186,   0, 224, 213,  59, ...9,   0,  96, 120,  60,\n           0,   0, 186,  60,   0, 192,  61, 189,   0, 160, 172, 188]],\n       dtype=torch.uint8), tensor([  0,  32, 194, 188,   0,  32, 132, 188,   0,  64,  11, 188,   0,  96,\n        130, 186,   0, 224, 213,  59,   ... 59,   0,  96, 120,  60,\n          0,   0, 186,  60,   0, 192,  61, 189,   0, 160, 172, 188],\n       dtype=torch.uint8))
+E    +    where <built-in method equal of type object at 0x7c05712bf1c0> = torch.equal
+E    +    and   tensor([[  0,  32, 194, 188,   0,  32, 132, 188,   0,  64,  11, 188,   0,  96,\n         130, 186,   0, 224, 213,  59, ...9,   0,  96, 120,  60,\n           0,   0, 186,  60,   0, 192,  61, 189,   0, 160, 172, 188]],\n       dtype=torch.uint8) = <built-in method view of Tensor object at 0x7c04afea1ee0>(torch.uint8)
+E    +      where <built-in method view of Tensor object at 0x7c04afea1ee0> = tensor([[-0.0237, -0.0161, -0.0085, -0.0010,  0.0065,  0.0141,  0.0216, -0.0126,\n         -0.0224, -0.0149, -0.0074,  0.0002,  0.0078,  0.0152,  0.0227, -0.0463,\n         -0.0211]]).view
+E    +      and   torch.uint8 = torch.uint8
+E    +    and   tensor([  0,  32, 194, 188,   0,  32, 132, 188,   0,  64,  11, 188,   0,  96,\n        130, 186,   0, 224, 213,  59,   ... 59,   0,  96, 120,  60,\n          0,   0, 186,  60,   0, 192,  61, 189,   0, 160, 172, 188],\n       dtype=torch.uint8) = <built-in method view of Tensor object at 0x7c04afea1850>(torch.uint8)
+E    +      where <built-in method view of Tensor object at 0x7c04afea1850> = tensor([-0.0237, -0.0161, -0.0085, -0.0010,  0.0065,  0.0141,  0.0216, -0.0126,\n        -0.0224, -0.0149, -0.0074,  0.0002,  0.0078,  0.0152,  0.0227, -0.0463,\n        -0.0211]).view
+E    +      and   torch.uint8 = torch.uint8
+=========================== short test summary info ============================
+FAILED tests/test_qwen_batch.py::test_ragged_forward_exact_logits_and_state_with_inactive_slots[native-fp16-1-False]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 1 passed in 0.96s

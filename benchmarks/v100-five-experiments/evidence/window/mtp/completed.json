@@ -1,0 +1,85 @@
+{
+  "completed": true,
+  "counts": [
+    1,
+    8
+  ],
+  "repeats": 3,
+  "policy": {
+    "alpha": 0.3,
+    "minimum_gain": 0.03,
+    "probe_interval": 16,
+    "buckets": [
+      {
+        "workload_key": [
+          1,
+          16,
+          16,
+          32,
+          32,
+          false
+        ],
+        "completed_cohorts": 12,
+        "samples": {
+          "0": {
+            "observations": 3,
+            "seconds_per_output": 0.03252226377621128,
+            "proposed_tokens": 0,
+            "accepted_tokens": 0,
+            "last_step": 7,
+            "acceptance_rate": null
+          },
+          "1": {
+            "observations": 3,
+            "seconds_per_output": 0.022416228153776956,
+            "proposed_tokens": 51,
+            "accepted_tokens": 42,
+            "last_step": 8,
+            "acceptance_rate": 0.8235294117647058
+          },
+          "2": {
+            "observations": 6,
+            "seconds_per_output": 0.021485667166292494,
+            "proposed_tokens": 156,
+            "accepted_tokens": 102,
+            "last_step": 12,
+            "acceptance_rate": 0.6538461538461539
+          }
+        }
+      },
+      {
+        "workload_key": [
+          8,
+          16,
+          128,
+          32,
+          256,
+          false
+        ],
+        "completed_cohorts": 9,
+        "samples": {
+          "0": {
+            "observations": 6,
+            "seconds_per_output": 0.009524973568658664,
+            "proposed_tokens": 0,
+            "accepted_tokens": 0,
+            "last_step": 9,
+            "acceptance_rate": null
+          },
+          "1": {
+            "observations": 3,
+            "seconds_per_output": 0.010469242751608192,
+            "proposed_tokens": 399,
+            "accepted_tokens": 333,
+            "last_step": 6,
+            "acceptance_rate": 0.8345864661654135
+          }
+        }
+      }
+    ],
+    "scope": "Execution-instance-local EWMA of complete cohort wall/emitted tokens; acceptance is diagnostic, not a trained confidence estimate"
+  },
+  "comparison": "Whole fresh cohort including policy/reset/native draft+verification+metadata, no HTTP; no post-first TPS claim",
+  "state_scope": "Exact target state and greedy IDs for these 8 prompts only; draft quality is not assumed from acceptance",
+  "unix": 1792683243.7041528
+}

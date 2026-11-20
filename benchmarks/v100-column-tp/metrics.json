@@ -1,0 +1,2496 @@
+{
+  "scope": "Matched primary-only normalized input/output; isolated MLP block, not serving TPS or complete model quality.",
+  "library_sha256": "d7001c142b942af3fe516bc5f00eb828ad2ce24e2716186c9b562301081fb9df",
+  "source_artifact_id": "3d635b87db004f42aefd6730e372e530",
+  "full_model_implemented": false,
+  "model_quality_qualified": false,
+  "external_speed_goal_complete": false,
+  "precision": "Stored Q8/F16 scales, two residual-A8 passes/F32 scales; column down partials+transport FP32, one sum+FP16 cast. Changed FP32 association, not prior-profile byte parity.",
+  "achieved_hardware_counters": null,
+  "cases": [
+    {
+      "tokens": 1,
+      "median_speed_ratio": 1.23901804287571,
+      "all_three_trials_faster": true,
+      "different_fp16_outputs": 8,
+      "prior_profile_output_relative_l2": 2.773438156499212e-07,
+      "sampled_fp64": [
+        {
+          "arm": "row",
+          "relative_l2": 0.00023555689551601173,
+          "max_abs": 0.000479818605152893,
+          "rows": [
+            0,
+            125,
+            213,
+            584,
+            596,
+            801,
+            1037,
+            1076,
+            1229,
+            1860,
+            2010,
+            2023,
+            2056,
+            2119,
+            2366,
+            2588,
+            2589,
+            2706,
+            2715,
+            2736,
+            2760,
+            3007,
+            3256,
+            3291,
+            3336,
+            3379,
+            3513,
+            3550,
+            3862,
+            5026,
+            5109,
+            5119
+          ]
+        },
+        {
+          "arm": "column",
+          "relative_l2": 0.00023555689551601173,
+          "max_abs": 0.000479818605152893,
+          "rows": [
+            0,
+            125,
+            213,
+            584,
+            596,
+            801,
+            1037,
+            1076,
+            1229,
+            1860,
+            2010,
+            2023,
+            2056,
+            2119,
+            2366,
+            2588,
+            2589,
+            2706,
+            2715,
+            2736,
+            2760,
+            3007,
+            3256,
+            3291,
+            3336,
+            3379,
+            3513,
+            3550,
+            3862,
+            5026,
+            5109,
+            5119
+          ]
+        }
+      ],
+      "arms": [
+        {
+          "arm": "row",
+          "repeats": 3,
+          "calls_per_trial": 400,
+          "trial_event_ms_per_call": [
+            0.3007659912109375,
+            0.2979996871948242,
+            0.2977604866027832
+          ],
+          "median_event_ms_per_call": 0.2979996871948242,
+          "median_wall_us_per_call": 298.1647275737487,
+          "median_cpu_core_us_per_call": 298.5149999999992,
+          "logical_copy_bytes_each_direction_per_call": 84992,
+          "telemetry": {
+            "1": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 60.666666666666664,
+                  "min": 30.0,
+                  "max": 76.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 61.666666666666664,
+                  "min": 29.0,
+                  "max": 78.0
+                },
+                "device_used_mib": {
+                  "mean": 3785.0,
+                  "min": 3785.0,
+                  "max": 3785.0
+                },
+                "power_watts": {
+                  "mean": 115.39,
+                  "min": 105.83,
+                  "max": 121.18
+                },
+                "temperature_c": {
+                  "mean": 33.0,
+                  "min": 32.0,
+                  "max": 34.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1330.0,
+                  "min": 1230.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 55.333333333333336,
+                  "min": 21.0,
+                  "max": 77.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 54.0,
+                  "min": 13.0,
+                  "max": 81.0
+                },
+                "device_used_mib": {
+                  "mean": 4247.0,
+                  "min": 4247.0,
+                  "max": 4247.0
+                },
+                "power_watts": {
+                  "mean": 109.94666666666667,
+                  "min": 100.5,
+                  "max": 115.37
+                },
+                "temperature_c": {
+                  "mean": 34.333333333333336,
+                  "min": 33.0,
+                  "max": 35.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1330.0,
+                  "min": 1230.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": "column",
+          "repeats": 3,
+          "calls_per_trial": 400,
+          "trial_event_ms_per_call": [
+            0.2429672050476074,
+            0.24051279067993164,
+            0.24043960571289064
+          ],
+          "median_event_ms_per_call": 0.24051279067993164,
+          "median_wall_us_per_call": 240.65193996648304,
+          "median_cpu_core_us_per_call": 240.90500000000014,
+          "logical_copy_bytes_each_direction_per_call": 30720,
+          "telemetry": {
+            "1": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 59.333333333333336,
+                  "min": 30.0,
+                  "max": 77.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 61.0,
+                  "min": 29.0,
+                  "max": 85.0
+                },
+                "device_used_mib": {
+                  "mean": 3785.0,
+                  "min": 3785.0,
+                  "max": 3785.0
+                },
+                "power_watts": {
+                  "mean": 133.90333333333334,
+                  "min": 123.81,
+                  "max": 142.52
+                },
+                "temperature_c": {
+                  "mean": 33.333333333333336,
+                  "min": 33.0,
+                  "max": 34.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1322.3333333333333,
+                  "min": 1230.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 71.33333333333333,
+                  "min": 68.0,
+                  "max": 73.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 76.66666666666667,
+                  "min": 68.0,
+                  "max": 81.0
+                },
+                "device_used_mib": {
+                  "mean": 4247.0,
+                  "min": 4247.0,
+                  "max": 4247.0
+                },
+                "power_watts": {
+                  "mean": 131.41666666666666,
+                  "min": 125.66,
+                  "max": 135.17
+                },
+                "temperature_c": {
+                  "mean": 34.666666666666664,
+                  "min": 34.0,
+                  "max": 35.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1364.6666666666667,
+                  "min": 1357.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokens": 3,
+      "median_speed_ratio": 1.2868047150133914,
+      "all_three_trials_faster": true,
+      "different_fp16_outputs": 19,
+      "prior_profile_output_relative_l2": 1.25598740318675e-06,
+      "sampled_fp64": [
+        {
+          "arm": "row",
+          "relative_l2": 0.0002172488111236316,
+          "max_abs": 0.00047981860515311503,
+          "rows": [
+            0,
+            125,
+            213,
+            584,
+            596,
+            801,
+            1037,
+            1076,
+            1229,
+            1860,
+            2010,
+            2023,
+            2056,
+            2119,
+            2366,
+            2588,
+            2589,
+            2706,
+            2715,
+            2736,
+            2760,
+            3007,
+            3256,
+            3291,
+            3336,
+            3379,
+            3513,
+            3550,
+            3862,
+            5026,
+            5109,
+            5119
+          ]
+        },
+        {
+          "arm": "column",
+          "relative_l2": 0.0002172488111236316,
+          "max_abs": 0.00047981860515311503,
+          "rows": [
+            0,
+            125,
+            213,
+            584,
+            596,
+            801,
+            1037,
+            1076,
+            1229,
+            1860,
+            2010,
+            2023,
+            2056,
+            2119,
+            2366,
+            2588,
+            2589,
+            2706,
+            2715,
+            2736,
+            2760,
+            3007,
+            3256,
+            3291,
+            3336,
+            3379,
+            3513,
+            3550,
+            3862,
+            5026,
+            5109,
+            5119
+          ]
+        }
+      ],
+      "arms": [
+        {
+          "arm": "row",
+          "repeats": 3,
+          "calls_per_trial": 400,
+          "trial_event_ms_per_call": [
+            0.36783920288085936,
+            0.3678526306152344,
+            0.36740009307861327
+          ],
+          "median_event_ms_per_call": 0.36783920288085936,
+          "median_wall_us_per_call": 368.06871750741266,
+          "median_cpu_core_us_per_call": 368.48500000000286,
+          "logical_copy_bytes_each_direction_per_call": 254976,
+          "telemetry": {
+            "1": {
+              "samples": 5,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 63.4,
+                  "min": 44.0,
+                  "max": 81.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 57.8,
+                  "min": 45.0,
+                  "max": 75.0
+                },
+                "device_used_mib": {
+                  "mean": 3785.0,
+                  "min": 3785.0,
+                  "max": 3785.0
+                },
+                "power_watts": {
+                  "mean": 143.654,
+                  "min": 131.96,
+                  "max": 148.09
+                },
+                "temperature_c": {
+                  "mean": 35.4,
+                  "min": 34.0,
+                  "max": 36.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 5,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 67.0,
+                  "min": 57.0,
+                  "max": 78.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 63.0,
+                  "min": 58.0,
+                  "max": 73.0
+                },
+                "device_used_mib": {
+                  "mean": 4247.0,
+                  "min": 4247.0,
+                  "max": 4247.0
+                },
+                "power_watts": {
+                  "mean": 134.434,
+                  "min": 117.7,
+                  "max": 140.32
+                },
+                "temperature_c": {
+                  "mean": 36.0,
+                  "min": 35.0,
+                  "max": 37.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": "column",
+          "repeats": 3,
+          "calls_per_trial": 400,
+          "trial_event_ms_per_call": [
+            0.2858426475524902,
+            0.2858767127990723,
+            0.28585472106933596
+          ],
+          "median_event_ms_per_call": 0.28585472106933596,
+          "median_wall_us_per_call": 286.01720012375154,
+          "median_cpu_core_us_per_call": 286.2274999999981,
+          "logical_copy_bytes_each_direction_per_call": 92160,
+          "telemetry": {
+            "1": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 72.33333333333333,
+                  "min": 71.0,
+                  "max": 73.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 60.0,
+                  "min": 58.0,
+                  "max": 61.0
+                },
+                "device_used_mib": {
+                  "mean": 3785.0,
+                  "min": 3785.0,
+                  "max": 3785.0
+                },
+                "power_watts": {
+                  "mean": 176.56333333333333,
+                  "min": 176.22,
+                  "max": 177.22
+                },
+                "temperature_c": {
+                  "mean": 36.333333333333336,
+                  "min": 36.0,
+                  "max": 37.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 3,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 67.66666666666667,
+                  "min": 56.0,
+                  "max": 78.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 59.666666666666664,
+                  "min": 48.0,
+                  "max": 73.0
+                },
+                "device_used_mib": {
+                  "mean": 4247.0,
+                  "min": 4247.0,
+                  "max": 4247.0
+                },
+                "power_watts": {
+                  "mean": 166.31,
+                  "min": 164.82,
+                  "max": 167.7
+                },
+                "temperature_c": {
+                  "mean": 36.333333333333336,
+                  "min": 36.0,
+                  "max": 37.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tokens": 8,
+      "median_speed_ratio": 1.3157562720927263,
+      "all_three_trials_faster": true,
+      "different_fp16_outputs": 44,
+      "prior_profile_output_relative_l2": 1.0499130414588723e-06,
+      "sampled_fp64": [
+        {
+          "arm": "row",
+          "relative_l2": 0.00020945970573848125,
+          "max_abs": 0.0004878550920077718,
+          "rows": [
+            0,
+            125,
+            213,
+            584,
+            596,
+            801,
+            1037,
+            1076,
+            1229,
+            1860,
+            2010,
+            2023,
+            2056,
+            2119,
+            2366,
+            2588,
+            2589,
+            2706,
+            2715,
+            2736,
+            2760,
+            3007,
+            3256,
+            3291,
+            3336,
+            3379,
+            3513,
+            3550,
+            3862,
+            5026,
+            5109,
+            5119
+          ]
+        },
+        {
+          "arm": "column",
+          "relative_l2": 0.00020945969900132248,
+          "max_abs": 0.0004878550920077718,
+          "rows": [
+            0,
+            125,
+            213,
+            584,
+            596,
+            801,
+            1037,
+            1076,
+            1229,
+            1860,
+            2010,
+            2023,
+            2056,
+            2119,
+            2366,
+            2588,
+            2589,
+            2706,
+            2715,
+            2736,
+            2760,
+            3007,
+            3256,
+            3291,
+            3336,
+            3379,
+            3513,
+            3550,
+            3862,
+            5026,
+            5109,
+            5119
+          ]
+        }
+      ],
+      "arms": [
+        {
+          "arm": "row",
+          "repeats": 3,
+          "calls_per_trial": 400,
+          "trial_event_ms_per_call": [
+            0.5982450485229492,
+            0.5967388153076172,
+            0.5966421508789063
+          ],
+          "median_event_ms_per_call": 0.5967388153076172,
+          "median_wall_us_per_call": 596.9097575871274,
+          "median_cpu_core_us_per_call": 713.5075000000013,
+          "logical_copy_bytes_each_direction_per_call": 679936,
+          "telemetry": {
+            "1": {
+              "samples": 7,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 70.28571428571429,
+                  "min": 56.0,
+                  "max": 81.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 43.714285714285715,
+                  "min": 36.0,
+                  "max": 51.0
+                },
+                "device_used_mib": {
+                  "mean": 3787.0,
+                  "min": 3787.0,
+                  "max": 3787.0
+                },
+                "power_watts": {
+                  "mean": 153.19571428571427,
+                  "min": 137.91,
+                  "max": 156.78
+                },
+                "temperature_c": {
+                  "mean": 37.285714285714285,
+                  "min": 35.0,
+                  "max": 38.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 6,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 68.33333333333333,
+                  "min": 50.0,
+                  "max": 83.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 38.0,
+                  "min": 27.0,
+                  "max": 49.0
+                },
+                "device_used_mib": {
+                  "mean": 4249.0,
+                  "min": 4249.0,
+                  "max": 4249.0
+                },
+                "power_watts": {
+                  "mean": 146.20833333333331,
+                  "min": 144.73,
+                  "max": 147.04
+                },
+                "temperature_c": {
+                  "mean": 37.666666666666664,
+                  "min": 37.0,
+                  "max": 38.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        },
+        {
+          "arm": "column",
+          "repeats": 3,
+          "calls_per_trial": 400,
+          "trial_event_ms_per_call": [
+            0.4524788665771484,
+            0.45361831665039065,
+            0.45353294372558595
+          ],
+          "median_event_ms_per_call": 0.45353294372558595,
+          "median_wall_us_per_call": 453.72371751000173,
+          "median_cpu_core_us_per_call": 548.6725000000004,
+          "logical_copy_bytes_each_direction_per_call": 245760,
+          "telemetry": {
+            "1": {
+              "samples": 5,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 78.4,
+                  "min": 74.0,
+                  "max": 84.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 43.4,
+                  "min": 38.0,
+                  "max": 50.0
+                },
+                "device_used_mib": {
+                  "mean": 3787.0,
+                  "min": 3787.0,
+                  "max": 3787.0
+                },
+                "power_watts": {
+                  "mean": 188.282,
+                  "min": 174.93,
+                  "max": 192.58
+                },
+                "temperature_c": {
+                  "mean": 38.4,
+                  "min": 38.0,
+                  "max": 39.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 5,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 77.0,
+                  "min": 72.0,
+                  "max": 83.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 43.6,
+                  "min": 38.0,
+                  "max": 50.0
+                },
+                "device_used_mib": {
+                  "mean": 4249.0,
+                  "min": 4249.0,
+                  "max": 4249.0
+                },
+                "power_watts": {
+                  "mean": 174.268,
+                  "min": 159.43,
+                  "max": 180.54
+                },
+                "temperature_c": {
+                  "mean": 38.2,
+                  "min": 38.0,
+                  "max": 39.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "separate_profile_attribution": {
+    "scope": "Attribute graph-node MLP operator work; no model, TPS or achieved counters.",
+    "achieved_hardware_counters": false,
+    "operators": [
+      {
+        "name": "column_tp/t1/row",
+        "host_span_nanoseconds": 3882933,
+        "kernels": 108,
+        "kernel_nanoseconds": 4463778,
+        "activity_span_nanoseconds": 3799027,
+        "activity_union_nanoseconds": 2968851,
+        "gaps_between_this_process_activities_nanoseconds": 830176,
+        "transfers": {
+          "host_to_device": {
+            "count": 60,
+            "bytes": 1019904,
+            "nanoseconds": 307360
+          },
+          "device_to_host": {
+            "count": 48,
+            "bytes": 1019904,
+            "nanoseconds": 148832
+          }
+        },
+        "kernel_by_name": [
+          {
+            "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+            "count": 24,
+            "nanoseconds": 2739201
+          },
+          {
+            "name": "void vdq::dot<(int)1, (int)2>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+            "count": 24,
+            "nanoseconds": 1517664
+          },
+          {
+            "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+            "count": 48,
+            "nanoseconds": 165311
+          },
+          {
+            "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+            "count": 12,
+            "nanoseconds": 41602
+          }
+        ],
+        "graph_nodes_actually_attributed": 108,
+        "per_device_kernel_union_nanoseconds": {
+          "0": 2263693,
+          "1": 2200085
+        }
+      },
+      {
+        "name": "column_tp/t1/column",
+        "host_span_nanoseconds": 3118956,
+        "kernels": 132,
+        "kernel_nanoseconds": 4485695,
+        "activity_span_nanoseconds": 3061072,
+        "activity_union_nanoseconds": 2616719,
+        "gaps_between_this_process_activities_nanoseconds": 444353,
+        "transfers": {
+          "host_to_device": {
+            "count": 24,
+            "bytes": 368640,
+            "nanoseconds": 110976
+          },
+          "device_to_host": {
+            "count": 24,
+            "bytes": 368640,
+            "nanoseconds": 72000
+          }
+        },
+        "kernel_by_name": [
+          {
+            "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+            "count": 24,
+            "nanoseconds": 2728289
+          },
+          {
+            "name": "void vct::partial<(int)1, (int)4, (bool)0>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+            "count": 24,
+            "nanoseconds": 1490078
+          },
+          {
+            "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+            "count": 48,
+            "nanoseconds": 158560
+          },
+          {
+            "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+            "count": 24,
+            "nanoseconds": 73376
+          },
+          {
+            "name": "vct::sum(const float *, const float *, __half *, int)",
+            "count": 12,
+            "nanoseconds": 35392
+          }
+        ],
+        "graph_nodes_actually_attributed": 132,
+        "per_device_kernel_union_nanoseconds": {
+          "0": 2266347,
+          "1": 2219348
+        }
+      },
+      {
+        "name": "column_tp/t3/row",
+        "host_span_nanoseconds": 4776494,
+        "kernels": 108,
+        "kernel_nanoseconds": 5321170,
+        "activity_span_nanoseconds": 4715128,
+        "activity_union_nanoseconds": 3810497,
+        "gaps_between_this_process_activities_nanoseconds": 904631,
+        "transfers": {
+          "host_to_device": {
+            "count": 60,
+            "bytes": 3059712,
+            "nanoseconds": 575903
+          },
+          "device_to_host": {
+            "count": 48,
+            "bytes": 3059712,
+            "nanoseconds": 293440
+          }
+        },
+        "kernel_by_name": [
+          {
+            "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+            "count": 24,
+            "nanoseconds": 3337271
+          },
+          {
+            "name": "void vdt::dot<(int)4, (int)2, (int)8>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+            "count": 24,
+            "nanoseconds": 1764188
+          },
+          {
+            "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+            "count": 48,
+            "nanoseconds": 174591
+          },
+          {
+            "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+            "count": 12,
+            "nanoseconds": 45120
+          }
+        ],
+        "graph_nodes_actually_attributed": 108,
+        "per_device_kernel_union_nanoseconds": {
+          "0": 2684288,
+          "1": 2636882
+        }
+      },
+      {
+        "name": "column_tp/t3/column",
+        "host_span_nanoseconds": 3827148,
+        "kernels": 132,
+        "kernel_nanoseconds": 5528576,
+        "activity_span_nanoseconds": 3769235,
+        "activity_union_nanoseconds": 3260431,
+        "gaps_between_this_process_activities_nanoseconds": 508804,
+        "transfers": {
+          "host_to_device": {
+            "count": 24,
+            "bytes": 1105920,
+            "nanoseconds": 202784
+          },
+          "device_to_host": {
+            "count": 24,
+            "bytes": 1105920,
+            "nanoseconds": 112897
+          }
+        },
+        "kernel_by_name": [
+          {
+            "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+            "count": 24,
+            "nanoseconds": 3330945
+          },
+          {
+            "name": "void vct::partial<(int)4, (int)8, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+            "count": 24,
+            "nanoseconds": 1903712
+          },
+          {
+            "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+            "count": 48,
+            "nanoseconds": 178270
+          },
+          {
+            "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+            "count": 24,
+            "nanoseconds": 78753
+          },
+          {
+            "name": "vct::sum(const float *, const float *, __half *, int)",
+            "count": 12,
+            "nanoseconds": 36896
+          }
+        ],
+        "graph_nodes_actually_attributed": 132,
+        "per_device_kernel_union_nanoseconds": {
+          "0": 2789389,
+          "1": 2739187
+        }
+      },
+      {
+        "name": "column_tp/t8/row",
+        "host_span_nanoseconds": 8051844,
+        "kernels": 108,
+        "kernel_nanoseconds": 8966402,
+        "activity_span_nanoseconds": 7984329,
+        "activity_union_nanoseconds": 6867937,
+        "gaps_between_this_process_activities_nanoseconds": 1116392,
+        "transfers": {
+          "host_to_device": {
+            "count": 60,
+            "bytes": 8159232,
+            "nanoseconds": 1227362
+          },
+          "device_to_host": {
+            "count": 48,
+            "bytes": 8159232,
+            "nanoseconds": 815934
+          }
+        },
+        "kernel_by_name": [
+          {
+            "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+            "count": 24,
+            "nanoseconds": 5836864
+          },
+          {
+            "name": "void vdt::dot<(int)8, (int)2, (int)16>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+            "count": 24,
+            "nanoseconds": 2812738
+          },
+          {
+            "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+            "count": 48,
+            "nanoseconds": 261280
+          },
+          {
+            "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+            "count": 12,
+            "nanoseconds": 55520
+          }
+        ],
+        "graph_nodes_actually_attributed": 108,
+        "per_device_kernel_union_nanoseconds": {
+          "0": 4509464,
+          "1": 4456938
+        }
+      },
+      {
+        "name": "column_tp/t8/column",
+        "host_span_nanoseconds": 6135567,
+        "kernels": 132,
+        "kernel_nanoseconds": 9220099,
+        "activity_span_nanoseconds": 6073023,
+        "activity_union_nanoseconds": 5537107,
+        "gaps_between_this_process_activities_nanoseconds": 535916,
+        "transfers": {
+          "host_to_device": {
+            "count": 24,
+            "bytes": 2949120,
+            "nanoseconds": 441633
+          },
+          "device_to_host": {
+            "count": 24,
+            "bytes": 2949120,
+            "nanoseconds": 269792
+          }
+        },
+        "kernel_by_name": [
+          {
+            "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+            "count": 24,
+            "nanoseconds": 5825794
+          },
+          {
+            "name": "void vct::partial<(int)8, (int)16, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+            "count": 24,
+            "nanoseconds": 3064000
+          },
+          {
+            "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+            "count": 48,
+            "nanoseconds": 205793
+          },
+          {
+            "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+            "count": 24,
+            "nanoseconds": 87616
+          },
+          {
+            "name": "vct::sum(const float *, const float *, __half *, int)",
+            "count": 12,
+            "nanoseconds": 36896
+          }
+        ],
+        "graph_nodes_actually_attributed": 132,
+        "per_device_kernel_union_nanoseconds": {
+          "0": 4620760,
+          "1": 4599339
+        }
+      }
+    ]
+  },
+  "resources": {
+    "library": "/home/data/wangyue/artifacts/venturi-column-tp-fixtures-v1/build/1a0292f5b9945c1f/libventuri_blocks.so",
+    "library_sha256": "d7001c142b942af3fe516bc5f00eb828ad2ce24e2716186c9b562301081fb9df",
+    "driver_version": 13000,
+    "achieved_occupancy": null,
+    "hardware_counter_collection": false,
+    "kernel_launches_by_this_tool": 0,
+    "resource_usage": "\nFatbin elf code:\n================\narch = sm_70\ncode version = [1,7]\nhost = linux\ncompile_size = 64bit\nidentifier = /home/data/wangyue/repos/codex-build/Venturi/column-tp-src-v1/src/venturi/ops/csrc/blocks.cu \n\nResource usage:\n Common:\n  GLOBAL:0\n\nFatbin ptx code:\n================\narch = sm_70\ncode version = [8,8]\nhost = linux\ncompile_size = 64bit\ncompressed\nidentifier = /home/data/wangyue/repos/codex-build/Venturi/column-tp-src-v1/src/venturi/ops/csrc/blocks.cu\nptxasOptions =  --generate-line-info \n\nFatbin elf code:\n================\narch = sm_70\ncode version = [1,7]\nhost = linux\ncompile_size = 64bit\nidentifier = /home/data/wangyue/repos/codex-build/Venturi/column-tp-src-v1/src/venturi/ops/csrc/blocks.cu\n\nResource usage:\n Common:\n  GLOBAL:24 CONSTANT[4]:8\n Function _ZN2vr10mtp_concatI13__nv_bfloat16EEvPKT_S4_PS2_ii:\n  REG:20 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN2vr10mtp_concatI6__halfEEvPKT_S4_PS2_ii:\n  REG:20 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN2vr6tablesI13__nv_bfloat16EEvPKfPfS4_ii:\n  REG:22 STACK:32 SHARED:0 LOCAL:0 CONSTANT[2]:8 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN2vr6tablesI6__halfEEvPKfPfS4_ii:\n  REG:22 STACK:32 SHARED:0 LOCAL:0 CONSTANT[2]:8 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vwt7group32ILi8EEEvPK6__halfPKaS3_PS1_iiii:\n  REG:71 STACK:0 SHARED:32768 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vwt7group32ILi4EEEvPK6__halfPKaS3_PS1_iiii:\n  REG:71 STACK:0 SHARED:16384 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vwt7group32ILi2EEEvPK6__halfPKaS3_PS1_iiii:\n  REG:71 STACK:0 SHARED:8192 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vwt7group32ILi1EEEvPK6__halfPKaS3_PS1_iiii:\n  REG:71 STACK:0 SHARED:4096 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf9tiled_dotILi3ELi2ELi16EEEvPKaPKfNS_5GroupEiiii:\n  REG:49 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf8full_dotILi3ELi2ELi16EEEvPKaPKfNS_5GroupEiiii:\n  REG:69 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf9tiled_dotILi3ELi2ELi8EEEvPKaPKfNS_5GroupEiiii:\n  REG:51 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf8full_dotILi3ELi2ELi8EEEvPKaPKfNS_5GroupEiiii:\n  REG:69 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf9tiled_dotILi3ELi2ELi4EEEvPKaPKfNS_5GroupEiiii:\n  REG:51 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf8full_dotILi3ELi2ELi4EEEvPKaPKfNS_5GroupEiiii:\n  REG:69 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf9tiled_dotILi3ELi1ELi16EEEvPKaPKfNS_5GroupEiiii:\n  REG:39 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf8full_dotILi3ELi1ELi16EEEvPKaPKfNS_5GroupEiiii:\n  REG:71 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf9tiled_dotILi3ELi1ELi8EEEvPKaPKfNS_5GroupEiiii:\n  REG:39 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf8full_dotILi3ELi1ELi8EEEvPKaPKfNS_5GroupEiiii:\n  REG:71 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf9tiled_dotILi3ELi1ELi4EEEvPKaPKfNS_5GroupEiiii:\n  REG:41 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf8full_dotILi3ELi1ELi4EEEvPKaPKfNS_5GroupEiiii:\n  REG:71 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf9tiled_dotILi4ELi2ELi8EEEvPKaPKfNS_5GroupEiiii:\n  REG:53 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf9tiled_dotILi8ELi2ELi16EEEvPKaPKfNS_5GroupEiiii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf10global_dotILi2ELi2ELi4EEEvPKaPKfNS_5GroupEiiii:\n  REG:64 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf8full_dotILi2ELi2ELi16EEEvPKaPKfNS_5GroupEiiii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf10global_dotILi1ELi2ELi4EEEvPKaPKfNS_5GroupEiiii:\n  REG:72 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf9tiled_dotILi4ELi1ELi8EEEvPKaPKfNS_5GroupEiiii:\n  REG:45 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf9tiled_dotILi8ELi1ELi16EEEvPKaPKfNS_5GroupEiiii:\n  REG:45 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf10global_dotILi2ELi1ELi4EEEvPKaPKfNS_5GroupEiiii:\n  REG:70 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf8full_dotILi2ELi1ELi16EEEvPKaPKfNS_5GroupEiiii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vqf10global_dotILi1ELi1ELi4EEEvPKaPKfNS_5GroupEiiii:\n  REG:62 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:488 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi3ELi2ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:45 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi3ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:45 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi3ELi2ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:45 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi3ELi1ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:32 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi3ELi1ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:36 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi3ELi1ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:37 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi8ELi2ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:49 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi8ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:49 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi8ELi2ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:52 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi8ELi1ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:39 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi8ELi1ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:39 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi8ELi1ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:41 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi4ELi2ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:48 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi4ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:48 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi4ELi2ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:48 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi4ELi1ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:33 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi4ELi1ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:36 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdt3dotILi4ELi1ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:37 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi3ELi2ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:62 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi3ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:62 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi3ELi2ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:62 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi3ELi1ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi3ELi1ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi3ELi1ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi2ELi2ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:54 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi2ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:54 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi2ELi2ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:54 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi2ELi1ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:48 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi2ELi1ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:48 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi2ELi1ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:48 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi1ELi2ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:44 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi1ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:44 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi1ELi2ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:44 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi1ELi1ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:46 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi1ELi1ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:46 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vds3dotILi1ELi1ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:46 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vct7partialILi4ELi8ELb1EEEvPKaPKfS2_PK6__halfPfiiiii:\n  REG:44 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vct7partialILi8ELi16ELb1EEEvPKaPKfS2_PK6__halfPfiiiii:\n  REG:50 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vct7partialILi1ELi4ELb0EEEvPKaPKfS2_PK6__halfPfiiiii:\n  REG:48 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vct3sumEPKfS1_P6__halfi:\n  REG:16 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:380 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq3dotILi4ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:78 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq3dotILi8ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:124 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq3dotILi2ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:62 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq3dotILi1ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:64 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq3dotILi4ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq3dotILi8ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:80 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq3dotILi2ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:60 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq3dotILi1ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii:\n  REG:52 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:412 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN3vdq8quantizeEPK6__halfPaPfiiii:\n  REG:38 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba537q8_headI13__nv_bfloat16EEvPKT_PKaPK6__halfPS2_iii:\n  REG:20 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:396 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li4ELi1EEEvPKT_PKaPK6__halfPS2_iiii:\n  REG:38 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li2ELi1EEEvPKT_PKaPK6__halfPS2_iiii:\n  REG:32 STACK:0 SHARED:64 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li1ELi4EEEvPKT_PKaPK6__halfPS2_iiii:\n  REG:56 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5313q8_warp_exactI13__nv_bfloat16Lb0EEEvPKT_PKaPK6__halfPS2_iii:\n  REG:32 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:396 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba537q8_headI6__halfEEvPKT_PKaPKS1_PS2_iii:\n  REG:21 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:396 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI6__halfLi4ELi1EEEvPKT_PKaPKS1_PS2_iiii:\n  REG:40 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI6__halfLi2ELi1EEEvPKT_PKaPKS1_PS2_iiii:\n  REG:32 STACK:0 SHARED:64 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI6__halfLi1ELi4EEEvPKT_PKaPKS1_PS2_iiii:\n  REG:56 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:400 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5313q8_warp_exactI6__halfLb0EEEvPKT_PKaPKS1_PS2_iii:\n  REG:32 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:396 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311elementwiseIfLb0EEEvPKT_S3_PS1_l:\n  REG:26 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311elementwiseI13__nv_bfloat16Lb0EEEvPKT_S4_PS2_l:\n  REG:17 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311elementwiseI6__halfLb0EEEvPKT_S4_PS2_l:\n  REG:17 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311elementwiseIfLb1EEEvPKT_S3_PS1_l:\n  REG:31 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311elementwiseI13__nv_bfloat16Lb1EEEvPKT_S4_PS2_l:\n  REG:23 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311elementwiseI6__halfLb1EEEvPKT_S4_PS2_l:\n  REG:23 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba539qwen_gateIfEEvPKT_S3_PS1_li:\n  REG:30 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:388 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba539qwen_gateI13__nv_bfloat16EEvPKT_S4_PS2_li:\n  REG:24 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:388 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba539qwen_gateI6__halfEEvPKT_S4_PS2_li:\n  REG:24 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:388 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba537qwen_qkIfEEvPKT_S3_PKfS5_S5_S5_PS1_S6_iiiif:\n  REG:23 STACK:0 SHARED:1056 LOCAL:0 CONSTANT[0]:436 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba537qwen_qkI13__nv_bfloat16EEvPKT_S4_PKfS6_S6_S6_PS2_S7_iiiif:\n  REG:23 STACK:0 SHARED:1056 LOCAL:0 CONSTANT[0]:436 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba537qwen_qkI6__halfEEvPKT_S4_PKfS6_S6_S6_PS2_S7_iiiif:\n  REG:23 STACK:0 SHARED:1056 LOCAL:0 CONSTANT[0]:436 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba539gated_rmsIfLb1EEEvPKT_S3_PKvPS1_if:\n  REG:24 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba539gated_rmsI13__nv_bfloat16Lb0EEEvPKT_S4_PKvPS2_if:\n  REG:24 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba539gated_rmsI13__nv_bfloat16Lb1EEEvPKT_S4_PKvPS2_if:\n  REG:24 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba539gated_rmsI6__halfLb0EEEvPKT_S4_PKvPS2_if:\n  REG:24 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba539gated_rmsI6__halfLb1EEEvPKT_S4_PKvPS2_if:\n  REG:24 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba539gdn_gatesIfEEvPKT_S3_PKfS5_PfS6_lib:\n  REG:32 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:413 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba539gdn_gatesI13__nv_bfloat16EEvPKT_S4_PKfS6_PfS7_lib:\n  REG:26 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:413 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba539gdn_gatesI6__halfEEvPKT_S4_PKfS6_PfS7_lib:\n  REG:26 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:413 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311causal_convIffEEvPKT_PKT0_S3_PS1_S7_iii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:404 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311causal_convI13__nv_bfloat16S1_EEvPKT_PKT0_S4_PS2_S8_iii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:404 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311causal_convI13__nv_bfloat16fEEvPKT_PKT0_S4_PS2_S8_iii:\n  REG:46 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:404 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311causal_convI6__halfS1_EEvPKT_PKT0_S4_PS2_S8_iii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:404 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311causal_convI6__halffEEvPKT_PKT0_S4_PS2_S8_iii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:404 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5312q8_embeddingI13__nv_bfloat16EEvPKaPK6__halfPKlPT_liii:\n  REG:26 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:404 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5312q8_embeddingI6__halfEEvPKaPKS1_PKlPT_liii:\n  REG:26 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:404 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5314history_prefixI13__nv_bfloat16EEvPKT_S4_PS2_S5_iii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:396 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5314history_prefixI6__halfEEvPKT_S4_PS2_S5_iii:\n  REG:56 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:396 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5310gdn_prefixI13__nv_bfloat16Lb0EEEvPKT_S4_S4_PKfS6_S6_PS2_PfiiiiibfS8_S8_i:\n  REG:45 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:468 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5310gdn_prefixI13__nv_bfloat16Lb1EEEvPKT_S4_S4_PKfS6_S6_PS2_PfiiiiibfS8_S8_i:\n  REG:47 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:468 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5310gdn_prefixI6__halfLb0EEEvPKT_S4_S4_PKfS6_S6_PS2_PfiiiiibfS8_S8_i:\n  REG:45 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:468 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5310gdn_prefixI6__halfLb1EEEvPKT_S4_S4_PKfS6_S6_PS2_PfiiiiibfS8_S8_i:\n  REG:47 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:468 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311gdn_compactI13__nv_bfloat16Lb0EEEvPKT_S4_S4_PKfS6_S6_PS2_Pfiiiiibf:\n  REG:43 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:444 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311gdn_compactI13__nv_bfloat16Lb1EEEvPKT_S4_S4_PKfS6_S6_PS2_Pfiiiiibf:\n  REG:46 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:444 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311gdn_compactI6__halfLb0EEEvPKT_S4_S4_PKfS6_S6_PS2_Pfiiiiibf:\n  REG:43 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:444 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5311gdn_compactI6__halfLb1EEEvPKT_S4_S4_PKfS6_S6_PS2_Pfiiiiibf:\n  REG:44 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:444 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5313gdn_recurrentI13__nv_bfloat16Lb0EEEvPKT_S4_S4_PKfS6_S6_PS2_Pfiiiiibf:\n  REG:40 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:444 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5313gdn_recurrentI13__nv_bfloat16Lb1EEEvPKT_S4_S4_PKfS6_S6_PS2_Pfiiiiibf:\n  REG:42 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:444 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5313gdn_recurrentI6__halfLb0EEEvPKT_S4_S4_PKfS6_S6_PS2_Pfiiiiibf:\n  REG:40 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:444 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5313gdn_recurrentI6__halfLb1EEEvPKT_S4_S4_PKfS6_S6_PS2_Pfiiiiibf:\n  REG:42 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:444 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba539embeddingIfEEvPKT_PKlPS1_lii:\n  REG:34 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba539embeddingI13__nv_bfloat16EEvPKT_PKlPS2_lii:\n  REG:34 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba539embeddingI6__halfEEvPKT_PKlPS2_lii:\n  REG:26 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:392 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5316causal_attentionIfEEvPKT_S3_S3_PS1_iiiiif:\n  REG:28 STACK:0 SHARED:48 LOCAL:0 CONSTANT[0]:408 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5316causal_attentionI13__nv_bfloat16EEvPKT_S4_S4_PS2_iiiiif:\n  REG:28 STACK:0 SHARED:48 LOCAL:0 CONSTANT[0]:408 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5316causal_attentionI6__halfEEvPKT_S4_S4_PS2_iiiiif:\n  REG:28 STACK:0 SHARED:48 LOCAL:0 CONSTANT[0]:408 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba534ropeIfEEvPKT_PKfS5_PS1_liiib:\n  REG:44 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:405 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba534ropeI13__nv_bfloat16EEvPKT_PKfS6_PS2_liiib:\n  REG:40 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:405 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba534ropeI6__halfEEvPKT_PKfS6_PS2_liiib:\n  REG:40 STACK:0 SHARED:0 LOCAL:0 CONSTANT[0]:405 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538rms_normIfEEvPKT_PKfPS1_if:\n  REG:22 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538rms_normI13__nv_bfloat16EEvPKT_PKfPS2_if:\n  REG:22 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538rms_normI6__halfEEvPKT_PKfPS2_if:\n  REG:22 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5318fp32_weight_linearI13__nv_bfloat16EEvPKT_PKfPS2_ii:\n  REG:20 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5318fp32_weight_linearI6__halfEEvPKT_PKfPS2_ii:\n  REG:20 STACK:0 SHARED:32 LOCAL:0 CONSTANT[0]:384 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5315greedy_partialsIfEEvPKT_PNS_15GreedyCandidateEi:\n  REG:32 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:372 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5315greedy_partialsI13__nv_bfloat16EEvPKT_PNS_15GreedyCandidateEi:\n  REG:24 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:372 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5315greedy_partialsI6__halfEEvPKT_PNS_15GreedyCandidateEi:\n  REG:24 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:372 TEXTURE:0 SURFACE:0 SAMPLER:0\n Function _ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5313greedy_finishEPKNS_15GreedyCandidateEPli:\n  REG:20 STACK:0 SHARED:128 LOCAL:0 CONSTANT[0]:372 TEXTURE:0 SURFACE:0 SAMPLER:0\n",
+    "trace_files": {},
+    "devices": [
+      {
+        "hardware": {
+          "ordinal": 0,
+          "name": "Tesla V100-PCIE-32GB",
+          "sm_count": 80,
+          "warp_size": 32,
+          "threads_per_sm": 2048,
+          "registers_per_sm": 65536,
+          "shared_bytes_per_sm": 98304,
+          "blocks_per_sm": 32,
+          "l2_bytes": 6291456,
+          "compute_major": 7,
+          "compute_minor": 0
+        },
+        "compiled_q8_functions": [
+          {
+            "symbol": "_ZN3vct3sumEPKfS1_P6__halfi",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 16,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN3vct7partialILi1ELi4ELb0EEEvPKaPKfS2_PK6__halfPfiiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 48,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 10,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vct7partialILi4ELi8ELb1EEEvPKaPKfS2_PK6__halfPfiiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 44,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 5,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vct7partialILi8ELi16ELb1EEEvPKaPKfS2_PK6__halfPfiiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 18432,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 50,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 2,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi1ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 52,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 9,
+            "theoretical_occupancy_fraction": 0.5625
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi1ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 64,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi2ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 60,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi2ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 62,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi4ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 56,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 9,
+            "theoretical_occupancy_fraction": 0.5625
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi4ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 768,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 78,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.375
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi8ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 768,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 80,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.375
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi8ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 124,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.25
+          },
+          {
+            "symbol": "_ZN3vdq8quantizeEPK6__halfPaPfiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 38,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi3ELi1ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 3456,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi3ELi1ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 3456,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 37,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 12,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi3ELi1ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 3456,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 36,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi3ELi2ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 6912,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 45,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 2,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi3ELi2ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 6912,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 45,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 10,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi3ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 6912,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 45,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 5,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi4ELi1ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 4608,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 33,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 3,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi4ELi1ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 4608,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 37,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 12,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi4ELi1ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 4608,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 36,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi4ELi2ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 48,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 2,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi4ELi2ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 48,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 10,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi4ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 48,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 5,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi8ELi1ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 39,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 3,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi8ELi1ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 41,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 10,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi8ELi1ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 39,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi8ELi2ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 18432,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 49,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 2,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi8ELi2ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 18432,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 52,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 5,
+            "theoretical_occupancy_fraction": 0.3125
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi8ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 18432,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 49,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi3ELi1ELi16EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 3456,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 39,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 3,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi3ELi1ELi4EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 3456,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 41,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 10,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi3ELi1ELi8EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 3456,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 39,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi3ELi2ELi16EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 6912,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 49,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 2,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi3ELi2ELi4EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 6912,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 51,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 9,
+            "theoretical_occupancy_fraction": 0.5625
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi3ELi2ELi8EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 6912,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 51,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi4ELi1ELi8EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 4608,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 45,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 5,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi4ELi2ELi8EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 53,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi8ELi1ELi16EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 45,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 2,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi8ELi2ELi16EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 18432,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 56,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 2,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vwt7group32ILi1EEEvPK6__halfPKaS3_PS1_iiii",
+            "threads": 32,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 896,
+            "static_shared_bytes": 4096,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 71,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 24,
+            "theoretical_occupancy_fraction": 0.375
+          },
+          {
+            "symbol": "_ZN3vwt7group32ILi2EEEvPK6__halfPKaS3_PS1_iiii",
+            "threads": 64,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 896,
+            "static_shared_bytes": 8192,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 71,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 12,
+            "theoretical_occupancy_fraction": 0.375
+          },
+          {
+            "symbol": "_ZN3vwt7group32ILi4EEEvPK6__halfPKaS3_PS1_iiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 896,
+            "static_shared_bytes": 16384,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 71,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.375
+          },
+          {
+            "symbol": "_ZN3vwt7group32ILi8EEEvPK6__halfPKaS3_PS1_iiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 896,
+            "static_shared_bytes": 32768,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 71,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 3,
+            "theoretical_occupancy_fraction": 0.375
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5313q8_warp_exactI13__nv_bfloat16Lb0EEEvPKT_PKaPK6__halfPS2_iii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 16,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5313q8_warp_exactI6__halfLb0EEEvPKT_PKaPKS1_PS2_iii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 16,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li1ELi4EEEvPKT_PKaPK6__halfPS2_iiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 56,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li2ELi1EEEvPKT_PKaPK6__halfPS2_iiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 64,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li4ELi1EEEvPKT_PKaPK6__halfPS2_iiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 38,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI6__halfLi1ELi4EEEvPKT_PKaPKS1_PS2_iiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 56,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI6__halfLi2ELi1EEEvPKT_PKaPKS1_PS2_iiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 64,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI6__halfLi4ELi1EEEvPKT_PKaPKS1_PS2_iiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 40,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          }
+        ],
+        "traces": {}
+      },
+      {
+        "hardware": {
+          "ordinal": 1,
+          "name": "Tesla V100-PCIE-32GB",
+          "sm_count": 80,
+          "warp_size": 32,
+          "threads_per_sm": 2048,
+          "registers_per_sm": 65536,
+          "shared_bytes_per_sm": 98304,
+          "blocks_per_sm": 32,
+          "l2_bytes": 6291456,
+          "compute_major": 7,
+          "compute_minor": 0
+        },
+        "compiled_q8_functions": [
+          {
+            "symbol": "_ZN3vct3sumEPKfS1_P6__halfi",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 16,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN3vct7partialILi1ELi4ELb0EEEvPKaPKfS2_PK6__halfPfiiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 48,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 10,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vct7partialILi4ELi8ELb1EEEvPKaPKfS2_PK6__halfPfiiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 44,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 5,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vct7partialILi8ELi16ELb1EEEvPKaPKfS2_PK6__halfPfiiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 18432,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 50,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 2,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi1ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 52,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 9,
+            "theoretical_occupancy_fraction": 0.5625
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi1ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 64,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi2ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 60,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi2ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 62,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi4ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 56,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 9,
+            "theoretical_occupancy_fraction": 0.5625
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi4ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 768,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 78,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.375
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi8ELi1EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 768,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 80,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.375
+          },
+          {
+            "symbol": "_ZN3vdq3dotILi8ELi2EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 124,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.25
+          },
+          {
+            "symbol": "_ZN3vdq8quantizeEPK6__halfPaPfiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 38,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi3ELi1ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 3456,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi3ELi1ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 3456,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 37,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 12,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi3ELi1ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 3456,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 36,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi3ELi2ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 6912,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 45,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 2,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi3ELi2ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 6912,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 45,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 10,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi3ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 6912,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 45,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 5,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi4ELi1ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 4608,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 33,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 3,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi4ELi1ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 4608,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 37,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 12,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi4ELi1ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 4608,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 36,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi4ELi2ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 48,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 2,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi4ELi2ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 48,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 10,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi4ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 48,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 5,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi8ELi1ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 39,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 3,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi8ELi1ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 41,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 10,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi8ELi1ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 39,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi8ELi2ELi16EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 18432,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 49,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 2,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi8ELi2ELi4EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 18432,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 52,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 5,
+            "theoretical_occupancy_fraction": 0.3125
+          },
+          {
+            "symbol": "_ZN3vdt3dotILi8ELi2ELi8EEEvPKaPKfS2_PK6__halfPS5_iiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 18432,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 49,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi3ELi1ELi16EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 3456,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 39,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 3,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi3ELi1ELi4EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 3456,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 41,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 10,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi3ELi1ELi8EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 3456,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 39,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi3ELi2ELi16EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 6912,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 49,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 2,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi3ELi2ELi4EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 6912,
+            "max_threads_per_block": 128,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 51,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 9,
+            "theoretical_occupancy_fraction": 0.5625
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi3ELi2ELi8EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 6912,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 51,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi4ELi1ELi8EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 4608,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 45,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 5,
+            "theoretical_occupancy_fraction": 0.625
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi4ELi2ELi8EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 53,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi8ELi1ELi16EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 9216,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 45,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 2,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vqf9tiled_dotILi8ELi2ELi16EEEvPKaPKfNS_5GroupEiiii",
+            "threads": 512,
+            "dynamic_shared_bytes": 18432,
+            "max_threads_per_block": 512,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 56,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 2,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN3vwt7group32ILi1EEEvPK6__halfPKaS3_PS1_iiii",
+            "threads": 32,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 896,
+            "static_shared_bytes": 4096,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 71,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 24,
+            "theoretical_occupancy_fraction": 0.375
+          },
+          {
+            "symbol": "_ZN3vwt7group32ILi2EEEvPK6__halfPKaS3_PS1_iiii",
+            "threads": 64,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 896,
+            "static_shared_bytes": 8192,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 71,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 12,
+            "theoretical_occupancy_fraction": 0.375
+          },
+          {
+            "symbol": "_ZN3vwt7group32ILi4EEEvPK6__halfPKaS3_PS1_iiii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 896,
+            "static_shared_bytes": 16384,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 71,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.375
+          },
+          {
+            "symbol": "_ZN3vwt7group32ILi8EEEvPK6__halfPKaS3_PS1_iiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 896,
+            "static_shared_bytes": 32768,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 71,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 3,
+            "theoretical_occupancy_fraction": 0.375
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5313q8_warp_exactI13__nv_bfloat16Lb0EEEvPKT_PKaPK6__halfPS2_iii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 16,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba5313q8_warp_exactI6__halfLb0EEEvPKT_PKaPKS1_PS2_iii",
+            "threads": 128,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 1024,
+            "static_shared_bytes": 0,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 16,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li1ELi4EEEvPKT_PKaPK6__halfPS2_iiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 56,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li2ELi1EEEvPKT_PKaPK6__halfPS2_iiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 64,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI13__nv_bfloat16Li4ELi1EEEvPKT_PKaPK6__halfPS2_iiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 38,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI6__halfLi1ELi4EEEvPKT_PKaPKS1_PS2_iiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 56,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 4,
+            "theoretical_occupancy_fraction": 0.5
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI6__halfLi2ELi1EEEvPKT_PKaPKS1_PS2_iiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 64,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 32,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 8,
+            "theoretical_occupancy_fraction": 1.0
+          },
+          {
+            "symbol": "_ZN41_GLOBAL__N__b06a823b_9_blocks_cu_e131ba538q8_tiledI6__halfLi4ELi1EEEvPKT_PKaPKS1_PS2_iiii",
+            "threads": 256,
+            "dynamic_shared_bytes": 0,
+            "max_threads_per_block": 256,
+            "static_shared_bytes": 128,
+            "local_bytes_per_thread": 0,
+            "registers_per_thread": 40,
+            "binary_version": 70,
+            "theoretical_resident_blocks_per_sm": 6,
+            "theoretical_occupancy_fraction": 0.75
+          }
+        ],
+        "traces": {}
+      }
+    ],
+    "limitations": [
+      "CUDA occupancy API results are theoretical residency, NOT measured achieved occupancy.",
+      "Recorded kernel durations are from previous separate instrumented runs, not fresh throughput timings.",
+      "Grid ceilings ignore load balance, tail effects, dependencies, memory/issue stalls and other processes.",
+      "The tool never changes launch geometry; several kernels require a fixed thread count for correctness.",
+      "Local bytes/stack alone do not prove register spilling; consult compiler/SASS evidence.",
+      "No occupancy averaging across kernels or devices is presented as achieved occupancy."
+    ],
+    "cubins": {
+      "blocks.sm_70.cubin": "776505093bed220a152ec37dc53ade061872bb35b7fabed824938c25723933bc"
+    }
+  },
+  "prior_profile_ended_before_matched_unprofiled_trials": true
+}

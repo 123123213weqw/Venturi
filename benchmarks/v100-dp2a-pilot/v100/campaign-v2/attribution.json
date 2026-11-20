@@ -1,0 +1,389 @@
+{
+  "scope": "Separate instrumented standalone projection calls. No serving TPS, achieved occupancy or hardware-counter bandwidth claim.",
+  "ranges": [
+    {
+      "label": "projection_fused-mlp_t1_arm0",
+      "launches": 32,
+      "kernel_nanoseconds": 1855588,
+      "activity_span_nanoseconds": 1916420,
+      "activity_union_nanoseconds": 1855588,
+      "gaps_between_this_process_kernels_nanoseconds": 60832,
+      "kernels": [
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "grid_x": 20,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 38,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 51072
+        },
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "grid_x": 4352,
+          "grid_y": 1,
+          "block_x": 128,
+          "registers_per_thread": 72,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 1804516
+        }
+      ]
+    },
+    {
+      "label": "projection_fused-mlp_t1_arm1",
+      "launches": 32,
+      "kernel_nanoseconds": 1855363,
+      "activity_span_nanoseconds": 1959203,
+      "activity_union_nanoseconds": 1855363,
+      "gaps_between_this_process_kernels_nanoseconds": 103840,
+      "kernels": [
+        {
+          "name": "vi16::quantize(const __half *, short *, float *, int, int, int)",
+          "grid_x": 20,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 19,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 43360
+        },
+        {
+          "name": "void vi16::project<(int)1, (int)4, (bool)0, (bool)0>(const short *, const float *, vi16::Group, int, int, int, int)",
+          "grid_x": 4352,
+          "grid_y": 1,
+          "block_x": 128,
+          "registers_per_thread": 54,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 1812003
+        }
+      ]
+    },
+    {
+      "label": "projection_fused-mlp_t3_arm0",
+      "launches": 32,
+      "kernel_nanoseconds": 2232740,
+      "activity_span_nanoseconds": 2278596,
+      "activity_union_nanoseconds": 2232740,
+      "gaps_between_this_process_kernels_nanoseconds": 45856,
+      "kernels": [
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "grid_x": 60,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 38,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 54912
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "grid_x": 2176,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 53,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 9216,
+          "count": 16,
+          "kernel_nanoseconds": 2177828
+        }
+      ]
+    },
+    {
+      "label": "projection_fused-mlp_t3_arm1",
+      "launches": 32,
+      "kernel_nanoseconds": 2266276,
+      "activity_span_nanoseconds": 2313732,
+      "activity_union_nanoseconds": 2266276,
+      "gaps_between_this_process_kernels_nanoseconds": 47456,
+      "kernels": [
+        {
+          "name": "vi16::quantize(const __half *, short *, float *, int, int, int)",
+          "grid_x": 60,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 19,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 47200
+        },
+        {
+          "name": "void vi16::project<(int)4, (int)8, (bool)1, (bool)0>(const short *, const float *, vi16::Group, int, int, int, int)",
+          "grid_x": 2176,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 51,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 8704,
+          "count": 16,
+          "kernel_nanoseconds": 2219076
+        }
+      ]
+    },
+    {
+      "label": "projection_fused-mlp_t8_arm0",
+      "launches": 32,
+      "kernel_nanoseconds": 3903079,
+      "activity_span_nanoseconds": 3951047,
+      "activity_union_nanoseconds": 3903079,
+      "gaps_between_this_process_kernels_nanoseconds": 47968,
+      "kernels": [
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "grid_x": 160,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 38,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 58432
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "grid_x": 1088,
+          "grid_y": 1,
+          "block_x": 512,
+          "registers_per_thread": 56,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 18432,
+          "count": 16,
+          "kernel_nanoseconds": 3844647
+        }
+      ]
+    },
+    {
+      "label": "projection_fused-mlp_t8_arm1",
+      "launches": 32,
+      "kernel_nanoseconds": 3840038,
+      "activity_span_nanoseconds": 3887366,
+      "activity_union_nanoseconds": 3840038,
+      "gaps_between_this_process_kernels_nanoseconds": 47328,
+      "kernels": [
+        {
+          "name": "vi16::quantize(const __half *, short *, float *, int, int, int)",
+          "grid_x": 160,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 19,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 52064
+        },
+        {
+          "name": "void vi16::project<(int)8, (int)16, (bool)1, (bool)0>(const short *, const float *, vi16::Group, int, int, int, int)",
+          "grid_x": 1088,
+          "grid_y": 1,
+          "block_x": 512,
+          "registers_per_thread": 54,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 17408,
+          "count": 16,
+          "kernel_nanoseconds": 3787974
+        }
+      ]
+    },
+    {
+      "label": "projection_column-down-fp32_t1_arm0",
+      "launches": 32,
+      "kernel_nanoseconds": 1031490,
+      "activity_span_nanoseconds": 1204962,
+      "activity_union_nanoseconds": 1031490,
+      "gaps_between_this_process_kernels_nanoseconds": 173472,
+      "kernels": [
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "grid_x": 34,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 38,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 48864
+        },
+        {
+          "name": "void vct::partial<(int)1, (int)4, (bool)0>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "grid_x": 1280,
+          "grid_y": 1,
+          "block_x": 128,
+          "registers_per_thread": 48,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 982626
+        }
+      ]
+    },
+    {
+      "label": "projection_column-down-fp32_t1_arm1",
+      "launches": 32,
+      "kernel_nanoseconds": 1034915,
+      "activity_span_nanoseconds": 1413763,
+      "activity_union_nanoseconds": 1034915,
+      "gaps_between_this_process_kernels_nanoseconds": 378848,
+      "kernels": [
+        {
+          "name": "vi16::quantize(const __half *, short *, float *, int, int, int)",
+          "grid_x": 34,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 19,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 42464
+        },
+        {
+          "name": "void vi16::project<(int)1, (int)4, (bool)0, (bool)1>(const short *, const float *, vi16::Group, int, int, int, int)",
+          "grid_x": 1280,
+          "grid_y": 1,
+          "block_x": 128,
+          "registers_per_thread": 54,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 992451
+        }
+      ]
+    },
+    {
+      "label": "projection_column-down-fp32_t3_arm0",
+      "launches": 32,
+      "kernel_nanoseconds": 1296931,
+      "activity_span_nanoseconds": 1381667,
+      "activity_union_nanoseconds": 1296931,
+      "gaps_between_this_process_kernels_nanoseconds": 84736,
+      "kernels": [
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "grid_x": 102,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 38,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 56576
+        },
+        {
+          "name": "void vct::partial<(int)4, (int)8, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "grid_x": 640,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 44,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 9216,
+          "count": 16,
+          "kernel_nanoseconds": 1240355
+        }
+      ]
+    },
+    {
+      "label": "projection_column-down-fp32_t3_arm1",
+      "launches": 32,
+      "kernel_nanoseconds": 1225154,
+      "activity_span_nanoseconds": 1420546,
+      "activity_union_nanoseconds": 1225154,
+      "gaps_between_this_process_kernels_nanoseconds": 195392,
+      "kernels": [
+        {
+          "name": "vi16::quantize(const __half *, short *, float *, int, int, int)",
+          "grid_x": 102,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 19,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 47424
+        },
+        {
+          "name": "void vi16::project<(int)4, (int)8, (bool)1, (bool)1>(const short *, const float *, vi16::Group, int, int, int, int)",
+          "grid_x": 640,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 51,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 8704,
+          "count": 16,
+          "kernel_nanoseconds": 1177730
+        }
+      ]
+    },
+    {
+      "label": "projection_column-down-fp32_t8_arm0",
+      "launches": 32,
+      "kernel_nanoseconds": 2105668,
+      "activity_span_nanoseconds": 2153572,
+      "activity_union_nanoseconds": 2105668,
+      "gaps_between_this_process_kernels_nanoseconds": 47904,
+      "kernels": [
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "grid_x": 272,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 38,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 67552
+        },
+        {
+          "name": "void vct::partial<(int)8, (int)16, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "grid_x": 320,
+          "grid_y": 1,
+          "block_x": 512,
+          "registers_per_thread": 50,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 18432,
+          "count": 16,
+          "kernel_nanoseconds": 2038116
+        }
+      ]
+    },
+    {
+      "label": "projection_column-down-fp32_t8_arm1",
+      "launches": 32,
+      "kernel_nanoseconds": 2102692,
+      "activity_span_nanoseconds": 2149956,
+      "activity_union_nanoseconds": 2102692,
+      "gaps_between_this_process_kernels_nanoseconds": 47264,
+      "kernels": [
+        {
+          "name": "vi16::quantize(const __half *, short *, float *, int, int, int)",
+          "grid_x": 272,
+          "grid_y": 1,
+          "block_x": 256,
+          "registers_per_thread": 19,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 0,
+          "count": 16,
+          "kernel_nanoseconds": 57376
+        },
+        {
+          "name": "void vi16::project<(int)8, (int)16, (bool)1, (bool)1>(const short *, const float *, vi16::Group, int, int, int, int)",
+          "grid_x": 320,
+          "grid_y": 1,
+          "block_x": 512,
+          "registers_per_thread": 54,
+          "static_shared_bytes": 0,
+          "dynamic_shared_bytes": 17408,
+          "count": 16,
+          "kernel_nanoseconds": 2045316
+        }
+      ]
+    }
+  ]
+}

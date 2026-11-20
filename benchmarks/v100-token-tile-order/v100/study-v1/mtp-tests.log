@@ -1,0 +1,13 @@
+........................................................................ [ 69%]
+............................F
+=================================== FAILURES ===================================
+____________ test_graph_dynamic_nonfinite_and_no_torch_math[False] _____________
+tests/test_q8_tile_order.py:105: in test_graph_dynamic_nonfinite_and_no_torch_math
+    ys = [
+tests/test_q8_tile_order.py:106: in <listcomp>
+    torch.empty(17, d[3].vocab_size, dtype=torch.float16, device="cuda:0")
+E   AttributeError: 'ResidentLinear' object has no attribute 'vocab_size'
+=========================== short test summary info ============================
+FAILED tests/test_q8_tile_order.py::test_graph_dynamic_nonfinite_and_no_torch_math[False]
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 100 passed in 7.69s

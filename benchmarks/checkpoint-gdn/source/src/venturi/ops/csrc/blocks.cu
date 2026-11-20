@@ -1,0 +1,418 @@
+// Venturi-owned operator implementations and a cuBLAS Linear bridge.
+// Caller owns all tensor/workspace storage. No model runtime or PyTorch C++ ABI.
+#include <cuda_runtime.h>
+#include <cuda_bf16.h>
+#include <cuda_fp16.h>
+#include <cublas_v2.h>
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <stdexcept>
+#include <string>
+
+namespace {
+thread_local std::string error_text;
+void check(cudaError_t status) {
+    if (status != cudaSuccess) throw std::runtime_error(cudaGetErrorString(status));
+}
+void check(cublasStatus_t status) {
+    if (status != CUBLAS_STATUS_SUCCESS)
+        throw std::runtime_error("cuBLAS status " + std::to_string(static_cast<int>(status)));
+}
+cudaDataType_t data_type(int dtype) {
+    if (dtype == 0) return CUDA_R_16F;
+    if (dtype == 1) return CUDA_R_16BF;
+    if (dtype == 2) return CUDA_R_32F;
+    throw std::invalid_argument("unsupported scalar type");
+}
+void validate(int tokens, int features, int dtype) {
+    if (tokens <= 0 || features <= 0) throw std::invalid_argument("invalid shape");
+    (void)data_type(dtype);
+}
+struct Linear {
+    cublasHandle_t handle{};
+    int tokens, n, k, dtype;
+};
+template<class T> __device__ float read(T x) { return static_cast<float>(x); }
+template<> __device__ float read(__half x) { return __half2float(x); }
+template<> __device__ float read(__nv_bfloat16 x) { return __bfloat162float(x); }
+template<class T> __device__ T cast(float x) { return static_cast<T>(x); }
+template<> __device__ __half cast(float x) { return __float2half_rn(x); }
+template<> __device__ __nv_bfloat16 cast(float x) { return __float2bfloat16_rn(x); }
+
+// FP32 statistics and multiplication; one observable output-dtype cast.
+template<class T>
+__global__ void rms_norm(const T* x, const float* weight, T* out, int features, float epsilon) {
+    __shared__ float partial[8];
+    const std::int64_t offset = static_cast<std::int64_t>(blockIdx.x) * features;
+    float sum = 0.0f;
+    for (std::int64_t col = threadIdx.x; col < features; col += blockDim.x) {
+        const float v = read(x[offset + col]);
+        sum = fmaf(v, v, sum);
+    }
+    for (int delta = 16; delta; delta >>= 1)
+        sum += __shfl_down_sync(0xffffffff, sum, delta);
+    if ((threadIdx.x & 31) == 0) partial[threadIdx.x >> 5] = sum;
+    __syncthreads();
+    if (threadIdx.x < 32) {
+        sum = threadIdx.x < 8 ? partial[threadIdx.x] : 0.0f;
+        for (int delta = 16; delta; delta >>= 1)
+            sum += __shfl_down_sync(0xffffffff, sum, delta);
+        if (threadIdx.x == 0) partial[0] = rsqrtf(sum / features + epsilon);
+    }
+    __syncthreads();
+    for (std::int64_t col = threadIdx.x; col < features; col += blockDim.x)
+        out[offset + col] = cast<T>((read(x[offset + col]) * partial[0]) * weight[col]);
+}
+
+template<class T, bool Swiglu>
+__global__ void elementwise(const T* a, const T* b, T* out, std::int64_t count) {
+    for (std::int64_t i = static_cast<std::int64_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+         i < count; i += static_cast<std::int64_t>(gridDim.x) * blockDim.x) {
+        const float x = read(a[i]), y = read(b[i]);
+        if constexpr (Swiglu) {
+            // Stable SiLU for large negative x; avoid exp(-x) overflow.
+            const float sigmoid = x >= 0 ? 1.0f / (1.0f + expf(-x))
+                                         : expf(x) / (1.0f + expf(x));
+            out[i] = cast<T>((x * sigmoid) * y);
+        } else {
+            out[i] = cast<T>(x + y);
+        }
+    }
+}
+
+template<bool Swiglu>
+void launch_elementwise(const void* a, const void* b, void* out, std::int64_t count,
+                        int dtype, cudaStream_t stream) {
+    if (count <= 0) throw std::invalid_argument("invalid element count");
+    const int grid = static_cast<int>(std::min<std::int64_t>((count + 255) / 256, 65535));
+    if (dtype == 0) elementwise<__half, Swiglu><<<grid,256,0,stream>>>(
+        static_cast<const __half*>(a), static_cast<const __half*>(b), static_cast<__half*>(out), count);
+    else if (dtype == 1) elementwise<__nv_bfloat16, Swiglu><<<grid,256,0,stream>>>(
+        static_cast<const __nv_bfloat16*>(a), static_cast<const __nv_bfloat16*>(b), static_cast<__nv_bfloat16*>(out), count);
+    else if (dtype == 2) elementwise<float, Swiglu><<<grid,256,0,stream>>>(
+        static_cast<const float*>(a), static_cast<const float*>(b), static_cast<float*>(out), count);
+    else throw std::invalid_argument("unsupported scalar type");
+    check(cudaGetLastError());
+}
+
+// One thread owns both members of a rotation pair, so exact in-place is safe.
+template<class T>
+__global__ void rope(const T* x, const float* cos, const float* sin, T* out,
+                     std::int64_t pairs, int heads, int d, int r, bool interleaved) {
+    const int half = r / 2;
+    const int tail = d - r;
+    const int items = half + tail;
+    const std::int64_t count = pairs * items;
+    for (std::int64_t idx = static_cast<std::int64_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+         idx < count; idx += static_cast<std::int64_t>(gridDim.x) * blockDim.x) {
+        const std::int64_t row = idx / items;
+        const int col = idx % items;
+        const std::int64_t base = row * d;
+        if (col >= half) { out[base + r + col - half] = x[base + r + col - half]; continue; }
+        const int a = interleaved ? 2 * col : col;
+        const int b = interleaved ? 2 * col + 1 : col + half;
+        const std::int64_t table = (row / heads) * half + col;
+        const float va = read(x[base + a]), vb = read(x[base + b]);
+        const float c = cos[table], t = sin[table];
+        out[base + a] = cast<T>(va * c - vb * t);
+        out[base + b] = cast<T>(va * t + vb * c);
+    }
+}
+
+__device__ float block_sum(float value, float* partial) {
+    for (int delta = 16; delta; delta >>= 1)
+        value += __shfl_down_sync(0xffffffff, value, delta);
+    if ((threadIdx.x & 31) == 0) partial[threadIdx.x >> 5] = value;
+    __syncthreads();
+    if (threadIdx.x < 32) {
+        value = threadIdx.x < 8 ? partial[threadIdx.x] : 0.0f;
+        for (int delta = 16; delta; delta >>= 1)
+            value += __shfl_down_sync(0xffffffff, value, delta);
+        if (threadIdx.x == 0) partial[0] = value;
+    }
+    __syncthreads();
+    return partial[0];
+}
+
+// Correctness-first online softmax. No scores matrix, global scratch, allocation,
+// cache mutation, or Tensor Core claim. Serial key traversal is deliberately a
+// baseline for subsequent tiled implementations, not an optimized prefill path.
+template<class T>
+__global__ void causal_attention(const T* q, const T* k, const T* v, T* out,
+                                 int tokens, int kv_tokens, int hq, int hkv,
+                                 int d, float scale) {
+    __shared__ float partial[8];
+    __shared__ float factors[3];
+    const int row = blockIdx.x;
+    const int token = row / hq;
+    const int head = row % hq;
+    const int kv_head = head / (hq / hkv);
+    const int col = threadIdx.x;
+    const std::int64_t qbase = static_cast<std::int64_t>(row) * d;
+    const float query = col < d ? read(q[qbase + col]) : 0.0f;
+    float acc = 0.0f, maximum = -INFINITY, denom = 0.0f;
+    const int last = kv_tokens - tokens + token;
+    for (int key = 0; key <= last; ++key) {
+        const std::int64_t base = (static_cast<std::int64_t>(key) * hkv + kv_head) * d;
+        const float product = col < d ? query * read(k[base + col]) : 0.0f;
+        const float score = block_sum(product, partial) * scale;
+        if (col == 0) {
+            const float next = fmaxf(maximum, score);
+            const float alpha = expf(maximum - next), beta = expf(score - next);
+            denom = denom * alpha + beta;
+            maximum = next;
+            factors[0] = alpha; factors[1] = beta; factors[2] = denom;
+        }
+        __syncthreads();
+        if (col < d) acc = acc * factors[0] + read(v[base + col]) * factors[1];
+        // All consumers must finish before thread 0 updates shared factors.
+        __syncthreads();
+    }
+    if (col < d) out[qbase + col] = cast<T>(acc / factors[2]);
+}
+
+// A dense gather; IDs are validated on the host during plan preparation. The
+// bounds check is still mandatory to prevent OOB reads if a caller violates the
+// immutable-ID contract. Invalid device IDs produce zero, not unchecked memory.
+template<class T>
+__global__ void embedding(const T* weight, const std::int64_t* ids, T* out,
+                          std::int64_t count, int vocab, int hidden) {
+    for (std::int64_t i = static_cast<std::int64_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+         i < count; i += static_cast<std::int64_t>(gridDim.x) * blockDim.x) {
+        const std::int64_t id = ids[i / hidden];
+        out[i] = id >= 0 && id < vocab ? weight[id * hidden + i % hidden] : cast<T>(0.0f);
+    }
+}
+
+__device__ float sum_sync(float value, float* partial) {
+    const float result = block_sum(value, partial);
+    // All threads must have read partial[0] before the next reduction reuses it.
+    __syncthreads();
+    return result;
+}
+
+// Correctness-first recurrent GDN: one 256-thread block per value row. Registers
+// retain a state's key dimension across tokens. No dense attention substitution,
+// allocations, Tensor Cores, causal convolution or gate transformations here.
+__global__ void gdn_recurrent(const __nv_bfloat16* q, const __nv_bfloat16* k,
+    const __nv_bfloat16* v, const float* g, const float* beta, const float* state,
+    __nv_bfloat16* out, float* state_out, int tokens, int hqk, int hv, int dk,
+    int dv, bool normalize, float scale) {
+    __shared__ float partial[8];
+    const int head = blockIdx.x / dv, row = blockIdx.x % dv;
+    const int qhead = head / (hv / hqk), col = threadIdx.x;
+    const std::int64_t state_idx = static_cast<std::int64_t>(blockIdx.x) * dk + col;
+    float s = col < dk ? state[state_idx] : 0.0f;
+    for (int t = 0; t < tokens; ++t) {
+        const std::int64_t base = (static_cast<std::int64_t>(t) * hqk + qhead) * dk;
+        float qt = col < dk ? read(q[base + col]) : 0.0f;
+        float kt = col < dk ? read(k[base + col]) : 0.0f;
+        if (normalize) {
+            const float qsum = sum_sync(qt * qt, partial);
+            const float ksum = sum_sync(kt * kt, partial);
+            qt *= rsqrtf(qsum + 1e-6f); kt *= rsqrtf(ksum + 1e-6f);
+        }
+        const std::int64_t gate_idx = static_cast<std::int64_t>(t) * hv + head;
+        s *= expf(g[gate_idx]);
+        const float memory = sum_sync(s * kt, partial);
+        const float delta = beta[gate_idx] * (read(v[gate_idx * dv + row]) - memory);
+        s = fmaf(delta, kt, s);
+        const float result = sum_sync(s * qt, partial) * scale;
+        if (col == 0) out[gate_idx * dv + row] = cast<__nv_bfloat16>(result);
+    }
+    if (col < dk) state_out[state_idx] = s;
+}
+
+__global__ void q8_embedding(const std::int8_t* codes, const __half* scales,
+    const std::int64_t* ids, __nv_bfloat16* out, std::int64_t count, int vocab, int k, int padded) {
+    for (std::int64_t i = static_cast<std::int64_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+         i < count; i += static_cast<std::int64_t>(gridDim.x) * blockDim.x) {
+        const std::int64_t row = ids[i / k];
+        const int col = i % k;
+        const float value = row >= 0 && row < vocab
+            ? static_cast<float>(codes[row * padded + col]) * read(scales[row * (padded / 32) + col / 32]) : 0.0f;
+        out[i] = cast<__nv_bfloat16>(value);
+    }
+}
+
+// Direct signed-Q8 x BF16 dot products; FP32 dequantization/accumulation. A
+// correctness baseline for last-token output heads, not a tiled GEMM claim.
+__global__ void q8_head(const __nv_bfloat16* x, const std::int8_t* codes,
+    const __half* scales, __nv_bfloat16* out, int vocab, int k, int padded) {
+    __shared__ float partial[8];
+    const int token = blockIdx.x / vocab, row = blockIdx.x % vocab;
+    float accum = 0.0f;
+    for (int col = threadIdx.x; col < k; col += blockDim.x) {
+        const float weight = static_cast<float>(codes[static_cast<std::int64_t>(row) * padded + col])
+            * read(scales[static_cast<std::int64_t>(row) * (padded / 32) + col / 32]);
+        accum = fmaf(read(x[static_cast<std::int64_t>(token) * k + col]), weight, accum);
+    }
+    const float result = block_sum(accum, partial);
+    if (threadIdx.x == 0) out[blockIdx.x] = cast<__nv_bfloat16>(result);
+}
+
+}
+
+extern "C" int venturi_blocks_abi() { return 4; }
+extern "C" const char* venturi_blocks_error() { return error_text.c_str(); }
+extern "C" void* venturi_dense_create(int tokens, int n, int k, int dtype) {
+    Linear* plan = nullptr;
+    try {
+        validate(tokens, n, dtype);
+        if (k <= 0) throw std::invalid_argument("invalid K");
+        plan = new Linear{nullptr, tokens, n, k, dtype};
+        check(cublasCreate(&plan->handle));
+        check(cublasSetPointerMode(plan->handle, CUBLAS_POINTER_MODE_HOST));
+        check(cublasSetAtomicsMode(plan->handle, CUBLAS_ATOMICS_NOT_ALLOWED));
+        check(cublasSetMathMode(plan->handle, CUBLAS_MATH_DISALLOW_REDUCED_PRECISION_REDUCTION));
+        return plan;
+    } catch (const std::exception& e) {
+        error_text = e.what();
+        if (plan) { if (plan->handle) cublasDestroy(plan->handle); delete plan; }
+        return nullptr;
+    }
+}
+extern "C" void venturi_dense_destroy(void* opaque) {
+    auto* plan = static_cast<Linear*>(opaque);
+    if (plan) { cublasDestroy(plan->handle); delete plan; }
+}
+extern "C" int venturi_dense_run(void* opaque, const void* x, const void* w, void* out,
+                                 void* workspace, std::size_t workspace_bytes, void* raw_stream) {
+    try {
+        auto* p = static_cast<Linear*>(opaque);
+        if (!p || !x || !w || !out || !workspace) throw std::invalid_argument("null Linear operand");
+        check(cublasSetStream(p->handle, static_cast<cudaStream_t>(raw_stream)));
+        // SetStream resets the handle workspace, so restore the explicit caller buffer.
+        check(cublasSetWorkspace(p->handle, workspace, workspace_bytes));
+        const float alpha = 1.0f, beta = 0.0f;
+        // Use the explicit FP32 arithmetic contract for every stored input type.
+        const auto compute = CUBLAS_COMPUTE_32F_PEDANTIC;
+        // Row-major Y[T,N] = X[T,K] W[N,K]^T via column-major Y^T.
+        check(cublasGemmEx(p->handle, CUBLAS_OP_T, CUBLAS_OP_N, p->n, p->tokens, p->k,
+            &alpha, w, data_type(p->dtype), p->k, x, data_type(p->dtype), p->k,
+            &beta, out, data_type(p->dtype), p->n, compute, CUBLAS_GEMM_DEFAULT));
+        return 0;
+    } catch (const std::exception& e) { error_text = e.what(); return -1; }
+}
+extern "C" int venturi_rms_run(const void* x, const float* w, void* out, int tokens,
+                               int features, int dtype, float epsilon, void* raw_stream) {
+    try {
+        validate(tokens, features, dtype);
+        if (!x || !w || !out || !(epsilon > 0) || !std::isfinite(epsilon))
+            throw std::invalid_argument("invalid RMSNorm operand/epsilon");
+        auto stream = static_cast<cudaStream_t>(raw_stream);
+        if (dtype == 0) rms_norm<<<tokens,256,0,stream>>>(static_cast<const __half*>(x),w,static_cast<__half*>(out),features,epsilon);
+        else if (dtype == 1) rms_norm<<<tokens,256,0,stream>>>(static_cast<const __nv_bfloat16*>(x),w,static_cast<__nv_bfloat16*>(out),features,epsilon);
+        else rms_norm<<<tokens,256,0,stream>>>(static_cast<const float*>(x),w,static_cast<float*>(out),features,epsilon);
+        check(cudaGetLastError());
+        return 0;
+    } catch (const std::exception& e) { error_text = e.what(); return -1; }
+}
+extern "C" int venturi_swiglu_run(const void* a, const void* b, void* out,
+                                  std::int64_t count, int dtype, void* stream) {
+    try { launch_elementwise<true>(a,b,out,count,dtype,static_cast<cudaStream_t>(stream)); return 0; }
+    catch (const std::exception& e) { error_text = e.what(); return -1; }
+}
+extern "C" int venturi_add_run(const void* a, const void* b, void* out,
+                              std::int64_t count, int dtype, void* stream) {
+    try { launch_elementwise<false>(a,b,out,count,dtype,static_cast<cudaStream_t>(stream)); return 0; }
+    catch (const std::exception& e) { error_text = e.what(); return -1; }
+}
+
+extern "C" int venturi_rope_run(const void* x, const float* cos, const float* sin,
+    void* out, int tokens, int heads, int d, int r, int interleaved, int dtype, void* raw_stream) {
+    try {
+        validate(tokens, heads, dtype);
+        if (!x || !cos || !sin || !out || d <= 0 || r <= 0 || r > d || r % 2 ||
+            (interleaved != 0 && interleaved != 1)) throw std::invalid_argument("invalid RoPE operand");
+        const std::int64_t rows = static_cast<std::int64_t>(tokens) * heads;
+        const std::int64_t count = rows * (d - r / 2);
+        const int grid = static_cast<int>(std::min<std::int64_t>((count + 255) / 256, 65535));
+        auto stream = static_cast<cudaStream_t>(raw_stream);
+        if (dtype == 0) rope<<<grid,256,0,stream>>>(static_cast<const __half*>(x),cos,sin,static_cast<__half*>(out),rows,heads,d,r,interleaved);
+        else if (dtype == 1) rope<<<grid,256,0,stream>>>(static_cast<const __nv_bfloat16*>(x),cos,sin,static_cast<__nv_bfloat16*>(out),rows,heads,d,r,interleaved);
+        else rope<<<grid,256,0,stream>>>(static_cast<const float*>(x),cos,sin,static_cast<float*>(out),rows,heads,d,r,interleaved);
+        check(cudaGetLastError());
+        return 0;
+    } catch (const std::exception& e) { error_text = e.what(); return -1; }
+}
+extern "C" int venturi_attention_run(const void* q, const void* k, const void* v,
+    void* out, int tokens, int kv_tokens, int hq, int hkv, int d, int dtype,
+    float scale, void* raw_stream) {
+    try {
+        validate(tokens, kv_tokens, dtype);
+        if (!q || !k || !v || !out || hq <= 0 || hkv <= 0 || hq % hkv ||
+            kv_tokens < tokens || (d != 64 && d != 128 && d != 256) ||
+            static_cast<std::int64_t>(tokens) * hq >= INT32_MAX ||
+            !(scale > 0) || !std::isfinite(scale))
+            throw std::invalid_argument("invalid causal attention operand");
+        auto stream = static_cast<cudaStream_t>(raw_stream);
+        const int rows = tokens * hq;
+        if (dtype == 0) causal_attention<<<rows,256,0,stream>>>(static_cast<const __half*>(q),static_cast<const __half*>(k),static_cast<const __half*>(v),static_cast<__half*>(out),tokens,kv_tokens,hq,hkv,d,scale);
+        else if (dtype == 1) causal_attention<<<rows,256,0,stream>>>(static_cast<const __nv_bfloat16*>(q),static_cast<const __nv_bfloat16*>(k),static_cast<const __nv_bfloat16*>(v),static_cast<__nv_bfloat16*>(out),tokens,kv_tokens,hq,hkv,d,scale);
+        else causal_attention<<<rows,256,0,stream>>>(static_cast<const float*>(q),static_cast<const float*>(k),static_cast<const float*>(v),static_cast<float*>(out),tokens,kv_tokens,hq,hkv,d,scale);
+        check(cudaGetLastError());
+        return 0;
+    } catch (const std::exception& e) { error_text = e.what(); return -1; }
+}
+
+extern "C" int venturi_embedding_run(const void* weight, const std::int64_t* ids,
+    void* out, int tokens, int vocab, int hidden, int dtype, void* raw_stream) {
+    try {
+        validate(tokens, hidden, dtype);
+        if (!weight || !ids || !out || vocab <= 0)
+            throw std::invalid_argument("invalid embedding operand");
+        const std::int64_t count = static_cast<std::int64_t>(tokens) * hidden;
+        const int grid = static_cast<int>(std::min<std::int64_t>((count + 255) / 256, 65535));
+        auto stream = static_cast<cudaStream_t>(raw_stream);
+        if (dtype == 0) embedding<<<grid,256,0,stream>>>(static_cast<const __half*>(weight),ids,static_cast<__half*>(out),count,vocab,hidden);
+        else if (dtype == 1) embedding<<<grid,256,0,stream>>>(static_cast<const __nv_bfloat16*>(weight),ids,static_cast<__nv_bfloat16*>(out),count,vocab,hidden);
+        else embedding<<<grid,256,0,stream>>>(static_cast<const float*>(weight),ids,static_cast<float*>(out),count,vocab,hidden);
+        check(cudaGetLastError()); return 0;
+    } catch (const std::exception& e) { error_text = e.what(); return -1; }
+}
+
+extern "C" int venturi_gdn_run(const void* q, const void* k, const void* v,
+    const float* g, const float* beta, const float* state, void* out, float* state_out,
+    int tokens, int hqk, int hv, int dk, int dv, int normalize, float scale, void* raw_stream) {
+    try {
+        if (!q || !k || !v || !g || !beta || !state || !out || !state_out ||
+            tokens <= 0 || hqk <= 0 || hv <= 0 || hv % hqk || dv <= 0 ||
+            (dk != 64 && dk != 128 && dk != 256) ||
+            static_cast<std::int64_t>(hv) * dv >= INT32_MAX ||
+            (normalize != 0 && normalize != 1) || !(scale > 0) || !std::isfinite(scale))
+            throw std::invalid_argument("invalid GDN operand/configuration");
+        gdn_recurrent<<<hv*dv,256,0,static_cast<cudaStream_t>(raw_stream)>>>(
+            static_cast<const __nv_bfloat16*>(q),static_cast<const __nv_bfloat16*>(k),
+            static_cast<const __nv_bfloat16*>(v),g,beta,state,static_cast<__nv_bfloat16*>(out),
+            state_out,tokens,hqk,hv,dk,dv,normalize,scale);
+        check(cudaGetLastError()); return 0;
+    } catch (const std::exception& e) { error_text = e.what(); return -1; }
+}
+
+extern "C" int venturi_q8_embedding_run(const std::int8_t* codes, const __half* scales,
+    const std::int64_t* ids, void* out, int tokens, int vocab, int k, int padded, void* raw_stream) {
+    try {
+        if (!codes || !scales || !ids || !out || tokens <= 0 || vocab <= 0 || k <= 0 ||
+            padded < k || padded % 128 || static_cast<std::int64_t>(padded) != ((static_cast<std::int64_t>(k) + 127) / 128) * 128)
+            throw std::invalid_argument("invalid Q8 embedding operand");
+        const std::int64_t count = static_cast<std::int64_t>(tokens) * k;
+        const int grid = static_cast<int>(std::min<std::int64_t>((count + 255) / 256, 65535));
+        q8_embedding<<<grid,256,0,static_cast<cudaStream_t>(raw_stream)>>>(codes,scales,ids,
+            static_cast<__nv_bfloat16*>(out),count,vocab,k,padded);
+        check(cudaGetLastError()); return 0;
+    } catch (const std::exception& e) { error_text = e.what(); return -1; }
+}
+extern "C" int venturi_q8_head_run(const void* x, const std::int8_t* codes, const __half* scales,
+    void* out, int tokens, int vocab, int k, int padded, void* raw_stream) {
+    try {
+        if (!x || !codes || !scales || !out || tokens <= 0 || vocab <= 0 || k <= 0 ||
+            padded < k || padded % 128 || static_cast<std::int64_t>(padded) != ((static_cast<std::int64_t>(k) + 127) / 128) * 128 ||
+            static_cast<std::int64_t>(tokens) * vocab >= INT32_MAX)
+            throw std::invalid_argument("invalid Q8 head operand");
+        q8_head<<<tokens*vocab,256,0,static_cast<cudaStream_t>(raw_stream)>>>(
+            static_cast<const __nv_bfloat16*>(x),codes,scales,static_cast<__nv_bfloat16*>(out),vocab,k,padded);
+        check(cudaGetLastError()); return 0;
+    } catch (const std::exception& e) { error_text = e.what(); return -1; }
+}

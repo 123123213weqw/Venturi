@@ -1,0 +1,17 @@
+[
+  "/usr/local/cuda/bin/nvcc",
+  "-O3",
+  "-std=c++20",
+  "-lineinfo",
+  "-shared",
+  "--cudart=static",
+  "-Xcompiler=-fPIC",
+  "-DVENTURI_Q8_ROW_PAIR=1",
+  "-gencode=arch=compute_70,code=sm_70",
+  "-gencode=arch=compute_70,code=compute_70",
+  "-Xptxas=-v",
+  "-I/home/data/wangyue/repos/codex-build/Venturi/producer-fusion-native-src-v4/src/venturi/ops/csrc",
+  "/home/data/wangyue/repos/codex-build/Venturi/producer-fusion-native-src-v4/tools/projection/rms_quant_probe.cu",
+  "-o",
+  "/home/data/wangyue/artifacts/venturi-producer-fusion-native-v1/operators/librms_quant_probe.so"
+]

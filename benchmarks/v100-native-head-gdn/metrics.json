@@ -1,0 +1,2527 @@
+{
+  "scope": "Recompute native head-GDN engine results with explicit fixed timing scopes.",
+  "fixed_work": "23 pinned formatted IDs; 32 greedy outputs ignoring EOS; 8 prepared slots of256 context; two V100s logical0/1 mapped physical1/0; row budget32; native post-first31/(generation-first-ready), HTTP32*N/global cohort wall.",
+  "library_sha256": "33a4becb5f9c8440492e9cc6352ea87fccab2692a01adc48e6cc756fa93bc7b8",
+  "screen_ratios": {
+    "mtp2": {
+      "paired_trials": [
+        {
+          "1": 1.0919998142936695,
+          "8": 1.0722800713387033
+        },
+        {
+          "1": 1.0941948670728927,
+          "8": 1.0886773142875306
+        }
+      ],
+      "median": {
+        "1": 1.0930973406832811,
+        "8": 1.080478692813117
+      }
+    },
+    "mtp-batch": {
+      "paired_trials": [
+        {
+          "1": 1.0884990427951078,
+          "8": 1.1057749762907771
+        },
+        {
+          "1": 1.0939475468345308,
+          "8": 1.108115522256397
+        }
+      ],
+      "median": {
+        "1": 1.0912232948148193,
+        "8": 1.1069452492735872
+      }
+    }
+  },
+  "matrices": {
+    "mtp2": {
+      "control": [
+        {
+          "requests": 1,
+          "trials": 3,
+          "http_tps": 38.51930970987177,
+          "trial_http_tps": [
+            38.55550132351792,
+            38.5108364047874,
+            38.49164711842918
+          ],
+          "mean_cohort_seconds": 0.830752166667177,
+          "mean_server_cpu_core_seconds": 0.8300000000000006,
+          "mean_client_completion_seconds": 0.8297352310231266,
+          "max_client_completion_seconds": 0.8301882169907913,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 24,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 77.58333333333333,
+                  "min": 63.0,
+                  "max": 86.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 51.083333333333336,
+                  "min": 40.0,
+                  "max": 57.0
+                },
+                "device_used_mib": {
+                  "mean": 23995.0,
+                  "min": 23995.0,
+                  "max": 23995.0
+                },
+                "power_watts": {
+                  "mean": 154.79458333333332,
+                  "min": 142.56,
+                  "max": 188.54
+                },
+                "temperature_c": {
+                  "mean": 38.583333333333336,
+                  "min": 37.0,
+                  "max": 40.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 24,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 54.583333333333336,
+                  "min": 48.0,
+                  "max": 61.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 45.583333333333336,
+                  "min": 35.0,
+                  "max": 48.0
+                },
+                "device_used_mib": {
+                  "mean": 17229.0,
+                  "min": 17229.0,
+                  "max": 17229.0
+                },
+                "power_watts": {
+                  "mean": 124.94208333333333,
+                  "min": 112.0,
+                  "max": 157.22
+                },
+                "temperature_c": {
+                  "mean": 37.333333333333336,
+                  "min": 36.0,
+                  "max": 38.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 17,
+            "proposed": 26,
+            "forced": 0,
+            "target_replay": 0
+          },
+          "native_post_first_tps": 48.486968047329675,
+          "trial_native_post_first_tps": [
+            48.51270606699204,
+            48.486697632027216,
+            48.46152745498736
+          ],
+          "mean_native_first_ready_seconds": 0.1548758516825425,
+          "mean_native_generation_seconds": 0.7942229020021235
+        },
+        {
+          "requests": 2,
+          "trials": 3,
+          "http_tps": 37.68882834732875,
+          "trial_http_tps": [
+            37.615148455693024,
+            37.78734460744746,
+            37.66440897781409
+          ],
+          "mean_cohort_seconds": 1.6981159353163093,
+          "mean_server_cpu_core_seconds": 1.7233333333333338,
+          "mean_client_completion_seconds": 1.6954923469844896,
+          "max_client_completion_seconds": 1.700841280980967,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 50,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 75.98,
+                  "min": 31.0,
+                  "max": 85.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 49.94,
+                  "min": 16.0,
+                  "max": 57.0
+                },
+                "device_used_mib": {
+                  "mean": 23995.0,
+                  "min": 23995.0,
+                  "max": 23995.0
+                },
+                "power_watts": {
+                  "mean": 144.83599999999998,
+                  "min": 43.81,
+                  "max": 190.1
+                },
+                "temperature_c": {
+                  "mean": 40.56,
+                  "min": 38.0,
+                  "max": 42.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 49,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 53.59183673469388,
+                  "min": 34.0,
+                  "max": 68.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 43.95918367346939,
+                  "min": 29.0,
+                  "max": 49.0
+                },
+                "device_used_mib": {
+                  "mean": 17229.0,
+                  "min": 17229.0,
+                  "max": 17229.0
+                },
+                "power_watts": {
+                  "mean": 121.31510204081633,
+                  "min": 43.92,
+                  "max": 157.85
+                },
+                "temperature_c": {
+                  "mean": 38.93877551020408,
+                  "min": 38.0,
+                  "max": 40.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 17,
+            "proposed": 26,
+            "forced": 0,
+            "target_replay": 0
+          }
+        },
+        {
+          "requests": 4,
+          "trials": 3,
+          "http_tps": 38.59065575328396,
+          "trial_http_tps": [
+            38.49750937534055,
+            38.57110786432481,
+            38.703916739387125
+          ],
+          "mean_cohort_seconds": 3.316865119326394,
+          "mean_server_cpu_core_seconds": 3.4766666666666666,
+          "mean_client_completion_seconds": 3.174148882748947,
+          "max_client_completion_seconds": 3.3239825880154967,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 96,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 77.08333333333333,
+                  "min": 18.0,
+                  "max": 86.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 50.770833333333336,
+                  "min": 14.0,
+                  "max": 57.0
+                },
+                "device_used_mib": {
+                  "mean": 23995.0,
+                  "min": 23995.0,
+                  "max": 23995.0
+                },
+                "power_watts": {
+                  "mean": 148.71666666666667,
+                  "min": 43.81,
+                  "max": 190.76
+                },
+                "temperature_c": {
+                  "mean": 43.010416666666664,
+                  "min": 40.0,
+                  "max": 45.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 97,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 55.07216494845361,
+                  "min": 21.0,
+                  "max": 68.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 44.76288659793814,
+                  "min": 20.0,
+                  "max": 51.0
+                },
+                "device_used_mib": {
+                  "mean": 17229.0,
+                  "min": 17229.0,
+                  "max": 17229.0
+                },
+                "power_watts": {
+                  "mean": 122.29082474226804,
+                  "min": 44.1,
+                  "max": 159.87
+                },
+                "temperature_c": {
+                  "mean": 40.70103092783505,
+                  "min": 38.0,
+                  "max": 42.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 17,
+            "proposed": 26,
+            "forced": 0,
+            "target_replay": 0
+          }
+        },
+        {
+          "requests": 8,
+          "trials": 3,
+          "http_tps": 38.56598453620355,
+          "trial_http_tps": [
+            38.39545196843483,
+            38.450723282951884,
+            38.85503153870664
+          ],
+          "mean_cohort_seconds": 6.63797393165684,
+          "mean_server_cpu_core_seconds": 7.106666666666665,
+          "mean_client_completion_seconds": 6.187728000242108,
+          "max_client_completion_seconds": 6.666136540006846,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 192,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 77.765625,
+                  "min": 2.0,
+                  "max": 86.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 51.114583333333336,
+                  "min": 1.0,
+                  "max": 58.0
+                },
+                "device_used_mib": {
+                  "mean": 23995.0,
+                  "min": 23995.0,
+                  "max": 23995.0
+                },
+                "power_watts": {
+                  "mean": 150.92864583333332,
+                  "min": 45.08,
+                  "max": 198.74
+                },
+                "temperature_c": {
+                  "mean": 46.114583333333336,
+                  "min": 42.0,
+                  "max": 48.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 193,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 55.40414507772021,
+                  "min": 0.0,
+                  "max": 68.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 44.93782383419689,
+                  "min": 0.0,
+                  "max": 52.0
+                },
+                "device_used_mib": {
+                  "mean": 17229.0,
+                  "min": 17229.0,
+                  "max": 17229.0
+                },
+                "power_watts": {
+                  "mean": 124.52487046632125,
+                  "min": 44.69,
+                  "max": 160.04
+                },
+                "temperature_c": {
+                  "mean": 43.082901554404145,
+                  "min": 40.0,
+                  "max": 45.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 17,
+            "proposed": 26,
+            "forced": 0,
+            "target_replay": 0
+          }
+        }
+      ],
+      "candidate": [
+        {
+          "requests": 1,
+          "trials": 3,
+          "http_tps": 42.26711616282104,
+          "trial_http_tps": [
+            42.22836478786648,
+            42.32384476340043,
+            42.24925808215089
+          ],
+          "mean_cohort_seconds": 0.7570897403250759,
+          "mean_server_cpu_core_seconds": 0.7533333333333326,
+          "mean_client_completion_seconds": 0.7561337943188846,
+          "max_client_completion_seconds": 0.7568080269847997,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 21,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 79.52380952380952,
+                  "min": 66.0,
+                  "max": 85.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 55.142857142857146,
+                  "min": 38.0,
+                  "max": 60.0
+                },
+                "device_used_mib": {
+                  "mean": 21365.0,
+                  "min": 21365.0,
+                  "max": 21365.0
+                },
+                "power_watts": {
+                  "mean": 152.4952380952381,
+                  "min": 54.36,
+                  "max": 192.75
+                },
+                "temperature_c": {
+                  "mean": 40.19047619047619,
+                  "min": 39.0,
+                  "max": 41.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 22,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 68.22727272727273,
+                  "min": 55.0,
+                  "max": 80.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 50.27272727272727,
+                  "min": 40.0,
+                  "max": 55.0
+                },
+                "device_used_mib": {
+                  "mean": 19583.0,
+                  "min": 19583.0,
+                  "max": 19583.0
+                },
+                "power_watts": {
+                  "mean": 136.70545454545456,
+                  "min": 50.45,
+                  "max": 176.43
+                },
+                "temperature_c": {
+                  "mean": 39.18181818181818,
+                  "min": 38.0,
+                  "max": 40.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 17,
+            "proposed": 26,
+            "forced": 0,
+            "target_replay": 0
+          },
+          "native_post_first_tps": 52.95940567000609,
+          "trial_native_post_first_tps": [
+            52.92175576027658,
+            53.01174171968318,
+            52.944802012248324
+          ],
+          "mean_native_first_ready_seconds": 0.1382089726588068,
+          "mean_native_generation_seconds": 0.7235629736678675
+        },
+        {
+          "requests": 2,
+          "trials": 3,
+          "http_tps": 41.379015778487975,
+          "trial_http_tps": [
+            40.943654637817964,
+            42.27806951078029,
+            40.943699377528766
+          ],
+          "mean_cohort_seconds": 1.5466776769802284,
+          "mean_server_cpu_core_seconds": 1.576666666666668,
+          "mean_client_completion_seconds": 1.5444423898200814,
+          "max_client_completion_seconds": 1.5622154870070517,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 45,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 78.02222222222223,
+                  "min": 45.0,
+                  "max": 87.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 54.22222222222222,
+                  "min": 24.0,
+                  "max": 61.0
+                },
+                "device_used_mib": {
+                  "mean": 21365.0,
+                  "min": 21365.0,
+                  "max": 21365.0
+                },
+                "power_watts": {
+                  "mean": 147.7157777777778,
+                  "min": 43.9,
+                  "max": 193.43
+                },
+                "temperature_c": {
+                  "mean": 41.955555555555556,
+                  "min": 40.0,
+                  "max": 43.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 45,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 66.22222222222223,
+                  "min": 27.0,
+                  "max": 84.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 49.46666666666667,
+                  "min": 18.0,
+                  "max": 56.0
+                },
+                "device_used_mib": {
+                  "mean": 19583.0,
+                  "min": 19583.0,
+                  "max": 19583.0
+                },
+                "power_watts": {
+                  "mean": 134.32711111111112,
+                  "min": 44.77,
+                  "max": 180.15
+                },
+                "temperature_c": {
+                  "mean": 40.666666666666664,
+                  "min": 39.0,
+                  "max": 42.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 17,
+            "proposed": 26,
+            "forced": 0,
+            "target_replay": 0
+          }
+        },
+        {
+          "requests": 4,
+          "trials": 3,
+          "http_tps": 41.30508745275072,
+          "trial_http_tps": [
+            41.27846821648599,
+            41.003496167839046,
+            41.638198351199236
+          ],
+          "mean_cohort_seconds": 3.0988918773364276,
+          "mean_server_cpu_core_seconds": 3.25,
+          "mean_client_completion_seconds": 2.994714173168177,
+          "max_client_completion_seconds": 3.1207587869721465,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 90,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 76.23333333333333,
+                  "min": 1.0,
+                  "max": 87.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 52.733333333333334,
+                  "min": 0.0,
+                  "max": 60.0
+                },
+                "device_used_mib": {
+                  "mean": 21365.0,
+                  "min": 21365.0,
+                  "max": 21365.0
+                },
+                "power_watts": {
+                  "mean": 148.82355555555554,
+                  "min": 44.39,
+                  "max": 195.85
+                },
+                "temperature_c": {
+                  "mean": 43.93333333333333,
+                  "min": 41.0,
+                  "max": 46.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 89,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 66.34831460674157,
+                  "min": 5.0,
+                  "max": 84.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 49.38202247191011,
+                  "min": 4.0,
+                  "max": 56.0
+                },
+                "device_used_mib": {
+                  "mean": 19583.0,
+                  "min": 19583.0,
+                  "max": 19583.0
+                },
+                "power_watts": {
+                  "mean": 136.62685393258428,
+                  "min": 44.7,
+                  "max": 181.32
+                },
+                "temperature_c": {
+                  "mean": 42.57303370786517,
+                  "min": 41.0,
+                  "max": 44.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 17,
+            "proposed": 26,
+            "forced": 0,
+            "target_replay": 0
+          }
+        },
+        {
+          "requests": 8,
+          "trials": 3,
+          "http_tps": 42.12535842963698,
+          "trial_http_tps": [
+            41.99938126018008,
+            42.66489817123463,
+            41.72287924846303
+          ],
+          "mean_cohort_seconds": 6.07709962700028,
+          "mean_server_cpu_core_seconds": 6.543333333333332,
+          "mean_client_completion_seconds": 5.783638207627519,
+          "max_client_completion_seconds": 6.134724295989145,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 176,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 78.98863636363636,
+                  "min": 1.0,
+                  "max": 87.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 54.625,
+                  "min": 1.0,
+                  "max": 62.0
+                },
+                "device_used_mib": {
+                  "mean": 21365.0,
+                  "min": 21365.0,
+                  "max": 21365.0
+                },
+                "power_watts": {
+                  "mean": 152.76994318181818,
+                  "min": 44.88,
+                  "max": 195.82
+                },
+                "temperature_c": {
+                  "mean": 46.82954545454545,
+                  "min": 43.0,
+                  "max": 49.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 176,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 67.85227272727273,
+                  "min": 1.0,
+                  "max": 84.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 50.51136363636363,
+                  "min": 0.0,
+                  "max": 57.0
+                },
+                "device_used_mib": {
+                  "mean": 19583.0,
+                  "min": 19583.0,
+                  "max": 19583.0
+                },
+                "power_watts": {
+                  "mean": 139.08142045454545,
+                  "min": 45.66,
+                  "max": 182.42
+                },
+                "temperature_c": {
+                  "mean": 44.98295454545455,
+                  "min": 42.0,
+                  "max": 47.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 17,
+            "proposed": 26,
+            "forced": 0,
+            "target_replay": 0
+          }
+        }
+      ],
+      "native_ratios": [
+        {
+          "requests": 1,
+          "http_ratio": 1.097296822844901,
+          "cpu_ratio": 0.9076305220883519,
+          "paired_trial_http_ratios": [
+            1.0952617224071264,
+            1.0990113099215635,
+            1.0976214645260693
+          ]
+        },
+        {
+          "requests": 2,
+          "http_ratio": 1.0979119700180537,
+          "cpu_ratio": 0.9148936170212771,
+          "paired_trial_http_ratios": [
+            1.088488449967055,
+            1.118842034283821,
+            1.0870660256914244
+          ]
+        },
+        {
+          "requests": 4,
+          "http_ratio": 1.0703390923652747,
+          "cpu_ratio": 0.9348034515819751,
+          "paired_trial_http_ratios": [
+            1.0722373703200336,
+            1.0630624433207945,
+            1.0758135573608765
+          ]
+        },
+        {
+          "requests": 8,
+          "http_ratio": 1.0922930903032462,
+          "cpu_ratio": 0.9207317073170732,
+          "paired_trial_http_ratios": [
+            1.0938634423344742,
+            1.1095993658499321,
+            1.0738089147321754
+          ]
+        }
+      ]
+    },
+    "mtp-batch": {
+      "control": [
+        {
+          "requests": 1,
+          "trials": 3,
+          "http_tps": 36.28062231389209,
+          "trial_http_tps": [
+            36.14690453324541,
+            36.37254982797937,
+            36.323189461782114
+          ],
+          "mean_cohort_seconds": 0.882013536679248,
+          "mean_server_cpu_core_seconds": 0.8566666666666668,
+          "mean_client_completion_seconds": 0.8810773063451052,
+          "max_client_completion_seconds": 0.8843569900491275,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 25,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 75.68,
+                  "min": 57.0,
+                  "max": 84.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 51.0,
+                  "min": 32.0,
+                  "max": 58.0
+                },
+                "device_used_mib": {
+                  "mean": 22461.0,
+                  "min": 22461.0,
+                  "max": 22461.0
+                },
+                "power_watts": {
+                  "mean": 139.74,
+                  "min": 46.93,
+                  "max": 188.46
+                },
+                "temperature_c": {
+                  "mean": 39.72,
+                  "min": 38.0,
+                  "max": 41.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 25,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 56.68,
+                  "min": 41.0,
+                  "max": 65.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 47.36,
+                  "min": 32.0,
+                  "max": 52.0
+                },
+                "device_used_mib": {
+                  "mean": 17229.0,
+                  "min": 17229.0,
+                  "max": 17229.0
+                },
+                "power_watts": {
+                  "mean": 118.2864,
+                  "min": 46.56,
+                  "max": 157.54
+                },
+                "temperature_c": {
+                  "mean": 38.72,
+                  "min": 38.0,
+                  "max": 40.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 14,
+            "proposed": 16,
+            "forced": 0,
+            "target_replay": 0
+          },
+          "native_post_first_tps": 45.81660375275296,
+          "trial_native_post_first_tps": [
+            45.82529249804029,
+            45.83655652242617,
+            45.78799045141439
+          ],
+          "mean_native_first_ready_seconds": 0.1555055916736213,
+          "mean_native_generation_seconds": 0.8321161970185736
+        },
+        {
+          "requests": 2,
+          "trials": 3,
+          "http_tps": 51.84253727852288,
+          "trial_http_tps": [
+            51.86351467345438,
+            51.792125785104425,
+            51.872045715923235
+          ],
+          "mean_cohort_seconds": 1.234507478987022,
+          "mean_server_cpu_core_seconds": 1.2100000000000009,
+          "mean_client_completion_seconds": 1.2330344973306637,
+          "max_client_completion_seconds": 1.2345755510032177,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 36,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 79.05555555555556,
+                  "min": 55.0,
+                  "max": 86.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 47.333333333333336,
+                  "min": 30.0,
+                  "max": 54.0
+                },
+                "device_used_mib": {
+                  "mean": 22461.0,
+                  "min": 22461.0,
+                  "max": 22461.0
+                },
+                "power_watts": {
+                  "mean": 158.40555555555557,
+                  "min": 130.64,
+                  "max": 189.04
+                },
+                "temperature_c": {
+                  "mean": 42.55555555555556,
+                  "min": 40.0,
+                  "max": 44.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 36,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 54.861111111111114,
+                  "min": 39.0,
+                  "max": 66.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 41.111111111111114,
+                  "min": 28.0,
+                  "max": 44.0
+                },
+                "device_used_mib": {
+                  "mean": 17229.0,
+                  "min": 17229.0,
+                  "max": 17229.0
+                },
+                "power_watts": {
+                  "mean": 125.48,
+                  "min": 67.63,
+                  "max": 154.52
+                },
+                "temperature_c": {
+                  "mean": 40.44444444444444,
+                  "min": 39.0,
+                  "max": 41.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 14,
+            "proposed": 16,
+            "forced": 0,
+            "target_replay": 0
+          }
+        },
+        {
+          "requests": 4,
+          "trials": 3,
+          "http_tps": 63.53833168944437,
+          "trial_http_tps": [
+            63.55689789623626,
+            63.54741824210349,
+            63.51069767659677
+          ],
+          "mean_cohort_seconds": 2.0145319619914517,
+          "mean_server_cpu_core_seconds": 1.9933333333333323,
+          "mean_client_completion_seconds": 2.0116115359172304,
+          "max_client_completion_seconds": 2.013809867959935,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 59,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 81.8135593220339,
+                  "min": 50.0,
+                  "max": 86.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 40.932203389830505,
+                  "min": 27.0,
+                  "max": 45.0
+                },
+                "device_used_mib": {
+                  "mean": 22461.0,
+                  "min": 22461.0,
+                  "max": 22461.0
+                },
+                "power_watts": {
+                  "mean": 163.51966101694916,
+                  "min": 53.88,
+                  "max": 200.84
+                },
+                "temperature_c": {
+                  "mean": 44.88135593220339,
+                  "min": 42.0,
+                  "max": 46.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 59,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 56.28813559322034,
+                  "min": 41.0,
+                  "max": 67.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 33.69491525423729,
+                  "min": 27.0,
+                  "max": 40.0
+                },
+                "device_used_mib": {
+                  "mean": 17229.0,
+                  "min": 17229.0,
+                  "max": 17229.0
+                },
+                "power_watts": {
+                  "mean": 127.70237288135593,
+                  "min": 44.9,
+                  "max": 155.71
+                },
+                "temperature_c": {
+                  "mean": 41.86440677966102,
+                  "min": 41.0,
+                  "max": 43.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 14,
+            "proposed": 16,
+            "forced": 0,
+            "target_replay": 0
+          }
+        },
+        {
+          "requests": 8,
+          "trials": 3,
+          "http_tps": 68.8521454445459,
+          "trial_http_tps": [
+            68.87716909792724,
+            68.86835712520228,
+            68.810947683544
+          ],
+          "mean_cohort_seconds": 3.718112171336543,
+          "mean_server_cpu_core_seconds": 3.7166666666666686,
+          "mean_client_completion_seconds": 3.7127538697168347,
+          "max_client_completion_seconds": 3.7187873009825125,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 107,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 85.32710280373831,
+                  "min": 52.0,
+                  "max": 87.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 44.03738317757009,
+                  "min": 25.0,
+                  "max": 50.0
+                },
+                "device_used_mib": {
+                  "mean": 22461.0,
+                  "min": 22461.0,
+                  "max": 22461.0
+                },
+                "power_watts": {
+                  "mean": 175.58289719626168,
+                  "min": 47.13,
+                  "max": 193.88
+                },
+                "temperature_c": {
+                  "mean": 48.149532710280376,
+                  "min": 46.0,
+                  "max": 49.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 106,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 58.424528301886795,
+                  "min": 31.0,
+                  "max": 67.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 35.75471698113208,
+                  "min": 17.0,
+                  "max": 41.0
+                },
+                "device_used_mib": {
+                  "mean": 17229.0,
+                  "min": 17229.0,
+                  "max": 17229.0
+                },
+                "power_watts": {
+                  "mean": 136.8816037735849,
+                  "min": 56.6,
+                  "max": 157.79
+                },
+                "temperature_c": {
+                  "mean": 43.77358490566038,
+                  "min": 43.0,
+                  "max": 45.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 14,
+            "proposed": 16,
+            "forced": 0,
+            "target_replay": 0
+          }
+        }
+      ],
+      "candidate": [
+        {
+          "requests": 1,
+          "trials": 3,
+          "http_tps": 39.689249219521585,
+          "trial_http_tps": [
+            39.69449735393618,
+            39.75519491397309,
+            39.618292558790564
+          ],
+          "mean_cohort_seconds": 0.8062636766699143,
+          "mean_server_cpu_core_seconds": 0.7766666666666661,
+          "mean_client_completion_seconds": 0.8052747496791804,
+          "max_client_completion_seconds": 0.8067729459726252,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 24,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 77.20833333333333,
+                  "min": 59.0,
+                  "max": 85.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 55.0,
+                  "min": 34.0,
+                  "max": 63.0
+                },
+                "device_used_mib": {
+                  "mean": 20619.0,
+                  "min": 20619.0,
+                  "max": 20619.0
+                },
+                "power_watts": {
+                  "mean": 135.92208333333332,
+                  "min": 48.4,
+                  "max": 193.07
+                },
+                "temperature_c": {
+                  "mean": 39.541666666666664,
+                  "min": 38.0,
+                  "max": 41.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 24,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 66.95833333333333,
+                  "min": 50.0,
+                  "max": 78.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 53.041666666666664,
+                  "min": 37.0,
+                  "max": 59.0
+                },
+                "device_used_mib": {
+                  "mean": 18815.0,
+                  "min": 18815.0,
+                  "max": 18815.0
+                },
+                "power_watts": {
+                  "mean": 129.30208333333334,
+                  "min": 71.77,
+                  "max": 178.49
+                },
+                "temperature_c": {
+                  "mean": 38.791666666666664,
+                  "min": 37.0,
+                  "max": 40.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 14,
+            "proposed": 16,
+            "forced": 0,
+            "target_replay": 0
+          },
+          "native_post_first_tps": 50.1159552530778,
+          "trial_native_post_first_tps": [
+            50.082019241038225,
+            50.1703566048389,
+            50.09558018487752
+          ],
+          "mean_native_first_ready_seconds": 0.13843972299946472,
+          "mean_native_generation_seconds": 0.7570052046600418
+        },
+        {
+          "requests": 2,
+          "trials": 3,
+          "http_tps": 57.297529727161375,
+          "trial_http_tps": [
+            57.371837416674225,
+            57.237149264424914,
+            57.28376574686611
+          ],
+          "mean_cohort_seconds": 1.1169766009940456,
+          "mean_server_cpu_core_seconds": 1.090000000000001,
+          "mean_client_completion_seconds": 1.1154670271789655,
+          "max_client_completion_seconds": 1.1170901800505817,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 33,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 79.93939393939394,
+                  "min": 57.0,
+                  "max": 87.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 50.57575757575758,
+                  "min": 32.0,
+                  "max": 57.0
+                },
+                "device_used_mib": {
+                  "mean": 20619.0,
+                  "min": 20619.0,
+                  "max": 20619.0
+                },
+                "power_watts": {
+                  "mean": 157.57939393939395,
+                  "min": 48.6,
+                  "max": 193.36
+                },
+                "temperature_c": {
+                  "mean": 42.303030303030305,
+                  "min": 40.0,
+                  "max": 44.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 33,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 69.18181818181819,
+                  "min": 48.0,
+                  "max": 83.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 47.36363636363637,
+                  "min": 33.0,
+                  "max": 51.0
+                },
+                "device_used_mib": {
+                  "mean": 18815.0,
+                  "min": 18815.0,
+                  "max": 18815.0
+                },
+                "power_watts": {
+                  "mean": 144.3560606060606,
+                  "min": 47.83,
+                  "max": 179.49
+                },
+                "temperature_c": {
+                  "mean": 41.06060606060606,
+                  "min": 40.0,
+                  "max": 42.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 14,
+            "proposed": 16,
+            "forced": 0,
+            "target_replay": 0
+          }
+        },
+        {
+          "requests": 4,
+          "trials": 3,
+          "http_tps": 70.28686834299322,
+          "trial_http_tps": [
+            70.36707758578449,
+            70.20099760891843,
+            70.29272678871195
+          ],
+          "mean_cohort_seconds": 1.8211083096684888,
+          "mean_server_cpu_core_seconds": 1.7966666666666669,
+          "mean_client_completion_seconds": 1.8182372458347043,
+          "max_client_completion_seconds": 1.821796432021074,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 53,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 83.0,
+                  "min": 49.0,
+                  "max": 87.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 43.81132075471698,
+                  "min": 28.0,
+                  "max": 47.0
+                },
+                "device_used_mib": {
+                  "mean": 20619.0,
+                  "min": 20619.0,
+                  "max": 20619.0
+                },
+                "power_watts": {
+                  "mean": 166.3945283018868,
+                  "min": 50.26,
+                  "max": 197.34
+                },
+                "temperature_c": {
+                  "mean": 44.660377358490564,
+                  "min": 42.0,
+                  "max": 46.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 52,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 71.40384615384616,
+                  "min": 54.0,
+                  "max": 83.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 38.82692307692308,
+                  "min": 31.0,
+                  "max": 46.0
+                },
+                "device_used_mib": {
+                  "mean": 18815.0,
+                  "min": 18815.0,
+                  "max": 18815.0
+                },
+                "power_watts": {
+                  "mean": 151.47384615384615,
+                  "min": 47.05,
+                  "max": 181.42
+                },
+                "temperature_c": {
+                  "mean": 42.78846153846154,
+                  "min": 41.0,
+                  "max": 44.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 14,
+            "proposed": 16,
+            "forced": 0,
+            "target_replay": 0
+          }
+        },
+        {
+          "requests": 8,
+          "trials": 3,
+          "http_tps": 76.45903008360489,
+          "trial_http_tps": [
+            76.54669246548592,
+            76.42055847738851,
+            76.40999054085975
+          ],
+          "mean_cohort_seconds": 3.348198371337882,
+          "mean_server_cpu_core_seconds": 3.3433333333333315,
+          "mean_client_completion_seconds": 3.3427577395850676,
+          "max_client_completion_seconds": 3.34793335897848,
+          "nvml_by_physical_gpu": {
+            "1": {
+              "samples": 97,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 85.94845360824742,
+                  "min": 52.0,
+                  "max": 88.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 47.02061855670103,
+                  "min": 27.0,
+                  "max": 54.0
+                },
+                "device_used_mib": {
+                  "mean": 20619.0,
+                  "min": 20619.0,
+                  "max": 20619.0
+                },
+                "power_watts": {
+                  "mean": 175.18288659793814,
+                  "min": 47.81,
+                  "max": 197.48
+                },
+                "temperature_c": {
+                  "mean": 47.597938144329895,
+                  "min": 44.0,
+                  "max": 49.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            },
+            "0": {
+              "samples": 96,
+              "values": {
+                "gpu_busy_percent": {
+                  "mean": 74.10416666666667,
+                  "min": 56.0,
+                  "max": 83.0
+                },
+                "memory_controller_busy_percent": {
+                  "mean": 41.333333333333336,
+                  "min": 28.0,
+                  "max": 46.0
+                },
+                "device_used_mib": {
+                  "mean": 18815.0,
+                  "min": 18815.0,
+                  "max": 18815.0
+                },
+                "power_watts": {
+                  "mean": 160.11270833333333,
+                  "min": 95.42,
+                  "max": 182.48
+                },
+                "temperature_c": {
+                  "mean": 45.479166666666664,
+                  "min": 43.0,
+                  "max": 47.0
+                },
+                "sm_clock_mhz": {
+                  "mean": 1380.0,
+                  "min": 1380.0,
+                  "max": 1380.0
+                },
+                "memory_clock_mhz": {
+                  "mean": 877.0,
+                  "min": 877.0,
+                  "max": 877.0
+                }
+              }
+            }
+          },
+          "acceptance_per_request": {
+            "accepted": 14,
+            "proposed": 16,
+            "forced": 0,
+            "target_replay": 0
+          }
+        }
+      ],
+      "native_ratios": [
+        {
+          "requests": 1,
+          "http_ratio": 1.0939517210079472,
+          "cpu_ratio": 0.906614785992217,
+          "paired_trial_http_ratios": [
+            1.0981437516296295,
+            1.092999943693572,
+            1.0907162379139483
+          ]
+        },
+        {
+          "requests": 2,
+          "http_ratio": 1.105222327744718,
+          "cpu_ratio": 0.900826446280992,
+          "paired_trial_http_ratios": [
+            1.1062080496838984,
+            1.1051322647367854,
+            1.1043282553493283
+          ]
+        },
+        {
+          "requests": 4,
+          "http_ratio": 1.1062120530097264,
+          "cpu_ratio": 0.9013377926421411,
+          "paired_trial_http_ratios": [
+            1.1071509138263262,
+            1.1047025914013702,
+            1.1067856181749096
+          ]
+        },
+        {
+          "requests": 8,
+          "http_ratio": 1.1104814467282742,
+          "cpu_ratio": 0.8995515695067255,
+          "paired_trial_http_ratios": [
+            1.1113507344742117,
+            1.1096614129832714,
+            1.1104336317567247
+          ]
+        }
+      ]
+    }
+  },
+  "achieved_hardware_counters": null,
+  "reused_stronger_reference": {
+    "path": "benchmarks/v100-mtp-draft-residual/metrics.json",
+    "sha256": "a7f2253f753cf0231e489754ea0b5154e270b8e090a794f027ff5636a2a62b7d"
+  },
+  "ordinary256_candidate_not_tested": true,
+  "automatic_strategy_router": false,
+  "full_goal_complete": false,
+  "single_decode_comparison": {
+    "native_tps": 52.95940567000609,
+    "trial_tps": [
+      52.92175576027658,
+      53.01174171968318,
+      52.944802012248324
+    ],
+    "best_retained_external_tps": 49.80330372625105,
+    "required_floor": 52.293468912563604,
+    "ratio": 1.0633713369920774,
+    "all_trials_clear_floor": true
+  },
+  "selected_http": {
+    "1": {
+      "mode": "mtp2",
+      "mtp_depth": 2,
+      "http_tps": 42.26711616282104,
+      "prior_best_native_tps": 38.345963143844386,
+      "over_prior_best_native_ratio": 1.102257257283316,
+      "retained_external": {
+        "capsule": "v100-strided-output/v100/external-depth-v9",
+        "label": "repeat-llama-tensor-mtp2-c1",
+        "requests": 1,
+        "depth": 2,
+        "http_tps": 30.173088033202983,
+        "post_first_tps": 49.80330372625105
+      },
+      "over_retained_external_ratio": 1.400821689722629,
+      "all_three_trials_clear_external_floor": true
+    },
+    "2": {
+      "mode": "mtp-batch",
+      "mtp_depth": 1,
+      "http_tps": 57.297529727161375,
+      "prior_best_native_tps": 51.821209499085654,
+      "over_prior_best_native_ratio": 1.105677198216926,
+      "retained_external": {
+        "capsule": "v100-q8-wmma/v100/campaign-v5",
+        "label": "repeat-llama-tensor-off",
+        "requests": 2,
+        "depth": 0,
+        "http_tps": 37.90744399336179
+      },
+      "over_retained_external_ratio": 1.5115112941193056,
+      "all_three_trials_clear_external_floor": true
+    },
+    "4": {
+      "mode": "mtp-batch",
+      "mtp_depth": 1,
+      "http_tps": 70.28686834299322,
+      "prior_best_native_tps": 63.65978850991032,
+      "over_prior_best_native_ratio": 1.104101505647497,
+      "retained_external": {
+        "capsule": "v100-q8-wmma/v100/campaign-v5",
+        "label": "repeat-llama-tensor-off",
+        "requests": 4,
+        "depth": 0,
+        "http_tps": 50.253690240757734
+      },
+      "over_retained_external_ratio": 1.3986409357454068,
+      "all_three_trials_clear_external_floor": true
+    },
+    "8": {
+      "mode": "mtp-batch",
+      "mtp_depth": 1,
+      "http_tps": 76.45903008360489,
+      "prior_best_native_tps": 73.83633062538635,
+      "over_prior_best_native_ratio": 1.0355204468586743,
+      "retained_external": {
+        "capsule": "v100-q8-wmma/v100/campaign-v5",
+        "label": "repeat-llama-tensor-off",
+        "requests": 8,
+        "depth": 0,
+        "http_tps": 67.28721679090569
+      },
+      "over_retained_external_ratio": 1.1363084064124767,
+      "all_three_trials_clear_external_floor": true
+    }
+  },
+  "numeric_goal_against_retained_baselines_met": true,
+  "completion_caveat": "All numerical >=5% conditions now pass versus stronger retained pinned baselines. Goal is not marked complete here: finish matched nonspeculative controls for the new profile and final source/correctness/configuration/comparison audit; fresh competitor validation may raise the reference.",
+  "separate_profiles": {
+    "control-mtp2-c1": {
+      "host_span_ms": 843.799495,
+      "kernels": 29036,
+      "summed_kernel_ms_not_critical_path": 961.095518,
+      "process_activity_gap_ms_not_device_idle": 125.183137,
+      "per_device_kernel_union_ms": {
+        "0": 565.810797,
+        "1": 395.284721
+      },
+      "simultaneous_two_device_kernel_ms": 331.252593,
+      "transfers": {
+        "host_to_device": {
+          "count": 7102,
+          "bytes": 316660240,
+          "nanoseconds": 64134784
+        },
+        "device_to_host": {
+          "count": 5883,
+          "bytes": 316660272,
+          "nanoseconds": 34737251
+        }
+      },
+      "kernel_attribution": [
+        {
+          "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 3328,
+          "nanoseconds": 327051243
+        },
+        {
+          "name": "void vct::partial<(int)4, (int)8, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 1664,
+          "nanoseconds": 122351568
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 258,
+          "nanoseconds": 115566271
+        },
+        {
+          "name": "void vdt::dot<(int)4, (int)2, (int)8>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 1690,
+          "nanoseconds": 72338389
+        },
+        {
+          "name": "void vdq::dot<(int)1, (int)2>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 316,
+          "nanoseconds": 57686621
+        },
+        {
+          "name": "void <unnamed>::gdn_prefix<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float, float *, float *, int)",
+          "count": 624,
+          "nanoseconds": 41462147
+        },
+        {
+          "name": "void vct::partial<(int)8, (int)16, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 128,
+          "nanoseconds": 40976218
+        },
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 344,
+          "nanoseconds": 35024305
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 2141,
+          "nanoseconds": 27655884
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 7987,
+          "nanoseconds": 21692606
+        },
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "count": 96,
+          "nanoseconds": 21676867
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 1440,
+          "nanoseconds": 16159996
+        },
+        {
+          "name": "void vdt::dot<(int)8, (int)2, (int)16>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 131,
+          "nanoseconds": 15651440
+        },
+        {
+          "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+          "count": 285,
+          "nanoseconds": 13286080
+        },
+        {
+          "name": "void vct::partial<(int)1, (int)4, (bool)0>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 128,
+          "nanoseconds": 7806116
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+          "count": 1965,
+          "nanoseconds": 5442732
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 720,
+          "nanoseconds": 4387718
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 2010,
+          "nanoseconds": 4303431
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 720,
+          "nanoseconds": 2610084
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "count": 960,
+          "nanoseconds": 2075875
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 720,
+          "nanoseconds": 1811169
+        },
+        {
+          "name": "void <unnamed>::history_prefix<__half>(const T1 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 624,
+          "nanoseconds": 1702595
+        },
+        {
+          "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+          "count": 285,
+          "nanoseconds": 1099713
+        },
+        {
+          "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+          "count": 285,
+          "nanoseconds": 631105
+        },
+        {
+          "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+          "count": 41,
+          "nanoseconds": 326528
+        },
+        {
+          "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+          "count": 60,
+          "nanoseconds": 146881
+        },
+        {
+          "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+          "count": 41,
+          "nanoseconds": 94592
+        },
+        {
+          "name": "void vr::mtp_concat<__half>(const T1 *, const T1 *, T1 *, int, int)",
+          "count": 45,
+          "nanoseconds": 77344
+        }
+      ]
+    },
+    "control-mtp-batch-c8": {
+      "host_span_ms": 3767.644049,
+      "kernels": 73304,
+      "summed_kernel_ms_not_critical_path": 4656.011735,
+      "process_activity_gap_ms_not_device_idle": 302.566327,
+      "per_device_kernel_union_ms": {
+        "0": 2799.941334,
+        "1": 1856.070401
+      },
+      "simultaneous_two_device_kernel_ms": 1642.005748,
+      "transfers": {
+        "host_to_device": {
+          "count": 12187,
+          "bytes": 2232040320,
+          "nanoseconds": 337515397
+        },
+        "device_to_host": {
+          "count": 10059,
+          "bytes": 2232039680,
+          "nanoseconds": 237049372
+        }
+      },
+      "kernel_attribution": [
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 6416,
+          "nanoseconds": 2251739181
+        },
+        {
+          "name": "void vct::partial<(int)8, (int)16, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 3200,
+          "nanoseconds": 807487519
+        },
+        {
+          "name": "void vdt::dot<(int)8, (int)2, (int)16>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 3258,
+          "nanoseconds": 393736254
+        },
+        {
+          "name": "void <unnamed>::gdn_prefix<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float, float *, float *, int)",
+          "count": 6144,
+          "nanoseconds": 296483751
+        },
+        {
+          "name": "void vdq::dot<(int)1, (int)2>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 1016,
+          "nanoseconds": 270866931
+        },
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "count": 768,
+          "nanoseconds": 173721406
+        },
+        {
+          "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+          "count": 2560,
+          "nanoseconds": 116007081
+        },
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 496,
+          "nanoseconds": 77718887
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 4377,
+          "nanoseconds": 58301408
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 14386,
+          "nanoseconds": 54464553
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 2400,
+          "nanoseconds": 47426907
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 6912,
+          "nanoseconds": 40427874
+        },
+        {
+          "name": "void <unnamed>::history_prefix<__half>(const T1 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 6144,
+          "nanoseconds": 17588825
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+          "count": 3456,
+          "nanoseconds": 13271637
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 3712,
+          "nanoseconds": 9667409
+        },
+        {
+          "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+          "count": 2560,
+          "nanoseconds": 8255179
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 1200,
+          "nanoseconds": 6632772
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "count": 1600,
+          "nanoseconds": 4372360
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 1200,
+          "nanoseconds": 2978116
+        },
+        {
+          "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+          "count": 656,
+          "nanoseconds": 1739617
+        },
+        {
+          "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+          "count": 153,
+          "nanoseconds": 1611490
+        },
+        {
+          "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+          "count": 281,
+          "nanoseconds": 695456
+        },
+        {
+          "name": "void vr::mtp_concat<__half>(const T1 *, const T1 *, T1 *, int, int)",
+          "count": 256,
+          "nanoseconds": 445857
+        },
+        {
+          "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+          "count": 153,
+          "nanoseconds": 371265
+        }
+      ]
+    },
+    "candidate-mtp2-c1": {
+      "host_span_ms": 770.910124,
+      "kernels": 34700,
+      "summed_kernel_ms_not_critical_path": 992.091259,
+      "process_activity_gap_ms_not_device_idle": 101.895382,
+      "per_device_kernel_union_ms": {
+        "0": 534.593009,
+        "1": 457.49825
+      },
+      "simultaneous_two_device_kernel_ms": 400.934059,
+      "transfers": {
+        "host_to_device": {
+          "count": 4942,
+          "bytes": 276404752,
+          "nanoseconds": 50860278
+        },
+        "device_to_host": {
+          "count": 4443,
+          "bytes": 276404784,
+          "nanoseconds": 29291008
+        }
+      },
+      "kernel_attribution": [
+        {
+          "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 3328,
+          "nanoseconds": 327361355
+        },
+        {
+          "name": "void vct::partial<(int)4, (int)8, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 2912,
+          "nanoseconds": 165204636
+        },
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 258,
+          "nanoseconds": 115634364
+        },
+        {
+          "name": "void vdq::dot<(int)1, (int)2>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 220,
+          "nanoseconds": 55016057
+        },
+        {
+          "name": "void vct::partial<(int)8, (int)16, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 224,
+          "nanoseconds": 52234479
+        },
+        {
+          "name": "void <unnamed>::gdn_prefix<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float, float *, float *, int)",
+          "count": 1248,
+          "nanoseconds": 43754747
+        },
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 344,
+          "nanoseconds": 35073993
+        },
+        {
+          "name": "void vdt::dot<(int)4, (int)2, (int)8>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 442,
+          "nanoseconds": 33487659
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 2880,
+          "nanoseconds": 29148803
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 2141,
+          "nanoseconds": 27629119
+        },
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "count": 192,
+          "nanoseconds": 22571951
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 7987,
+          "nanoseconds": 20859381
+        },
+        {
+          "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+          "count": 285,
+          "nanoseconds": 13274462
+        },
+        {
+          "name": "void vct::partial<(int)1, (int)4, (bool)0>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 224,
+          "nanoseconds": 10401339
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 1440,
+          "nanoseconds": 8676553
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+          "count": 1965,
+          "nanoseconds": 5427728
+        },
+        {
+          "name": "void vdt::dot<(int)8, (int)2, (int)16>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 35,
+          "nanoseconds": 4779958
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 2010,
+          "nanoseconds": 4292359
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 1440,
+          "nanoseconds": 4220847
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 1440,
+          "nanoseconds": 3917360
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "count": 1680,
+          "nanoseconds": 3579434
+        },
+        {
+          "name": "void <unnamed>::history_prefix<__half>(const T1 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 1248,
+          "nanoseconds": 3136640
+        },
+        {
+          "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+          "count": 285,
+          "nanoseconds": 1104193
+        },
+        {
+          "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+          "count": 285,
+          "nanoseconds": 655777
+        },
+        {
+          "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+          "count": 41,
+          "nanoseconds": 327969
+        },
+        {
+          "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+          "count": 60,
+          "nanoseconds": 143936
+        },
+        {
+          "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+          "count": 41,
+          "nanoseconds": 98336
+        },
+        {
+          "name": "void vr::mtp_concat<__half>(const T1 *, const T1 *, T1 *, int, int)",
+          "count": 45,
+          "nanoseconds": 77824
+        }
+      ]
+    },
+    "candidate-mtp-batch-c8": {
+      "host_span_ms": 3387.362924,
+      "kernels": 99272,
+      "summed_kernel_ms_not_critical_path": 4745.789723,
+      "process_activity_gap_ms_not_device_idle": 235.404698,
+      "per_device_kernel_union_ms": {
+        "0": 2558.037986,
+        "1": 2187.751737
+      },
+      "simultaneous_two_device_kernel_ms": 2011.706058,
+      "transfers": {
+        "host_to_device": {
+          "count": 8587,
+          "bytes": 1945779072,
+          "nanoseconds": 287954181
+        },
+        "device_to_host": {
+          "count": 7659,
+          "bytes": 1945778432,
+          "nanoseconds": 211886502
+        }
+      },
+      "kernel_attribution": [
+        {
+          "name": "void vqf::tiled_dot<(int)8, (int)2, (int)16>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 6416,
+          "nanoseconds": 2248602673
+        },
+        {
+          "name": "void vct::partial<(int)8, (int)16, (bool)1>(const signed char *, const float *, const signed char *, const __half *, float *, int, int, int, int, int)",
+          "count": 5600,
+          "nanoseconds": 1030884127
+        },
+        {
+          "name": "void <unnamed>::gdn_prefix<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float, float *, float *, int)",
+          "count": 12288,
+          "nanoseconds": 320156150
+        },
+        {
+          "name": "void vdq::dot<(int)1, (int)2>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 1016,
+          "nanoseconds": 270897480
+        },
+        {
+          "name": "void <unnamed>::gdn_compact<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)",
+          "count": 1536,
+          "nanoseconds": 180979803
+        },
+        {
+          "name": "void vdt::dot<(int)8, (int)2, (int)16>(const signed char *, const float *, const signed char *, const __half *, __half *, int, int, int, int, int)",
+          "count": 858,
+          "nanoseconds": 176764316
+        },
+        {
+          "name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)",
+          "count": 2560,
+          "nanoseconds": 116207378
+        },
+        {
+          "name": "void vqf::global_dot<(int)1, (int)2, (int)4>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 496,
+          "nanoseconds": 77700217
+        },
+        {
+          "name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 13824,
+          "nanoseconds": 70223298
+        },
+        {
+          "name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)",
+          "count": 4377,
+          "nanoseconds": 58337791
+        },
+        {
+          "name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)",
+          "count": 4800,
+          "nanoseconds": 56663615
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 14386,
+          "nanoseconds": 51467866
+        },
+        {
+          "name": "void <unnamed>::history_prefix<__half>(const T1 *, const T1 *, T1 *, T1 *, int, int, int)",
+          "count": 12288,
+          "nanoseconds": 27996553
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)",
+          "count": 3456,
+          "nanoseconds": 13309110
+        },
+        {
+          "name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)",
+          "count": 3712,
+          "nanoseconds": 9625710
+        },
+        {
+          "name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)",
+          "count": 2400,
+          "nanoseconds": 8859712
+        },
+        {
+          "name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)",
+          "count": 2560,
+          "nanoseconds": 8298024
+        },
+        {
+          "name": "vct::sum(const float *, const float *, __half *, int)",
+          "count": 2800,
+          "nanoseconds": 7639308
+        },
+        {
+          "name": "void <unnamed>::gdn_gates<__half>(const T1 *, const T1 *, const float *, const float *, float *, float *, long, int, bool)",
+          "count": 2400,
+          "nanoseconds": 6263437
+        },
+        {
+          "name": "void <unnamed>::qwen_gate<__half>(const T1 *, const T1 *, T1 *, long, int)",
+          "count": 656,
+          "nanoseconds": 1783265
+        },
+        {
+          "name": "void <unnamed>::greedy_partials<__half>(const T1 *, <unnamed>::GreedyCandidate *, int)",
+          "count": 153,
+          "nanoseconds": 1616288
+        },
+        {
+          "name": "void <unnamed>::q8_embedding<__half>(const signed char *, const __half *, const long *, T1 *, long, int, int, int)",
+          "count": 281,
+          "nanoseconds": 689857
+        },
+        {
+          "name": "void vr::mtp_concat<__half>(const T1 *, const T1 *, T1 *, int, int)",
+          "count": 256,
+          "nanoseconds": 447232
+        },
+        {
+          "name": "<unnamed>::greedy_finish(const <unnamed>::GreedyCandidate *, long *, int)",
+          "count": 153,
+          "nanoseconds": 376513
+        }
+      ]
+    }
+  },
+  "profile_comparisons": {
+    "mtp2-c1": {
+      "h2d_byte_ratio": 0.8728748263438442,
+      "d2h_byte_ratio": 0.8728748391904368,
+      "summed_kernel_ratio": 1.0322504271630575,
+      "instrumented_host_ratio": 0.9136176645851157
+    },
+    "mtp-batch-c8": {
+      "h2d_byte_ratio": 0.871749069479175,
+      "d2h_byte_ratio": 0.8717490327053684,
+      "summed_kernel_ratio": 1.0192821653186834,
+      "instrumented_host_ratio": 0.8990665996961859
+    }
+  },
+  "resource_scope": "Exact current library static registers/shared/local sizes and CUDA-API theoretical residency, joined to actual traced launches. Achieved occupancy/DRAM/compute/cache/stall counters unavailable under unchanged policy1; no repeated denied counter campaign."
+}

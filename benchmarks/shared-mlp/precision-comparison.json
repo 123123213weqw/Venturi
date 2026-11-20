@@ -1,0 +1,97 @@
+{
+  "default_fp32": {
+    "rmsnorm": {
+      "max_abs_error": 0.0,
+      "passed": true,
+      "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+      "first_failures": []
+    },
+    "gate": {
+      "max_abs_error": 0.015625,
+      "passed": true,
+      "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+      "first_failures": []
+    },
+    "up": {
+      "max_abs_error": 0.015625,
+      "passed": true,
+      "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+      "first_failures": []
+    },
+    "swiglu": {
+      "max_abs_error": 0.00390625,
+      "passed": true,
+      "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+      "first_failures": []
+    },
+    "down": {
+      "max_abs_error": 0.015625,
+      "passed": false,
+      "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+      "first_failures": [
+        {
+          "token": 85,
+          "channel": 3863,
+          "actual": 4.26173210144043e-06,
+          "reference": 3.9255772207980044e-05,
+          "rounded_reference": 3.933906555175781e-05,
+          "error": 3.507733345031738e-05,
+          "bound": 2.061337144074969e-05
+        },
+        {
+          "token": 119,
+          "channel": 783,
+          "actual": -0.00011014938354492188,
+          "reference": -0.00013554463089349156,
+          "rounded_reference": -0.0001354217529296875,
+          "error": 2.5272369384765625e-05,
+          "bound": 2.2117884857710807e-05
+        }
+      ]
+    },
+    "residual": {
+      "max_abs_error": 0.0,
+      "passed": true,
+      "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+      "first_failures": []
+    }
+  },
+  "pedantic_fp32": {
+    "rmsnorm": {
+      "max_abs_error": 0.0,
+      "passed": true,
+      "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+      "first_failures": []
+    },
+    "gate": {
+      "max_abs_error": 0.015625,
+      "passed": true,
+      "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+      "first_failures": []
+    },
+    "up": {
+      "max_abs_error": 0.015625,
+      "passed": true,
+      "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+      "first_failures": []
+    },
+    "swiglu": {
+      "max_abs_error": 0.00390625,
+      "passed": true,
+      "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+      "first_failures": []
+    },
+    "down": {
+      "max_abs_error": 0.0078125,
+      "passed": true,
+      "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+      "first_failures": []
+    },
+    "residual": {
+      "max_abs_error": 0.0,
+      "passed": true,
+      "criterion": "abs(error) <= 2*eps*abs(FP64 reference) + 2e-05",
+      "first_failures": []
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "scope": "Separate native TP scalar/cohort timeline; never throughput evidence.\n\nBatch has one native_unsplit C-call range for eight logical requests. Scalar has\neight native_unsplit submitting-thread ranges. Do not equate range/request count.\n",
+  "profiled": true,
+  "logical_requests": 8,
+  "projection_profile": "q8-residual-column-mlp",
+  "projection_rows": 256,
+  "mode": "batch",
+  "batch_info": {
+    "slot_count": 8,
+    "shared_batch_workspace_device_bytes": 197257952,
+    "all_request_device_bytes": 2938265344,
+    "model_device_bytes": 15143221376,
+    "peer_model_device_bytes": 13700251648,
+    "shared_model_pinned_host_bytes": 80871424,
+    "group_forward_calls": 32,
+    "input_rows": 432,
+    "decode_group_calls": 31,
+    "prefill_group_calls": 1,
+    "head_calls": 32,
+    "head_rows": 256,
+    "max_group_rows": 184,
+    "peer_input_copy_bytes": 1817182208,
+    "peer_output_copy_bytes": 2420375552,
+    "requests": [
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.071656599000562,
+        "native_generation_seconds": 3.4967269369517453
+      },
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.071656599000562,
+        "native_generation_seconds": 3.496727072983049
+      },
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.071656599000562,
+        "native_generation_seconds": 3.496727110003121
+      },
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.071656599000562,
+        "native_generation_seconds": 3.496727158955764
+      },
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.071656599000562,
+        "native_generation_seconds": 3.4967272199573927
+      },
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.071656599000562,
+        "native_generation_seconds": 3.496727273974102
+      },
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.071656599000562,
+        "native_generation_seconds": 3.496727308956906
+      },
+      {
+        "position": 54,
+        "failed": false,
+        "capacity": 256,
+        "request_device_bytes": 367283168,
+        "native_time_to_first_token_seconds": 1.071656599000562,
+        "native_generation_seconds": 3.496727343997918
+      }
+    ],
+    "projection_profile": "q8-residual-column-mlp",
+    "activation_quantization_passes": 2,
+    "primary_projection_workspace_bytes": 10027008,
+    "peer_projection_workspace_bytes": 10027008,
+    "projection_precision_scope": "Original Q8 weights/scales; torch.float16 storage/KV, FP32 GDN. q8-residual uses explicit group32 activation high/residual Q8 passes with FP32 scales and changed reduction order; not original FP16 arithmetic. Column MLP keeps partial outputs/host transport FP32, then sums before one FP16 cast; changed FP32 association versus full-K down, not prior-profile byte parity.",
+    "column_mlp_enabled": true,
+    "column_mlp_buffers": {
+      "enabled": 1,
+      "primary_local_fp32_bytes": 5242880,
+      "primary_remote_fp32_bytes": 5242880,
+      "peer_partial_fp32_bytes": 5242880,
+      "peer_gate_up_bytes": 8912896,
+      "peer_activation_bytes": 4456448,
+      "pinned_fp32_partial_bytes": 5242880,
+      "column_down_matrices": 64
+    },
+    "mlp_down_weight_layout": "bit-preserving input-column halves, original group32 scales",
+    "partial_and_host_transport_dtype": "float32",
+    "scope": "Shared model/workspace counts once; request bytes per slot. Generation counters are shared per most recent cohort, never summed per response. Fixed cohort admission, no MTP/continuous batching/paging."
+  },
+  "native_call_ranges": 1
+}

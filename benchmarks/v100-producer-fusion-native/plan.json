@@ -1,0 +1,11 @@
+{
+  "unix": 1792645790.9467819,
+  "host": "WZU_Server same two V100 GPUs; production running unchanged",
+  "task": "Integrate qualified SwiGLU/two-pass A8 producer into optional native column-MLP path, default OFF. Screen additional RMSNorm/two-pass-quantization operator fusion separately.",
+  "arithmetic": "Keep intermediate F16 rounding, both A8 residual planes/F32 scales, existing projection kernels; no intentional precision changes.",
+  "native_scope": "Only SM70, column-MLP, half-intermediate8704, T1..32; other profiles/shapes and defaults fallback. Debug path explicitly materializes intermediate.",
+  "correctness": "New default-off/on build-identity gates; direct byte tests against pinned SO; eligible wide-MLP synthetic hybrid fixture scalar/chunked/logits/state/EOS/reset/private cohort comparisons ON vs OFF. Existing small native column/head-GDN fallback tests.",
+  "performance": "Same current-source baseline vs enabled native SO. Real Qwen3.8 Q8_0 weight slices, synthetic hidden inputs, same buffers; 18 operator cases plus T1/T8 confirmation. No production stop or full-model TPS claim.",
+  "rms_screen": "Exact original 256-thread RMS reduction; preserve F16 boundary and two-pass quantization. Explore redundant-statistics chunks8/32/128; correctness first, same address controls, producer and producer+gate-up scopes. Retain only >=5% median producer and >=1% median consumer-chain latency reduction, no >2% confirmed regression.",
+  "diagnostics": "Separate NCU duration/achieved occupancy/SM throughput/DRAM/cache/stalls; normal GPUevent/CPU/wall and telemetry; no policy or clock changes."
+}

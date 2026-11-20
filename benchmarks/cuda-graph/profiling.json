@@ -1,0 +1,31 @@
+{
+  "eager": {
+    "decode_steps": 16,
+    "cuda_api_calls": {
+      "cudaLaunchKernel": 2448,
+      "cudaMemcpyAsync": 48,
+      "cuKernelGetName": 2448,
+      "cudaStreamSynchronize": 48,
+      "cudaDeviceSynchronize": 1,
+      "cuProfilerStart": 1
+    },
+    "gpu_kernel_instances": 2448,
+    "summed_gpu_kernel_seconds": 0.006197684
+  },
+  "cuda_graph": {
+    "decode_steps": 16,
+    "cuda_api_calls": {
+      "cudaStreamSynchronize": 16,
+      "cudaGraphLaunch_v10000": 16,
+      "cudaLaunchKernel": 16,
+      "cudaMemcpyAsync": 16,
+      "cudaDeviceSynchronize": 1,
+      "cudaStreamIsCapturing_v10000": 16,
+      "cuProfilerStart": 1,
+      "cuKernelGetName": 16
+    },
+    "gpu_kernel_instances": 2496,
+    "summed_gpu_kernel_seconds": 0.005909444
+  },
+  "scope": "Nsight decode-only captures. Graph launch API calls are not GPU kernel counts; graph replay still executes 156 kernels per token versus eager 153. Instrumented durations are not benchmark throughput."
+}

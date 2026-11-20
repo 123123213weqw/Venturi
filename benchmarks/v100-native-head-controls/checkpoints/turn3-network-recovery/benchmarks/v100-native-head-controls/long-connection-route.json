@@ -1,0 +1,28 @@
+{
+  "ssh": [
+    "ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ForwardAgent=no",
+    "-o",
+    "StrictHostKeyChecking=yes",
+    "-o",
+    "ControlMaster=auto",
+    "-o",
+    "ControlPath=/tmp/venturi-v100-head-controls-%C",
+    "-o",
+    "ProxyCommand=none",
+    "-o",
+    "ConnectTimeout=90",
+    "-o",
+    "ServerAliveInterval=30",
+    "-o",
+    "ServerAliveCountMax=6",
+    "-o",
+    "ControlPersist=600",
+    "WZU_Server",
+    "python3 -"
+  ],
+  "reason": "Gateway/self-address changed; cached peer RTT19s exceeds the earlier15s handshake timeout. Own reusable control session, no global settings changed."
+}

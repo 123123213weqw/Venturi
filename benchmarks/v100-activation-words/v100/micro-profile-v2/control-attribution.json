@@ -1,0 +1,73 @@
+{
+  "scope": "Profiler-only CUDA attribution by native NVTX launch/API correlation.\n\nIncludes runtime and driver launches, including cuBLAS driver API launches.\nGPU activity can execute beyond its submitting CPU range. Timeline gaps are\ngaps between this process's traced activities, not device-wide idle time or an\nexplanation of every CPU delay. No achieved hardware counters are inferred.\nKernel-duration sums across GPUs can exceed wall time because devices overlap;\nper-device attribution and the cross-device activity union are reported separately.\n",
+  "achieved_hardware_counters": false,
+  "ranges": [
+    {
+      "name": "native_unsplit",
+      "host_range_nanoseconds": 1394837,
+      "kernels": 18,
+      "kernel_nanoseconds": 1201320,
+      "activity_span_nanoseconds": 1230279,
+      "activity_union_nanoseconds": 1201320,
+      "gaps_between_this_process_activities_nanoseconds": 28959,
+      "transfers": {
+        "host_to_device": {
+          "count": 0,
+          "bytes": 0,
+          "nanoseconds": 0
+        },
+        "device_to_host": {
+          "count": 0,
+          "bytes": 0,
+          "nanoseconds": 0
+        }
+      },
+      "kernel_by_name": [
+        {
+          "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+          "count": 9,
+          "nanoseconds": 1174888
+        },
+        {
+          "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+          "count": 9,
+          "nanoseconds": 26432
+        }
+      ],
+      "by_device": [
+        {
+          "device_id": 0,
+          "kernels": 18,
+          "kernel_nanoseconds": 1201320,
+          "activity_span_nanoseconds": 1230279,
+          "activity_union_nanoseconds": 1201320,
+          "gaps_between_this_process_activities_nanoseconds": 28959,
+          "transfers": {
+            "host_to_device": {
+              "count": 0,
+              "bytes": 0,
+              "nanoseconds": 0
+            },
+            "device_to_host": {
+              "count": 0,
+              "bytes": 0,
+              "nanoseconds": 0
+            }
+          },
+          "kernel_by_name": [
+            {
+              "name": "void vqf::tiled_dot<(int)4, (int)2, (int)8>(const signed char *, const float *, vqf::Group, int, int, int, int)",
+              "count": 9,
+              "nanoseconds": 1174888
+            },
+            {
+              "name": "vdq::quantize(const __half *, signed char *, float *, int, int, int, int)",
+              "count": 9,
+              "nanoseconds": 26432
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

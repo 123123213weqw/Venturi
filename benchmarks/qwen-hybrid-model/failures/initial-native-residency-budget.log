@@ -1,0 +1,30 @@
+Synced source files: 155
+0, NVIDIA GeForce RTX 4090 D, 15106 MiB, 8975 MiB, 0 %
+/home/test/wangyue/venturi-work/qwen/own-blocks-build/2a5fc8699cbb9f8b/libventuri_blocks.so
+........................................................................ [  8%]
+........................................................................ [ 16%]
+.................................sssssss................................ [ 24%]
+........................................................................ [ 32%]
+..................................ssss.................................. [ 40%]
+........................................................................ [ 49%]
+....................................sss................................. [ 57%]
+........................................................................ [ 65%]
+...........................s............................................ [ 73%]
+.......................................................F..........ss.... [ 81%]
+..sssssss...............................s............................... [ 90%]
+........................................s............................... [ 98%]
+...............                                                          [100%]
+=================================== FAILURES ===================================
+______ test_hybrid_manual_composition_state_and_native_no_fallback[cuda] _______
+tests/test_qwen_model.py:234: in test_hybrid_manual_composition_state_and_native_no_fallback
+    assert (
+E   AssertionError: assert 319992 == 319736
+E    +  where 319992 = qwen_resident_bytes(QwenQ8Weights(artifact=<venturi.ninfer.NInferArtifact object at 0x7bd1a00969f0>, plan=QwenSourcePlan(config={'attentio..._norm', source_shape=(64,), shape=(64,), format='bf16', transform='identity')), prefix='model', tied_embeddings=False)), reference='venturi-blocks-cuda' == 'torch-reference'
+E       
+E       - torch-reference
+E       + venturi-blocks-cuda, dtype=torch.bfloat16)
+E    +    where torch.bfloat16 = ResidentQwenModel(backend=<venturi.ops.blocks.CudaBackend object at 0x7bd19fd8e8d0>, config={'attention_bias': False, ...1.3335e-01, 1.7783e-02, 2.3714e-03, 3.1623e-04, 4.2170e-05,\n        5.6234e-06, 7.4989e-07]), mrope_section=(3, 3, 2))).dtype
+E    +  and   319736 = ResidentQwenModel(backend=<venturi.ops.blocks.CudaBackend object at 0x7bd19fd8e8d0>, config={'attention_bias': False, ...1.3335e-01, 1.7783e-02, 2.3714e-03, 3.1623e-04, 4.2170e-05,\n        5.6234e-06, 7.4989e-07]), mrope_section=(3, 3, 2))).storage_nbytes
+=========================== short test summary info ============================
+FAILED tests/test_qwen_model.py::test_hybrid_manual_composition_state_and_native_no_fallback[cuda]
+1 failed, 852 passed, 26 skipped in 38.90s

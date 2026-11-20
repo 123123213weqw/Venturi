@@ -1,0 +1,17 @@
+{
+  "peer_status": {
+    "rc": 0,
+    "stdout": "{\n  \"BackendState\": \"Running\",\n  \"TailscaleIPs\": [\n    \"100.96.19.88\",\n    \"fd7a:115c:a1e0::6c01:13d0\"\n  ],\n  \"Health\": [],\n  \"Self\": {\n    \"Online\": true,\n    \"TailscaleIPs\": [\n      \"100.96.19.88\",\n      \"fd7a:115c:a1e0::6c01:13d0\"\n    ],\n    \"Relay\": \"hkg\",\n    \"CurAddr\": \"\"\n  },\n  \"Peer\": [\n    {\n      \"HostName\": \"wzu-System-4080GPU\",\n      \"Online\": false,\n      \"TailscaleIPs\": [\n        \"100.97.140.10\",\n        \"fd7a:115c:a1e0::835:8c0b\"\n      ],\n      \"Relay\": \"hkg\",\n      \"CurAddr\": \"\",\n      \"LastHandshake\": \"0001-01-01T00:00:00Z\",\n      \"RxBytes\": 0,\n      \"TxBytes\": 8268,\n      \"LastSeen\": \"2026-10-18T14:35:54.1Z\",\n      \"Active\": true\n    },\n    {\n      \"HostName\": \"wzu-server\",\n      \"Online\": true,\n      \"TailscaleIPs\": [\n        \"100.70.188.115\",\n        \"fd7a:115c:a1e0::5e35:bc73\"\n      ],\n      \"Relay\": \"hkg\",\n      \"CurAddr\": \"\",\n      \"LastHandshake\": \"2026-10-20T12:42:41.409042+08:00\",\n      \"RxBytes\": 85320,\n      \"TxBytes\": 157580,\n      \"LastSeen\": \"0001-01-01T00:00:00Z\",\n      \"Active\": true\n    }\n  ]\n}",
+    "stderr": ""
+  },
+  "route": {
+    "rc": 0,
+    "stdout": "   route to: 100.70.188.115\ndestination: 100.70.188.115\n  interface: utun4\n      flags: <UP,HOST,DONE,WASCLONED,IFSCOPE,IFREF>\n recvpipe  sendpipe  ssthresh  rtt,msec    rttvar  hopcount      mtu     expire\n       0         0      3999         0       480         0      1280         0 \n",
+    "stderr": ""
+  },
+  "ping_help": {
+    "rc": 0,
+    "stdout": "",
+    "stderr": "Ping a host at the Tailscale layer, see how it routed\n\nUSAGE\n  tailscale ping <hostname-or-IP>\n\nThe 'tailscale ping' command pings a peer node from the Tailscale layer\nand reports which route it took for each response. The first ping or\nso will likely go over DERP (Tailscale's TCP relay protocol) while NAT\ntraversal finds a direct path through.\n\nIf 'tailscale ping' works but a normal ping does not, that means one\nside's operating system firewall is blocking packets; 'tailscale ping'\ndoes not inject packets into either side's TUN devices.\n\nBy default, 'tailscale ping' stops after 10 pings or once a direct\n(non-DERP) path has been established, whichever comes first.\n\nThe provided hostname must resolve to or be a Tailscale IP\n(e.g. 100.x.y.z) or a subnet IP advertised by a Tailscale\nrelay node.\n\nFLAGS\n  --c value\n    \tmax number of pings to send. 0 for infinity. (default 10)\n  --icmp, --icmp=false\n    \tdo a ICMP-level ping (through WireGuard, but not the local host OS stack) (default false)\n  --peerapi, --peerapi=false\n    \ttry hitting the peer's peerapi HTTP server (default false)\n  --size value\n    \tsize of the ping message (disco pings only). 0 for minimum size. (default 0)\n  --timeout value\n    \ttimeout before giving up on a ping (default 5s)\n  --tsmp, --tsmp=false\n    \tdo a TSMP-level ping (through WireGuard, but not either host OS stack) (default false)\n  --until-direct, --until-direct=false\n    \tstop once a direct path is established (default true)\n  --verbose, --verbose=false\n    \tverbose output (default false)\n"
+  }
+}

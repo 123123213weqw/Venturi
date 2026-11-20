@@ -1,0 +1,539 @@
+{
+  "date": "2026-10-18",
+  "scope": "First independent reusable pre-normalized residual SwiGLU sublayer. No complete Qwen/Llama model adapters or external-engine replacement.",
+  "delivered": [
+    "DenseWeight descriptor; explicit CudaBackend and TorchBackend operator plans",
+    "Venturi-owned RMSNorm/SwiGLU/Add CUDA kernels and cuBLAS Linear C ABI bridge",
+    "Explicit optional existing attributed Ada Q4 operator composition",
+    "Shared GatedMLPWeights and per-execution GatedMLPWorkspace; stream/capture/alias/lifetime contracts"
+  ],
+  "no_production_change": true,
+  "validation": {
+    "remote_selected_tests_passed": 127,
+    "remote_selected_tests_skipped": 0,
+    "local_cpu_tests_passed": 366,
+    "local_gpu_asset_tests_skipped": 90,
+    "real_shape_synthetic_cases": 8,
+    "independent_fp64_stage_checks": 96,
+    "graph_replay_comparisons": 16,
+    "ruff": "passed",
+    "diff_check": "passed"
+  },
+  "correctness": {
+    "stage_criteria": "Dense/RMSNorm/SwiGLU/Add: per-element abs(actual-rounded_FP64) <= 2*eps*abs(FP64)+2e-5; existing Q4 Linear criterion uses 2e-4 absolute term. Inputs are independently decoded represented operands.",
+    "composite_diagnostic": "Full FP64 chains with intermediate casts are reported separately, not used as a substitute for independent per-Op qualification. Small FP64 composition tests additionally protect layer order and cast boundaries.",
+    "q4_reference_fix": "Keep decoded exact stored Q4 values in FP32/64. An early BF16 materialization changed weights and failed the Op oracle.",
+    "dense_compute_fix": "Default FP32 cuBLAS mode failed the fixed down-projection bound at T128,N5120,K17408. Pedantic FP32 mode passes the same failing inputs and unchanged bound; a regression test covers it.",
+    "scope": "No full-model logit, greedy-ID, or quality equivalence is claimed. Native and Torch BF16 outputs are not universally bit-identical.",
+    "counterexamples": "failures/ retains initial composite, Q4-reference and default-compute counterexamples; precision-comparison.json records identical-input default/pedantic checks."
+  },
+  "method": {
+    "device": "NVIDIA GeForce RTX 4090 D",
+    "cuda": "13.0",
+    "torch_version": "2.9.1+cu130",
+    "weight_seed": "812 + H + I",
+    "input_seed": 20261018,
+    "dtype": "bfloat16",
+    "tokens": [
+      1,
+      128
+    ],
+    "shapes": [
+      [
+        4096,
+        14336
+      ],
+      [
+        5120,
+        17408
+      ]
+    ],
+    "timing": "Unprofiled wall/call and CUDA-event elapsed. Warmup/weights/oracle excluded. Each phase >=2s; 100 calls per chunk. Fixed order Torch eager, Torch graph, native eager, native graph. No ABBA confidence or full-model TPS claim.",
+    "q4_baseline": "Explicit FP32 materialized PyTorch Q4 reference, not another quantized kernel or the external engine.",
+    "gpu": "200ms whole-device telemetry; first second of each phase excluded. Not achieved occupancy or bandwidth percentage.",
+    "cpu": "This Python process plus its native library threads; 100%=one core. Includes benchmark event waiting, not the separate native runner CPU policy."
+  },
+  "results": [
+    {
+      "name": "llama_style-bf16-t1",
+      "hidden": 4096,
+      "intermediate": 14336,
+      "tokens": 1,
+      "format": "bf16",
+      "torch_graph_us": 393.6595237110833,
+      "native_graph_us": 381.3035369692546,
+      "native_to_torch_latency_ratio": 0.9686125039593935,
+      "native_graph_process_cpu_percent": 99.95795228563597,
+      "native_graph_gpu": {
+        "samples": 5,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "memory.used": {
+          "mean": 1272.0,
+          "minimum": 1272.0,
+          "maximum": 1272.0
+        },
+        "power.draw": {
+          "mean": 321.602,
+          "minimum": 320.85,
+          "maximum": 322.13
+        },
+        "temperature.gpu": {
+          "mean": 48.0,
+          "minimum": 48.0,
+          "maximum": 48.0
+        },
+        "clocks.sm": {
+          "mean": 2775.0,
+          "minimum": 2775.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      },
+      "native_vs_torch": {
+        "equal_elements": 4096,
+        "total_elements": 4096,
+        "max_abs_difference": 0.0,
+        "scope": "Compatibility comparison only; independent FP64 stage qualification is separate."
+      },
+      "stages_passed": true,
+      "graph_replay_equal": true
+    },
+    {
+      "name": "llama_style-bf16-t128",
+      "hidden": 4096,
+      "intermediate": 14336,
+      "tokens": 128,
+      "format": "bf16",
+      "torch_graph_us": 622.8127803258371,
+      "native_graph_us": 2209.934771992266,
+      "native_to_torch_latency_ratio": 3.548313139682352,
+      "native_graph_process_cpu_percent": 99.95738462491282,
+      "native_graph_gpu": {
+        "samples": 6,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 22.0,
+          "minimum": 22.0,
+          "maximum": 22.0
+        },
+        "memory.used": {
+          "mean": 1294.0,
+          "minimum": 1294.0,
+          "maximum": 1294.0
+        },
+        "power.draw": {
+          "mean": 409.8,
+          "minimum": 408.63,
+          "maximum": 410.11
+        },
+        "temperature.gpu": {
+          "mean": 56.0,
+          "minimum": 56.0,
+          "maximum": 56.0
+        },
+        "clocks.sm": {
+          "mean": 2775.0,
+          "minimum": 2775.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      },
+      "native_vs_torch": {
+        "equal_elements": 507732,
+        "total_elements": 524288,
+        "max_abs_difference": 0.015625,
+        "scope": "Compatibility comparison only; independent FP64 stage qualification is separate."
+      },
+      "stages_passed": true,
+      "graph_replay_equal": true
+    },
+    {
+      "name": "llama_style-q4-t1",
+      "hidden": 4096,
+      "intermediate": 14336,
+      "tokens": 1,
+      "format": "q4_g64_fp16",
+      "torch_graph_us": 771.2607884493011,
+      "native_graph_us": 337.7101228494818,
+      "native_to_torch_latency_ratio": 0.43786761612564623,
+      "native_graph_process_cpu_percent": 99.95006876072928,
+      "native_graph_gpu": {
+        "samples": 6,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 35.0,
+          "minimum": 35.0,
+          "maximum": 35.0
+        },
+        "memory.used": {
+          "mean": 1176.0,
+          "minimum": 1176.0,
+          "maximum": 1176.0
+        },
+        "power.draw": {
+          "mean": 323.33,
+          "minimum": 321.63,
+          "maximum": 324.69
+        },
+        "temperature.gpu": {
+          "mean": 51.0,
+          "minimum": 51.0,
+          "maximum": 51.0
+        },
+        "clocks.sm": {
+          "mean": 2775.0,
+          "minimum": 2775.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      },
+      "native_vs_torch": {
+        "equal_elements": 4094,
+        "total_elements": 4096,
+        "max_abs_difference": 0.00048828125,
+        "scope": "Compatibility comparison only; independent FP64 stage qualification is separate."
+      },
+      "stages_passed": true,
+      "graph_replay_equal": true
+    },
+    {
+      "name": "llama_style-q4-t128",
+      "hidden": 4096,
+      "intermediate": 14336,
+      "tokens": 128,
+      "format": "q4_g64_fp16",
+      "torch_graph_us": 1299.598107507336,
+      "native_graph_us": 574.4591340023492,
+      "native_to_torch_latency_ratio": 0.4420282937347279,
+      "native_graph_process_cpu_percent": 99.95638287234902,
+      "native_graph_gpu": {
+        "samples": 5,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 67.0,
+          "minimum": 22.0,
+          "maximum": 97.0
+        },
+        "memory.used": {
+          "mean": 1198.0,
+          "minimum": 1198.0,
+          "maximum": 1198.0
+        },
+        "power.draw": {
+          "mean": 425.034,
+          "minimum": 423.65,
+          "maximum": 426.01
+        },
+        "temperature.gpu": {
+          "mean": 55.4,
+          "minimum": 54.0,
+          "maximum": 57.0
+        },
+        "clocks.sm": {
+          "mean": 2448.0,
+          "minimum": 2340.0,
+          "maximum": 2550.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      },
+      "native_vs_torch": {
+        "equal_elements": 518616,
+        "total_elements": 524288,
+        "max_abs_difference": 0.015625,
+        "scope": "Compatibility comparison only; independent FP64 stage qualification is separate."
+      },
+      "stages_passed": true,
+      "graph_replay_equal": true
+    },
+    {
+      "name": "qwen_style-bf16-t1",
+      "hidden": 5120,
+      "intermediate": 17408,
+      "tokens": 1,
+      "format": "bf16",
+      "torch_graph_us": 584.9965188452708,
+      "native_graph_us": 573.928658850491,
+      "native_to_torch_latency_ratio": 0.9810804686212037,
+      "native_graph_process_cpu_percent": 99.95766990181852,
+      "native_graph_gpu": {
+        "samples": 5,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "memory.used": {
+          "mean": 1580.0,
+          "minimum": 1580.0,
+          "maximum": 1580.0
+        },
+        "power.draw": {
+          "mean": 333.594,
+          "minimum": 333.37,
+          "maximum": 333.93
+        },
+        "temperature.gpu": {
+          "mean": 50.0,
+          "minimum": 50.0,
+          "maximum": 50.0
+        },
+        "clocks.sm": {
+          "mean": 2775.0,
+          "minimum": 2775.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      },
+      "native_vs_torch": {
+        "equal_elements": 5120,
+        "total_elements": 5120,
+        "max_abs_difference": 0.0,
+        "scope": "Compatibility comparison only; independent FP64 stage qualification is separate."
+      },
+      "stages_passed": true,
+      "graph_replay_equal": true
+    },
+    {
+      "name": "qwen_style-bf16-t128",
+      "hidden": 5120,
+      "intermediate": 17408,
+      "tokens": 128,
+      "format": "bf16",
+      "torch_graph_us": 846.8466495590595,
+      "native_graph_us": 3838.882615091279,
+      "native_to_torch_latency_ratio": 4.53314967602473,
+      "native_graph_process_cpu_percent": 99.94596652292043,
+      "native_graph_gpu": {
+        "samples": 6,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 22.0,
+          "minimum": 22.0,
+          "maximum": 22.0
+        },
+        "memory.used": {
+          "mean": 1600.0,
+          "minimum": 1600.0,
+          "maximum": 1600.0
+        },
+        "power.draw": {
+          "mean": 382.13166666666666,
+          "minimum": 381.14,
+          "maximum": 382.55
+        },
+        "temperature.gpu": {
+          "mean": 56.0,
+          "minimum": 56.0,
+          "maximum": 56.0
+        },
+        "clocks.sm": {
+          "mean": 2775.0,
+          "minimum": 2775.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      },
+      "native_vs_torch": {
+        "equal_elements": 617753,
+        "total_elements": 655360,
+        "max_abs_difference": 0.015625,
+        "scope": "Compatibility comparison only; independent FP64 stage qualification is separate."
+      },
+      "stages_passed": true,
+      "graph_replay_equal": true
+    },
+    {
+      "name": "qwen_style-q4-t1",
+      "hidden": 5120,
+      "intermediate": 17408,
+      "tokens": 1,
+      "format": "q4_g64_fp16",
+      "torch_graph_us": 1150.6760611276452,
+      "native_graph_us": 526.6398344936438,
+      "native_to_torch_latency_ratio": 0.4576786224070262,
+      "native_graph_process_cpu_percent": 99.98564028727534,
+      "native_graph_gpu": {
+        "samples": 5,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 35.0,
+          "minimum": 35.0,
+          "maximum": 35.0
+        },
+        "memory.used": {
+          "mean": 1372.0,
+          "minimum": 1372.0,
+          "maximum": 1372.0
+        },
+        "power.draw": {
+          "mean": 323.684,
+          "minimum": 322.51,
+          "maximum": 324.56
+        },
+        "temperature.gpu": {
+          "mean": 52.0,
+          "minimum": 52.0,
+          "maximum": 52.0
+        },
+        "clocks.sm": {
+          "mean": 2775.0,
+          "minimum": 2775.0,
+          "maximum": 2775.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      },
+      "native_vs_torch": {
+        "equal_elements": 5074,
+        "total_elements": 5120,
+        "max_abs_difference": 0.015625,
+        "scope": "Compatibility comparison only; independent FP64 stage qualification is separate."
+      },
+      "stages_passed": true,
+      "graph_replay_equal": true
+    },
+    {
+      "name": "qwen_style-q4-t128",
+      "hidden": 5120,
+      "intermediate": 17408,
+      "tokens": 128,
+      "format": "q4_g64_fp16",
+      "torch_graph_us": 2114.9103810312226,
+      "native_graph_us": 858.4355737548321,
+      "native_to_torch_latency_ratio": 0.40589690298662306,
+      "native_graph_process_cpu_percent": 99.94955081452058,
+      "native_graph_gpu": {
+        "samples": 5,
+        "utilization.gpu": {
+          "mean": 100.0,
+          "minimum": 100.0,
+          "maximum": 100.0
+        },
+        "utilization.memory": {
+          "mean": 75.2,
+          "minimum": 74.0,
+          "maximum": 76.0
+        },
+        "memory.used": {
+          "mean": 1392.0,
+          "minimum": 1392.0,
+          "maximum": 1392.0
+        },
+        "power.draw": {
+          "mean": 424.478,
+          "minimum": 423.27,
+          "maximum": 425.33
+        },
+        "temperature.gpu": {
+          "mean": 55.2,
+          "minimum": 55.0,
+          "maximum": 56.0
+        },
+        "clocks.sm": {
+          "mean": 2307.0,
+          "minimum": 2280.0,
+          "maximum": 2325.0
+        },
+        "clocks.mem": {
+          "mean": 10251.0,
+          "minimum": 10251.0,
+          "maximum": 10251.0
+        }
+      },
+      "native_vs_torch": {
+        "equal_elements": 650711,
+        "total_elements": 655360,
+        "max_abs_difference": 0.015625,
+        "scope": "Compatibility comparison only; independent FP64 stage qualification is separate."
+      },
+      "stages_passed": true,
+      "graph_replay_equal": true
+    }
+  ],
+  "libraries": {
+    "blocks": {
+      "path": "/home/test/wangyue/venturi-work/qwen/own-blocks-build/872f0a875ad16ff1/libventuri_blocks.so",
+      "sha256": "b99b9114a2ee5f92515cb54c8805820f7a0424a01510be7cc719ee656cce55b2"
+    },
+    "q4": {
+      "path": "/home/test/wangyue/venturi-work/qwen/own-q4-build/9842ab3e14924d72/libventuri_ada.so",
+      "sha256": "4dc56882b2822854a5bee011a2bb553c92b6a65f6f439802c598e1734a7c8f05"
+    }
+  },
+  "limitations": [
+    "Synthetic sublayer benchmark, not full-model generation or an upstream-engine comparison.",
+    "FP64 qualifies every individual Op output on actual represented inputs. Composite diagnostics cover T1 and three token rows at T128, but are not used as a substitute for stage qualification; all outputs scanned finite.",
+    "Q4 composition uses the pre-existing attributed Ada operator, not a newly invented Q4 GEMM.",
+    "CPU time includes this Python process and its native library work; 100% is one core.",
+    "CUDA event elapsed includes gaps between launches; not profiler-summed kernel time.",
+    "GPU data are 200ms whole-device samples; memory-controller busy is not bandwidth utilization.",
+    "Achieved occupancy/compute/DRAM/cache/stall counters remain unavailable under the existing driver policy.",
+    "Torch reference allocates intermediates; native caller buffers and 4MiB dense cuBLAS workspace are explicit.",
+    "Dense strict/pedantic prefill is substantially slower than the PyTorch reference; this is a correctness-first foundation, not a promoted fast backend.",
+    "The new blocks library has no external-engine headers/archives; optional Q4 still uses existing attributed operators.",
+    "Plans are fixed-shape and own prepared weights. Reuse a plan with independent workspaces for matching shapes; model-level weight deduplication across different shape plans is not yet implemented.",
+    "No attention, GDN, RoPE, KV cache, full-model bindings or standalone generation loop are added by this milestone."
+  ],
+  "counter_policy": "RmProfilingAdminOnly: 1 unchanged; no new counter probe, clock or privilege change."
+}

@@ -1,0 +1,511 @@
+{
+  "decision": "promising experimental runner; not promoted; limited generation checks show a non-bit-identical continuation",
+  "date": "2026-10-16",
+  "device": "School_4090D / NVIDIA RTX 4090 D / SM89",
+  "candidate": "word_r4w1",
+  "scope": "Only the T=1 Q4 fused residual += W*x schedules for N=5120, K=6144/17408; no weight representation, activation precision, prefill or batching policy change",
+  "method": {
+    "run_order": [
+      "baseline-a",
+      "candidate-a",
+      "candidate-b",
+      "baseline-b"
+    ],
+    "waves_per_session": [
+      "single",
+      "parallel",
+      "parallel",
+      "single"
+    ],
+    "warmup": "Both modes warmed before measurement",
+    "prompts": 8,
+    "raw_prompt_tokens_each": 509,
+    "fixed_new_tokens_each": 64,
+    "max_context": 2048,
+    "reserved_concurrency": 4,
+    "kv_capacity": 8192,
+    "kv_dtype": "bf16",
+    "prefill_chunk": 512,
+    "cuda_graph": true,
+    "cpu_wait": "blocking",
+    "speculation": "none",
+    "prefix_reuse": false,
+    "total_tps_scope": "Unprofiled client wall including prefill and decode; excludes loading and warmup",
+    "kernel_screen": "Public LinearAdd, 8 distinct weights per K, 64 calls/graph, 20 warmup/40 timed graphs; synthetic read-heavy ring larger than L2",
+    "oracle": "Independent represented weight decode and naive FP64 fused formula; unchanged LinearAdd A16 criterion [1/256,1/256,2/256]; oracle compiler -fno-fast-math -ffp-contract=off",
+    "oracle_cases": {
+      "K": [
+        6144,
+        17408
+      ],
+      "full_output_T": [
+        1,
+        2
+      ],
+      "full_output_seeds": [
+        429,
+        431
+      ],
+      "graph_T": [
+        1
+      ],
+      "graph_replay": "Original input, zero input with exact residual expectation, then restored input",
+      "sampled_regression_T": [
+        1,
+        8,
+        16,
+        17,
+        33
+      ],
+      "guards_and_preservation": true
+    }
+  },
+  "model_results": {
+    "single": {
+      "baseline": {
+        "output_tokens_per_second": 46.22138464182472,
+        "wall_seconds": 44.3084952099598,
+        "output_tokens": 2048,
+        "native_cpu_seconds": 0.9700000000000006,
+        "native_cpu_percent": 2.189196440555176,
+        "python_cpu_seconds": 0.005258000000000429,
+        "median_ttft_seconds": 0.258284378,
+        "individual_session_tps": [
+          46.2928564819466,
+          46.150133153171964
+        ],
+        "median_63_token_decode_seconds": 1.1231611125,
+        "gpu_telemetry": {
+          "utilization.gpu": {
+            "mean": 98.77832512315271,
+            "minimum": 98.0,
+            "maximum": 100.0,
+            "samples": 203
+          },
+          "utilization.memory": {
+            "mean": 84.50738916256158,
+            "minimum": 19.0,
+            "maximum": 100.0,
+            "samples": 203
+          },
+          "memory.used": {
+            "mean": 16914.0,
+            "minimum": 16914.0,
+            "maximum": 16914.0,
+            "samples": 203
+          },
+          "power.draw": {
+            "mean": 417.8862068965517,
+            "minimum": 396.45,
+            "maximum": 423.33,
+            "samples": 203
+          },
+          "temperature.gpu": {
+            "mean": 60.389162561576356,
+            "minimum": 52.0,
+            "maximum": 68.0,
+            "samples": 203
+          },
+          "clocks.sm": {
+            "mean": 2757.266009852217,
+            "minimum": 2715.0,
+            "maximum": 2775.0,
+            "samples": 203
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0,
+            "samples": 203
+          }
+        }
+      },
+      "candidate": {
+        "output_tokens_per_second": 46.959942396724216,
+        "wall_seconds": 43.61163782310905,
+        "output_tokens": 2048,
+        "native_cpu_seconds": 0.9399999999999995,
+        "native_cpu_percent": 2.1553879810996452,
+        "python_cpu_seconds": 0.01668199999999942,
+        "median_ttft_seconds": 0.2582484435,
+        "individual_session_tps": [
+          46.96222008650639,
+          46.95766492786938
+        ],
+        "median_63_token_decode_seconds": 1.1013103334999998,
+        "gpu_telemetry": {
+          "utilization.gpu": {
+            "mean": 99.005,
+            "minimum": 98.0,
+            "maximum": 100.0,
+            "samples": 200
+          },
+          "utilization.memory": {
+            "mean": 84.615,
+            "minimum": 20.0,
+            "maximum": 100.0,
+            "samples": 200
+          },
+          "memory.used": {
+            "mean": 16914.0,
+            "minimum": 16914.0,
+            "maximum": 16914.0,
+            "samples": 200
+          },
+          "power.draw": {
+            "mean": 398.28119999999996,
+            "minimum": 387.87,
+            "maximum": 403.59,
+            "samples": 200
+          },
+          "temperature.gpu": {
+            "mean": 60.695,
+            "minimum": 56.0,
+            "maximum": 66.0,
+            "samples": 200
+          },
+          "clocks.sm": {
+            "mean": 2759.775,
+            "minimum": 2745.0,
+            "maximum": 2760.0,
+            "samples": 200
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0,
+            "samples": 200
+          }
+        }
+      },
+      "observed_total_tps_change_percent": 1.5978702512325693
+    },
+    "parallel": {
+      "baseline": {
+        "output_tokens_per_second": 114.65732301410569,
+        "wall_seconds": 17.861920600989833,
+        "output_tokens": 2048,
+        "native_cpu_seconds": 0.5599999999999996,
+        "native_cpu_percent": 3.13516117616695,
+        "python_cpu_seconds": 0.00572499999999998,
+        "median_ttft_seconds": 1.774358148,
+        "individual_session_tps": [
+          114.80696050224313,
+          114.50807508825953
+        ],
+        "gpu_telemetry": {
+          "utilization.gpu": {
+            "mean": 98.69117647058823,
+            "minimum": 89.0,
+            "maximum": 100.0,
+            "samples": 68
+          },
+          "utilization.memory": {
+            "mean": 63.5735294117647,
+            "minimum": 19.0,
+            "maximum": 100.0,
+            "samples": 68
+          },
+          "memory.used": {
+            "mean": 16914.0,
+            "minimum": 16914.0,
+            "maximum": 16914.0,
+            "samples": 68
+          },
+          "power.draw": {
+            "mean": 405.7136764705882,
+            "minimum": 380.48,
+            "maximum": 419.2,
+            "samples": 68
+          },
+          "temperature.gpu": {
+            "mean": 60.044117647058826,
+            "minimum": 52.0,
+            "maximum": 68.0,
+            "samples": 68
+          },
+          "clocks.sm": {
+            "mean": 2754.705882352941,
+            "minimum": 2685.0,
+            "maximum": 2775.0,
+            "samples": 68
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0,
+            "samples": 68
+          }
+        }
+      },
+      "candidate": {
+        "output_tokens_per_second": 114.90082056819855,
+        "wall_seconds": 17.82406766002532,
+        "output_tokens": 2048,
+        "native_cpu_seconds": 0.5,
+        "native_cpu_percent": 2.8051958146532847,
+        "python_cpu_seconds": 0.005708000000001157,
+        "median_ttft_seconds": 1.7707440339999998,
+        "individual_session_tps": [
+          114.96095567801464,
+          114.84074833783191
+        ],
+        "gpu_telemetry": {
+          "utilization.gpu": {
+            "mean": 99.42647058823529,
+            "minimum": 98.0,
+            "maximum": 100.0,
+            "samples": 68
+          },
+          "utilization.memory": {
+            "mean": 60.0,
+            "minimum": 20.0,
+            "maximum": 100.0,
+            "samples": 68
+          },
+          "memory.used": {
+            "mean": 16914.0,
+            "minimum": 16914.0,
+            "maximum": 16914.0,
+            "samples": 68
+          },
+          "power.draw": {
+            "mean": 407.09191176470586,
+            "minimum": 391.52,
+            "maximum": 419.52,
+            "samples": 68
+          },
+          "temperature.gpu": {
+            "mean": 61.411764705882355,
+            "minimum": 58.0,
+            "maximum": 65.0,
+            "samples": 68
+          },
+          "clocks.sm": {
+            "mean": 2752.0588235294117,
+            "minimum": 2715.0,
+            "maximum": 2760.0,
+            "samples": 68
+          },
+          "clocks.mem": {
+            "mean": 10251.0,
+            "minimum": 10251.0,
+            "maximum": 10251.0,
+            "samples": 68
+          }
+        }
+      },
+      "observed_total_tps_change_percent": 0.21236982313193042
+    }
+  },
+  "output_checks": {
+    "single": {
+      "baseline_matching_rows": 60,
+      "measured_rows": 64,
+      "same_mode_repeatable_within_each_session": true
+    },
+    "parallel": {
+      "baseline_matching_rows": 64,
+      "measured_rows": 64,
+      "same_mode_repeatable_within_each_session": true
+    },
+    "profile_matches_candidate_ids": true
+  },
+  "divergences": [
+    {
+      "session": "candidate-a",
+      "wave": 0,
+      "mode": "single",
+      "row": 7,
+      "first_different_token_zero_based": 23,
+      "baseline_text": "\n\nBased on the text provided in **Document 7**, here is the analysis and continuation of the explanation regarding the nature of the content:\n\n### 1. Linguistic Analysis\nThe text consists of a single sentence repeated 45 times:\n> *\"The quick brown fox jumps over the lazy dog.\"*",
+      "candidate_text": "\n\nBased on the text provided in **Document 7**, here is the analysis and continuation of the explanation regarding the content:\n\n### 1. Linguistic Analysis\nThe text consists of a single sentence repeated 45 times:\n> *\"The quick brown fox jumps over the lazy dog.\"*\n\nThis specific"
+    },
+    {
+      "session": "candidate-a",
+      "wave": 3,
+      "mode": "single",
+      "row": 7,
+      "first_different_token_zero_based": 23,
+      "baseline_text": "\n\nBased on the text provided in **Document 7**, here is the analysis and continuation of the explanation regarding the nature of the content:\n\n### 1. Linguistic Analysis\nThe text consists of a single sentence repeated 45 times:\n> *\"The quick brown fox jumps over the lazy dog.\"*",
+      "candidate_text": "\n\nBased on the text provided in **Document 7**, here is the analysis and continuation of the explanation regarding the content:\n\n### 1. Linguistic Analysis\nThe text consists of a single sentence repeated 45 times:\n> *\"The quick brown fox jumps over the lazy dog.\"*\n\nThis specific"
+    },
+    {
+      "session": "candidate-b",
+      "wave": 0,
+      "mode": "single",
+      "row": 7,
+      "first_different_token_zero_based": 23,
+      "baseline_text": "\n\nBased on the text provided in **Document 7**, here is the analysis and continuation of the explanation regarding the nature of the content:\n\n### 1. Linguistic Analysis\nThe text consists of a single sentence repeated 45 times:\n> *\"The quick brown fox jumps over the lazy dog.\"*",
+      "candidate_text": "\n\nBased on the text provided in **Document 7**, here is the analysis and continuation of the explanation regarding the content:\n\n### 1. Linguistic Analysis\nThe text consists of a single sentence repeated 45 times:\n> *\"The quick brown fox jumps over the lazy dog.\"*\n\nThis specific"
+    },
+    {
+      "session": "candidate-b",
+      "wave": 3,
+      "mode": "single",
+      "row": 7,
+      "first_different_token_zero_based": 23,
+      "baseline_text": "\n\nBased on the text provided in **Document 7**, here is the analysis and continuation of the explanation regarding the nature of the content:\n\n### 1. Linguistic Analysis\nThe text consists of a single sentence repeated 45 times:\n> *\"The quick brown fox jumps over the lazy dog.\"*",
+      "candidate_text": "\n\nBased on the text provided in **Document 7**, here is the analysis and continuation of the explanation regarding the content:\n\n### 1. Linguistic Analysis\nThe text consists of a single sentence repeated 45 times:\n> *\"The quick brown fox jumps over the lazy dog.\"*\n\nThis specific"
+    }
+  ],
+  "micro_screen": {
+    "baseline": {
+      "6144": {
+        "run_medians_us": [
+          19.616,
+          19.451501,
+          19.453
+        ],
+        "median_us": 19.453
+      },
+      "17408": {
+        "run_medians_us": [
+          59.888002,
+          59.915502,
+          60.128
+        ],
+        "median_us": 59.915502
+      }
+    },
+    "r2w4": {
+      "6144": {
+        "run_medians_us": [
+          24.496,
+          24.48
+        ],
+        "median_us": 24.488
+      },
+      "17408": {
+        "run_medians_us": [
+          57.596501,
+          57.627499
+        ],
+        "median_us": 57.612
+      }
+    },
+    "r4w2": {
+      "6144": {
+        "run_medians_us": [
+          24.1265,
+          24.127999
+        ],
+        "median_us": 24.127249499999998
+      },
+      "17408": {
+        "run_medians_us": [
+          58.448002,
+          58.463998
+        ],
+        "median_us": 58.456
+      }
+    },
+    "word_r4w1": {
+      "6144": {
+        "run_medians_us": [
+          19.483499,
+          19.482501
+        ],
+        "median_us": 19.482999999999997
+      },
+      "17408": {
+        "run_medians_us": [
+          52.191999,
+          52.175
+        ],
+        "median_us": 52.183499499999996
+      }
+    }
+  },
+  "profile": {
+    "baseline_reused_from": "../projection/baseline-profile.json",
+    "candidate": {
+      "target": {
+        "name": "q4_rowsplit_gemv_kernel",
+        "count": 64512,
+        "seconds": 2.437720197,
+        "fraction": 0.2792640427926088,
+        "launch_geometry": [
+          {
+            "threads": 128,
+            "registers_per_thread": 40,
+            "shared_bytes_per_block": 2176,
+            "local_memory_bytes_per_thread": 0,
+            "grid_blocks": 1280,
+            "resource_only_resident_blocks_upper_bound": 12,
+            "resource_only_thread_occupancy_upper_bound": 1.0,
+            "count": 64512
+          }
+        ]
+      },
+      "decode_summed_kernel_seconds": 8.729087256,
+      "kernel_timeline_coverage_fraction": 0.9018319252536716
+    },
+    "instrumented_not_unprofiled": true,
+    "baseline": {
+      "target": {
+        "name": "q4_rowsplit_gemv_kernel",
+        "count": 64512,
+        "seconds": 2.622726934,
+        "fraction": 0.29415326836028594,
+        "launch_geometry": [
+          {
+            "threads": 256,
+            "registers_per_thread": 32,
+            "shared_bytes_per_block": 4128,
+            "local_memory_bytes_per_thread": 0,
+            "grid_blocks": 5120,
+            "resource_only_resident_blocks_upper_bound": 6,
+            "resource_only_thread_occupancy_upper_bound": 1.0,
+            "count": 32256
+          },
+          {
+            "threads": 256,
+            "registers_per_thread": 33,
+            "shared_bytes_per_block": 4128,
+            "local_memory_bytes_per_thread": 0,
+            "grid_blocks": 5120,
+            "resource_only_resident_blocks_upper_bound": 6,
+            "resource_only_thread_occupancy_upper_bound": 1.0,
+            "count": 32256
+          }
+        ]
+      },
+      "decode_summed_kernel_seconds": 8.916191714,
+      "kernel_timeline_coverage_fraction": 0.9038957674076192
+    }
+  },
+  "tests": {
+    "public_oracle_exit_codes": {
+      "baseline": 0,
+      "r2w4": 0,
+      "r4w2": 0,
+      "word_r4w1": 0
+    },
+    "local_cpu": "317 passed, 56 skipped",
+    "candidate_real_model": "4 passed, 3 deselected"
+  },
+  "preservation": {
+    "production_runner_sha256": "3c7da6aeb337ee374ce912934c9335252e39326cd9cba3e2163696c06d15dfb4",
+    "candidate_runner_sha256": "79a72ebf399c20bb20e37a4588954dba381883169e36b04aab4b3920a0de2ad9",
+    "production_unchanged": true,
+    "external_archives_unchanged_count": 15,
+    "no_commit_or_push": true,
+    "attribution": "External Cinference/NInfer, license and provenance copied alongside remote candidates; no new root license"
+  },
+  "limitations": [
+    "Small deterministic prompt set, not broad quality or long-context validation. One of eight single-mode prompts changes its greedy continuation (first difference at generated token 24). Both continuations differ slightly in wording; no logit margin or broad accuracy measurement was taken.",
+    "Reduction/packed-lane mapping changes are not bit-identical. Passing the public normwise/pointwise criterion does not guarantee identical autoregressive text.",
+    "Parallel throughput difference is small and not a demonstrated improvement. Tiny K=6144 micro differences are also inconclusive.",
+    "ABBA reduces ordering bias but does not eliminate thermal/clock drift or establish a statistical confidence interval.",
+    "GPU samples are coarse whole-device measurements including a desktop process. They are not achieved occupancy, bandwidth percentage or causal energy measurements.",
+    "RmProfilingAdminOnly remains 1; prior ERR_NVGPUCTRPERM denial still applies. Achieved occupancy, DRAM GB/s, cache/stall and compute counters unavailable. No driver privilege changes.",
+    "Resource-only occupancy bounds and instrumented timeline coverage do not measure actual occupancy or unprofiled idle headroom.",
+    "Synthetic benchmark process CPU includes CUDA initialization/uploads and is not resident model CPU. Model CPU accounting above excludes warmup."
+  ],
+  "experiment_tools_sha256": {
+    "tools/projection/test_rowsplit.py": "86c4ab3e221b28e141f850fd1aa6321586018215dd7c601b7ef5ea0288217476",
+    "tools/projection/q4_linear_add_correctness.cpp": "9638e3fcc25156706002cdce481299934111fbd5919fcc156e99d3cbf1bf2100",
+    "tools/projection/q4_linear_add_stream_bench.cu": "51d1218a76e0b77675a6a37b4640eaa03e5de4e53afeeffa539f0e9d3d333863"
+  }
+}
