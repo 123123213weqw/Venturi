@@ -1,0 +1,682 @@
+{
+  "source_commit": "ed5400a898f185c4e7329050179b7bd907116b08",
+  "qualified_source_sha256": {
+    "src/venturi/runtime/replicas.py": "a13cb4d08825b48e4859ab58ee2afc2736a2c2db47891212ceb30036d3e06c64",
+    "src/venturi/runtime/worker.py": "71c4f6b6c9107bdc861b77b013ac1ebc485b067db0cbb2b80ae374dd30a5c3d2",
+    "src/venturi/runtime/continuous.py": "7f85e2e18729b22b28d06db84afbebc87684c6cce7d008b510ffd3851d55c646",
+    "src/venturi/runtime/__init__.py": "0553bae3cd77ddbf4cbc72a0e41c843a9ffbfb6c285b14cfbdad37c82d122d54",
+    "tools/benchmark_continuous_replicas.py": "b703d8b8a5983ccff685397dd7df6bd2c316d67f5f1a0aafbf1212bbd996334c",
+    "tests/test_continuous_replicas_native.py": "143429998dbc7eccf3b30c16f767784b0f76785148deedbbd46863d26ab8be64"
+  },
+  "environment": {
+    "gpu": "2 x NVIDIA L40 46068 MiB, physical indices 2/3, same NUMA half",
+    "cpu": "2 x Intel Xeon Gold 6430, 128 visible CPUs, no binding",
+    "driver": "580.126.09",
+    "torch": "2.14.1+cu130",
+    "tokenizers": "0.22.1, task-private dependency directory",
+    "cuda_libraries": "SM89 native DSOs built with CUDA 12.9.86, system cuBLAS 12.5; Torch cu130",
+    "thread_limits": {
+      "OMP_NUM_THREADS": 1,
+      "OPENBLAS_NUM_THREADS": 1,
+      "MKL_NUM_THREADS": 1
+    },
+    "shared_host": true,
+    "other_gpus_occupied": true,
+    "background_asset_download": "Existing CPU-only JuiceFS download left running; no host-wide IO/CPU isolation"
+  },
+  "model": {
+    "name": "Local Qwen3.5-4B floating source -> text-only Q8/G32",
+    "artifact_sha256": "494e58042d7d428e8396da1fd6dfbb1228269028683c8bd915143078d0b09a08",
+    "tokenizer_sha256": "5f9e4d4901a92b997e463c1f46055088b6cca5ca61a6522d1b9f64c4bb81cb42",
+    "artifact_bytes": 4473294824,
+    "source_authentication": "Explicitly unverified local floating source; source/config/index hashes recorded, NOT an independently authenticated official quality baseline",
+    "export_report": {
+      "output": "/data/wangyue/models/venturi-replica-pool-20261116/qwen35-4b-text-q8.safetensors",
+      "sha256": "494e58042d7d428e8396da1fd6dfbb1228269028683c8bd915143078d0b09a08",
+      "file_bytes": 4473294824,
+      "tensor_count": 627,
+      "role_count": 426,
+      "tensor_payload_bytes": 4473207808,
+      "ignored_source_tensors": 312,
+      "source": {
+        "kind": "explicitly-unverified-local-floating-source",
+        "repo": null,
+        "revision": null,
+        "endpoint": null,
+        "files_sha256": {
+          "config.json": "ddc63e1c717afa86c865bb5e01313d89d72bb53b97ad4a8a03ba8510c0621670",
+          "model.safetensors-00001-of-00002.safetensors": "26a93f066e1916adb13453dae5a0c707c0fbc71299ed98779571a907b8e74c61",
+          "model.safetensors-00002-of-00002.safetensors": "cb544bd9bfae93dc59b0f22b292f5933573854a7f9b97835c67060d7d910e188",
+          "model.safetensors.index.json": "cf3f798ee02ba45f9622aa8892a47369ab667d0afbf154ee7c2212de42e6302d"
+        }
+      },
+      "rows_per_chunk": 256,
+      "seconds": 27.735313245095313,
+      "component": "text",
+      "scope": "Standard safetensors storage export; not trained-model quality qualification"
+    }
+  },
+  "execution": {
+    "precision": "Q8/G32 weights, FP16 activation/scales, native fp16 projection profile",
+    "devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "slots_per_replica": 16,
+    "capacity": 71,
+    "token_budget": 32,
+    "prefill_chunk": 16,
+    "input_tokens_min": 17,
+    "input_tokens_max": 46,
+    "output_tokens": 24,
+    "output_policy": "EOS disabled for matched replay; separate complete-answer smoke respects EOS",
+    "load_and_prepare_seconds": 7.653447921387851,
+    "load_scope": "Native model load and batch preparation after imports, checkpoint hash and source admission; warm filesystem cache; not whole-process or disk-cold startup",
+    "max_process_rss_mib": 10173.76171875
+  },
+  "correctness": {
+    "independent_devices_exact": true,
+    "all_pooled_outputs_exact": true
+  },
+  "validation": {
+    "cpu_passed": 1916,
+    "cpu_skipped": 2910,
+    "native_targeted_passed": 17,
+    "architecture_modules": 133,
+    "boundary_violations": 0,
+    "github_cpu_ci": [
+      "Python 3.10 passed",
+      "Python 3.12 passed"
+    ]
+  },
+  "scope": "Common-wall aggregate output TPS including prefill/admission; no throughput claim for GLM, Qwen27B, HTTP, MTP, prefix caching, TP/PP/PD; no automatic production change",
+  "results": [
+    {
+      "concurrency": 4,
+      "policy": "round-robin",
+      "aggregate_e2e_output_tps_median": 114.87254432978669,
+      "tps_repetitions": [
+        115.21884510709461,
+        114.87254432978669,
+        114.82162251488619
+      ],
+      "wall_seconds_median": 0.8357088332995772,
+      "process_cpu_seconds_median": 1.5353020929999985,
+      "ttft_p50_seconds_median": 0.3243265305645764,
+      "ttft_p95_seconds_median": 0.4312309958040714,
+      "latency_p50_seconds_median": 0.7620115503668785,
+      "latency_p95_seconds_median": 0.8352457899600267,
+      "max_inter_token_seconds_median": 0.08472105395048857,
+      "gpu_sample_points": 6,
+      "gpu_sample_medians": {
+        "busy_percent": 99.0,
+        "vram_mib": 6125.0,
+        "power_w": 285.845,
+        "sm_clock_mhz": 1830.0,
+        "memory_clock_mhz": 9001.0,
+        "temperature_c": 58.5
+      }
+    },
+    {
+      "concurrency": 4,
+      "policy": "least-work",
+      "aggregate_e2e_output_tps_median": 114.69113156467195,
+      "tps_repetitions": [
+        115.38807056498126,
+        114.69113156467195,
+        113.86959619503327
+      ],
+      "wall_seconds_median": 0.837030716240406,
+      "process_cpu_seconds_median": 1.5367672059999933,
+      "ttft_p50_seconds_median": 0.3258712515234947,
+      "ttft_p95_seconds_median": 0.4337895317003131,
+      "latency_p50_seconds_median": 0.7624326669611037,
+      "latency_p95_seconds_median": 0.8366337707266212,
+      "max_inter_token_seconds_median": 0.08484154380857944,
+      "gpu_sample_points": 2,
+      "gpu_sample_medians": {
+        "busy_percent": 98.0,
+        "vram_mib": 6125.0,
+        "power_w": 288.1,
+        "sm_clock_mhz": 1627.5,
+        "memory_clock_mhz": 9001.0,
+        "temperature_c": 58.5
+      }
+    },
+    {
+      "concurrency": 8,
+      "policy": "round-robin",
+      "aggregate_e2e_output_tps_median": 117.48956938341848,
+      "tps_repetitions": [
+        119.96999954834583,
+        117.48956938341848,
+        117.48178109911326
+      ],
+      "wall_seconds_median": 1.6341876219958067,
+      "process_cpu_seconds_median": 3.028888445000007,
+      "ttft_p50_seconds_median": 0.6341426461003721,
+      "ttft_p95_seconds_median": 0.919004337862134,
+      "latency_p50_seconds_median": 1.4892539363354445,
+      "latency_p95_seconds_median": 1.6335387686267495,
+      "max_inter_token_seconds_median": 0.19194457028061152,
+      "gpu_sample_points": 6,
+      "gpu_sample_medians": {
+        "busy_percent": 100.0,
+        "vram_mib": 6125.0,
+        "power_w": 301.635,
+        "sm_clock_mhz": 1642.5,
+        "memory_clock_mhz": 9001.0,
+        "temperature_c": 64.0
+      }
+    },
+    {
+      "concurrency": 8,
+      "policy": "least-work",
+      "aggregate_e2e_output_tps_median": 118.62139951980637,
+      "tps_repetitions": [
+        118.71711391587637,
+        118.62139951980637,
+        116.94004489466651
+      ],
+      "wall_seconds_median": 1.618594964966178,
+      "process_cpu_seconds_median": 3.002360407000012,
+      "ttft_p50_seconds_median": 0.6295404932461679,
+      "ttft_p95_seconds_median": 0.910696079954505,
+      "latency_p50_seconds_median": 1.4759793635457754,
+      "latency_p95_seconds_median": 1.6180587029084563,
+      "max_inter_token_seconds_median": 0.19022465590387583,
+      "gpu_sample_points": 8,
+      "gpu_sample_medians": {
+        "busy_percent": 100.0,
+        "vram_mib": 6125.0,
+        "power_w": 296.29499999999996,
+        "sm_clock_mhz": 1642.5,
+        "memory_clock_mhz": 9001.0,
+        "temperature_c": 64.0
+      }
+    },
+    {
+      "concurrency": 16,
+      "policy": "round-robin",
+      "aggregate_e2e_output_tps_median": 116.73315034266685,
+      "tps_repetitions": [
+        117.81271791722092,
+        116.73315034266685,
+        115.67349465303279
+      ],
+      "wall_seconds_median": 3.2895539859309793,
+      "process_cpu_seconds_median": 6.148401226999994,
+      "ttft_p50_seconds_median": 1.347777224611491,
+      "ttft_p95_seconds_median": 1.9238604819402099,
+      "latency_p50_seconds_median": 2.9782110289670527,
+      "latency_p95_seconds_median": 3.28851680457592,
+      "max_inter_token_seconds_median": 0.21006764937192202,
+      "gpu_sample_points": 14,
+      "gpu_sample_medians": {
+        "busy_percent": 100.0,
+        "vram_mib": 6125.0,
+        "power_w": 300.415,
+        "sm_clock_mhz": 1552.5,
+        "memory_clock_mhz": 9001.0,
+        "temperature_c": 69.5
+      }
+    },
+    {
+      "concurrency": 16,
+      "policy": "least-work",
+      "aggregate_e2e_output_tps_median": 116.46969782832188,
+      "tps_repetitions": [
+        116.75466171922307,
+        115.75860154387034,
+        116.46969782832188
+      ],
+      "wall_seconds_median": 3.2969949021935463,
+      "process_cpu_seconds_median": 6.114380481000012,
+      "ttft_p50_seconds_median": 1.5382392844185233,
+      "ttft_p95_seconds_median": 1.624925441108644,
+      "latency_p50_seconds_median": 3.14268765039742,
+      "latency_p95_seconds_median": 3.2840828029438853,
+      "max_inter_token_seconds_median": 0.20719982404261827,
+      "gpu_sample_points": 18,
+      "gpu_sample_medians": {
+        "busy_percent": 100.0,
+        "vram_mib": 6125.0,
+        "power_w": 298.055,
+        "sm_clock_mhz": 1582.5,
+        "memory_clock_mhz": 9001.0,
+        "temperature_c": 71.0
+      }
+    },
+    {
+      "concurrency": 32,
+      "policy": "round-robin",
+      "aggregate_e2e_output_tps_median": 116.38146915072345,
+      "tps_repetitions": [
+        116.38146915072345,
+        116.66160961749607,
+        116.14604596432713
+      ],
+      "wall_seconds_median": 6.5989887015894055,
+      "process_cpu_seconds_median": 12.335525641000004,
+      "ttft_p50_seconds_median": 2.8465495808050036,
+      "ttft_p95_seconds_median": 4.21573051251471,
+      "latency_p50_seconds_median": 5.7498391307890415,
+      "latency_p95_seconds_median": 6.585522465407848,
+      "max_inter_token_seconds_median": 0.221961691044271,
+      "gpu_sample_points": 32,
+      "gpu_sample_medians": {
+        "busy_percent": 100.0,
+        "vram_mib": 6125.0,
+        "power_w": 299.15,
+        "sm_clock_mhz": 1530.0,
+        "memory_clock_mhz": 9001.0,
+        "temperature_c": 70.0
+      }
+    },
+    {
+      "concurrency": 32,
+      "policy": "least-work",
+      "aggregate_e2e_output_tps_median": 117.59934922434097,
+      "tps_repetitions": [
+        117.53850672408312,
+        117.59934922434097,
+        119.16773853411327
+      ],
+      "wall_seconds_median": 6.53064838424325,
+      "process_cpu_seconds_median": 12.405263802000007,
+      "ttft_p50_seconds_median": 2.7519933194853365,
+      "ttft_p95_seconds_median": 3.7019699178636074,
+      "latency_p50_seconds_median": 5.838983046356589,
+      "latency_p95_seconds_median": 6.316238536499441,
+      "max_inter_token_seconds_median": 0.2252101143822074,
+      "gpu_sample_points": 32,
+      "gpu_sample_medians": {
+        "busy_percent": 100.0,
+        "vram_mib": 6125.0,
+        "power_w": 300.49,
+        "sm_clock_mhz": 1515.0,
+        "memory_clock_mhz": 9001.0,
+        "temperature_c": 71.5
+      }
+    }
+  ],
+  "counters": {
+    "sampled_gpu_busy": true,
+    "achieved_sm_occupancy": "unmeasured",
+    "compute_throughput": "unmeasured",
+    "dram_bandwidth": "unmeasured",
+    "cache_and_stall": "unmeasured",
+    "reason": "RmProfilingAdminOnly=1; no privilege/driver/shared-monitoring changes"
+  },
+  "profiler": {
+    "version": "Nsight Systems 2024.2.3",
+    "separate_from_timing": true,
+    "kernel_intervals": {
+      "profiled": true,
+      "kernel_count": 56424,
+      "common_kernel_span_seconds": 3.08894889,
+      "devices": {
+        "0": {
+          "kernels": 27647,
+          "covered_seconds": 2.65199971,
+          "common_span_coverage_fraction": 0.8585443801240752,
+          "own_span_coverage_fraction": 0.9862399570452735,
+          "internal_gap_seconds": 0.037000762,
+          "head_gap_seconds": 0.000711985,
+          "tail_gap_seconds": 0.399236433
+        },
+        "1": {
+          "kernels": 28777,
+          "covered_seconds": 3.053757474,
+          "common_span_coverage_fraction": 0.9886073168403897,
+          "own_span_coverage_fraction": 0.9886073168403897,
+          "internal_gap_seconds": 0.035191416,
+          "head_gap_seconds": 0.0,
+          "tail_gap_seconds": 0.0
+        }
+      },
+      "scope": "Observed kernel interval coverage/gaps; NOT achieved occupancy, compute throughput or DRAM bandwidth"
+    },
+    "top_kernels": [
+      {
+        "Time (%)": "90.4",
+        "Total Time (ns)": "5157573597",
+        "Instances": "12856",
+        "Avg (ns)": "401180.3",
+        "Med (ns)": "266083.0",
+        "Min (ns)": "9471",
+        "Max (ns)": "10922853",
+        "StdDev (ns)": "684663.2",
+        "Name": "void <unnamed>::q8_head<__half>(const T1 *, const signed char *, const __half *, T1 *, int, int, int)"
+      },
+      {
+        "Time (%)": "5.5",
+        "Total Time (ns)": "311939344",
+        "Instances": "9912",
+        "Avg (ns)": "31470.9",
+        "Med (ns)": "17056.0",
+        "Min (ns)": "15647",
+        "Max (ns)": "225014",
+        "StdDev (ns)": "47286.3",
+        "Name": "void <unnamed>::gdn_recurrent<__half, (bool)1>(const T1 *, const T1 *, const T1 *, const float *, const float *, const float *, T1 *, float *, int, int, int, int, int, bool, float)"
+      },
+      {
+        "Time (%)": "2.4",
+        "Total Time (ns)": "134133505",
+        "Instances": "3304",
+        "Avg (ns)": "40597.3",
+        "Med (ns)": "41214.0",
+        "Min (ns)": "9343",
+        "Max (ns)": "66716",
+        "StdDev (ns)": "11921.3",
+        "Name": "void <unnamed>::causal_attention<__half>(const T1 *, const T1 *, const T1 *, T1 *, int, int, int, int, int, float)"
+      },
+      {
+        "Time (%)": "0.6",
+        "Total Time (ns)": "32140357",
+        "Instances": "9912",
+        "Avg (ns)": "3242.6",
+        "Med (ns)": "2560.0",
+        "Min (ns)": "2335",
+        "Max (ns)": "12192",
+        "StdDev (ns)": "2200.4",
+        "Name": "void <unnamed>::causal_conv<__half, float>(const T1 *, const T2 *, const T1 *, T1 *, T1 *, int, int, int)"
+      },
+      {
+        "Time (%)": "0.5",
+        "Total Time (ns)": "26076753",
+        "Instances": "4160",
+        "Avg (ns)": "6268.5",
+        "Med (ns)": "6271.0",
+        "Min (ns)": "4928",
+        "Max (ns)": "6976",
+        "StdDev (ns)": "210.9",
+        "Name": "void <unnamed>::rms_norm<__half>(const T1 *, const float *, T1 *, int, float)"
+      },
+      {
+        "Time (%)": "0.3",
+        "Total Time (ns)": "17455857",
+        "Instances": "3072",
+        "Avg (ns)": "5682.2",
+        "Med (ns)": "4991.0",
+        "Min (ns)": "4608",
+        "Max (ns)": "8704",
+        "StdDev (ns)": "1287.2",
+        "Name": "void <unnamed>::fp32_weight_linear<__half>(const T1 *, const float *, T1 *, int, int)"
+      },
+      {
+        "Time (%)": "0.1",
+        "Total Time (ns)": "7757633",
+        "Instances": "3304",
+        "Avg (ns)": "2348.0",
+        "Med (ns)": "2303.0",
+        "Min (ns)": "2111",
+        "Max (ns)": "3168",
+        "StdDev (ns)": "187.8",
+        "Name": "void <unnamed>::qwen_qk<__half>(const T1 *, const T1 *, const float *, const float *, const float *, const float *, T1 *, T1 *, int, int, int, int, float)"
+      },
+      {
+        "Time (%)": "0.1",
+        "Total Time (ns)": "5632015",
+        "Instances": "4096",
+        "Avg (ns)": "1375.0",
+        "Med (ns)": "1344.0",
+        "Min (ns)": "1216",
+        "Max (ns)": "1600",
+        "StdDev (ns)": "88.2",
+        "Name": "void <unnamed>::elementwise<__half, (bool)0>(const T1 *, const T1 *, T1 *, long)"
+      },
+      {
+        "Time (%)": "0.1",
+        "Total Time (ns)": "4208527",
+        "Instances": "1536",
+        "Avg (ns)": "2739.9",
+        "Med (ns)": "2432.0",
+        "Min (ns)": "1952",
+        "Max (ns)": "4064",
+        "StdDev (ns)": "606.6",
+        "Name": "void <unnamed>::gated_rms<__half, (bool)1>(const T1 *, const T1 *, const void *, T1 *, int, float)"
+      },
+      {
+        "Time (%)": "0.1",
+        "Total Time (ns)": "3902195",
+        "Instances": "2048",
+        "Avg (ns)": "1905.4",
+        "Med (ns)": "1632.0",
+        "Min (ns)": "1407",
+        "Max (ns)": "2944",
+        "StdDev (ns)": "498.4",
+        "Name": "void <unnamed>::elementwise<__half, (bool)1>(const T1 *, const T1 *, T1 *, long)"
+      }
+    ],
+    "interpretation": "q8_head is the generic direct-Q8 FP32 dequant/FMA SIMT projection in this runtime, not just the LM head; 90.4% observed summed kernel-time. CPU stream synchronization mainly waits on GPU; not proof of CPU bottleneck."
+  },
+  "smoke": {
+    "profiled": true,
+    "scope": "Instrumented kernel/API timeline, NOT throughput evidence",
+    "smoke": [
+      {
+        "prompt": "What is 17 plus 25? Give only the answer.",
+        "input_ids": [
+          248045,
+          846,
+          198,
+          3710,
+          369,
+          220,
+          16,
+          22,
+          5346,
+          220,
+          17,
+          20,
+          30,
+          20052,
+          1132,
+          279,
+          4087,
+          13,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271
+        ],
+        "output_ids": [
+          19,
+          17,
+          248046,
+          198,
+          248044
+        ],
+        "text": "42\n",
+        "eos_reached": true
+      },
+      {
+        "prompt": "Translate good morning into Chinese.",
+        "input_ids": [
+          248045,
+          846,
+          198,
+          26583,
+          1603,
+          6353,
+          1083,
+          8193,
+          13,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271
+        ],
+        "output_ids": [
+          130328,
+          248046,
+          198,
+          248044
+        ],
+        "text": "早上好\n",
+        "eos_reached": true
+      },
+      {
+        "prompt": "Name the capital of France in one word.",
+        "input_ids": [
+          248045,
+          846,
+          198,
+          657,
+          279,
+          6511,
+          314,
+          9338,
+          303,
+          799,
+          3299,
+          13,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271
+        ],
+        "output_ids": [
+          57590,
+          248046,
+          198,
+          248044
+        ],
+        "text": "Paris\n",
+        "eos_reached": true
+      }
+    ],
+    "profile_outputs_exact": true
+  },
+  "service_changes": [],
+  "gpu_cleanup": "All task native owners exited; no remaining selected-GPU compute apps after each successful phase",
+  "failed_attempts_preserved": [
+    "Initial local full CPU run used wrong installed-package path; 22 import failures; explicit source PYTHONPATH rerun passed.",
+    "Broad GPU selector selected SM70-only column MLP on L40: rejected before execution; 39 passed/1 failed. Scoped target and final source: 17 passed.",
+    "First real replay lacked tokenizers: import failed before model load; installed only in task-private target directory.",
+    "Final replay path initially collided with a guard receipt: output overwrite correctly refused; rerun to unique file.",
+    "First profiler launch used process-group-only ownership; Nsight target used a different group and own job was stopped. Corrected task guard to validate ancestry/start identity, then independent profile succeeded."
+  ],
+  "native_builds": {
+    "ops": {
+      "architecture": "sm89",
+      "source_sha256": {
+        "blocks.cu": "001cc89ebcd884d67ca1d17ffd0ec995f899b6a3d4597c4de1572c30cfc7ac51",
+        "cuda_common.cuh": "087a7e9444440945edd423a616e8bae55f10a70ff071a2e36f16fac9a74f0843",
+        "gdn_warp_decode.cuh": "bfc7164d65cadd51c5c57627b3632abdfd5cefa1e5402c1608c89194fc0aa516",
+        "ops_api.h": "eb0b7b2feda0f41f3e25906f6bfbe9aa3a5952f0f63e15feda6ea6c1eb547eb9",
+        "q4_fused.cuh": "0c0cc411f5afde82d3bcc4db52d9ca3cde6a14c54145e6cafdc2288200d5763d",
+        "q8_column_tp.cuh": "e213588c91049c58845f0dedf7b22fed82ab13440ca7c8d72f686404bfed4ee6",
+        "q8_dp4a.cuh": "bb1163e93285cc1f0c45b86497e7e7bfe871f9e19617a176d08ac7b0c8a5c3ed",
+        "q8_fused.cuh": "8701bc3261a78d89a0ec094b980e12ed92ca0bd01f7a4c3ff6dfda286e069459",
+        "q8_prefetch.cuh": "4ae0382a72a4d122f45482cb4baad88e3155193adfd148544c09a23685c615fb",
+        "q8_producer.cuh": "5b884643acc70c67c4a65a7611cf85c5b48fbae186e39ed9c7ead70eeefa0646",
+        "q8_projection_dispatch.cuh": "56814bff85843e2a9a1657a9d89bb9303e784d0ada3a9853f7b2ec7a77f5b3bb",
+        "q8_rms_producer.cuh": "a217fec31963b118137391c30028230d6d779523fc5a9bca7b2a24ffd5dbbbcc",
+        "q8_shared.cuh": "3a7f34d565e03b8633db4f2da2093d9f1890af65e624f83e528ba36d1bfb9726",
+        "q8_wmma.cuh": "5bfea6943f04328bf60a0596a7155e45a5e14823d9b827baa34ebc339f4a9662",
+        "weight_dequant.cuh": "8280a88cb1bb982453a678d8b2c4c63905371bd77d8bdb88d3af35aaba9880ce"
+      },
+      "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Tue_May_27_02:21:03_PDT_2025\nCuda compilation tools, release 12.9, V12.9.86\nBuild cuda_12.9.r12.9/compiler.36037853_0\n",
+      "command": [
+        "/data/wangyue/cuda-12.9/bin/nvcc",
+        "-O3",
+        "-std=c++20",
+        "-lineinfo",
+        "-shared",
+        "--cudart=static",
+        "-Xcompiler=-fPIC",
+        "-Xcompiler=-fvisibility=hidden",
+        "-Xlinker=-z",
+        "-Xlinker=defs",
+        "-gencode=arch=compute_89,code=sm_89",
+        "-gencode=arch=compute_89,code=compute_89",
+        "-DVENTURI_BLOCKS_ARCH=89",
+        "-DVENTURI_Q8_TOKEN_TILE=1",
+        "-DVENTURI_Q8_ROW_TILE=1",
+        "-DVENTURI_Q8_DECODE_MODE=0",
+        "-DVENTURI_Q8_ROW_PAIR=0",
+        "-DVENTURI_Q8_SWIGLU_QUANT=0",
+        "-DVENTURI_Q8_RMS_QUANT=0",
+        "-DVENTURI_GDN_WARP_DECODE=0",
+        "-lcuda",
+        "-lcublas",
+        "-Xlinker=-soname",
+        "-Xlinker=libventuri_ops_39c2f359c871c106.so",
+        "/data/wangyue/codex-build/Venturi-pr11-fix-20261116/source/src/venturi/ops/csrc/blocks.cu",
+        "-o",
+        "/data/wangyue/codex-build/Venturi-pr11-fix-20261116/build-ops/39c2f359c871c106/build-vvetqef7/libventuri_ops.so"
+      ],
+      "dependencies": {},
+      "soname": "libventuri_ops_39c2f359c871c106.so",
+      "library_sha256": "74c9ddda4db0780433c435fc32a029a5f6817b6858032183cbc5713ca4972f0c"
+    },
+    "qwen": {
+      "architecture": "sm89",
+      "source_sha256": {
+        "models/qwen/csrc/qwen.cu": "d76e983b3f9852378aabf968bd93681c6cd1a9d76ce6c4161ff21b5657fb9db2",
+        "models/qwen/csrc/qwen_batch.cuh": "6c9dc29f756378fac028e380f680450f6969308e671f54f9c1ff6f15c2e6582b",
+        "models/qwen/csrc/qwen_experiments.cuh": "866abefaa69e7916de52d35a80ef8d6b3744e370c2df849eff5ac52ed2473c5a",
+        "models/qwen/csrc/qwen_handoff.cuh": "f90c7cf92e15c354a0b8e786a2b077fe42842ddbca893790507a13a6cc00a8a0",
+        "models/qwen/csrc/qwen_head_gdn.cuh": "da269e31ed6c3a537ce1da693faf6732c371e939116f7c133322a6dc8aaf5ce5",
+        "models/qwen/csrc/qwen_mtp.cuh": "f491868cb857524da2a5fa7607e3e070d6204bd483645b9739d6927a5f21261e",
+        "models/qwen/csrc/qwen_pipeline.cuh": "80852376e04becf72e616e253884765532041682cb82f7e3d4901321a8b557c1",
+        "models/qwen/csrc/qwen_runtime.cuh": "a13260e025194360c223f1ce4440aaa551882951bb4a4f47ed17fc8d14345634",
+        "models/qwen/csrc/staged_uploader.cuh": "53835a8fd8384bf92d91e53f4c370e052e9c4213ad9dca12473f506cd74855f6",
+        "models/qwen/csrc/weight_source.cuh": "b44a0c4259094750d88fed10555396658dd1374b9b00f488be83abe7458a8262",
+        "models/qwen/csrc/weight_validate.cuh": "5d38773878a06fb5d5af989f4ae441a4e89e02eb90361be9c9c9b72a2ae576b8",
+        "ops/csrc/cuda_common.cuh": "087a7e9444440945edd423a616e8bae55f10a70ff071a2e36f16fac9a74f0843",
+        "ops/csrc/kv/kv_pool.cuh": "ca8225d10b1b1db97db35a32d90ba25ea7b53b5b9e3bebacaa191dc5776b36e4",
+        "ops/csrc/kv/kv_prefix.cuh": "60d3f715480c462d0deb4ad57043071f6817d13d043728a20a2f49e2ef721837",
+        "ops/csrc/ops_api.h": "eb0b7b2feda0f41f3e25906f6bfbe9aa3a5952f0f63e15feda6ea6c1eb547eb9"
+      },
+      "nvcc": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Tue_May_27_02:21:03_PDT_2025\nCuda compilation tools, release 12.9, V12.9.86\nBuild cuda_12.9.r12.9/compiler.36037853_0\n",
+      "command": [
+        "/data/wangyue/cuda-12.9/bin/nvcc",
+        "-O3",
+        "-std=c++20",
+        "-lineinfo",
+        "-shared",
+        "--cudart=static",
+        "-Xcompiler=-fPIC",
+        "-Xcompiler=-fvisibility=hidden",
+        "-Xlinker=-z",
+        "-Xlinker=defs",
+        "-DVENTURI_BLOCKS_ARCH=89",
+        "-gencode=arch=compute_89,code=sm_89",
+        "-gencode=arch=compute_89,code=compute_89",
+        "/data/wangyue/codex-build/Venturi-pr11-fix-20261116/build-ops/39c2f359c871c106/libventuri_ops.so",
+        "-lcuda",
+        "-lcublas",
+        "-Xlinker=-rpath",
+        "-Xlinker=$ORIGIN",
+        "-Xlinker=-soname",
+        "-Xlinker=libventuri_qwen.so",
+        "/data/wangyue/codex-build/Venturi-pr11-fix-20261116/source/src/venturi/models/qwen/csrc/qwen.cu",
+        "-o",
+        "/data/wangyue/codex-build/Venturi-pr11-fix-20261116/build-qwen/17f27db1da86b25e/build-tjaqewem/libventuri_qwen.so"
+      ],
+      "dependencies": {
+        "ops_sha256": "74c9ddda4db0780433c435fc32a029a5f6817b6858032183cbc5713ca4972f0c"
+      },
+      "soname": "libventuri_qwen.so",
+      "library_sha256": "0556c39f1317561025ace402b64cb412295800650ad25815ea0fb9e3323fd3aa"
+    }
+  }
+}

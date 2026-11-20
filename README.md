@@ -53,6 +53,7 @@ closed. What it does share with other projects is stated precisely in
 | Flash-Next (Qwen4-Exp) | **Experimental** | Intake and floating reference generation only; not native serving |
 | DeepSeek V4.1 | **Admission only** | Tensor admission and CPU oracles; no Venturi-native executor |
 | Continuous batching, PD pools, TP/PP, MTP | **Experimental** | Explicit, opt-in, hardware-gated; not a general serving story |
+| Continuous replica pools | **Experimental** | Opt-in whole-request routing across independent continuous batches; not TP or shared KV |
 | Dense prefill performance | **Slower than PyTorch** | Correctness-first sublayers; see [Performance status](#performance-status) |
 
 Start with [Quickstart](#quickstart) if you want to run something now, and with
@@ -378,6 +379,7 @@ These definitions are part of the contract, not footnotes:
 | [`native-library-split.md`](docs/native-library-split.md) | The two-library build and load contract |
 | [`qwen-safetensors.md`](docs/qwen-safetensors.md) | Direct Qwen safetensors loading, plane schemas, intentional API breaks |
 | [`continuous-batching.md`](docs/continuous-batching.md) | Opt-in native continuous scheduling |
+| [`continuous-replicas.md`](docs/continuous-replicas.md) | Bounded replica routing, private request state and qualification limits |
 | [`pd-disaggregation.md`](docs/pd-disaggregation.md) | Explicit prefill/decode pools and request-state handoff |
 | [`vram-first-kv.md`](docs/vram-first-kv.md) | Experimental VRAM-first native KV |
 | [`adaptive-mtp.md`](docs/adaptive-mtp.md) | Measured-cost fresh-cohort routing for MTP |

@@ -167,6 +167,17 @@ class ContinuousScheduler:
         # including a cancellation that arrives while native work is in flight.
         return ticket.future.cancel()
 
+    def contains(self, ticket):
+        """Whether this request still owns queued/live state, even if cancelled.
+
+        Future cancellation is immediate; retirement is at a safe tick boundary.
+        This metadata query never probes a GPU or releases request buffers.
+        """
+        if not isinstance(ticket, RequestTicket) or ticket._owner is not self._owner:
+            raise ValueError("Ticket belongs to a different scheduler")
+        with self._lock:
+            return ticket.request_id in self._requests
+
     def _retire(self, request):
         self._requests.pop(request.ticket.request_id, None)
         if request.slot is not None:

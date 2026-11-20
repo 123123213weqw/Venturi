@@ -12,6 +12,10 @@ Separate prefill/decode device pools use the explicit
 [PD runtime](pd-disaggregation.md), not an automatic mode of this scheduler.
 Neither path silently changes the production route or imports an external engine.
 
+For independent complete-model replicas, use the opt-in
+[continuous replica pool](continuous-replicas.md). Whole-request routing reuses
+this scheduler without sharing KV/GDN state or implying TP/PP/PD support.
+
 ## Scheduling and ownership
 
 `venturi.runtime.ContinuousScheduler` uses the standard library. No import starts
