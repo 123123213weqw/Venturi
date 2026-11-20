@@ -141,7 +141,17 @@ class NativeQwenMTPModel(NativeQwenModel):
         if target._mode != "resident" or target._max_tokens < 2:
             raise ValueError("MTP target requires resident weights and max_tokens >= 2")
         weights = QwenMTPWeights.open(weights.source.path)
-        weights.validate_target(target._binding_weights())
+        target_weights = target._binding_weights()
+        weights.validate_target(target_weights)
+        from venturi.quantization.codecs import codec_for
+
+        if any(
+            codec_for(b.format).quantized and b.format != "q8_g32_fp16"
+            for b in target_weights.plan.bindings
+        ):
+            raise ValueError(
+                "Native MTP requires an all-Q8 target; row-codec/mixed target MTP is not qualified"
+            )
         cfg, runtime = target.config, target._runtime
         backend = runtime.operators
         device = (

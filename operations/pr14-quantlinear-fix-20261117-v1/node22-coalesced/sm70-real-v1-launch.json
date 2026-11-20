@@ -1,0 +1,47 @@
+{
+  "pid": 1379311,
+  "start_ticks": "579574499",
+  "started_unix": 1794924112.9279919,
+  "deadline_unix": 1794925612.9279919,
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=30",
+    "1500",
+    "/home/xs/codex-work/ornith-opt-20261006/onecat-optimization/src/onecat/.venv/bin/python",
+    "tools/qualify_quantlinear_paired.py",
+    "/home/xs/codex-build/Venturi-pr14-fix-20261117/weights/qwen38-27b-text-q5.safetensors",
+    "--library",
+    "/home/xs/codex-build/Venturi-pr14-coalesced-20261117/native/ops/libventuri_ops.so",
+    "--qwen-library",
+    "/home/xs/codex-build/Venturi-pr14-coalesced-20261117/native/qwen/libventuri_qwen.so",
+    "--reference-library",
+    "/home/xs/codex-build/Venturi-pr14-fix-20261117/native/ops/libventuri_ops.so",
+    "--reference-qwen-library",
+    "/home/xs/codex-build/Venturi-pr14-fix-20261117/native/reference-qwen/libventuri_qwen.so",
+    "--cases",
+    "/home/xs/codex-build/Venturi-pr14-coalesced-20261117/cases.json",
+    "--output",
+    "/home/xs/codex-build/Venturi-pr14-coalesced-20261117/evidence/sm70-real-v1-report.json",
+    "--expected-sha256",
+    "dd57246737055d02c7cd19aa584c766981c2ea11d475b6608597b2057fa93bae",
+    "--qualification-campaign",
+    "--parallel-validation"
+  ],
+  "gpus": [
+    "GPU-6a650f50-0f20-5bff-4f81-73c37e2f4ff3",
+    "GPU-63122baa-6b02-a925-6a76-43c999962c2d"
+  ],
+  "source": "/home/xs/codex-build/Venturi-pr14-coalesced-20261117/change",
+  "libraries": {
+    "VENTURI_OPS_LIBRARY": {
+      "path": "/home/xs/codex-build/Venturi-pr14-coalesced-20261117/native/ops/libventuri_ops.so",
+      "sha256": "bd7e0a142953c513d5300ee9a0f27e8d84c4169d015b7c3f27e369dc0318d55e"
+    },
+    "VENTURI_QWEN_LIBRARY": {
+      "path": "/home/xs/codex-build/Venturi-pr14-coalesced-20261117/native/qwen/libventuri_qwen.so",
+      "sha256": "a31ae321ee767c75c81dd935e4ad0d6037c371ea42c12d98fc75cd51bbe8f055"
+    }
+  },
+  "source_manifest_sha256": "a107bdfeac0616ebfba9f3d89ebf2266b5c9b213ebfd2235510094f197e26279"
+}

@@ -1,0 +1,31 @@
+----------------------------------------
+Exception occurred during processing of request from ('127.0.0.1', 36172)
+Traceback (most recent call last):
+  File "/home/xs/codex-build/Venturi-pr14-final-20261117-v2/change/tools/serve_native_benchmark.py", line 622, in do_POST
+    result = response.result(timeout=180)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/xs/codex-work/ornith-opt-20261006/envs/python/cpython-3.12.15-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py", line 454, in result
+    raise CancelledError()
+concurrent.futures._base.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/xs/codex-work/ornith-opt-20261006/envs/python/cpython-3.12.15-linux-x86_64-gnu/lib/python3.12/socketserver.py", line 697, in process_request_thread
+    self.finish_request(request, client_address)
+  File "/home/xs/codex-work/ornith-opt-20261006/envs/python/cpython-3.12.15-linux-x86_64-gnu/lib/python3.12/socketserver.py", line 362, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/home/xs/codex-work/ornith-opt-20261006/envs/python/cpython-3.12.15-linux-x86_64-gnu/lib/python3.12/socketserver.py", line 766, in __init__
+    self.handle()
+  File "/home/xs/codex-work/ornith-opt-20261006/envs/python/cpython-3.12.15-linux-x86_64-gnu/lib/python3.12/http/server.py", line 440, in handle
+    self.handle_one_request()
+  File "/home/xs/codex-work/ornith-opt-20261006/envs/python/cpython-3.12.15-linux-x86_64-gnu/lib/python3.12/http/server.py", line 428, in handle_one_request
+    method()
+  File "/home/xs/codex-build/Venturi-pr14-final-20261117-v2/change/tools/serve_native_benchmark.py", line 658, in do_POST
+    self.reply(500, dict(error=str(error)))
+  File "/home/xs/codex-build/Venturi-pr14-final-20261117-v2/change/tools/serve_native_benchmark.py", line 593, in reply
+    self.wfile.write(payload)
+  File "/home/xs/codex-work/ornith-opt-20261006/envs/python/cpython-3.12.15-linux-x86_64-gnu/lib/python3.12/socketserver.py", line 845, in write
+    self._sock.sendall(b)
+BrokenPipeError: [Errno 32] Broken pipe
+----------------------------------------

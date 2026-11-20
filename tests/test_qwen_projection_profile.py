@@ -133,7 +133,8 @@ def test_profile_independent_fp64_full_fixture_unchanged_logit_gates(
         session = model.create_session(32)
         try:
             actual = session.forward(ids, all_logits=True)
-            assert all(check(a, b)["passed"] for a, b in zip(actual, reference))
+            checks = [check(a, b) for a, b in zip(actual, reference)]
+            assert all(c["passed"] for c in checks), (profile, checks)
             info = session.info()
             assert info["projection_profile"] == profile
             assert bool(info["peer_projection_workspace_bytes"]) == (

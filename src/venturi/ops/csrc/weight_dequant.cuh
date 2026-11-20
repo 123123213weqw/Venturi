@@ -9,66 +9,59 @@
 // with ld = k, ready for venturi_dense_run.
 #pragma once
 
-__global__ inline void row_dequant_rows_kernel(
-    const unsigned char* codes, const unsigned char* high, const __half* scales,
-    __half* out, int row_begin, int rows, int k, int padded, int bits) {
-    const int groups = padded >> 6;
-    const int hb = bits - 4;  // high bits per lane (0 for q4)
-    const int hstride = hb ? groups * hb * 8 : 0;  // high-plane bytes per row
-    const int local = blockIdx.y;
-    const int row = row_begin + local;
-    if (local >= rows) return;
-    const int group = blockIdx.x * blockDim.x + threadIdx.x;
-    if (group >= groups) return;
-    const unsigned char* crow = codes + (std::uint64_t)row * groups * 32 + (std::uint64_t)group * 32;
-    const unsigned char* hrow = high ? high + (std::uint64_t)row * hstride + (std::uint64_t)group * hb * 8 : nullptr;
-    const float scale = __half2float(scales[(std::uint64_t)row * groups + group]);
-    __half* dst = out + (std::uint64_t)local * k + (std::uint64_t)group * 64;
-    const int first = group * 64;
-    const int span = 1 << bits, sign = 1 << (bits - 1);
-    for (int lane = 0; lane < 64; lane += 2) {
-        const unsigned char packed = crow[lane >> 1];
-        int lo = packed & 0x0F, hi = packed >> 4;
-        if (hb) {
-            const int blo = lane * hb, bhi = (lane + 1) * hb;
-            lo |= ((hrow[blo >> 3] >> (blo & 7)) & ((1 << hb) - 1)) << 4;
-            hi |= ((hrow[bhi >> 3] >> (bhi & 7)) & ((1 << hb) - 1)) << 4;
-        }
-        if (lo >= sign) lo -= span;
-        if (hi >= sign) hi -= span;
-        if (first + lane < k) dst[lane] = __float2half(lo * scale);
-        if (first + lane + 1 < k) dst[lane + 1] = __float2half(hi * scale);
+
+// Adjacent lanes decode adjacent octets, rather than one lane serially writing
+// a whole k64 group. Coalesced uint32 reads/uint4 stores change IO geometry only:
+// each signed integer * FP16 scale still rounds once to FP16 exactly as before.
+__device__ __forceinline__ void row_dequant_octet(
+    const unsigned char* codes,const unsigned char* high,const __half* scales,
+    __half* out,std::uint64_t row,int local,int col,int k,int padded,int bits) {
+    const int groups=padded>>6,hb=bits-4;
+    const auto* c=codes+row*(padded>>1)+(col>>1);
+    const std::uint32_t packed=(reinterpret_cast<std::uintptr_t>(c)&3u)==0
+        ?*reinterpret_cast<const std::uint32_t*>(c)
+        :std::uint32_t(c[0])|(std::uint32_t(c[1])<<8)|(std::uint32_t(c[2])<<16)|(std::uint32_t(c[3])<<24);
+    unsigned hi=0;
+    if(hb) {
+        const auto* h=high+row*groups*hb*8+(col*hb>>3);
+        hi=h[0];if(hb==2)hi|=unsigned(h[1])<<8;
+    }
+    const float scale=__half2float(scales[row*groups+(col>>6)]);
+    const int sign=1<<(bits-1),mask=(1<<hb)-1;
+    __half value[8];
+    #pragma unroll
+    for(int j=0;j<8;++j) {
+        const int raw=int((packed>>(j*4))&15u)|(int((hi>>(j*hb))&mask)<<4);
+        const int q=(raw^sign)-sign;
+        value[j]=__float2half_rn(float(q)*scale);
+    }
+    auto* d=out+std::uint64_t(local)*k+col;
+    if(col+7<k && (reinterpret_cast<std::uintptr_t>(d)&15u)==0) {
+        const uint4 words=make_uint4(
+            std::uint32_t(__half_as_ushort(value[0]))|(std::uint32_t(__half_as_ushort(value[1]))<<16),
+            std::uint32_t(__half_as_ushort(value[2]))|(std::uint32_t(__half_as_ushort(value[3]))<<16),
+            std::uint32_t(__half_as_ushort(value[4]))|(std::uint32_t(__half_as_ushort(value[5]))<<16),
+            std::uint32_t(__half_as_ushort(value[6]))|(std::uint32_t(__half_as_ushort(value[7]))<<16));
+        *reinterpret_cast<uint4*>(d)=words;
+    } else {
+        // Odd K, offset contiguous output views and final partial octets.
+        #pragma unroll
+        for(int j=0;j<8;++j)if(col+j<k)d[j]=value[j];
     }
 }
 
+__global__ inline void row_dequant_rows_kernel(
+    const unsigned char* codes,const unsigned char* high,const __half* scales,
+    __half* out,int row_begin,int rows,int k,int padded,int bits) {
+    const int local=blockIdx.y,col=(blockIdx.x*blockDim.x+threadIdx.x)*8;
+    if(local>=rows || col>=k)return;
+    row_dequant_octet(codes,high,scales,out,std::uint64_t(row_begin)+local,local,col,k,padded,bits);
+}
+
 __global__ inline void row_dequant_indexed_kernel(
-    const unsigned char* codes, const unsigned char* high, const __half* scales,
-    const std::int64_t* ids, __half* out, int count, int k, int padded, int bits) {
-    const int groups = padded >> 6;
-    const int hb = bits - 4;
-    const int hstride = hb ? groups * hb * 8 : 0;
-    const int slot = blockIdx.y;
-    if (slot >= count) return;
-    const int row = static_cast<int>(ids[slot]);
-    const int group = blockIdx.x * blockDim.x + threadIdx.x;
-    if (group >= groups) return;
-    const unsigned char* crow = codes + (std::uint64_t)row * groups * 32 + (std::uint64_t)group * 32;
-    const unsigned char* hrow = high ? high + (std::uint64_t)row * hstride + (std::uint64_t)group * hb * 8 : nullptr;
-    const float scale = __half2float(scales[(std::uint64_t)row * groups + group]);
-    __half* dst = out + (std::uint64_t)slot * k + (std::uint64_t)group * 64;
-    const int first = group * 64;
-    const int span = 1 << bits, sign = 1 << (bits - 1);
-    for (int lane = 0; lane < 64; lane += 2) {
-        const unsigned char packed = crow[lane >> 1];
-        int lo = packed & 0x0F, hi = packed >> 4;
-        if (hb) {
-            const int blo = lane * hb, bhi = (lane + 1) * hb;
-            lo |= ((hrow[blo >> 3] >> (blo & 7)) & ((1 << hb) - 1)) << 4;
-            hi |= ((hrow[bhi >> 3] >> (bhi & 7)) & ((1 << hb) - 1)) << 4;
-        }
-        if (lo >= sign) lo -= span;
-        if (hi >= sign) hi -= span;
-        if (first + lane < k) dst[lane] = __float2half(lo * scale);
-        if (first + lane + 1 < k) dst[lane + 1] = __float2half(hi * scale);
-    }
+    const unsigned char* codes,const unsigned char* high,const __half* scales,
+    const std::int64_t* ids,__half* out,int count,int k,int padded,int bits) {
+    const int slot=blockIdx.y,col=(blockIdx.x*blockDim.x+threadIdx.x)*8;
+    if(slot>=count || col>=k)return;
+    row_dequant_octet(codes,high,scales,out,static_cast<std::uint64_t>(ids[slot]),slot,col,k,padded,bits);
 }

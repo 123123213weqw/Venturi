@@ -5,7 +5,8 @@
 
 namespace vr {
 inline bool compatible(const VRConfig& a,const VRConfig& b) {
-    return a.dtype==b.dtype && a.layers==b.layers && a.hidden==b.hidden &&
+    return a.linear_implementation==b.linear_implementation && a.dequant_resident==b.dequant_resident &&
+        a.weight_bits==b.weight_bits && a.weight_group==b.weight_group && a.dtype==b.dtype && a.layers==b.layers && a.hidden==b.hidden &&
         a.intermediate==b.intermediate && a.vocab==b.vocab && a.hq==b.hq &&
         a.hkv==b.hkv && a.dim==b.dim && a.rotary==b.rotary && a.gqk==b.gqk &&
         a.gvh==b.gvh && a.gkd==b.gkd && a.gvd==b.gvd && a.convolution==b.convolution &&

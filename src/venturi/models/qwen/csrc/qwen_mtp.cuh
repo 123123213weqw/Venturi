@@ -15,6 +15,7 @@ struct MTPModel {
         require(profile==0 || (profile==2 && VENTURI_BLOCKS_ARCH==70 && !pp && cfg.dtype==0),"MTP residual draft requires explicit SM70 resident FP16 non-PP target");
         if (pp) {pipeline=*static_cast<PipelineHandle*>(owner);first=pipeline->first;last=pipeline->second;}
         else {target=*static_cast<Handle*>(owner);first=last=target;require(!target->stage,"MTP requires complete target");require(!target->kv_tier,"MTP rollback is not qualified with tiered KV");}
+        require(!first->has_row_weights && !last->has_row_weights,"native MTP target requires Q8 matrices; row-codec/mixed vocabulary is not qualified");
         const auto& c=first->c;
         require(c.resident==1 && c.max_tokens>=2 && cfg.device==last->c.device && cfg.second_device==-1 && cfg.resident==1 && cfg.layers==1 &&
             cfg.dtype==c.dtype && cfg.hidden==c.hidden && cfg.vocab==c.vocab && cfg.intermediate==c.intermediate && cfg.hq==c.hq && cfg.hkv==c.hkv && cfg.dim==c.dim && cfg.rotary==c.rotary &&

@@ -1,0 +1,16 @@
+{"stage": "restorer_started", "pid": 1359854, "deadline": 1794923356.369663}
+{"stage": "production_temporarily_paused", "pid": 1355715}
+{"stage": "start", "name": "sm70-real-v1"}
+sm70-real-v1 1359864
+{"reason": "normal", "exit_code": 0, "finished_unix": 1794920281.9687364, "remaining_own_apps": [], "scope": "No foreign job/service/driver/monitor changes; private leases released"}
+{"stage": "complete", "name": "sm70-real-v1"}
+{"stage": "start", "name": "sm70-tps-v1"}
+sm70-tps-v1 1363031
+{"reason": "normal", "exit_code": 124, "finished_unix": 1794922083.568536, "remaining_own_apps": [[1373906, "GPU-6a650f50-0f20-5bff-4f81-73c37e2f4ff3", "24184"], [1373907, "GPU-63122baa-6b02-a925-6a76-43c999962c2d", "19012"]], "scope": "No foreign job/service/driver/monitor changes; private leases released"}
+{"stage": "production_restored", "actor": "primary", "restored_running": true, "http_200": true, "same_command_environment_cwd_binary": true, "original_pid": 1355715, "restored_pid": 1374268, "original_log_preserved": true, "no_route_or_model_parameter_changes": true, "unix": 1794922105.8202164}
+Traceback (most recent call last):
+  File "/home/xs/codex-build/Venturi-pr14-final-20261117-v2/production_window_node22.py", line 175, in <module>
+    subprocess.run([sys.executable,str(R/'guard_job.py'),str(R/(name+'.json'))],check=True,cwd=R)
+  File "/usr/lib/python3.10/subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/home/xs/codex-build/Venturi-pr14-final-20261117-v2/guard_job.py', '/home/xs/codex-build/Venturi-pr14-final-20261117-v2/sm70-tps-v1.json']' returned non-zero exit status 1.

@@ -1,0 +1,159 @@
+{
+  "scope": "Read-only Nsight timeline attribution, never throughput or SM counters.",
+  "profile_steps": 1,
+  "rows": 16,
+  "tps": null,
+  "achieved_occupancy": null,
+  "dram_bandwidth_counter": null,
+  "profiles": {
+    "reference": {
+      "kernel_total_ns": 1556873019,
+      "groups": {
+        "other": {
+          "instances": 1764,
+          "total_ns": 8666826,
+          "kernel_time_percent": 0.5566816236282915
+        },
+        "row_decode": {
+          "instances": 751,
+          "total_ns": 1280686700,
+          "kernel_time_percent": 82.26018977595244
+        },
+        "gemm": {
+          "instances": 751,
+          "total_ns": 220675535,
+          "kernel_time_percent": 14.174279617341098
+        },
+        "gdn": {
+          "instances": 768,
+          "total_ns": 41353666,
+          "kernel_time_percent": 2.656200312762951
+        },
+        "attention": {
+          "instances": 256,
+          "total_ns": 5490292,
+          "kernel_time_percent": 0.35264867031522495
+        }
+      },
+      "recorded_gpu_activity_span_ns": 1593202233,
+      "recorded_gpu_activity_covered_ns": 1578846792,
+      "recorded_gpu_activity_coverage": 0.990989567612538,
+      "recorded_activity_gap_total_ns": 14355441,
+      "largest_recorded_activity_gaps_ns": [
+        44448,
+        42752,
+        17536,
+        15520,
+        13408,
+        9984,
+        9920,
+        8192,
+        7456,
+        7392
+      ],
+      "cuda_api": {
+        "cudaLaunchKernel_v7000": {
+          "calls": 4290,
+          "total_ns": 109077601
+        },
+        "cudaMemcpyAsync_v3020": {
+          "calls": 12307,
+          "total_ns": 1366940012
+        },
+        "cudaStreamSynchronize_v3020": {
+          "calls": 2,
+          "total_ns": 95125910
+        }
+      },
+      "raw_artifacts": {
+        "profile-reference-c16.sqlite": {
+          "bytes": 2138112,
+          "sha256": "e75b9ef9d945d7b93adc93da06386c058701abb3855f02f7688b52aa3d9b399c"
+        },
+        "profile-reference-c16.nsys-rep": {
+          "bytes": 839875,
+          "sha256": "ad956a81ea024071d0df59bbf1ddd27d1d3cb197e7c614103e005ae631c763e4"
+        }
+      },
+      "scope": "First-to-last recorded GPU kernel/copy interval union only; not achieved SM occupancy or a counter-based utilization metric. CPU/CUDA API tail outside this interval is not included."
+    },
+    "candidate": {
+      "kernel_total_ns": 340668841,
+      "groups": {
+        "other": {
+          "instances": 1044,
+          "total_ns": 6307315,
+          "kernel_time_percent": 1.8514505117302467
+        },
+        "row_decode": {
+          "instances": 751,
+          "total_ns": 91543559,
+          "kernel_time_percent": 26.871714692568553
+        },
+        "gemm": {
+          "instances": 751,
+          "total_ns": 221031936,
+          "kernel_time_percent": 64.88175888090687
+        },
+        "gdn": {
+          "instances": 48,
+          "total_ns": 16282778,
+          "kernel_time_percent": 4.779649924015211
+        },
+        "attention": {
+          "instances": 256,
+          "total_ns": 5503253,
+          "kernel_time_percent": 1.6154259907791215
+        }
+      },
+      "recorded_gpu_activity_span_ns": 347380412,
+      "recorded_gpu_activity_covered_ns": 343981316,
+      "recorded_gpu_activity_coverage": 0.9902150614065136,
+      "recorded_activity_gap_total_ns": 3399096,
+      "largest_recorded_activity_gaps_ns": [
+        32800,
+        18432,
+        15328,
+        11296,
+        8000,
+        6336,
+        6208,
+        5344,
+        5120,
+        4992
+      ],
+      "cuda_api": {
+        "cudaLaunchKernel_v7000": {
+          "calls": 2850,
+          "total_ns": 155153462
+        },
+        "cudaMemcpy2DAsync_v3020": {
+          "calls": 751,
+          "total_ns": 58807022
+        },
+        "cudaMemcpyAsync_v3020": {
+          "calls": 291,
+          "total_ns": 31354201
+        },
+        "cudaStreamSynchronize_v3020": {
+          "calls": 2,
+          "total_ns": 86737817
+        }
+      },
+      "raw_artifacts": {
+        "profile-candidate-c16.sqlite": {
+          "bytes": 1028096,
+          "sha256": "4ddf072bc569015ab23e3eb5fdb9117e479f4a79a81685f531c3eed0ef388e09"
+        },
+        "profile-candidate-c16.nsys-rep": {
+          "bytes": 351224,
+          "sha256": "c915879465751ffc7ae9b1655b11a74b04724d911faeb340765e4b16c3bf6622"
+        }
+      },
+      "scope": "First-to-last recorded GPU kernel/copy interval union only; not achieved SM occupancy or a counter-based utilization metric. CPU/CUDA API tail outside this interval is not included."
+    }
+  },
+  "profiling_policy": [
+    "RmProfilingAdminOnly: 1"
+  ]
+}

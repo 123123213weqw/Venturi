@@ -1,0 +1,35 @@
+{
+  "scope": "Two V100 independent native instances; same pinned Q5 artifact, A16 with FP16 decoded weights, no MTP/prefix reuse; frozen serial conv/GDN chunked-dense control vs safe-auto chunked-dense with qualified batched conv/GDN. Fused Q5 remains unqualified and is excluded; this is not a fusion speedup or a comparison against broken historical code.",
+  "artifact": {
+    "path": "/home/xs/codex-build/Venturi-pr14-fix-20261117/weights/qwen38-27b-text-q5.safetensors",
+    "sha256": "dd57246737055d02c7cd19aa584c766981c2ea11d475b6608597b2057fa93bae",
+    "bytes": 17686008520,
+    "mtime_ns": 1794916901027146448,
+    "ctime_ns": 1794916955104148775,
+    "source_precision": "Pinned existing Q5 canonical artifact; original upstream repository/revision unavailable; not a BF16/corpus quality claim"
+  },
+  "build": {
+    "tag": "change",
+    "architecture": "sm70",
+    "ops": "/home/xs/codex-build/Venturi-pr14-fix-20261117/native/ops-final/libventuri_ops.so",
+    "qwen": "/home/xs/codex-build/Venturi-pr14-fix-20261117/native/candidate-final-qwen/libventuri_qwen.so"
+  },
+  "reference_build": {
+    "tag": "reference",
+    "architecture": "sm70",
+    "ops": "/home/xs/codex-build/Venturi-pr14-fix-20261117/native/ops/libventuri_ops.so",
+    "qwen": "/home/xs/codex-build/Venturi-pr14-fix-20261117/native/reference-qwen/libventuri_qwen.so"
+  },
+  "implementations": {
+    "dequant": {
+      "implementation": "dequant",
+      "runs": [],
+      "warmups": [],
+      "server_identity": [],
+      "discarded_contaminated_runs": [],
+      "failed_generation_runs": []
+    }
+  },
+  "gpu_contamination_policy": "Read-only NVML every 50ms; retain/discard contaminated complete cohorts; bounded new timing attempts, never retry failed generation. No observed foreign contexts is not proof of exclusivity between samples.",
+  "hardware_counters": "not measured; no permissions/monitor changes; outside supervisor samples GPU busy/VRAM/power/clocks/temperature"
+}

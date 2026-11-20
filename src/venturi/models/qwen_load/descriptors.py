@@ -75,6 +75,8 @@ def build_descriptors(spec, owned, cfg, budget):
             owned.plane_offset(role, "high") if codec.high_plane else 0,
             owned.plane_offset(role, "scales"),
             *desc.shape,
+            codec.bits,
+            codec.group,
         )
 
     layers = (Layer * cfg["num_hidden_layers"])()
@@ -166,6 +168,7 @@ def build_descriptors(spec, owned, cfg, budget):
         -1 if peer is None else peer.index,
         int(spec.tensor_parallel_transport == "host"),
         spec.reserve_bytes,
+        {"auto": 0, "dequant": 1, "fused": 2}[spec.linear_implementation],
     )
     span = owned.source.byte_spans()[0]
     spans = (Span * 1)(

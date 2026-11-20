@@ -1,0 +1,95 @@
+................ssssssssssssssss....ssss..........ssssssssF...ssss.sssss [ 17%]
+ssss............sss...sss............................................sss [ 35%]
+s..ssss........ss....................................................... [ 53%]
+.................sssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 71%]
+ssssssss................................................................ [ 89%]
+............................................                             [100%]
+=================================== FAILURES ===================================
+____ test_integrated_plan_chunks_states_and_greedy[native-fp16-q4_g64_fp16] ____
+
+tmp_path = PosixPath('/data/wangyue/codex-build/Venturi-pr14-fix-20261117/tmp/pytest-of-wangyue/pytest-8/test_integrated_plan_chunks_st0')
+native_engine = (<venturi.ops.blocks.CudaBackend object at 0x7fad79ebcf40>, torch.float16, 'cuda:0')
+fmt = 'q4_g64_fp16'
+
+    @pytest.mark.parametrize("fmt", ["q4_g64_fp16", "q5_g64_fp16", "q6_g64_fp16", "mixed"])
+    def test_integrated_plan_chunks_states_and_greedy(tmp_path, native_engine, fmt):
+        from contextlib import ExitStack
+        from test_qwen_model import hybrid_fixture
+        from test_row_codec_execution import _codec_artifact_from_q8, _codec_enabled
+        from venturi.models import NativeQwenModel
+        from venturi.models.qwen.qwen_weights import QwenWeights
+    
+        b, dtype, dev = native_engine
+        if dtype != torch.float16:
+            pytest.skip("FP16 row codec")
+        base, _ = hybrid_fixture(tmp_path)
+        overrides = (
+            {
+                "text/token_embedding": "q5_g64_fp16",
+                "text/layers/0/mlp/down": "q6_g64_fp16",
+                "text/layers/1/mlp/up": "q4_g64_fp16",
+            }
+            if fmt == "mixed"
+            else None
+        )
+        path = _codec_artifact_from_q8(
+            base.source,
+            tmp_path / "quantlinear.safetensors",
+            "q8_g32_fp16" if fmt == "mixed" else fmt,
+            overrides,
+        )
+        weights = QwenWeights.open(path)
+        runtime = native_runtime(b)
+        models = []
+        try:
+            with ExitStack() as gates:
+                for codec in ("q4_g64_fp16", "q5_g64_fp16", "q6_g64_fp16"):
+                    gates.enter_context(_codec_enabled(codec))
+                for implementation in ("auto", "dequant"):
+                    models.append(
+                        NativeQwenModel.from_q8(
+                            weights,
+                            runtime,
+                            weight_mode="resident",
+                            dtype=dtype,
+                            device=dev,
+                            max_tokens=32,
+                            reserve_bytes=0,
+                            linear_implementation=implementation,
+                        )
+                    )
+            sessions = [m.create_session(128) for m in models]
+            try:
+                for ids in ([1], [2, 3, 4, 5], list(range(8)), list(range(16)), [7, 6, 5]):
+                    values = [s.forward(ids, all_logits=True) for s in sessions]
+                    torch.testing.assert_close(*values, rtol=1e-2, atol=5e-3)
+                    snapshots = [s.snapshot() for s in sessions]
+                    for kind in ("gdn", "kv"):
+                        for left, right in zip(snapshots[0][kind], snapshots[1][kind]):
+                            if left is None:
+                                assert right is None
+                                continue
+                            for a, z in zip(left, right):
+>                               torch.testing.assert_close(a, z, rtol=1e-2, atol=5e-3)
+E                               AssertionError: Tensor-likes are not close!
+E                               
+E                               Mismatched elements: 2 / 320 (0.6%)
+E                               Greatest absolute difference: 0.0074462890625 at index (3, 0, 16) (up to 0.005 allowed)
+E                               Greatest relative difference: 0.07794189453125 at index (4, 0, 11) (up to 0.01 allowed)
+
+tests/test_quantlinear_cuda.py:190: AssertionError
+=========================== short test summary info ============================
+SKIPPED [16] tests/test_quantlinear_cuda.py:23: row codecs use explicit FP16 activations
+SKIPPED [4] tests/test_quantlinear_cuda.py:56: FP16 row codec
+SKIPPED [8] tests/test_quantlinear_cuda.py:102: FP16 row codec
+SKIPPED [4] tests/test_quantlinear_cuda.py:141: FP16 row codec
+SKIPPED [1] tests/test_quantlinear_cuda.py:214: Q5 A8 kernel is SM70-only
+SKIPPED [2] tests/test_quantlinear_cuda.py:212: A8 requires FP16 storage
+SKIPPED [6] tests/test_quantlinear_cuda.py:272: Explicit SM70 W5A8 kernel
+SKIPPED [3] tests/test_row_codec_execution.py:211: row-codec dense path targets FP16 activations
+SKIPPED [3] tests/test_row_codec_execution.py:259: row-codec dense path targets FP16 activations
+SKIPPED [4] tests/test_pd_native.py:39: 4 physical GPUs required
+SKIPPED [4] tests/test_pd_native.py:39: 8 physical GPUs required
+SKIPPED [2] tests/test_qwen_tensor_parallel.py:193: explicit known-broken byte-probe environment required
+SKIPPED [63] tests/test_q8_projection_dispatch.py:35: Explicit prefetch research and qualified SM70 libraries required
+1 failed, 283 passed, 120 skipped in 28.45s

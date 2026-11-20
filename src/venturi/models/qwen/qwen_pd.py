@@ -51,11 +51,22 @@ class NativeQwenPDWorker:
         self.capacities = batch.capacities
         self.max_token_rows = batch.max_token_rows
         self.vocab_size = batch.vocab_size
+        precision_identity = m.projection_profile
+        execution = getattr(m, "projection_info", {})
+        if execution.get("linear_implementation", "auto") != "auto" or execution.get(
+            "dequant_resident", False
+        ):
+            precision_identity += (
+                ":"
+                + str(execution.get("linear_implementation"))
+                + ":shadow="
+                + str(execution.get("dequant_resident"))
+            )
         self.state_identity = StateIdentity(
             m._digest.hex(),
             "qwen-static-kv-gdn-conv-v1",
             str(m.dtype),
-            m.projection_profile,
+            precision_identity,
         )
         self._lock = threading.RLock()
         self._epochs = [0] * len(self.capacities)

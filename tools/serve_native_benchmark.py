@@ -5,7 +5,6 @@ Python owns HTTP and admission only; native generate (cohorts) or native step
 streaming. Continuous token-availability timings are not HTTP streaming TTFT.
 """
 
-
 import argparse
 from concurrent.futures import Future
 from queue import Queue, Empty
@@ -287,7 +286,7 @@ def main():
     p.add_argument("--target-layer-graph", action="store_true")
     p.add_argument("--mtp-depth", type=int, choices=(1, 2), default=1)
     p.add_argument("--mtp-recovery", choices=("replay", "prefix"), default="replay")
-    p.add_argument("--mode", choices=("tp", "pp"), required=True)
+    p.add_argument("--mode", choices=("tp", "pp", "single"), required=True)
     p.add_argument("--port", type=int, required=True)
     p.add_argument("--slots", type=int, default=8)
     p.add_argument("--capacity", type=int, default=256)
@@ -326,6 +325,7 @@ def main():
     p.add_argument(
         "--projection-profile",
         choices=(
+            "int8",
             "fp16",
             "q8-residual",
             "q8-residual-column-mlp",
@@ -339,16 +339,19 @@ def main():
         choices=("fp16", "q8-residual"),
         default="fp16",
     )
+    p.add_argument(
+        "--linear-implementation", choices=("auto", "dequant", "fused"), default="auto"
+    )
     p.add_argument("--qwen-library", required=True)
     args = p.parse_args()
     if args.prefill_policy != "round-robin" and not args.continuous_target:
         p.error("Balanced prefill requires an explicit continuous target")
-    if args.metadata_mode == "sealed" and args.mode != "tp":
+    if args.metadata_mode == "sealed" and args.mode not in ("tp", "single"):
         p.error(
-            "Sealed metadata benchmark mode currently requires an explicit TP target"
+            "Sealed metadata benchmark mode currently requires an explicit TP/single target"
         )
     if args.continuous_target and (
-        args.mode != "tp"
+        args.mode not in ("tp", "single")
         or args.mtp_checkpoint
         or args.adaptive_mtp
         or args.batch_target
@@ -393,8 +396,11 @@ def main():
         p.error(
             "Target layer graphs require scalar resident TP residual MTP2 prefix mode"
         )
-    if not 1 <= args.slots <= 8 or args.capacity < 55:
-        p.error("Use 1..8 slots with capacity >= 55")
+    # Experimental night-tps-20261116 widening: the historically qualified
+    # benchmark surface is 1..8 slots; 9..64 stays opt-in experimental and
+    # requires its own qualification evidence before any promotion.
+    if not 1 <= args.slots <= 64 or args.capacity < 55:
+        p.error("Use 1..64 slots with capacity >= 55")
     if args.batch_mtp and (
         args.batch_target
         or args.mode != "tp"
@@ -413,8 +419,17 @@ def main():
         p.error("--mtp-depth requires --mtp-checkpoint")
     if args.batch_target and (args.mode != "tp" or args.mtp_checkpoint):
         p.error("Grouped target batching currently requires TP without MTP")
-    if args.projection_profile != "fp16" and args.mode != "tp":
+    if args.projection_profile != "fp16" and args.mode not in ("tp", "single"):
         p.error("Explicit residual profile currently supports TP, not PP")
+    if args.mode == "pp" and args.linear_implementation != "auto":
+        p.error("dequant reference is single-device only")
+    if (
+        args.continuous_target
+        or args.batch_target
+        or args.batch_mtp
+        or args.adaptive_mtp
+    ) and args.slots > 32:
+        p.error("Native grouped execution supports at most 32 slots")
     if not 0 <= args.batch_window_ms <= 100:
         p.error("Batch admission window must be 0..100 ms")
     import torch
@@ -437,27 +452,41 @@ def main():
         dtype=torch.float16,
         device="cuda:0",
         max_tokens=args.projection_rows,
+        **(
+            {"linear_implementation": args.linear_implementation}
+            if args.mode != "pp"
+            else {}
+        ),
     )
-    target = (
-        NativeQwenModel.from_q8(
+    if args.mode == "single":
+        target = NativeQwenModel.from_q8(
             weights,
             QwenRuntime(args.qwen_library, backend),
-            tensor_parallel_device="cuda:1",
-            tensor_parallel_transport="host",
             projection_profile=args.projection_profile,
             metadata_mode=args.metadata_mode,
             **kw,
         )
-        if args.mode == "tp"
-        else NativeQwenPipelineModel.from_q8(
-            weights,
-            QwenRuntime(args.qwen_library, backend),
-            pipeline_device="cuda:1",
-            split_layer=32,
-            transport="host",
-            **kw,
+    else:
+        target = (
+            NativeQwenModel.from_q8(
+                weights,
+                QwenRuntime(args.qwen_library, backend),
+                tensor_parallel_device="cuda:1",
+                tensor_parallel_transport="host",
+                projection_profile=args.projection_profile,
+                metadata_mode=args.metadata_mode,
+                **kw,
+            )
+            if args.mode == "tp"
+            else NativeQwenPipelineModel.from_q8(
+                weights,
+                QwenRuntime(args.qwen_library, backend),
+                pipeline_device="cuda:1",
+                split_layer=32,
+                transport="host",
+                **kw,
+            )
         )
-    )
     model = target
     sessions = []
     batch = admission = None

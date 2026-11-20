@@ -83,7 +83,11 @@ CODECS = {
 # 2026-11-11: kernel bit-tests, synthetic native-vs-reference token equality,
 # and the real 14.38GB artifact resident smoke.
 EXECUTION_QUALIFIED = {
-    (7, 0): {"q8_g32_fp16"},
+    # SM70 Q5 canonical FP16 decode: real 27B scalar and C4/8/16/32 output/
+    # private-state parity passed on V100_222, 2026-11-17. Evidence under
+    # operations/pr14-quantlinear-fix-20261117-v1/. This does NOT qualify
+    # fused Q5 or activation INT8; their independent gates remain closed.
+    (7, 0): {"q8_g32_fp16", "q5_g64_fp16"},
     (8, 9): {"q8_g32_fp16", "q4_g64_fp16", "q5_g64_fp16", "q6_g64_fp16"},
     (8, 6): {"q8_g32_fp16"},
 }
@@ -132,3 +136,20 @@ def dequantize_planes(codes, scales, high, shape, fmt):
         )
     values = (signed * scale[:, :, None]).reshape(n, -1)[:, :k]
     return torch.from_numpy(np.ascontiguousarray(values)).to(torch.float16)
+
+
+# A kernel can be numerically correct for its declared INT8 arithmetic yet fail
+# the model quality gate. Do not inherit A16 codec qualification for one-pass A8.
+# The independent fixture campaign observed relative L2 0.0553 > fixed 0.02.
+ACTIVATION_INT8_QUALIFIED = {(7, 0): set(), (8, 9): set()}
+
+# Implementation qualification is distinct from storage codec qualification.
+# Real SM70 Q5 fused A16 logits passed but 50 private-state components failed
+# unchanged rtol=.01/atol=.005. Keep fused Q5 closed on BOTH architectures;
+# SM89 Q4 also failed the matched private-state fixture. Preserve its research
+# arithmetic but never auto-admit it; canonical A16 auto uses FP16 dense decode.
+# SM89's existing Q5 qualification was for chunked dense, not this new kernel.
+FUSED_LINEAR_QUALIFIED = {
+    (7, 0): {"q8_g32_fp16"},
+    (8, 9): {"q8_g32_fp16"},
+}
