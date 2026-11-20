@@ -427,10 +427,45 @@ def decode_iq3_s_rows(raw, width, *, max_values=2**20):
     return (db * grid_vals * signs).reshape(total // width, width).clone()
 
 
-# IQ4_XS (type 23): deliberately unsupported. The pinned numpy reference
-# has a non-conserving reshape chain (64 nibble bytes cannot cover its declared
-# 256 values), so no trustworthy semantics exist to transcribe; only three
-# stray tensors in the wild use it.
+def decode_iq4_xs_rows(raw, width, *, max_values=2**20):
+    """IQ4_XS rows: 256-value super-blocks of 136 bytes (GGUF type 23).
+
+    Layout: F16 d, u16 scales_h, 4x u8 scales_l, 128 quants. Each of the eight
+    32-value sub-blocks carries a 6-bit scale ls (low nibble from scales_l,
+    high bit pair from scales_h) with dl = d * (ls - 32); nibbles index the
+    16-entry IQ4_NL grid (low nibble first). Transcribed from llama.cpp
+    dequantize_row_iq4_xs / quants.py IQ4_XS, which agree.
+    """
+    torch = _torch()
+    if type(width) is not int or width < 256 or width > 2**16 or width % 256:
+        raise ValueError("IQ4_XS width must be a multiple of 256 in [256, 65536]")
+    row_bytes = width // 256 * 136
+    if not isinstance(raw, bytes) or len(raw) % row_bytes:
+        raise ValueError("IQ4_XS row payload must be complete 136-byte blocks")
+    blocks = (len(raw) // row_bytes) * (width // 256)
+    if blocks * 256 > max_values:
+        raise ValueError("IQ4_XS decode exceeds bounded budget")
+    data = torch.frombuffer(bytearray(raw), dtype=torch.uint8).reshape(blocks, 136)
+    d_raw, scales_h, scales_l, qs = data.split([2, 2, 4, 128], dim=1)
+    import numpy as np
+    d = torch.from_numpy(
+        np.frombuffer(d_raw.reshape(-1, 2).numpy().tobytes(), dtype="<e").astype(np.float32)
+    ).reshape(blocks, 1)
+    if not bool(torch.isfinite(d).all()):
+        raise ValueError("IQ4_XS nonfinite super-block scale")
+    low = (scales_l[:, [0, 0, 1, 1, 2, 2, 3, 3]]
+           >> torch.tensor([0, 4, 0, 4, 0, 4, 0, 4], dtype=torch.uint8)) & 0x0F
+    h16 = (scales_h[:, 0].to(torch.int64) | (scales_h[:, 1].to(torch.int64) << 8)).unsqueeze(1)
+    high = (h16 >> torch.arange(0, 16, 2)) & 0x03
+    scales = low.to(torch.int64) | (high << 4)
+    dl = (d * (scales - 32).to(torch.float32)).reshape(blocks, 8, 1)
+    grid = torch.tensor(_IQ4_NL_VALUES, dtype=torch.float32)
+    nibbles = qs.reshape(blocks, 8, 16).to(torch.int64)
+    pairs = torch.cat([grid[nibbles & 0x0F], grid[nibbles >> 4]], dim=-1)
+    total = blocks * 256
+    if total % width:
+        raise ValueError("payload does not compose whole rows")
+    return (dl * pairs).reshape(total // width, width).clone()
 
 
 

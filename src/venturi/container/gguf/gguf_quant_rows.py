@@ -29,6 +29,7 @@ QUANT_TABLES = {
     8: ("decode_q8_0_rows", 32, 34),
     21: ("decode_iq3_s_rows", 256, 110),
     22: ("decode_iq2_s_rows", 256, 82),
+    23: ("decode_iq4_xs_rows", 256, 136),
     30: ("decode_bf16_rows", 1, 2),
 }
 
