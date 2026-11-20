@@ -236,10 +236,15 @@ class QwenSourcePlan:
             )
         return tuple(sorted(ignored))
 
-    def validate_checkpoint(self, checkpoint):
+    def validate_checkpoint(self, checkpoint, *, matrix_format="q8_g32_fp16"):
         if not isinstance(checkpoint, Checkpoint):
             raise TypeError("Expected inspected Checkpoint")
-        if QwenSourcePlan.from_config(dict(checkpoint.config)) != self:
+        if (
+            QwenSourcePlan.from_config(
+                dict(checkpoint.config), matrix_format=matrix_format
+            )
+            != self
+        ):
             raise CheckpointError("Source plan does not match checkpoint config")
         ignored = self.ignored_names(checkpoint.tensors)
         for spec in self.bindings:

@@ -50,12 +50,17 @@ class Span(C.Structure):
 
 
 class Matrix(C.Structure):
+    # PR-A per-matrix codecs: bits/group default to 0 = inherit the config's
+    # dominant format; a future exporter can set them per matrix to mix codecs
+    # in one checkpoint. Field order must match VRMatrix in qwen_runtime.cuh.
     _fields_ = [
         ("offset", C.c_uint64),
         ("high", C.c_uint64),
         ("scales", C.c_uint64),
         ("n", C.c_int),
         ("k", C.c_int),
+        ("bits", C.c_int),
+        ("group", C.c_int),
     ]
 
 
