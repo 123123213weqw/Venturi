@@ -104,7 +104,13 @@ class VerifiedQuantRows:
             inventory = inspect_gguf(path, expected_bytes=asset.bytes)
             directory = {tensor.name: tensor for tensor in inventory.tensors}
             tensor = directory.get(table_name)
-            if tensor is None or tensor.type_id != type_id or tuple(tensor.shape) != (rows, width):
+            # The bank may be declared 3-D [experts, rows_per_expert, width];
+            # its flat row space is (rows, width), so either representation of
+            # the same extent is admissible.
+            shape_ok = tuple(tensor.shape) == (rows, width) or (
+                len(expected_shape) == 3
+                and tuple(tensor.shape) == tuple(expected_shape))
+            if tensor is None or tensor.type_id != type_id or not shape_ok:
                 raise ValueError(f"Quant table name/dtype/shape differs: {table_name}")
             fingerprint = _fingerprint(before)
             if fingerprint != _fingerprint(os.fstat(stream.fileno())):
