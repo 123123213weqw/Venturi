@@ -1,0 +1,78 @@
+{
+ "host": {
+  "kernel": "Linux 6.8.0-136-generic",
+  "cpu_cores": 64,
+  "ram_gib": 251,
+  "storage": "/dev/sda MR9361-8i, queue/rotational=1 (spinning RAID), ext4, relatime"
+ },
+ "asset": {
+  "rows": 120000000,
+  "width": 128,
+  "row_bytes": 72,
+  "gib": 8.05,
+  "eviction": "posix_fadvise(POSIX_FADV_DONTNEED)"
+ },
+ "raw_device_probe": {
+  "note": "2 GiB probe file, 2000 random 72-byte reads, table fully evicted then fully warmed",
+  "cold_pread_us": {
+   "p50": 132,
+   "p99": 231
+  },
+  "warm_pread_us": {
+   "p50": 2,
+   "p99": 4
+  },
+  "ratio": 66
+ },
+ "cpu_reference": {
+  "sha256_mib_per_s": 316,
+  "note": "pure hashlib on resident 1 GiB; admission reached 259 MiB/s so admission is CPU-bound"
+ },
+ "stage_decomposition_t341": {
+  "note": "8182 unique rows, table fully resident, best of 3",
+  "pread_loop_ms": 10.8,
+  "join_ms": 0.2,
+  "sorted_set_ms": 3.05,
+  "positions_ms": 0.77,
+  "decode_scalar_ms": 308.7,
+  "index_select_ms": 0.17,
+  "stage_sum_ms": 323.69,
+  "measured_component_ms": 332.0,
+  "decode_share_of_stages_percent": 95.4,
+  "decode_over_pread": 28.6
+ },
+ "decode_vectorised": {
+  "note": "same 589,104 packed bytes, same output shape; the tool refuses to time a non-identical decode",
+  "bitwise_identical": true,
+  "max_abs_difference": 0.0,
+  "observations": [
+   {
+    "source": "ad hoc stage probe",
+    "scalar_ms": 301.58,
+    "vectorised_ms": 9.37,
+    "scalar_us_per_row": 36.86,
+    "vectorised_us_per_row": 1.14,
+    "speedup": 32.2
+   },
+   {
+    "source": "tools/probe_engram_decode_vectorised.py",
+    "scalar_ms": 303.95,
+    "vectorised_ms": 9.97,
+    "scalar_us_per_row": 37.15,
+    "vectorised_us_per_row": 1.22,
+    "speedup": 30.5
+   }
+  ]
+ },
+ "projection_t341_ms_per_token": {
+  "shipped_resident": 1.0,
+  "shipped_cold": 4.02,
+  "vectorised_decode_resident": 0.098,
+  "vectorised_decode_cold": 3.12,
+  "basis": "332.0 ms measured at T=341; decode term replaced by 9.97 ms; cold delta 1029.8 ms measured as cold minus warm at T=341"
+ },
+ "admission_projection": {
+  "110_gb_seconds_single_thread": 405,
+  "basis": "102.4 GiB / 259 MiB/s measured on this host"
+ }
+}
