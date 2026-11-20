@@ -533,13 +533,59 @@ class NativeQwenSession:
                         )
             return out
 
-    def generate(self, prompt_token_ids, *, max_new_tokens, eos_token_ids=()):
+    def generate(
+        self, prompt_token_ids, *, max_new_tokens, eos_token_ids=(), sampling=None
+    ):
+        """Greedy native loop by default; `sampling=SamplingParams(...)` runs a
+        model-agnostic temperature/top-k/top-p path driven from Python
+        (correctness-first; native sampling kernels are future work)."""
+        if sampling is not None:
+            return self._generate_sampled(
+                prompt_token_ids,
+                max_new_tokens=max_new_tokens,
+                eos_token_ids=eos_token_ids,
+                sampling=sampling,
+            )
         return self._generate_with(
             None,
             prompt_token_ids,
             max_new_tokens=max_new_tokens,
             eos_token_ids=eos_token_ids,
         )
+
+    def _generate_sampled(
+        self, prompt_token_ids, *, max_new_tokens, eos_token_ids, sampling
+    ):
+        from venturi.engine.sampling import SamplingParams, sample_token
+
+        if not isinstance(sampling, SamplingParams):
+            raise TypeError("sampling requires SamplingParams")
+        vocab = self.model._cfg["vocab_size"]
+        _ids(prompt_token_ids, vocab)
+        if type(max_new_tokens) is not int or not 1 <= max_new_tokens < 2**31:
+            raise ValueError("max_new_tokens must be positive int32")
+        if not isinstance(eos_token_ids, (tuple, list)):
+            raise ValueError("EOS IDs must be an explicit list/tuple")
+        if eos_token_ids:
+            _ids(eos_token_ids, vocab)
+        with self._lock:
+            self._check()
+            if len(prompt_token_ids) + max_new_tokens > self.capacity - self.position:
+                raise ValueError("Native Qwen generation exceeds capacity")
+            generator = None
+            if sampling.seed is not None:
+                generator = torch.Generator(device="cpu")
+                generator.manual_seed(sampling.seed)
+            logits = self.forward(list(prompt_token_ids))
+            tokens = []
+            for step in range(max_new_tokens):
+                token = sample_token(logits, sampling, generator)
+                tokens.append(token)
+                if token in eos_token_ids:
+                    break
+                if step + 1 < max_new_tokens:
+                    logits = self.forward([token])
+            return tokens
 
     def _generate_with(
         self, entry, prompt_token_ids, *, max_new_tokens, eos_token_ids=()

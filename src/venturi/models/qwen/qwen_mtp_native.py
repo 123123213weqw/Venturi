@@ -445,7 +445,12 @@ class NativeQwenMTPSession(NativeQwenSession):
         eos_token_ids=(),
         draft_tokens=1,
         recovery="replay",
+        sampling=None,
     ):
+        if sampling is not None:
+            raise ValueError(
+                "MTP speculative acceptance is exact-equality and greedy-only"
+            )
         if getattr(self, "_target_graph_enabled", False) and (
             draft_tokens != 2 or recovery != "prefix"
         ):
