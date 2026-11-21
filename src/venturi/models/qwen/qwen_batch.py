@@ -18,7 +18,7 @@ from venturi.models.qwen.qwen_native import NativeQwenModel
 from venturi.ops.vocabulary import _ids
 
 
-def _bind(backend):
+def _bind(backend, *, q5_prefill_reuse=False):
     ptr, integer, u64 = C.c_void_p, C.c_int, C.c_uint64
     signatures = {
         "create": ([ptr, ptr, integer], ptr),
@@ -35,7 +35,12 @@ def _bind(backend):
     }
     result = {}
     for name, (args, restype) in signatures.items():
-        fn = getattr(backend._native, "venturi_qwen_batch_" + name)
+        symbol = "venturi_qwen_batch_" + name
+        if name == "create" and q5_prefill_reuse:
+            symbol += "_q5_prefill_reuse"
+            if not hasattr(backend._native, symbol):
+                raise RuntimeError("Q5 prefill reuse requires a rebuilt Qwen library")
+        fn = getattr(backend._native, symbol)
         fn.argtypes, fn.restype = args, restype
         result[name] = fn
     return SimpleNamespace(**result)
@@ -51,7 +56,7 @@ class NativeQwenBatchSession:
         return self.model._cfg["vocab_size"]
 
     @classmethod
-    def create(cls, model, capacities):
+    def create(cls, model, capacities, *, q5_prefill_reuse=False):
         if type(model) is not NativeQwenModel or model._mode != "resident":
             raise ValueError(
                 "Batch requires a complete resident native target; PP/MTP wrappers are not batch targets"
@@ -65,7 +70,11 @@ class NativeQwenBatchSession:
             for c in capacities
         ):
             raise ValueError("Batch capacities exceed the model context")
-        native = _bind(model._runtime)
+        if type(q5_prefill_reuse) is not bool:
+            raise ValueError("q5_prefill_reuse must be an explicit bool")
+        if q5_prefill_reuse and (len(capacities) != 1 or model._max_tokens != 32):
+            raise ValueError("Q5 prefill reuse requires one slot and max_tokens=32")
+        native = _bind(model._runtime, q5_prefill_reuse=q5_prefill_reuse)
         with model._lock:
             if not model._finalizer.alive:
                 raise RuntimeError("Native Qwen model closed")

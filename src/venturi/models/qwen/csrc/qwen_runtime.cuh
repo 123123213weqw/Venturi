@@ -345,27 +345,34 @@ struct Model {
     }
     // Row-codec dense path: on-demand chunks (16GB-class cards) or a single
     // dense_run against the dequantized FP16 shadow (dequant_resident).
-    void row_dense_project(const VRMatrix& m,const void* x,const std::int8_t* codes,const unsigned char* high,const __half* scales,void* out,int t,int n_rows) {
+    void row_dense_project(const VRMatrix& m,const void* x,const std::int8_t* codes,const unsigned char* high,const __half* scales,void* out,int t,int n_rows,bool reuse_q5_unpack) {
         if (c.dequant_resident) {
             // codes pointer is the full FP16 shadow [n_rows, k]; one GEMM.
             op(venturi_dense_run(dense.ptr,x,codes,out,t,n_rows,m.k,blas_workspace.ptr,blas_workspace.bytes,stream.ptr));
             return;
         }
         const int chunk=q4_rows;
+        // A fixed activation tile preserves the GEMM shape and its rounding;
+        // only the unpack of immutable weights is shared between the calls.
+        const int token_tile=reuse_q5_unpack?16:t;
         for (int begin=0;begin<n_rows;begin+=chunk) {
             const int rows=std::min(chunk,n_rows-begin);
             op(venturi_row_dequant_rows(codes,high,scales,dequant.ptr,begin,rows,m.k,padded(m),matrix_bits(m),stream.ptr));
-            op(venturi_dense_run(dense.ptr,x,dequant.ptr,q4_chunk.ptr,t,rows,m.k,blas_workspace.ptr,blas_workspace.bytes,stream.ptr));
-            auto* destination=static_cast<char*>(out)+mul(begin,2);
-            if(t==1)check(cudaMemcpyAsync(destination,q4_chunk.ptr,mul(rows,2),cudaMemcpyDeviceToDevice,stream.ptr));
-            else check(cudaMemcpy2DAsync(destination,mul(n_rows,2),q4_chunk.ptr,mul(rows,2),
-                mul(rows,2),t,cudaMemcpyDeviceToDevice,stream.ptr));
+            for(int start=0;start<t;start+=token_tile) {
+                const int step=std::min(token_tile,t-start);
+                const auto* input=static_cast<const char*>(x)+mul(mul(start,m.k),2);
+                op(venturi_dense_run(dense.ptr,input,dequant.ptr,q4_chunk.ptr,step,rows,m.k,blas_workspace.ptr,blas_workspace.bytes,stream.ptr));
+                auto* destination=static_cast<char*>(out)+mul(add(mul(start,n_rows),begin),2);
+                if(step==1)check(cudaMemcpyAsync(destination,q4_chunk.ptr,mul(rows,2),cudaMemcpyDeviceToDevice,stream.ptr));
+                else check(cudaMemcpy2DAsync(destination,mul(n_rows,2),q4_chunk.ptr,mul(rows,2),
+                    mul(rows,2),step,cudaMemcpyDeviceToDevice,stream.ptr));
+            }
         }
     }
-    void project(const VRMatrix& m,const void* x,const std::int8_t* codes,const __half* scales,void* out,int t,int rows,Buffer& quant,cudaStream_t s,bool packed=false) {
+    void project(const VRMatrix& m,const void* x,const std::int8_t* codes,const __half* scales,void* out,int t,int rows,Buffer& quant,cudaStream_t s,bool packed=false,bool reuse_q5_unpack=false) {
         const auto& plan=*plans[matrix_bits(m)];
         if (c.dequant_resident || plan.path==rowcodec::Path::ChunkedDense) {
-            row_dense_project(m,x,codes,high_ptr(m),scales,out,t,rows);return;
+            row_dense_project(m,x,codes,high_ptr(m),scales,out,t,rows,reuse_q5_unpack);return;
         }
         if(plan.path==rowcodec::Path::Direct) {
             if(plan.hmma_run && t>=plan.min_hmma_tokens && m.k%plan.hmma_k_align==0 && rows>=16)
@@ -394,10 +401,10 @@ struct Model {
 #endif
         op(venturi_q8_dp4a_run(quant.ptr,quant.bytes,codes,scales,out,t,rows,m.k,padded(m),activation_passes,s));
     }
-    void linear(const VRMatrix& m,const void* x,void* out,int t,bool reuse_first=false,bool reuse_second=false) {
+    void linear(const VRMatrix& m,const void* x,void* out,int t,bool reuse_first=false,bool reuse_second=false,bool reuse_q5_unpack=false) {
         auto w=weight(m);
         const int nr=second_rows(m),nf=m.n-nr;
-        if (!nr) { project(m,x,w.first,w.second,out,t,m.n,first_quant,stream.ptr,reuse_first);return; }
+        if (!nr) { project(m,x,w.first,w.second,out,t,m.n,first_quant,stream.ptr,reuse_first,reuse_q5_unpack);return; }
         // Row shards evaluate complete dot products; gather FP16/BF16 results,
         // never rounded partial sums. The next producer event fences scratch
         // reuse until the previous peer output copy has completed.
@@ -493,16 +500,16 @@ struct Model {
         return false;
 #endif
     }
-    void shared_linears(const void* x,int t,std::initializer_list<std::pair<const VRMatrix*,void*>> projections) {
+    void shared_linears(const void* x,int t,std::initializer_list<std::pair<const VRMatrix*,void*>> projections,bool reuse_q5_unpack=false) {
         require(projections.size()>1 && projections.begin()->first,"invalid shared projection group");
         const int k=projections.begin()->first->k;
         for(const auto& p:projections)require(p.first && p.first->k==k && p.second && p.second!=x,"shared projection input/geometry mismatch");
-        if(grouped_linears(x,t,projections))return;
+        if(!reuse_q5_unpack && grouped_linears(x,t,projections))return;
         // Local, explicit scope only: no pointer-based cache survives a group,
         // layer, forward chunk, head, failed call, request switch or reset.
         bool first=false,second=false;
         for(const auto& p:projections) {
-            linear(*p.first,x,p.second,t,first,second);
+            linear(*p.first,x,p.second,t,first,second,reuse_q5_unpack);
             first=true;second=second || second_rows(*p.first)>0;
         }
     }
@@ -547,12 +554,12 @@ struct Model {
         op(venturi_rms_run(x,norm,out,t,c.hidden,c.dtype,c.epsilon,stream.ptr));
         return false;
     }
-    void mlp(const VRLayer& l,const void* x,void* gate,void* up,void* out,int t,bool materialize=false,bool packed_input=false) {
+    void mlp(const VRLayer& l,const void* x,void* gate,void* up,void* out,int t,bool materialize=false,bool packed_input=false,bool reuse_q5_unpack=false) {
         require(!packed_input || (column_mlp_enabled && activation_passes==2 && c.dtype==0),"packed MLP input requires column two-pass profile");
         if(!column_mlp_enabled) {
-            shared_linears(x,t,{{&l.matrix[4],gate},{&l.matrix[5],up}});
+            shared_linears(x,t,{{&l.matrix[4],gate},{&l.matrix[5],up}},reuse_q5_unpack);
             op(venturi_swiglu_run(gate,up,gate,mul(t,c.intermediate),c.dtype,stream.ptr));
-            linear(l.matrix[6],gate,out,t);return;
+            linear(l.matrix[6],gate,out,t,false,false,reuse_q5_unpack);return;
         }
         const int half=c.intermediate/2;const auto xb=mul(mul(t,c.hidden),2),partial_bytes=mul(xb,2);
         require(t>0 && t<=c.max_tokens && x && gate && up && out,"invalid column MLP operands");
