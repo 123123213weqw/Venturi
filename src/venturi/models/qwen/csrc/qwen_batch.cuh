@@ -10,9 +10,27 @@ struct Batch {
     Buffer value,last_hidden,head_input,selection,select_scratch;
     std::uint64_t extra_bytes=0,group_calls=0,input_rows=0,decode_calls=0,prefill_calls=0,head_calls=0,head_rows=0,max_rows=0;
     std::mutex mutex;
-    Batch(std::shared_ptr<Model> m,const int* capacities,int count):model(std::move(m)) {
+    const bool q5_prefill_reuse;
+    Batch(std::shared_ptr<Model> m,const int* capacities,int count,bool reuse=false):
+        model(std::move(m)),q5_prefill_reuse(reuse) {
         const auto& c=model->c;
         require(!model->stage && c.resident==1 && capacities && count>0 && count<=32 && count<=c.max_tokens,"batch requires a complete resident target and 1..min(32,max_tokens) slots");
+        if(q5_prefill_reuse) {
+            require(count==1 && c.max_tokens==32,"Q5 prefill reuse requires one slot and max_tokens=32");
+            require(VENTURI_BLOCKS_ARCH==70 && c.dtype==0 && c.weight_bits==5 &&
+                    c.weight_group==64 && !model->parallel() && !c.linear_implementation &&
+                    !c.dequant_resident && !model->activation_passes,
+                    "Q5 prefill reuse requires canonical resident SM70 Q5-G64 FP16");
+            for(const auto& layer:model->layers) {
+                require(layer.kind!=0 || layer.ab_fp32,"Q5 prefill reuse needs FP32 GDN side weights");
+                for(int i=0;i<7;++i) {
+                    if(layer.kind==0 && i==3)continue;
+                    const auto& w=layer.matrix[i];
+                    require(model->matrix_bits(w)==5 && model->matrix_group(w)==64 && w.k%64==0,
+                            "Q5 prefill reuse needs aligned Q5-G64 projections");
+                }
+            }
+        }
         std::uint64_t needed=Session::estimate(*model,std::min(c.max_tokens,c.max_position),false);
         for(int i=0;i<count;++i)needed=add(needed,Session::estimate(*model,capacities[i]));
         const auto additional=add(mul(mul(c.max_tokens,c.hkv*c.dim),2),add(mul(mul(count,c.hidden),4),mul(count,16+Session::min_tiles(c.vocab)*16)));
@@ -50,6 +68,7 @@ struct Batch {
         auto& m=*model;auto& w=*work;const auto& c=m.c;auto stream=m.stream.ptr;
         const int n=static_cast<int>(tokens.size()),width=2*c.gqk*c.gkd+c.gvh*c.gvd,qw=c.hq*c.dim,kw=c.hkv*c.dim;
         require(n>0 && n<=c.max_tokens,"batch row tile exceeds model workspace");
+        const bool reuse=q5_prefill_reuse && !decode && segments.size()==1 && n>16;
         if(m.kv_tier){std::vector<std::pair<KVTier::Entry*,std::uint64_t>> goals;for(const auto& g:segments)requests[g.slot]->kv_goals(goals,requests[g.slot]->position+g.count);m.kv_tier->prepare(goals);}
         w.embedding(tokens.data(),n,w.p("x"));void* x=w.p("x");void* out=w.p("out");
         std::vector<HeadGDNSegment> private_segments;if(m.head_gdn_enabled)private_segments.reserve(segments.size());
@@ -61,7 +80,7 @@ struct Batch {
                 for(const auto& segment:segments)private_segments.push_back(requests[segment.slot]->head_segment(index,segment.row,segment.count));
                 head_gdn_forward(m,index,w.p("normalized"),w.p("projected"),n,private_segments);
             } else if(l.kind==0) {
-                m.shared_linears(w.p("normalized"),n,{{&l.matrix[0],w.p("qkv")},{&l.matrix[1],w.p("z")}});
+                m.shared_linears(w.p("normalized"),n,{{&l.matrix[0],w.p("qkv")},{&l.matrix[1],w.p("z")}},reuse);
                 for(int j=0;j<2;++j) {
                     auto weight=j?l.b:l.a;auto output=w.p(j?"b":"a");
                     if(l.ab_fp32)op(venturi_fp32_linear_run(w.p("normalized"),static_cast<const float*>(weight),output,n,c.gvh,c.hidden,c.dtype,stream));
@@ -102,9 +121,9 @@ struct Batch {
                     else op((m.activation_passes==2?venturi_gdn_compact_run:venturi_gdn_run)(q,q+stride,q+2*stride,reinterpret_cast<const float*>(row("decay",r,c.gvh,4)),reinterpret_cast<const float*>(row("beta",r,c.gvh,4)),static_cast<const float*>(request.state[index]->ptr),row("recurrent",r,c.gvh*c.gvd),static_cast<float*>(request.state[index]->ptr),t,c.gqk,c.gvh,c.gkd,c.gvd,1,1,c.dtype,c.gdn_scale,stream));
                 }
                 op(venturi_gated_rms_run(w.p("recurrent"),w.p("z"),l.gamma,w.p("mixed"),n,c.gvh,c.gvd,c.dtype,l.gamma_fp32,c.epsilon,stream));
-                m.linear(l.matrix[2],w.p("mixed"),w.p("projected"),n);
+                m.linear(l.matrix[2],w.p("mixed"),w.p("projected"),n,false,false,reuse);
             } else {
-                m.shared_linears(w.p("normalized"),n,{{&l.matrix[0],w.p("qg")},{&l.matrix[1],w.p("key")},{&l.matrix[2],value.ptr}});
+                m.shared_linears(w.p("normalized"),n,{{&l.matrix[0],w.p("qg")},{&l.matrix[1],w.p("key")},{&l.matrix[2],value.ptr}},reuse);
                 if(false && segments.size()>1) {   // night-tps-20261117: disabled with the linear path above
                     // night-tps-20261116: per-segment KV copy + RoPE + attention on
                     // parallel streams (disjoint KV ranges and workspace rows).
@@ -136,11 +155,11 @@ struct Batch {
                     op(venturi_attention_run(row("query",r,qw),request.kv_ptr(index,0),request.kv_ptr(index,1),row("attended",r,qw),t,pos+t,c.hq,c.hkv,c.dim,c.dtype,c.attention_scale,stream));request.kv_written(index,pos+t);
                 }
                 op(venturi_qwen_gate_run(w.p("attended"),w.p("qg"),w.p("attended"),n,c.hq,c.dim,c.dtype,stream));
-                m.linear(l.matrix[3],w.p("attended"),w.p("projected"),n);
+                m.linear(l.matrix[3],w.p("attended"),w.p("projected"),n,false,false,reuse);
             }
             op(venturi_add_run(x,w.p("projected"),w.p("residual"),mul(n,c.hidden),c.dtype,stream));
             const bool packed_mlp=m.normalize_mlp(w.p("residual"),static_cast<const float*>(l.post),w.p("mlp_norm"),n);
-            m.mlp(l,w.p("mlp_norm"),w.p("mlp_gate"),w.p("mlp_up"),w.p("projected"),n,false,packed_mlp);
+            m.mlp(l,w.p("mlp_norm"),w.p("mlp_gate"),w.p("mlp_up"),w.p("projected"),n,false,packed_mlp,reuse);
             op(venturi_add_run(w.p("residual"),w.p("projected"),out,mul(n,c.hidden),c.dtype,stream));
             std::swap(x,out);
             for(const auto& segment:segments) {
@@ -212,9 +231,20 @@ struct Batch {
 };
 }
 
+namespace {
+void* create_qwen_batch(void* owner,const int* capacities,int count,bool q5_prefill_reuse) {
+    try {
+        vr::require(owner,"null batch target");auto m=*static_cast<vr::Handle*>(owner);
+        vr::Device device(m->c.device);std::lock_guard<std::mutex> lock(m->mutex);
+        m->source();return new vr::Batch(m,capacities,count,q5_prefill_reuse);
+    } catch(const std::exception& e){error_text=e.what();return nullptr;}
+}
+}
 extern "C" VENTURI_EXPORT void* venturi_qwen_batch_create(void* owner,const int* capacities,int count) {
-    try {vr::require(owner,"null batch target");auto m=*static_cast<vr::Handle*>(owner);vr::Device device(m->c.device);std::lock_guard<std::mutex> lock(m->mutex);m->source();return new vr::Batch(m,capacities,count);}
-    catch(const std::exception& e){error_text=e.what();return nullptr;}
+    return create_qwen_batch(owner,capacities,count,false);
+}
+extern "C" VENTURI_EXPORT void* venturi_qwen_batch_create_q5_prefill_reuse(void* owner,const int* capacities,int count) {
+    return create_qwen_batch(owner,capacities,count,true);
 }
 extern "C" VENTURI_EXPORT void venturi_qwen_batch_destroy(void* h){delete static_cast<vr::Batch*>(h);}
 extern "C" VENTURI_EXPORT int venturi_qwen_batch_forward(void* h,const int* slots,int count,const std::int64_t* tokens,const int* offsets,float* logits,std::uint64_t elements) {

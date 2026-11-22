@@ -72,6 +72,22 @@ kernel. Qwen runtime ABI is now 3 (operator ABI 18); old DSOs are rejected expli
 Config/Matrix/Layer size checks remain mandatory. PD/PP reject mismatched numerical
 implementation/shadow settings before state transfer.
 
+## Opt-in SM70 Q5 single-slot prefill unpack reuse
+
+For a resident canonical Q5-G64 FP16 model prepared with `max_tokens=32`,
+`model.create_batch([capacity], q5_prefill_reuse=True)` opts one batch into
+sharing each decoded weight shard across the 16-row cuBLAS calls of a 17–32
+row prefill step. Use a 32-row budget and `prefill_chunk_size=32` to reach
+the path in `ContinuousScheduler`. This changes reuse only: it does not
+substitute a new GEMM implementation, create a resident FP16 shadow or
+change the scheduler.
+
+The flag is off by default. The native constructor rejects a multi-slot batch
+even if most slots would be idle. Decode, the vocabulary head and prefill at
+most 16 rows are unchanged. Existing ABI 3 libraries still load for the default;
+the optional path requires the additive constructor from a rebuilt Qwen DSO.
+See [the V100 correctness and performance record](q5-prefill-reuse-sm70.md).
+
 ## Qualification and performance
 
 Operator checks must include independent decode/math, odd K tails, partial row
