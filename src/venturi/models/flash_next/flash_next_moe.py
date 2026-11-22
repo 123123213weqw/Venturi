@@ -61,11 +61,17 @@ class FlashNextTopKRouter(nn.Module):
             raise ValueError("Router input and weights must share dtype/device")
         x = hidden_states.reshape(-1, g.hidden_size)
         logits = F.linear(x, self.weight)
-        probabilities = F.softmax(logits, dtype=torch.float32, dim=-1)
-        values, indices = torch.topk(probabilities, g.top_k, dim=-1)
-        if g.normalize_topk:
-            values = values / values.sum(-1, keepdim=True)
-        return logits, values.to(logits.dtype), indices
+        # Delegates selection/weighting to the universal router math
+        # (venturi.models.moe.routing._route); CPU bit-equality with the
+        # previous local formula is locked by tests/test_flash_next_moe.py.
+        from venturi.models.moe.routing import _route
+        from venturi.models.moe_routing import RoutingSpec
+        weights, indices = _route(
+            logits.to(torch.float32),
+            torch.zeros_like(logits, dtype=torch.float32),
+            RoutingSpec(top_k=g.top_k, scoring="softmax", normalize=g.normalize_topk),
+        )
+        return logits, weights.to(logits.dtype), indices
 
 
 class TensorExpertStore:

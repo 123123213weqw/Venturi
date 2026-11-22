@@ -457,6 +457,16 @@ void launch_q8(const void* x,const std::int8_t* codes,const __half* scales,
         q8_tiled<T,2,1><<<n,256,0,stream>>>(
             static_cast<const T*>(x),codes,scales,static_cast<T*>(out),tokens,n,k,padded);
 #endif
+    } else if (tokens>16) {
+        // night-tps-20261116: wide decode cohorts re-read each weight row once
+        // per 8-token tile; 16/32-token tiles make fewer redundant weight passes
+        // (4x fewer at 32 concurrent decodes). Identical FMA/rounding
+        // arithmetic and activation padding; only the tile partitioning moves.
+        q8_tiled<T,32,1><<<n*(1+(tokens-1)/32),256,0,stream>>>(
+            static_cast<const T*>(x),codes,scales,static_cast<T*>(out),tokens,n,k,padded);
+    } else if (tokens>8) {
+        q8_tiled<T,16,1><<<n*(1+(tokens-1)/16),256,0,stream>>>(
+            static_cast<const T*>(x),codes,scales,static_cast<T*>(out),tokens,n,k,padded);
     } else if (tokens>1 && VENTURI_Q8_TOKEN_TILE!=1) {
         q8_tiled<T,VENTURI_Q8_TOKEN_TILE,1><<<n*(1+(tokens-1)/VENTURI_Q8_TOKEN_TILE),256,0,stream>>>(
             static_cast<const T*>(x),codes,scales,static_cast<T*>(out),tokens,n,k,padded);
@@ -1040,6 +1050,9 @@ extern "C" int venturi_qwen_gate_run(const void* x, const void* qg, void* out,
 #include "q8_column_tp.cuh"
 #include "q8_shared.cuh"
 #include "q8_fused.cuh"
+#include "q5_dp4a.cuh"
+#include "q5_hmma.cuh"
+#include "row_codec_dispatch.cuh"
 #include "q8_wmma.cuh"
 #include "q8_projection_dispatch.cuh"
 #include "q8_producer.cuh"
@@ -1048,6 +1061,19 @@ extern "C" int venturi_qwen_gate_run(const void* x, const void* qg, void* out,
 namespace vrow {
 #include "weight_dequant.cuh"
 #include "q4_fused.cuh"
+#include "q5_fused.cuh"
+}
+// q5 fused GEMM: reads q5_g64_fp16 codes + high plane directly, no FP16
+// materialization. W5A16 mirrors the q4 fused kernel geometry.
+extern "C" int venturi_q5_fused_run(const void* x,const void* codes,const void* high,const void* scales,void* out,int t,int rows,int k,int padded,int dtype,void* stream) {
+    try { require(x && codes && high && scales && out && t>0 && rows>0 && k>0 && padded>=k && padded%128==0 && dtype==0,"invalid q5 fused GEMM geometry");
+        const dim3 grid((rows+7)/8,t);
+        vrow::q5_fused_run_kernel<<<grid,256,0,static_cast<cudaStream_t>(stream)>>>(
+            static_cast<const __half*>(x),static_cast<const unsigned char*>(codes),
+            static_cast<const unsigned char*>(high),static_cast<const __half*>(scales),
+            static_cast<__half*>(out),t,rows,k,padded);
+        check(cudaGetLastError());return 0;
+    } catch (const std::exception& e) { error_text=e.what();return -1; }
 }
 // q4 fused GEMM: reads compressed nibble codes directly, no FP16 materialization.
 extern "C" int venturi_q4_fused_run(const void* x,const void* codes,const void* scales,void* out,int t,int rows,int k,int padded,int dtype,void* stream) {
