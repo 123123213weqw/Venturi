@@ -390,6 +390,25 @@ extern "C" VENTURI_EXPORT int venturi_qwen_batch_resident_info_v1(void* h,std::u
         std::copy(std::begin(values),std::end(values),out);return 0;
     }catch(const std::exception& e){error_text=e.what();return -1;}
 }
+extern "C" VENTURI_EXPORT int venturi_qwen_batch_prepare_dense_io_v1(void* h,int direct,std::uint64_t budget) {
+    try {
+        vr::require(h && (direct==0 || direct==1),"invalid explicit dense I/O settings");
+        auto& b=*static_cast<vr::Batch*>(h);auto& m=*b.model;
+        std::lock_guard<std::mutex> a(b.mutex),lock(m.mutex);vr::Device device(m.c.device);
+        m.source();m.prepare_dense_io(direct==1,budget);return 0;
+    }catch(const std::exception& e){error_text=e.what();return -1;}
+}
+extern "C" VENTURI_EXPORT int venturi_qwen_batch_dense_io_info_v1(void* h,std::uint64_t* out,int count) {
+    try {
+        vr::require(h && out && count==15,"invalid dense I/O counters");
+        auto& b=*static_cast<vr::Batch*>(h);auto& m=*b.model;
+        std::lock_guard<std::mutex> a(b.mutex),lock(m.mutex);const auto& s=m.dense_io;
+        const std::uint64_t values[]={m.prior_dense_workspace_bytes,vr::add(m.dequant.bytes,m.q4_chunk.bytes),
+            m.dequant.bytes,m.q4_chunk.bytes,s.budget,s.storage?s.storage->bytes:0,s.tiles.size(),
+            s.setup_ns,s.gemms,s.direct_gemms,s.output_copy_bytes,s.unpack_calls,s.unpack_bytes,s.cached_calls,s.cached_bytes};
+        std::copy(std::begin(values),std::end(values),out);return 0;
+    }catch(const std::exception& e){error_text=e.what();return -1;}
+}
 extern "C" VENTURI_EXPORT void venturi_qwen_batch_destroy(void* h){delete static_cast<vr::Batch*>(h);}
 extern "C" VENTURI_EXPORT int venturi_qwen_batch_forward(void* h,const int* slots,int count,const std::int64_t* tokens,const int* offsets,float* logits,std::uint64_t elements) {
     try {vr::require(h && logits,"null batch forward");auto& b=*static_cast<vr::Batch*>(h);std::lock_guard<std::mutex> a(b.mutex),lock(b.model->mutex);vr::Device device(b.model->c.device);auto ids=b.slots(slots,count);vr::require(elements==vr::mul(count,b.model->c.vocab),"batch logit shape mismatch");b.input(ids,tokens,offsets);

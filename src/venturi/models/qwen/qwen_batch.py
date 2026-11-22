@@ -37,6 +37,23 @@ _RESIDENT_COUNTERS = (
     "v_copy_bytes",
     "hidden_copy_bytes",
 )
+_DENSE_IO_COUNTERS = (
+    "prior_workspace_bytes",
+    "workspace_bytes",
+    "weight_scratch_bytes",
+    "output_scratch_bytes",
+    "shadow_budget_bytes",
+    "shadow_bytes",
+    "shadow_tiles",
+    "setup_ns",
+    "gemms",
+    "direct_gemms",
+    "output_copy_bytes",
+    "unpack_calls",
+    "unpack_bytes",
+    "shadow_hits",
+    "shadow_read_bytes",
+)
 
 
 def _bind(backend, *, q5_prefill_reuse=False, resident_options=False):
@@ -170,6 +187,55 @@ class NativeQwenBatchSession:
             values = (C.c_uint64 * len(_RESIDENT_COUNTERS))()
             self.model._runtime._check(fn(self._handle, values, len(values)))
             return dict(zip(_RESIDENT_COUNTERS, map(int, values), strict=True))
+
+    def prepare_dense_io(self, *, direct_outputs=False, shadow_budget_bytes=0):
+        """Opt in once per model, before inference, after reserving this batch's KV.
+
+        Workspace is geometry-sized independently of these options. Explicit
+        shadows share immutable shape-identical weight tiles across sessions.
+        """
+        if type(self) is not NativeQwenBatchSession:
+            raise ValueError("Dense I/O preparation requires an ordinary batch")
+        if (
+            type(direct_outputs) is not bool
+            or type(shadow_budget_bytes) is not int
+            or not 0 <= shadow_budget_bytes <= 2**64 - 1
+        ):
+            raise ValueError(
+                "Explicit direct_outputs bool and uint64 shadow budget required"
+            )
+        with self._lock:
+            self._check()
+            fn = getattr(
+                self.model._runtime._native,
+                "venturi_qwen_batch_prepare_dense_io_v1",
+                None,
+            )
+            if fn is None:
+                raise RuntimeError("Dense I/O requires a rebuilt Qwen library")
+            fn.argtypes, fn.restype = [C.c_void_p, C.c_int, C.c_uint64], C.c_int
+            self.model._runtime._check(
+                fn(self._handle, int(direct_outputs), shadow_budget_bytes)
+            )
+
+    def dense_io_info(self):
+        """Model-level counters; copy and unpack payloads are not DRAM counters."""
+        if type(self) is not NativeQwenBatchSession:
+            raise ValueError("Dense I/O counters require an ordinary batch")
+        with self._lock:
+            self._check()
+            fn = getattr(
+                self.model._runtime._native, "venturi_qwen_batch_dense_io_info_v1", None
+            )
+            if fn is None:
+                raise RuntimeError("Dense I/O counters require a rebuilt Qwen library")
+            fn.argtypes, fn.restype = (
+                [C.c_void_p, C.POINTER(C.c_uint64), C.c_int],
+                C.c_int,
+            )
+            values = (C.c_uint64 * len(_DENSE_IO_COUNTERS))()
+            self.model._runtime._check(fn(self._handle, values, len(values)))
+        return dict(zip(_DENSE_IO_COUNTERS, map(int, values), strict=True))
 
     def _check(self):
         if not self._finalizer.alive:

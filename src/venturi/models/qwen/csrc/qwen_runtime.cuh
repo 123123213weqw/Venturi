@@ -168,9 +168,17 @@ struct Model {
     Buffer column_local,column_remote,column_peer,column_gu,column_activation;
     Pinned column_host;
     Buffer first_quant,second_quant;
-    // q4 dense-qualification path: bounded dequant chunks (rows fixed, K-dependent
-    // sizing at construction), the chunked GEMM output tile, and the embedding rows.
-    Buffer dequant,q4_chunk,q4_embed;int q4_rows=8192;
+    // Row-codec canonical dense path. Size scratch for the largest *actual*
+    // (row tile, K) pair, not the product of unrelated maxima.
+    Buffer dequant,q4_chunk;int q4_rows=8192;
+    std::uint64_t prior_dense_workspace_bytes=0;
+    struct DenseIO {
+        bool prepared=false,direct=false;
+        std::unique_ptr<Buffer> storage;
+        std::map<std::pair<std::uint64_t,int>,std::uint64_t> tiles;
+        std::uint64_t budget=0,setup_ns=0,gemms=0,direct_gemms=0,output_copy_bytes=0;
+        std::uint64_t unpack_calls=0,unpack_bytes=0,cached_calls=0,cached_bytes=0;
+    } dense_io;
     Stream stream;
     Stream second_stream;
     Event first_ready,second_ready;
@@ -343,6 +351,55 @@ struct Model {
         }
         sync();
     }
+    void prepare_dense_io(bool direct,std::uint64_t budget) {
+        require(!dense_io.prepared && !dense_io.gemms,
+            "prepare dense I/O once before the first row-codec projection");
+        require(c.resident && !parallel() && !stage && !kv_tier && !activation_passes &&
+                !c.dequant_resident && c.dtype==0 && dequant.ptr,
+            "dense I/O requires resident single-device chunked FP16 projection and static KV");
+        const auto started=native_clock();
+        decltype(dense_io.tiles) selected;
+        std::uint64_t bytes=0;
+        auto choose=[&](const VRMatrix& w) {
+            if(!row_codec(w) || plans[matrix_bits(w)]->path!=rowcodec::Path::ChunkedDense)return;
+            for(int begin=0;begin<w.n;) {
+                const int rows=std::min(q4_rows,w.n-begin);
+                const auto key=std::make_pair(w.offset,begin);
+                if(!selected.count(key)) {
+                    const auto need=mul(mul(rows,w.k),2);
+                    const auto offset=align256(bytes);
+                    if(offset<=budget && need<=budget-offset) {
+                        selected.emplace(key,offset);bytes=add(offset,need);
+                    }
+                }
+                begin+=rows;
+            }
+        };
+        // Trunk matrices are traversed on every group (the vocabulary head is
+        // not); stable layer order, byte budget, no hot-path allocation or LRU.
+        if(budget) {
+            for(const auto& l:layers)for(int j=0;j<7;++j)
+                if(l.kind!=0 || j!=3)choose(l.matrix[j]);
+            choose(head);
+        }
+        std::unique_ptr<Buffer> storage;
+        if(bytes) {
+            guard(bytes);storage=std::make_unique<Buffer>();storage->allocate(bytes);
+            try {
+                for(const auto& [key,offset]:selected) {
+                    const auto& w=matrices.at(key.first);const int rows=std::min(q4_rows,w.n-key.second);
+                    const auto [codes,scales]=weight(w);
+                    op(venturi_row_dequant_rows(codes,high_ptr(w),scales,storage->at(offset),
+                        key.second,rows,w.k,padded(w),matrix_bits(w),stream.ptr));
+                }
+                sync();source();
+            } catch(...) {try {sync();}catch(...){} throw;}
+        }
+        device_bytes=add(device_bytes,bytes);
+        dense_io.budget=budget;dense_io.direct=direct;dense_io.storage=std::move(storage);
+        dense_io.tiles=std::move(selected);dense_io.prepared=true;
+        dense_io.setup_ns=std::uint64_t((native_clock()-started)*1e9);
+    }
     // Row-codec dense path: on-demand chunks (16GB-class cards) or a single
     // dense_run against the dequantized FP16 shadow (dequant_resident).
     void row_dense_project(const VRMatrix& m,const void* x,const std::int8_t* codes,const unsigned char* high,const __half* scales,void* out,int t,int n_rows,bool reuse_q5_unpack) {
@@ -357,15 +414,34 @@ struct Model {
         const int token_tile=reuse_q5_unpack?16:t;
         for (int begin=0;begin<n_rows;begin+=chunk) {
             const int rows=std::min(chunk,n_rows-begin);
-            op(venturi_row_dequant_rows(codes,high,scales,dequant.ptr,begin,rows,m.k,padded(m),matrix_bits(m),stream.ptr));
+            const auto bytes=mul(mul(rows,m.k),2);
+            const void* dense_weight=dequant.ptr;
+            const auto stored=dense_io.tiles.find({m.offset,begin});
+            if(stored!=dense_io.tiles.end()) {
+                dense_weight=dense_io.storage->at(stored->second);
+                ++dense_io.cached_calls;dense_io.cached_bytes=add(dense_io.cached_bytes,bytes);
+            } else {
+                op(venturi_row_dequant_rows(codes,high,scales,dequant.ptr,begin,rows,m.k,padded(m),matrix_bits(m),stream.ptr));
+                ++dense_io.unpack_calls;dense_io.unpack_bytes=add(dense_io.unpack_bytes,bytes);
+            }
             for(int start=0;start<t;start+=token_tile) {
                 const int step=std::min(token_tile,t-start);
                 const auto* input=static_cast<const char*>(x)+mul(mul(start,m.k),2);
-                op(venturi_dense_run(dense.ptr,input,dequant.ptr,q4_chunk.ptr,step,rows,m.k,blas_workspace.ptr,blas_workspace.bytes,stream.ptr));
                 auto* destination=static_cast<char*>(out)+mul(add(mul(start,n_rows),begin),2);
-                if(step==1)check(cudaMemcpyAsync(destination,q4_chunk.ptr,mul(rows,2),cudaMemcpyDeviceToDevice,stream.ptr));
-                else check(cudaMemcpy2DAsync(destination,mul(n_rows,2),q4_chunk.ptr,mul(rows,2),
-                    mul(rows,2),step,cudaMemcpyDeviceToDevice,stream.ptr));
+                // Keep the exact M/N/K, cuBLAS compute mode and ldc. For
+                // multiple rows and a split output shard, ldc would differ.
+                const bool direct=dense_io.direct && (step==1 || rows==n_rows) &&
+                    !(reinterpret_cast<std::uintptr_t>(destination)&255u);
+                op(venturi_dense_run(dense.ptr,input,dense_weight,direct?destination:q4_chunk.ptr,
+                    step,rows,m.k,blas_workspace.ptr,blas_workspace.bytes,stream.ptr));
+                ++dense_io.gemms;
+                if(direct)++dense_io.direct_gemms;
+                else {
+                    dense_io.output_copy_bytes=add(dense_io.output_copy_bytes,mul(mul(rows,step),2));
+                    if(step==1)check(cudaMemcpyAsync(destination,q4_chunk.ptr,mul(rows,2),cudaMemcpyDeviceToDevice,stream.ptr));
+                    else check(cudaMemcpy2DAsync(destination,mul(n_rows,2),q4_chunk.ptr,mul(rows,2),
+                        mul(rows,2),step,cudaMemcpyDeviceToDevice,stream.ptr));
+                }
             }
         }
     }
@@ -740,14 +816,18 @@ struct Model {
         }
         if(quant){first_quant.allocate(quant);device_bytes=add(device_bytes,quant);}
         if (has_row_weights && !c.dequant_resident) {
-            // Dense-qualification scratch: one row-chunk of FP16 weights (rows
-            // fixed, K-dependent), the chunked GEMM output tile, and embedding rows.
-            const auto dequant_bytes=mul(mul(q4_rows,maxk),2);
-            guard(add(dequant_bytes,mul(mul(c.max_tokens,add(q4_rows,c.hidden)),2)));
-            dequant.allocate(dequant_bytes);
-            q4_chunk.allocate(mul(mul(c.max_tokens,q4_rows),2));
-            q4_embed.allocate(mul(mul(c.max_tokens,c.hidden),2));
-            device_bytes=add(device_bytes,add(dequant.bytes,add(q4_chunk.bytes,q4_embed.bytes)));
+            std::uint64_t max_elements=0,max_rows=0;
+            for(const auto& [_,w]:matrices) {
+                if(!row_codec(w) || plans[matrix_bits(w)]->path!=rowcodec::Path::ChunkedDense)continue;
+                const auto rows=static_cast<std::uint64_t>(std::min(q4_rows,w.n));
+                max_rows=std::max(max_rows,rows);
+                max_elements=std::max(max_elements,mul(rows,w.k));
+            }
+            const auto weight_bytes=mul(max_elements,2),output_bytes=mul(mul(c.max_tokens,max_rows),2);
+            prior_dense_workspace_bytes=add(mul(mul(q4_rows,maxk),2),mul(mul(c.max_tokens,add(q4_rows,c.hidden)),2));
+            guard(add(weight_bytes,output_bytes));
+            dequant.allocate(weight_bytes);q4_chunk.allocate(output_bytes);
+            device_bytes=add(device_bytes,add(dequant.bytes,q4_chunk.bytes));
         }
         if (parallel()) {
             if (c.peer_transport==0) {
