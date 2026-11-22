@@ -16,7 +16,7 @@ from torch import nn
 class Glm5HyperConnection(nn.Module):
     """mHC: Sinkhorn-mixed multi-stream residual for GLM-5.3-Flash."""
 
-    def __init__(self, streams, hidden_size, sinkhorn_iterations=20, eps=1e-6):
+    def __init__(self, streams, hidden_size, sinkhorn_iterations=20, eps=1e-6, norm_eps=1e-5):
         super().__init__()
         self.streams = streams
         self.hidden_size = hidden_size
@@ -27,11 +27,12 @@ class Glm5HyperConnection(nn.Module):
         self.fn = nn.Parameter(torch.randn(total, streams * hidden_size) * 0.02)
         self.base = nn.Parameter(torch.zeros(total))
         self.scale = nn.Parameter(torch.ones(3))
-        # Unweighted RMSNorm (no learnable weight)
-        self.norm_eps = eps
+        # Unweighted RMSNorm uses the model's rms_norm_eps (transformers), not hc_eps
+        self.norm_eps = norm_eps
 
     def _unweighted_rms(self, x):
-        return x.float() * torch.rsqrt(x.float().pow(2).mean(-1, keepdim=True) + self.norm_eps)
+        normed = x.float() * torch.rsqrt(x.float().square().mean(-1, keepdim=True) + self.norm_eps)
+        return normed.to(x.dtype)
 
     def forward(self, hidden_streams):
         """Compute (post, comb, collapsed) from streams [B,T,N,D].
@@ -44,21 +45,26 @@ class Glm5HyperConnection(nn.Module):
         batch, length, streams, dim = hidden_streams.shape
         dtype = hidden_streams.dtype
 
-        flat = hidden_streams.reshape(batch * length, streams * dim)
+        flat = hidden_streams.reshape(batch * length, streams * dim).float()
         normed = self._unweighted_rms(flat)
-        # FP32 projection
-        coefficients = F.linear(normed, self.fn.float()) + self.base.float()
-
+        # FP32 projection; the base bias is added per-coefficient AFTER the
+        # scale multiply (transformers: sigmoid(w*scale + b), not (w+b)*scale)
+        coefficients = F.linear(normed, self.fn.float())
         n = self.streams
         pre_w, post_w, comb_w = coefficients.split([n, n, n * n], dim=-1)
+        pre_b, post_b, comb_b = self.base.float().split([n, n, n * n])
         pre_scale, post_scale, comb_scale = self.scale.float().unbind(0)
 
         # Activations (transformers: sigmoid + eps for pre, 2*sigmoid for post, softmax + eps for comb)
-        pre = torch.sigmoid(pre_w * pre_scale) + self.eps
-        post = 2 * torch.sigmoid(post_w * post_scale)
-        # Reshape comb to [B*T, N, N] BEFORE Sinkhorn (dim=-2/-1 need the matrix form)
-        comb = torch.softmax(comb_w * comb_scale, dim=-1) + self.eps
-        comb = comb.view(batch * length, n, n)
+        pre = torch.sigmoid(pre_w * pre_scale + pre_b) + self.eps
+        post = 2 * torch.sigmoid(post_w * post_scale + post_b)
+        # comb softmax runs PER MATRIX ROW: view [B*T, N, N] first (transformers
+        # reshapes before softmax); softmax over the flat N*N vector is a
+        # different distribution and Sinkhorn does not erase the difference
+        # for real (non-uniform) weights.
+        comb = torch.softmax(
+            comb_w.view(batch * length, n, n) * comb_scale + comb_b.view(n, n),
+            dim=-1) + self.eps
 
         # Sinkhorn-Knopp: column first, then alternate row/column
         comb = comb / (comb.sum(dim=-2, keepdim=True) + self.eps)

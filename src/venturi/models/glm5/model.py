@@ -59,7 +59,10 @@ class Glm5TextModel(nn.Module):
         states = []
         topk = None
         start = past.tokens_seen if past else 0
-        for i, layer in enumerate(self.layers):
+        # Main logits come from the num_layers trunk ONLY. The trailing
+        # nextn/MTP blocks are draft heads (transformers runs them as a
+        # separate model); they stay constructed/loaded but out of the path.
+        for i, layer in enumerate(self.layers[:g.num_layers]):
             layer_past = past.layers[i] if past else None
             hidden_streams, state, topk = layer(
                 hidden_streams, past=layer_past,

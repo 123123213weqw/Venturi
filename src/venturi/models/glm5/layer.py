@@ -40,8 +40,8 @@ class Glm5DecoderLayer(nn.Module):
         super().__init__()
         self.hidden_size = hidden_size
         self.eps = eps
-        self.attn_hc = Glm5HyperConnection(streams, hidden_size, hc_iters, hc_eps)
-        self.ffn_hc = Glm5HyperConnection(streams, hidden_size, hc_iters, hc_eps)
+        self.attn_hc = Glm5HyperConnection(streams, hidden_size, hc_iters, hc_eps, eps)
+        self.ffn_hc = Glm5HyperConnection(streams, hidden_size, hc_iters, hc_eps, eps)
         self.attn_norm_weight = nn.Parameter(torch.ones(hidden_size))
         self.ffn_norm_weight = nn.Parameter(torch.ones(hidden_size))
         # Sub-modules assigned externally (attention: Glm5KDA|Glm5MLA; mlp: DenseMLP|MoE)
