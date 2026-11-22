@@ -861,7 +861,6 @@ struct Session {
         std::uint64_t n=add(mul(mul(widths,t),2),m.head_gdn_enabled?0:mul(mul(t,c.gvh),8));
         n=add(n,add(mul(mul(t,c.vocab),2),mul(t,8)));
         n=add(n,add(mul(mul(capacity,c.rotary/2),8),16+min_tiles(c.vocab)*16));
-        if (m.row_codec(m.embedding) && !m.c.dequant_resident) n=add(n,add(mul(t,8),mul(mul(t,c.hidden),2)));  // ids2 + dequantized embedding rows
         for (int i=m.begin;caches && i<m.end;++i) {const auto& l=m.layers[i];n=add(n,l.kind==0 ? (add(mul(mul(c.convolution-1,packed),2),mul(mul(c.gvh*c.gvd,c.gkd),4))/(m.head_gdn_enabled?2:1)) : (m.kv_tier?0:mul(mul(capacity,kw),4)));}
         return n;
     }
@@ -885,7 +884,6 @@ struct Session {
         for (auto name: {"mlp_gate","mlp_up"}) alloc(name,mul(mul(t,c.intermediate),2));
         alloc("qg",mul(mul(t,qw),4));alloc("query",mul(mul(t,qw),2));alloc("attended",mul(mul(t,qw),2));alloc("key",mul(mul(t,kw),2));
         alloc("logits",mul(mul(t,c.vocab),2));alloc("ids",mul(t,8));alloc("selection",16);alloc("select_scratch",min_tiles(c.vocab)*16);
-        if (md.row_codec(md.embedding) && !md.c.dequant_resident) { alloc("ids2",mul(t,8));alloc("q4_rows_out",mul(mul(t,c.hidden),2)); }
         alloc("cos",mul(mul(cap,c.rotary/2),4));alloc("sin",mul(mul(cap,c.rotary/2),4));
         tiered_kv.resize(c.layers);history.resize(c.layers);state.resize(c.layers);keys.resize(c.layers);values.resize(c.layers);peer_history.resize(c.layers);peer_state.resize(c.layers);
         next_attn.assign(c.layers,-1);for(int i=c.layers-2;i>=0;--i)next_attn[i]=md.layers[i+1].kind!=0?i+1:next_attn[i+1];
@@ -988,14 +986,11 @@ struct Session {
                 // Shadow holds the full FP16 embedding matrix; direct gather.
                 op(venturi_embedding_run(w.first,static_cast<const std::int64_t*>(p("ids")),out,t,c.vocab,c.hidden,c.dtype,m.stream.ptr));
             } else if (m.row_codec(e)) {
-                // Indexed row-codec dequant into contiguous FP16 rows, then the
-                // existing dense FP16 embedding gather (ids rebased to 0..t-1).
-                auto& ids_local=ids;
-                for (int i=0;i<t;++i) ids_local[i]=i;
-                check(cudaMemcpyAsync(p("ids2"),ids_local.data(),t*8,cudaMemcpyHostToDevice,m.stream.ptr));
+                // Indexed row dequant already writes contiguous, ordered rows.
+                // Store into the final activation instead of gathering them again
+                // with an identity ID array. The decode/rounding is unchanged.
                 op(venturi_row_dequant_indexed(w.first,m.high_ptr(e),w.second,static_cast<const std::int64_t*>(p("ids")),
-                    static_cast<__half*>(p("q4_rows_out")),t,c.hidden,padded(e),m.matrix_bits(e),m.stream.ptr));
-                op(venturi_embedding_run(p("q4_rows_out"),static_cast<const std::int64_t*>(p("ids2")),out,t,t,c.hidden,c.dtype,m.stream.ptr));
+                    out,t,c.hidden,padded(e),m.matrix_bits(e),m.stream.ptr));
             } else
             op(venturi_q8_embedding_run(w.first,w.second,static_cast<const std::int64_t*>(p("ids")),out,t,c.vocab,c.hidden,padded(e),c.dtype,m.stream.ptr));
         } else {
