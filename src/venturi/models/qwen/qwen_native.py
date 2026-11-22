@@ -363,16 +363,29 @@ class NativeQwenModel:
                 self._runtime._check(-1)
             return NativeQwenSession(self, h, capacity)
 
-    def create_batch(self, capacities, *, q5_prefill_reuse=False):
+    def create_batch(
+        self,
+        capacities,
+        *,
+        q5_prefill_reuse=False,
+        resident_dataflow=False,
+        attention_execution="legacy",
+    ):
         """Keep independent request caches; optionally reuse unpack in SM70 Q5 C1.
 
         The optional path requires one slot and a 32-row workspace. It keeps
         the 16-row GEMM split when a prefill step carries 17–32 rows.
+        Resident dataflow and descriptor/graph attention are separate opt-ins
+        for the single-device, private contiguous KV path.
         """
         from venturi.models.qwen.qwen_batch import NativeQwenBatchSession
 
         return NativeQwenBatchSession.create(
-            self, capacities, q5_prefill_reuse=q5_prefill_reuse
+            self,
+            capacities,
+            q5_prefill_reuse=q5_prefill_reuse,
+            resident_dataflow=resident_dataflow,
+            attention_execution=attention_execution,
         )
 
     def close(self):

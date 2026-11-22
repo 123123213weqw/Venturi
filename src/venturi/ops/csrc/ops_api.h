@@ -7,6 +7,15 @@
 #define VENTURI_EXPORT __attribute__((visibility("default")))
 struct VQFOutput {const std::int8_t* codes;const __half* scales;__half* out;int n,stride;};
 static_assert(sizeof(VQFOutput)==32);
+struct VDecodeAttentionRow {
+    void* key;
+    const void* value;
+    const float* cos;
+    const float* sin;
+    int position;
+    int reserved;
+};
+static_assert(sizeof(VDecodeAttentionRow)==40);
 extern "C" {
 VENTURI_EXPORT int venturi_add_run(const void* a, const void* b, void* out,
                               std::int64_t count, int dtype, void* stream);
@@ -88,6 +97,12 @@ VENTURI_EXPORT int venturi_qwen_qk_run(const void* qg, const void* key,
     const float* qgamma, const float* kgamma, const float* cos, const float* sin,
     void* qout, void* kout, int tokens, int hq, int hkv, int d, int r, int dtype,
     float epsilon, void* raw_stream);
+// Device-side descriptors are validated by the owning batch before upload.
+// One packed query/key input row per request; every row appends exactly one key.
+VENTURI_EXPORT int venturi_qwen_decode_attention_f16(
+    const void* qg,const void* key,const float* qgamma,const float* kgamma,
+    const VDecodeAttentionRow* device_rows,void* query,void* output,
+    int count,int hq,int hkv,int d,int r,float epsilon,float scale,void* stream);
 VENTURI_EXPORT int venturi_rms_q8_quantize(const void* x,const float* w,void* workspace,std::uint64_t available,
     int t,int k,float epsilon,int chunk,void* intermediate,void* raw_stream);
 VENTURI_EXPORT int venturi_rms_run(const void* x, const float* w, void* out, int tokens,

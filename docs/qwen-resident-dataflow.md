@@ -27,42 +27,54 @@ VENTURI_IO_BASE_LIBRARY, VENTURI_IO_CANDIDATE_LIBRARY and
 VENTURI_IO_OPS_LIBRARY. Operator equivalence does not grant new codec
 admission.
 
-## Next candidates: copies and commit boundary
+## Control and comparison
 
-- Batch attention projects V to a temporary group tensor, then copies each
-  request slice into its private cache. Write straight to the destination
-  when it is contiguous and disjoint; retain the scatter path for noncontiguous
-  slots or paged layouts until a safe strided output contract exists. The
-  validity frontier must not advance on failed writes.
-- The trunk writes every segment's last hidden row to slot storage; the
-  sampling head gathers selected rows again. In a sampled step with all needed
-  rows still resident, make the head consume them directly or gather them
-  once. No premature storage reuse when a different API needs the old row.
-- Separate enqueue from commit. A terminal sampled step currently fences
-  between the trunk and head even though GPU consumers are ordered; a later
-  change should prove that one completion fence can cover both. Preserve
-  source validation, result/error publication and poisoning/reset semantics.
-  Do not apply this automatically to peer transport, spill or debug traces.
+Use a matched 2x2 test (old/new dataflow by descriptor-eager/descriptor-replay)
+and retain the original pointer-based eager path as a reference. Measure
+CUDA copy counts and bytes, kernel time, timeline/CPU gaps and graph hit
+fraction; report capture/instantiate time separately from warm TPS. Check
+logits, KV/GDN and cancellation/reset before scoring rolling SSE at matched
+arrival patterns. The repository's experimental head-GDN graph is a separate
+TP path, not evidence for this single-device batch.
 
-## Graph experiment, not implemented here
+## Resident batch prototype
 
-Start with the resident single-GPU pure-decode attention subgraph. Keep the
-shape and backing allocations stable; place slot/position/valid length and
-cache descriptors in a fixed-address device buffer. Enqueue descriptor
-updates outside capture. Do not capture one graph per sequence position or
-scan a full maximum-capacity cache just to pretend positions are static.
+The guarded prototype implements the two paths independently on a prepared
+single-device batch with private contiguous KV:
 
-Support a few reusable participation buckets first, not every ragged shape.
-A graph miss uses the same eager numerical path. Keep cache allocation,
-scheduler decisions, source checks, error handling and completion sync out
-of the captured region. Scope executable and storage lifetimes to the owning
-replica. Reset/cancel/reuse must invalidate ownership before old graph inputs
-could be observed. The repository's existing native head-GDN graph is a
-separate experimental TP path, not proof ordinary Qwen batch already does this.
+```python
+batch = model.create_batch(
+    [1024] * 4,
+    resident_dataflow=True,
+    attention_execution="graph",
+)
+print(batch.resident_execution_info())
+```
 
-Use a matched 2x2 test (old/new dataflow by eager/replay). Measure CUDA copy
-counts and bytes, kernel time, timeline/CPU gaps and graph hit fraction; report
-capture/instantiate time separately from warm TPS. Check logits, KV/GDN
-and cancellation/reset before scoring short and long rolling SSE at matched
-arrival patterns. Do not promise a large graph speedup if GPU compute or KV
-traffic already dominates the critical path.
+- With resident dataflow, a one-segment V projection targets its cache
+  allocation directly. Disjoint slots retain the existing staging/copy.
+  An immediate greedy head reads consecutive last rows in place or gathers
+  its required rows once. The eager path still stores last-hidden for APIs
+  that separate prefill from head. In a combined step, only the head fences;
+  request positions advance after completion and finite-result validation.
+- `legacy` (default) uses the original per-segment attention. `descriptor`
+  batches the same per-query reduction and reads actual KV lengths from one
+  upload per pure-decode iteration. `graph` replays those exact kernels and
+  the output gate for native M=1/2/4/8; other widths run descriptor-eager.
+  Mixed iterations keep the legacy attention path. No allocation or state
+  frontier update is captured. No query/KV padding to a maximum length.
+- The capture cache is bounded by four widths per full-attention layer and
+  owned by the batch. It is keyed by layer and width, not slot or position.
+  Buffers remain live until graph destruction. First capture is on use, not
+  preflight; prepare expected widths before timing latency-sensitive work.
+  Invalid CUDA execution poisons the normal participating slots and requires
+  reset rather than silently pretending a failed graph completed.
+- `resident_execution_info()` reports cumulative submissions, descriptor
+  transfer bytes, copy bytes, explicit completion fences, graph hit/fallback
+  and host capture/instantiate time. Bytes are copy payloads, not measured
+  HBM bandwidth. Default legacy batching and older native pairs do not
+  require the additive resident creation entry. Both experiments stay off. Do not switch a live batch's execution path.
+
+`tests/test_qwen_resident_batch_flow.py` compares raw state across all six
+combinations with rotating slot order, changing positions, ragged head
+selection, an injected failure and reset. Qwen/ops must be a newly paired build.

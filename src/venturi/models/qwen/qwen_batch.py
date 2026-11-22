@@ -18,7 +18,28 @@ from venturi.models.qwen.qwen_native import NativeQwenModel
 from venturi.ops.vocabulary import _ids
 
 
-def _bind(backend, *, q5_prefill_reuse=False):
+_ATTENTION_EXECUTION = {"legacy": 0, "descriptor": 1, "graph": 2}
+_RESIDENT_COUNTERS = (
+    "direct_v",
+    "v_copies",
+    "direct_hidden",
+    "hidden_copies",
+    "completion_fences",
+    "descriptor_steps",
+    "descriptor_bytes_uploaded",
+    "graph_captures",
+    "graph_replays",
+    "descriptor_eager_layers",
+    "graph_fallback_layers",
+    "capture_ns",
+    "device_descriptor_bytes",
+    "pinned_descriptor_bytes",
+    "v_copy_bytes",
+    "hidden_copy_bytes",
+)
+
+
+def _bind(backend, *, q5_prefill_reuse=False, resident_options=False):
     ptr, integer, u64 = C.c_void_p, C.c_int, C.c_uint64
     signatures = {
         "create": ([ptr, ptr, integer], ptr),
@@ -36,7 +57,14 @@ def _bind(backend, *, q5_prefill_reuse=False):
     result = {}
     for name, (args, restype) in signatures.items():
         symbol = "venturi_qwen_batch_" + name
-        if name == "create" and q5_prefill_reuse:
+        if name == "create" and resident_options:
+            symbol += "_resident_v1"
+            args = [*args, integer, integer, integer]
+            if not hasattr(backend._native, symbol):
+                raise RuntimeError(
+                    "Resident batch modes require a rebuilt Qwen library"
+                )
+        elif name == "create" and q5_prefill_reuse:
             symbol += "_q5_prefill_reuse"
             if not hasattr(backend._native, symbol):
                 raise RuntimeError("Q5 prefill reuse requires a rebuilt Qwen library")
@@ -56,7 +84,15 @@ class NativeQwenBatchSession:
         return self.model._cfg["vocab_size"]
 
     @classmethod
-    def create(cls, model, capacities, *, q5_prefill_reuse=False):
+    def create(
+        cls,
+        model,
+        capacities,
+        *,
+        q5_prefill_reuse=False,
+        resident_dataflow=False,
+        attention_execution="legacy",
+    ):
         if type(model) is not NativeQwenModel or model._mode != "resident":
             raise ValueError(
                 "Batch requires a complete resident native target; PP/MTP wrappers are not batch targets"
@@ -74,13 +110,33 @@ class NativeQwenBatchSession:
             raise ValueError("q5_prefill_reuse must be an explicit bool")
         if q5_prefill_reuse and (len(capacities) != 1 or model._max_tokens != 32):
             raise ValueError("Q5 prefill reuse requires one slot and max_tokens=32")
-        native = _bind(model._runtime, q5_prefill_reuse=q5_prefill_reuse)
+        if type(resident_dataflow) is not bool:
+            raise ValueError("resident_dataflow must be an explicit bool")
+        if (
+            type(attention_execution) is not str
+            or attention_execution not in _ATTENTION_EXECUTION
+        ):
+            raise ValueError("attention_execution must be legacy, descriptor, or graph")
+        mode = _ATTENTION_EXECUTION[attention_execution]
+        resident_options = bool(resident_dataflow or mode)
+        native = _bind(
+            model._runtime,
+            q5_prefill_reuse=q5_prefill_reuse,
+            resident_options=resident_options,
+        )
         with model._lock:
             if not model._finalizer.alive:
                 raise RuntimeError("Native Qwen model closed")
             model._metadata()
             cap = (C.c_int * len(capacities))(*capacities)
-            handle = native.create(model._handle, cap, len(capacities))
+            args = (model._handle, cap, len(capacities))
+            handle = (
+                native.create(
+                    *args, int(q5_prefill_reuse), int(resident_dataflow), mode
+                )
+                if resident_options
+                else native.create(*args)
+            )
             if not handle:
                 model._runtime._check(-1)
         self = cls()
@@ -93,6 +149,27 @@ class NativeQwenBatchSession:
         self._lock = threading.RLock()
         self._finalizer = weakref.finalize(self, native.destroy, handle)
         return self
+
+    def resident_execution_info(self):
+        """Cumulative ordinary batch submissions, transfers and graph setup counters."""
+        if type(self) is not NativeQwenBatchSession:
+            raise ValueError("Resident execution counters require an ordinary batch")
+        with self._lock:
+            self._check()
+            fn = getattr(
+                self.model._runtime._native, "venturi_qwen_batch_resident_info_v1", None
+            )
+            if fn is None:
+                raise RuntimeError(
+                    "Resident execution counters require a rebuilt Qwen library"
+                )
+            fn.argtypes, fn.restype = (
+                [C.c_void_p, C.POINTER(C.c_uint64), C.c_int],
+                C.c_int,
+            )
+            values = (C.c_uint64 * len(_RESIDENT_COUNTERS))()
+            self.model._runtime._check(fn(self._handle, values, len(values)))
+            return dict(zip(_RESIDENT_COUNTERS, map(int, values), strict=True))
 
     def _check(self):
         if not self._finalizer.alive:

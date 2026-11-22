@@ -114,10 +114,10 @@ __global__ void rope(const T* x, const float* cos, const float* sin, T* out,
 // Correctness-first online softmax. No scores matrix, global scratch, allocation,
 // cache mutation, or Tensor Core claim. Serial key traversal is deliberately a
 // baseline for subsequent tiled implementations, not an optimized prefill path.
-template<class T>
+template<class T,bool Indirect=false>
 __global__ void causal_attention(const T* q, const T* k, const T* v, T* out,
                                  int tokens, int kv_tokens, int hq, int hkv,
-                                 int d, float scale) {
+                                 int d, float scale,const VDecodeAttentionRow* descriptors) {
     __shared__ float partial[8];
     __shared__ float factors[3];
     const int row = blockIdx.x;
@@ -128,7 +128,13 @@ __global__ void causal_attention(const T* q, const T* k, const T* v, T* out,
     const std::int64_t qbase = static_cast<std::int64_t>(row) * d;
     const float query = col < d ? read(q[qbase + col]) : 0.0f;
     float acc = 0.0f, maximum = -INFINITY, denom = 0.0f;
-    const int last = kv_tokens - tokens + token;
+    int last = kv_tokens - tokens + token;
+    if constexpr(Indirect) {
+        const auto& desc=descriptors[token];
+        k=static_cast<const T*>(desc.key);
+        v=static_cast<const T*>(desc.value);
+        last=desc.position;
+    }
     for (int key = 0; key <= last; ++key) {
         const std::int64_t base = (static_cast<std::int64_t>(key) * hkv + kv_head) * d;
         const float product = col < d ? query * read(k[base + col]) : 0.0f;
@@ -543,10 +549,10 @@ __global__ void gated_rms(const T* x, const T* z, const void* weight, T* out,
 
 // One block per Q/K head. Packed Q/G is never unpacked into a temporary.
 // Norm -> activation cast -> two rounded rotary products -> rounded sum.
-template<class T>
+template<class T,bool Indirect=false>
 __global__ void qwen_qk(const T* qg, const T* key, const float* qgamma,
     const float* kgamma, const float* cos, const float* sin, T* qout, T* kout,
-    int hq, int hkv, int d, int r, float epsilon) {
+    int hq, int hkv, int d, int r, float epsilon,const VDecodeAttentionRow* descriptors) {
     __shared__ float partial[8];
     __shared__ float normalized[256];
     const int token = blockIdx.x / (hq+hkv), h = blockIdx.x % (hq+hkv);
@@ -554,7 +560,11 @@ __global__ void qwen_qk(const T* qg, const T* key, const float* qgamma,
     const int head = query ? h : h-hq;
     const std::int64_t row = static_cast<std::int64_t>(token) * (query ? hq : hkv) + head;
     const T* input = query ? qg + row * 2*d : key + row*d;
-    T* output = query ? qout + row*d : kout + row*d;
+    T* output;
+    if constexpr(Indirect) {
+        const auto& desc=descriptors[token];
+        output=query?qout+row*d:static_cast<T*>(desc.key)+(std::int64_t(desc.position)*hkv+head)*d;
+    } else output=query?qout+row*d:kout+row*d;
     const float* gamma = query ? qgamma : kgamma;
     const int col = threadIdx.x;
     const float x = col < d ? read(input[col]) : 0.0f;
@@ -564,7 +574,12 @@ __global__ void qwen_qk(const T* qg, const T* key, const float* qgamma,
     if (col >= d) return;
     if (col >= r) { output[col]=cast<T>(normalized[col]); return; }
     const int half = r/2, other = col < half ? col+half : col-half;
-    const std::int64_t offset = static_cast<std::int64_t>(token)*half + col%half;
+    std::int64_t offset = static_cast<std::int64_t>(token)*half + col%half;
+    if constexpr(Indirect) {
+        const auto& desc=descriptors[token];
+        cos=desc.cos;sin=desc.sin;
+        offset=std::int64_t(desc.position)*half+col%half;
+    }
     const float c=read(cast<T>(cos[offset])), t=read(cast<T>(sin[offset]));
     const float first=read(cast<T>(__fmul_rn(normalized[col],c)));
     const float second=read(cast<T>(__fmul_rn(normalized[other],t)));
@@ -778,9 +793,9 @@ extern "C" int venturi_attention_run(const void* q, const void* k, const void* v
             throw std::invalid_argument("invalid causal attention operand");
         auto stream = static_cast<cudaStream_t>(raw_stream);
         const int rows = tokens * hq;
-        if (dtype == 0) causal_attention<<<rows,256,0,stream>>>(static_cast<const __half*>(q),static_cast<const __half*>(k),static_cast<const __half*>(v),static_cast<__half*>(out),tokens,kv_tokens,hq,hkv,d,scale);
-        else if (dtype == 1) causal_attention<<<rows,256,0,stream>>>(static_cast<const __nv_bfloat16*>(q),static_cast<const __nv_bfloat16*>(k),static_cast<const __nv_bfloat16*>(v),static_cast<__nv_bfloat16*>(out),tokens,kv_tokens,hq,hkv,d,scale);
-        else causal_attention<<<rows,256,0,stream>>>(static_cast<const float*>(q),static_cast<const float*>(k),static_cast<const float*>(v),static_cast<float*>(out),tokens,kv_tokens,hq,hkv,d,scale);
+        if (dtype == 0) causal_attention<<<rows,256,0,stream>>>(static_cast<const __half*>(q),static_cast<const __half*>(k),static_cast<const __half*>(v),static_cast<__half*>(out),tokens,kv_tokens,hq,hkv,d,scale,nullptr);
+        else if (dtype == 1) causal_attention<<<rows,256,0,stream>>>(static_cast<const __nv_bfloat16*>(q),static_cast<const __nv_bfloat16*>(k),static_cast<const __nv_bfloat16*>(v),static_cast<__nv_bfloat16*>(out),tokens,kv_tokens,hq,hkv,d,scale,nullptr);
+        else causal_attention<<<rows,256,0,stream>>>(static_cast<const float*>(q),static_cast<const float*>(k),static_cast<const float*>(v),static_cast<float*>(out),tokens,kv_tokens,hq,hkv,d,scale,nullptr);
         check(cudaGetLastError());
         return 0;
     } catch (const std::exception& e) { error_text = e.what(); return -1; }
@@ -1013,10 +1028,33 @@ extern "C" int venturi_qwen_qk_run(const void* qg, const void* key,
             !(epsilon>0) || !std::isfinite(epsilon)) throw std::invalid_argument("invalid Qwen QK operand");
         auto stream=static_cast<cudaStream_t>(raw_stream);
         const int grid=static_cast<int>(static_cast<std::int64_t>(tokens)*(hq+hkv));
-        if (dtype==0) qwen_qk<<<grid,256,0,stream>>>(static_cast<const __half*>(qg),static_cast<const __half*>(key),qgamma,kgamma,cos,sin,static_cast<__half*>(qout),static_cast<__half*>(kout),hq,hkv,d,r,epsilon);
-        else if (dtype==1) qwen_qk<<<grid,256,0,stream>>>(static_cast<const __nv_bfloat16*>(qg),static_cast<const __nv_bfloat16*>(key),qgamma,kgamma,cos,sin,static_cast<__nv_bfloat16*>(qout),static_cast<__nv_bfloat16*>(kout),hq,hkv,d,r,epsilon);
-        else qwen_qk<<<grid,256,0,stream>>>(static_cast<const float*>(qg),static_cast<const float*>(key),qgamma,kgamma,cos,sin,static_cast<float*>(qout),static_cast<float*>(kout),hq,hkv,d,r,epsilon);
+        if (dtype==0) qwen_qk<<<grid,256,0,stream>>>(static_cast<const __half*>(qg),static_cast<const __half*>(key),qgamma,kgamma,cos,sin,static_cast<__half*>(qout),static_cast<__half*>(kout),hq,hkv,d,r,epsilon,nullptr);
+        else if (dtype==1) qwen_qk<<<grid,256,0,stream>>>(static_cast<const __nv_bfloat16*>(qg),static_cast<const __nv_bfloat16*>(key),qgamma,kgamma,cos,sin,static_cast<__nv_bfloat16*>(qout),static_cast<__nv_bfloat16*>(kout),hq,hkv,d,r,epsilon,nullptr);
+        else qwen_qk<<<grid,256,0,stream>>>(static_cast<const float*>(qg),static_cast<const float*>(key),qgamma,kgamma,cos,sin,static_cast<float*>(qout),static_cast<float*>(kout),hq,hkv,d,r,epsilon,nullptr);
         check(cudaGetLastError()); return 0;
+    } catch (const std::exception& e) { error_text=e.what(); return -1; }
+}
+
+extern "C" int venturi_qwen_decode_attention_f16(
+    const void* qg,const void* key,const float* qgamma,const float* kgamma,
+    const VDecodeAttentionRow* device_rows,void* query,void* output,
+    int count,int hq,int hkv,int d,int r,float epsilon,float scale,void* raw_stream) {
+    try {
+        if(!qg || !key || !qgamma || !kgamma || !device_rows || !query || !output ||
+           count<1 || count>32 || hq<1 || hkv<1 || hq%hkv ||
+           (d!=64 && d!=128 && d!=256) || r<0 || r>d || r%2 ||
+           std::int64_t(count)*(std::int64_t(hq)+hkv)>=INT32_MAX ||
+           !(epsilon>0) || !std::isfinite(epsilon) || !(scale>0) || !std::isfinite(scale))
+            throw std::invalid_argument("invalid indirect decode attention operand");
+        const auto st=static_cast<cudaStream_t>(raw_stream);
+        qwen_qk<__half,true><<<count*(hq+hkv),256,0,st>>>(
+            static_cast<const __half*>(qg),static_cast<const __half*>(key),qgamma,kgamma,
+            nullptr,nullptr,static_cast<__half*>(query),nullptr,hq,hkv,d,r,epsilon,device_rows);
+        check(cudaGetLastError());
+        causal_attention<__half,true><<<count*hq,256,0,st>>>(
+            static_cast<const __half*>(query),nullptr,nullptr,static_cast<__half*>(output),
+            count,0,hq,hkv,d,scale,device_rows);
+        check(cudaGetLastError());return 0;
     } catch (const std::exception& e) { error_text=e.what(); return -1; }
 }
 
