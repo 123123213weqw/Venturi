@@ -71,6 +71,8 @@ VENTURI_EXPORT int venturi_q5_fused_run(const void* x,const void* codes,const vo
 // accumulation. Mode 1 groups M<=8, mode 2 uses shared-memory WMMA tiles.
 VENTURI_EXPORT int venturi_row_tiles_sm70_run(const void* x,const void* codes,const void* high,
     const void* scales,void* out,int m,int n,int k,int padded,int bits,int mode,void* stream);
+VENTURI_EXPORT int venturi_row_tiles_sm89_run(const void* x,const void* codes,const void* high,
+    const void* scales,void* out,int m,int n,int k,int padded,int bits,int mode,void* stream);
 VENTURI_EXPORT int venturi_q8_fused_run(const void* workspace,std::uint64_t available,const VQFOutput* outputs,int count,int tokens,int k,int padded,int passes,void* stream_ptr);
 VENTURI_EXPORT int venturi_q8_head_run(const void* x, const std::int8_t* codes, const __half* scales,
     void* out, int tokens, int vocab, int k, int padded, int dtype, void* raw_stream);

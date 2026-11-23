@@ -1102,13 +1102,14 @@ extern "C" int venturi_q5_fused_run(const void* x,const void* codes,const void* 
         check(cudaGetLastError());return 0;
     } catch (const std::exception& e) { error_text=e.what();return -1; }
 }
-#if VENTURI_BLOCKS_ARCH == 70
-#include "row_tiles_sm70.cuh"
+#if VENTURI_BLOCKS_ARCH == 70 || VENTURI_BLOCKS_ARCH == 89
+#include "row_tiles_cuda.cuh"
 #endif
-extern "C" int venturi_row_tiles_sm70_run(const void* x,const void* codes,const void* high,
-    const void* scales,void* out,int m,int n,int k,int padded,int bits,int mode,void* stream) {
+static int row_tiles_run(const void* x,const void* codes,const void* high,
+    const void* scales,void* out,int m,int n,int k,int padded,int bits,int mode,void* stream,int arch) {
     try {
-#if VENTURI_BLOCKS_ARCH == 70
+#if VENTURI_BLOCKS_ARCH == 70 || VENTURI_BLOCKS_ARCH == 89
+        require(VENTURI_BLOCKS_ARCH==arch,"shared row tiles require the matching SM architecture");
         const auto aligned=reinterpret_cast<std::uintptr_t>(x)|reinterpret_cast<std::uintptr_t>(scales)|
             reinterpret_cast<std::uintptr_t>(out);
         require(x && codes && scales && out && !(aligned&1u) &&
@@ -1116,7 +1117,7 @@ extern "C" int venturi_row_tiles_sm70_run(const void* x,const void* codes,const 
             bits>=4 && bits<=6 && (bits==4 || high) && m>0 && m<=65535*64 &&
             n>0 && n<=INT32_MAX-64 && k>0 && k<=INT32_MAX-128 && padded>=k &&
             padded%128==0 && (mode==2 || (mode==1 && m<=8)),
-            "invalid SM70 shared row-tile geometry");
+            "invalid shared row-tile geometry");
         const auto* a=static_cast<const __half*>(x);
         const auto* c=static_cast<const std::uint8_t*>(codes);
         const auto* h=static_cast<const std::uint8_t*>(high);
@@ -1129,9 +1130,17 @@ extern "C" int venturi_row_tiles_sm70_run(const void* x,const void* codes,const 
         else vrowtile::launch<6>(a,c,h,s,y,m,n,k,padded,grouped,st);
         check(cudaGetLastError());return 0;
 #else
-        throw std::invalid_argument("Shared row-tile projection requires SM70");
+        throw std::invalid_argument("Shared row-tile projection requires SM70 or SM89");
 #endif
     } catch (const std::exception& e) { error_text=e.what();return -1; }
+}
+extern "C" int venturi_row_tiles_sm70_run(const void* x,const void* codes,const void* high,
+    const void* scales,void* out,int m,int n,int k,int padded,int bits,int mode,void* stream) {
+    return row_tiles_run(x,codes,high,scales,out,m,n,k,padded,bits,mode,stream,70);
+}
+extern "C" int venturi_row_tiles_sm89_run(const void* x,const void* codes,const void* high,
+    const void* scales,void* out,int m,int n,int k,int padded,int bits,int mode,void* stream) {
+    return row_tiles_run(x,codes,high,scales,out,m,n,k,padded,bits,mode,stream,89);
 }
 // q4 fused GEMM: reads compressed nibble codes directly, no FP16 materialization.
 extern "C" int venturi_q4_fused_run(const void* x,const void* codes,const void* scales,void* out,int t,int rows,int k,int padded,int dtype,void* stream) {

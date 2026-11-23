@@ -26,6 +26,17 @@ struct Batch {
     BatchFlowCounters flow;
     // Destroy graphs before any of their buffers; public batch calls are synchronous.
     std::map<std::pair<int,int>,std::unique_ptr<RankGraph>> attention_graphs;
+    Model::AdaTileTable ada_tiles;
+    bool projected=false;
+    struct AdaScope {
+        Model& model;
+        const Model::AdaTileTable* previous;
+        explicit AdaScope(Batch& b):model(*b.model),previous(model.active_ada_tiles) {
+            model.active_ada_tiles=b.ada_tiles.empty()?nullptr:&b.ada_tiles;
+            b.projected=true;
+        }
+        ~AdaScope(){model.active_ada_tiles=previous;}
+    };
     Batch(std::shared_ptr<Model> m,const int* capacities,int count,bool reuse=false,
           bool resident=false,BatchAttention execution=BatchAttention::Legacy):
         model(std::move(m)),q5_prefill_reuse(reuse),resident_flow(resident),attention(execution),slot_count(count) {
@@ -145,6 +156,7 @@ struct Batch {
     void group(const std::vector<BatchSegment>& segments,const std::vector<std::int64_t>& tokens,bool decode,
                const std::vector<int>* sample_now=nullptr,std::vector<std::int64_t>* chosen=nullptr) {
         auto& m=*model;auto& w=*work;const auto& c=m.c;auto stream=m.stream.ptr;
+        AdaScope ada(*this);
         const int n=static_cast<int>(tokens.size()),width=2*c.gqk*c.gkd+c.gvh*c.gvd,qw=c.hq*c.dim,kw=c.hkv*c.dim;
         require(n>0 && n<=c.max_tokens,"batch row tile exceeds model workspace");
         const bool reuse=q5_prefill_reuse && !decode && segments.size()==1 && n>16;
@@ -316,6 +328,7 @@ struct Batch {
     }
     void head_from(const void* input,int n,std::vector<std::int64_t>* chosen,float* logits) {
         auto& m=*model;auto& w=*work;const auto& c=m.c;
+        AdaScope ada(*this);
         m.linear(m.head,input,w.p("logits"),n);
         if(chosen) {
             chosen->resize(2*n);op(venturi_greedy_run(w.p("logits"),static_cast<std::int64_t*>(selection.ptr),select_scratch.ptr,select_scratch.bytes,n,c.vocab,c.dtype,m.stream.ptr));
@@ -407,6 +420,17 @@ extern "C" VENTURI_EXPORT int venturi_qwen_batch_prepare_shared_tiles_v1(void* h
         auto& b=*static_cast<vr::Batch*>(h);auto& m=*b.model;
         std::lock_guard<std::mutex> a(b.mutex),lock(m.mutex);vr::Device device(m.c.device);
         m.source();m.prepare_dense_io(direct==1,0,true);return 0;
+    }catch(const std::exception& e){error_text=e.what();return -1;}
+}
+extern "C" VENTURI_EXPORT int venturi_qwen_batch_prepare_ada_tiles_v1(void* h,int direct,const int* rules,int count) {
+    try {
+        vr::require(h && (direct==0 || direct==1),"invalid Ada tile options");
+        auto& b=*static_cast<vr::Batch*>(h);auto& m=*b.model;
+        std::lock_guard<std::mutex> a(b.mutex),lock(m.mutex);vr::Device device(m.c.device);
+        vr::require(b.resident_flow && b.attention==vr::BatchAttention::Descriptor,
+            "Ada tiles require resident descriptor-eager batch flow");
+        vr::require(!b.projected && b.ada_tiles.empty(),"prepare Ada tiles once before this batch projects");
+        m.source();b.ada_tiles=m.prepare_ada_tiles(direct==1,rules,count);return 0;
     }catch(const std::exception& e){error_text=e.what();return -1;}
 }
 namespace {

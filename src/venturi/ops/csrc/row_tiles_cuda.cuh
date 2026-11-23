@@ -1,4 +1,4 @@
-// SM70 common row-codec G64 / FP16 projection. The packed-plane reader
+// SM70/SM89 common row-codec G64 / FP16 projection. The packed-plane reader
 // is parameterized by bit width; staging, MMA and output handling are shared.
 #pragma once
 #include <mma.h>

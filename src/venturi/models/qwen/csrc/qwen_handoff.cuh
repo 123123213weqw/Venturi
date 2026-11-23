@@ -12,7 +12,8 @@ inline std::vector<StateCopy> handoff_plan(Batch& producer,int from,Batch& consu
     require(compatible(a.c,adjusted) && !a.parallel() && !b.parallel() &&
             !a.stage && !b.stage && !a.kv_tier && !b.kv_tier &&
             a.activation_passes==b.activation_passes && a.experiments==b.experiments &&
-            !a.dense_io.shared_tiles && !b.dense_io.shared_tiles,
+            !a.dense_io.shared_tiles && !b.dense_io.shared_tiles &&
+            producer.ada_tiles.empty() && consumer.ada_tiles.empty(),
             "PD v1 requires compatible TP1 static-state models and arithmetic");
     require(a.files.size()==b.files.size(),"PD checkpoint source spans differ");
     for(std::size_t i=0;i<a.files.size();++i) {

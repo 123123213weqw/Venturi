@@ -181,6 +181,9 @@ struct Model {
         std::uint64_t unpack_calls=0,unpack_bytes=0,cached_calls=0,cached_bytes=0;
         std::uint64_t tile_grouped=0,tile_wmma=0,tile_avoided_bytes=0;
     } dense_io;
+    using AdaTileKey=std::array<int,3>; // M,N,K, in the model's aligned Q5 context
+    using AdaTileTable=std::map<AdaTileKey,int>;
+    const AdaTileTable* active_ada_tiles=nullptr; // under Model::mutex; owned by the active Batch
     Stream stream;
     Stream second_stream;
     Event first_ready,second_ready;
@@ -408,6 +411,21 @@ struct Model {
     }
     // Row-codec dense path: on-demand chunks (16GB-class cards) or a single
     // dense_run against the dequantized FP16 shadow (dequant_resident).
+    AdaTileTable prepare_ada_tiles(bool direct,const int* rules,int count) {
+        require(VENTURI_BLOCKS_ARCH==89 && c.weight_bits==5 && c.weight_group==64 &&
+            rules && count>0 && count<=4096,"Ada table requires an explicit SM89 Q5-G64 plan");
+        AdaTileTable next;
+        for(int i=0;i<count;++i) {
+            const auto* p=rules+4*i;
+            require(p[0]>0 && p[0]<=c.max_tokens && p[1]>0 && p[2]>0 && p[2]%128==0 &&
+                p[3]>=0 && p[3]<=2 && (p[3]!=1 || p[0]<=8),"invalid Ada tile rule");
+            require(next.emplace(AdaTileKey{p[0],p[1],p[2]},p[3]).second,"duplicate Ada tile rule");
+        }
+        if(!dense_io.prepared)prepare_dense_io(direct,0);
+        else require(dense_io.direct==direct && !dense_io.budget && !dense_io.shared_tiles,
+            "Ada tile batch requires matching dense I/O without shadows");
+        return next;
+    }
     void row_dense_project(const VRMatrix& m,const void* x,const std::int8_t* codes,const unsigned char* high,const __half* scales,void* out,int t,int n_rows,bool reuse_q5_unpack) {
         if (c.dequant_resident) {
             // codes pointer is the full FP16 shadow [n_rows, k]; one GEMM.
@@ -453,6 +471,20 @@ struct Model {
     }
     void project(const VRMatrix& m,const void* x,const std::int8_t* codes,const __half* scales,void* out,int t,int rows,Buffer& quant,cudaStream_t s,bool packed=false,bool reuse_q5_unpack=false) {
         const auto& plan=*plans[matrix_bits(m)];
+#if VENTURI_BLOCKS_ARCH == 89
+        if(active_ada_tiles && !reuse_q5_unpack && plan.path==rowcodec::Path::ChunkedDense &&
+           plan.bits==5 && plan.group==64 && m.k==padded(m) &&
+           !(reinterpret_cast<std::uintptr_t>(codes)&3u)) {
+            const auto it=active_ada_tiles->find({t,rows,m.k});
+            if(it!=active_ada_tiles->end() && it->second) {
+                const int mode=it->second;
+                op(venturi_row_tiles_sm89_run(x,codes,high_ptr(m),scales,out,t,rows,m.k,padded(m),5,mode,s));
+                if(mode==1)++dense_io.tile_grouped;else ++dense_io.tile_wmma;
+                dense_io.tile_avoided_bytes=add(dense_io.tile_avoided_bytes,mul(mul(rows,m.k),2));
+                return;
+            }
+        }
+#endif
         // Width guard from the SM70 probe: narrow outputs have fewer tiles
         // and can favor dense, not a list of specific layer names or phases.
         if(dense_io.shared_tiles && !reuse_q5_unpack && plan.path==rowcodec::Path::ChunkedDense &&

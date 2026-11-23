@@ -266,6 +266,39 @@ class NativeQwenBatchSession:
             fn.argtypes, fn.restype = [C.c_void_p, C.c_int], C.c_int
             self.model._runtime._check(fn(self._handle, int(direct_outputs)))
 
+    def prepare_ada_tiles(self, rules, *, direct_outputs=False):
+        """Apply an explicit experimental SM89 Q5 table before this batch projects."""
+        if type(self) is not NativeQwenBatchSession or type(direct_outputs) is not bool:
+            raise ValueError("Ada tiles require an ordinary batch and explicit bool")
+        if not isinstance(rules, (list, tuple)) or not 0 < len(rules) <= 4096:
+            raise ValueError("Ada rules require an explicit bounded table")
+        raw = []
+        for row in rules:
+            if (
+                not isinstance(row, (tuple, list))
+                or len(row) != 4
+                or any(type(v) is not int or not 0 <= v < 2**31 for v in row)
+            ):
+                raise ValueError("Ada rule must be [M,N,K,mode]")
+            raw.extend(row)
+        values = (C.c_int * len(raw))(*raw)
+        with self._lock:
+            self._check()
+            fn = getattr(
+                self.model._runtime._native,
+                "venturi_qwen_batch_prepare_ada_tiles_v1",
+                None,
+            )
+            if fn is None:
+                raise RuntimeError("Ada tiles require a rebuilt Qwen library")
+            fn.argtypes, fn.restype = (
+                [C.c_void_p, C.c_int, C.POINTER(C.c_int), C.c_int],
+                C.c_int,
+            )
+            self.model._runtime._check(
+                fn(self._handle, int(direct_outputs), values, len(rules))
+            )
+
     def _check(self):
         if not self._finalizer.alive:
             raise RuntimeError("Native Qwen batch closed")
