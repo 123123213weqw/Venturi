@@ -363,11 +363,17 @@ class NativeQwenModel:
                 self._runtime._check(-1)
             return NativeQwenSession(self, h, capacity)
 
-    def create_batch(self, capacities):
-        """Explicit grouped target execution with independent request caches."""
+    def create_batch(self, capacities, *, q5_prefill_reuse=False):
+        """Keep independent request caches; optionally reuse unpack in SM70 Q5 C1.
+
+        The optional path requires one slot and a 32-row workspace. It keeps
+        the 16-row GEMM split when a prefill step carries 17–32 rows.
+        """
         from venturi.models.qwen.qwen_batch import NativeQwenBatchSession
 
-        return NativeQwenBatchSession.create(self, capacities)
+        return NativeQwenBatchSession.create(
+            self, capacities, q5_prefill_reuse=q5_prefill_reuse
+        )
 
     def close(self):
         with self._lock:
