@@ -168,9 +168,22 @@ struct Model {
     Buffer column_local,column_remote,column_peer,column_gu,column_activation;
     Pinned column_host;
     Buffer first_quant,second_quant;
-    // q4 dense-qualification path: bounded dequant chunks (rows fixed, K-dependent
-    // sizing at construction), the chunked GEMM output tile, and the embedding rows.
-    Buffer dequant,q4_chunk,q4_embed;int q4_rows=8192;
+    // Row-codec canonical dense path. Size scratch for the largest *actual*
+    // (row tile, K) pair, not the product of unrelated maxima.
+    Buffer dequant,q4_chunk;int q4_rows=8192;
+    std::uint64_t prior_dense_workspace_bytes=0;
+    struct DenseIO {
+        bool prepared=false,direct=false,shared_tiles=false;
+        bool exact_q5_batch_created=false;
+        std::unique_ptr<Buffer> storage;
+        std::map<std::pair<std::uint64_t,int>,std::uint64_t> tiles;
+        std::uint64_t budget=0,setup_ns=0,gemms=0,direct_gemms=0,output_copy_bytes=0;
+        std::uint64_t unpack_calls=0,unpack_bytes=0,cached_calls=0,cached_bytes=0;
+        std::uint64_t tile_grouped=0,tile_wmma=0,tile_avoided_bytes=0;
+    } dense_io;
+    using AdaTileKey=std::array<int,3>; // M,N,K, in the model's aligned Q5 context
+    using AdaTileTable=std::map<AdaTileKey,int>;
+    const AdaTileTable* active_ada_tiles=nullptr; // under Model::mutex; owned by the active Batch
     Stream stream;
     Stream second_stream;
     Event first_ready,second_ready;
@@ -343,8 +356,76 @@ struct Model {
         }
         sync();
     }
+    void prepare_dense_io(bool direct,std::uint64_t budget,bool shared=false) {
+        require(!dense_io.prepared && !dense_io.gemms && !dense_io.tile_grouped && !dense_io.tile_wmma,
+            "prepare dense I/O once before the first row-codec projection");
+        require(c.resident && !parallel() && !stage && !kv_tier && !activation_passes &&
+                !c.dequant_resident && c.dtype==0 && dequant.ptr,
+            "dense I/O requires resident single-device chunked FP16 projection and static KV");
+        require(!shared || (VENTURI_BLOCKS_ARCH==70 && !budget),
+            "shared tiles require SM70 without persistent FP16 shadows");
+        require(!shared || !dense_io.exact_q5_batch_created,
+            "cannot combine experimental shared tiles and exact prefill reuse");
+        const auto started=native_clock();
+        decltype(dense_io.tiles) selected;
+        std::uint64_t bytes=0;
+        auto choose=[&](const VRMatrix& w) {
+            if(!row_codec(w) || plans[matrix_bits(w)]->path!=rowcodec::Path::ChunkedDense)return;
+            for(int begin=0;begin<w.n;) {
+                const int rows=std::min(q4_rows,w.n-begin);
+                const auto key=std::make_pair(w.offset,begin);
+                if(!selected.count(key)) {
+                    const auto need=mul(mul(rows,w.k),2);
+                    const auto offset=align256(bytes);
+                    if(offset<=budget && need<=budget-offset) {
+                        selected.emplace(key,offset);bytes=add(offset,need);
+                    }
+                }
+                begin+=rows;
+            }
+        };
+        // Trunk matrices are traversed on every group (the vocabulary head is
+        // not); stable layer order, byte budget, no hot-path allocation or LRU.
+        if(budget) {
+            for(const auto& l:layers)for(int j=0;j<7;++j)
+                if(l.kind!=0 || j!=3)choose(l.matrix[j]);
+            choose(head);
+        }
+        std::unique_ptr<Buffer> storage;
+        if(bytes) {
+            guard(bytes);storage=std::make_unique<Buffer>();storage->allocate(bytes);
+            try {
+                for(const auto& [key,offset]:selected) {
+                    const auto& w=matrices.at(key.first);const int rows=std::min(q4_rows,w.n-key.second);
+                    const auto [codes,scales]=weight(w);
+                    op(venturi_row_dequant_rows(codes,high_ptr(w),scales,storage->at(offset),
+                        key.second,rows,w.k,padded(w),matrix_bits(w),stream.ptr));
+                }
+                sync();source();
+            } catch(...) {try {sync();}catch(...){} throw;}
+        }
+        device_bytes=add(device_bytes,bytes);
+        dense_io.budget=budget;dense_io.direct=direct;dense_io.shared_tiles=shared;dense_io.storage=std::move(storage);
+        dense_io.tiles=std::move(selected);dense_io.prepared=true;
+        dense_io.setup_ns=std::uint64_t((native_clock()-started)*1e9);
+    }
     // Row-codec dense path: on-demand chunks (16GB-class cards) or a single
     // dense_run against the dequantized FP16 shadow (dequant_resident).
+    AdaTileTable prepare_ada_tiles(bool direct,const int* rules,int count) {
+        require(VENTURI_BLOCKS_ARCH==89 && c.weight_bits==5 && c.weight_group==64 &&
+            rules && count>0 && count<=4096,"Ada table requires an explicit SM89 Q5-G64 plan");
+        AdaTileTable next;
+        for(int i=0;i<count;++i) {
+            const auto* p=rules+4*i;
+            require(p[0]>0 && p[0]<=c.max_tokens && p[1]>0 && p[2]>0 && p[2]%128==0 &&
+                p[3]>=0 && p[3]<=2 && (p[3]!=1 || p[0]<=8),"invalid Ada tile rule");
+            require(next.emplace(AdaTileKey{p[0],p[1],p[2]},p[3]).second,"duplicate Ada tile rule");
+        }
+        if(!dense_io.prepared)prepare_dense_io(direct,0);
+        else require(dense_io.direct==direct && !dense_io.budget && !dense_io.shared_tiles,
+            "Ada tile batch requires matching dense I/O without shadows");
+        return next;
+    }
     void row_dense_project(const VRMatrix& m,const void* x,const std::int8_t* codes,const unsigned char* high,const __half* scales,void* out,int t,int n_rows,bool reuse_q5_unpack) {
         if (c.dequant_resident) {
             // codes pointer is the full FP16 shadow [n_rows, k]; one GEMM.
@@ -357,20 +438,64 @@ struct Model {
         const int token_tile=reuse_q5_unpack?16:t;
         for (int begin=0;begin<n_rows;begin+=chunk) {
             const int rows=std::min(chunk,n_rows-begin);
-            op(venturi_row_dequant_rows(codes,high,scales,dequant.ptr,begin,rows,m.k,padded(m),matrix_bits(m),stream.ptr));
+            const auto bytes=mul(mul(rows,m.k),2);
+            const void* dense_weight=dequant.ptr;
+            const auto stored=dense_io.tiles.find({m.offset,begin});
+            if(stored!=dense_io.tiles.end()) {
+                dense_weight=dense_io.storage->at(stored->second);
+                ++dense_io.cached_calls;dense_io.cached_bytes=add(dense_io.cached_bytes,bytes);
+            } else {
+                op(venturi_row_dequant_rows(codes,high,scales,dequant.ptr,begin,rows,m.k,padded(m),matrix_bits(m),stream.ptr));
+                ++dense_io.unpack_calls;dense_io.unpack_bytes=add(dense_io.unpack_bytes,bytes);
+            }
             for(int start=0;start<t;start+=token_tile) {
                 const int step=std::min(token_tile,t-start);
                 const auto* input=static_cast<const char*>(x)+mul(mul(start,m.k),2);
-                op(venturi_dense_run(dense.ptr,input,dequant.ptr,q4_chunk.ptr,step,rows,m.k,blas_workspace.ptr,blas_workspace.bytes,stream.ptr));
                 auto* destination=static_cast<char*>(out)+mul(add(mul(start,n_rows),begin),2);
-                if(step==1)check(cudaMemcpyAsync(destination,q4_chunk.ptr,mul(rows,2),cudaMemcpyDeviceToDevice,stream.ptr));
-                else check(cudaMemcpy2DAsync(destination,mul(n_rows,2),q4_chunk.ptr,mul(rows,2),
-                    mul(rows,2),step,cudaMemcpyDeviceToDevice,stream.ptr));
+                // Keep the exact M/N/K, cuBLAS compute mode and ldc. For
+                // multiple rows and a split output shard, ldc would differ.
+                const bool direct=dense_io.direct && (step==1 || rows==n_rows) &&
+                    !(reinterpret_cast<std::uintptr_t>(destination)&255u);
+                op(venturi_dense_run(dense.ptr,input,dense_weight,direct?destination:q4_chunk.ptr,
+                    step,rows,m.k,blas_workspace.ptr,blas_workspace.bytes,stream.ptr));
+                ++dense_io.gemms;
+                if(direct)++dense_io.direct_gemms;
+                else {
+                    dense_io.output_copy_bytes=add(dense_io.output_copy_bytes,mul(mul(rows,step),2));
+                    if(step==1)check(cudaMemcpyAsync(destination,q4_chunk.ptr,mul(rows,2),cudaMemcpyDeviceToDevice,stream.ptr));
+                    else check(cudaMemcpy2DAsync(destination,mul(n_rows,2),q4_chunk.ptr,mul(rows,2),
+                        mul(rows,2),step,cudaMemcpyDeviceToDevice,stream.ptr));
+                }
             }
         }
     }
     void project(const VRMatrix& m,const void* x,const std::int8_t* codes,const __half* scales,void* out,int t,int rows,Buffer& quant,cudaStream_t s,bool packed=false,bool reuse_q5_unpack=false) {
         const auto& plan=*plans[matrix_bits(m)];
+#if VENTURI_BLOCKS_ARCH == 89
+        if(active_ada_tiles && !reuse_q5_unpack && plan.path==rowcodec::Path::ChunkedDense &&
+           plan.bits==5 && plan.group==64 && m.k==padded(m) &&
+           !(reinterpret_cast<std::uintptr_t>(codes)&3u)) {
+            const auto it=active_ada_tiles->find({t,rows,m.k});
+            if(it!=active_ada_tiles->end() && it->second) {
+                const int mode=it->second;
+                op(venturi_row_tiles_sm89_run(x,codes,high_ptr(m),scales,out,t,rows,m.k,padded(m),5,mode,s));
+                if(mode==1)++dense_io.tile_grouped;else ++dense_io.tile_wmma;
+                dense_io.tile_avoided_bytes=add(dense_io.tile_avoided_bytes,mul(mul(rows,m.k),2));
+                return;
+            }
+        }
+#endif
+        // Width guard from the SM70 probe: narrow outputs have fewer tiles
+        // and can favor dense, not a list of specific layer names or phases.
+        if(dense_io.shared_tiles && !reuse_q5_unpack && plan.path==rowcodec::Path::ChunkedDense &&
+           plan.bits>=4 && plan.bits<=6 && plan.group==64 && rows>=4096 &&
+           m.k==padded(m) && !(reinterpret_cast<std::uintptr_t>(codes)&3u)) {
+            const int mode=t<=4?1:2;
+            op(venturi_row_tiles_sm70_run(x,codes,high_ptr(m),scales,out,t,rows,m.k,padded(m),plan.bits,mode,s));
+            if(mode==1)++dense_io.tile_grouped;else ++dense_io.tile_wmma;
+            dense_io.tile_avoided_bytes=add(dense_io.tile_avoided_bytes,mul(mul(rows,m.k),2));
+            return;
+        }
         if (c.dequant_resident || plan.path==rowcodec::Path::ChunkedDense) {
             row_dense_project(m,x,codes,high_ptr(m),scales,out,t,rows,reuse_q5_unpack);return;
         }
@@ -740,14 +865,18 @@ struct Model {
         }
         if(quant){first_quant.allocate(quant);device_bytes=add(device_bytes,quant);}
         if (has_row_weights && !c.dequant_resident) {
-            // Dense-qualification scratch: one row-chunk of FP16 weights (rows
-            // fixed, K-dependent), the chunked GEMM output tile, and embedding rows.
-            const auto dequant_bytes=mul(mul(q4_rows,maxk),2);
-            guard(add(dequant_bytes,mul(mul(c.max_tokens,add(q4_rows,c.hidden)),2)));
-            dequant.allocate(dequant_bytes);
-            q4_chunk.allocate(mul(mul(c.max_tokens,q4_rows),2));
-            q4_embed.allocate(mul(mul(c.max_tokens,c.hidden),2));
-            device_bytes=add(device_bytes,add(dequant.bytes,add(q4_chunk.bytes,q4_embed.bytes)));
+            std::uint64_t max_elements=0,max_rows=0;
+            for(const auto& [_,w]:matrices) {
+                if(!row_codec(w) || plans[matrix_bits(w)]->path!=rowcodec::Path::ChunkedDense)continue;
+                const auto rows=static_cast<std::uint64_t>(std::min(q4_rows,w.n));
+                max_rows=std::max(max_rows,rows);
+                max_elements=std::max(max_elements,mul(rows,w.k));
+            }
+            const auto weight_bytes=mul(max_elements,2),output_bytes=mul(mul(c.max_tokens,max_rows),2);
+            prior_dense_workspace_bytes=add(mul(mul(q4_rows,maxk),2),mul(mul(c.max_tokens,add(q4_rows,c.hidden)),2));
+            guard(add(weight_bytes,output_bytes));
+            dequant.allocate(weight_bytes);q4_chunk.allocate(output_bytes);
+            device_bytes=add(device_bytes,add(dequant.bytes,q4_chunk.bytes));
         }
         if (parallel()) {
             if (c.peer_transport==0) {
@@ -861,7 +990,6 @@ struct Session {
         std::uint64_t n=add(mul(mul(widths,t),2),m.head_gdn_enabled?0:mul(mul(t,c.gvh),8));
         n=add(n,add(mul(mul(t,c.vocab),2),mul(t,8)));
         n=add(n,add(mul(mul(capacity,c.rotary/2),8),16+min_tiles(c.vocab)*16));
-        if (m.row_codec(m.embedding) && !m.c.dequant_resident) n=add(n,add(mul(t,8),mul(mul(t,c.hidden),2)));  // ids2 + dequantized embedding rows
         for (int i=m.begin;caches && i<m.end;++i) {const auto& l=m.layers[i];n=add(n,l.kind==0 ? (add(mul(mul(c.convolution-1,packed),2),mul(mul(c.gvh*c.gvd,c.gkd),4))/(m.head_gdn_enabled?2:1)) : (m.kv_tier?0:mul(mul(capacity,kw),4)));}
         return n;
     }
@@ -885,7 +1013,6 @@ struct Session {
         for (auto name: {"mlp_gate","mlp_up"}) alloc(name,mul(mul(t,c.intermediate),2));
         alloc("qg",mul(mul(t,qw),4));alloc("query",mul(mul(t,qw),2));alloc("attended",mul(mul(t,qw),2));alloc("key",mul(mul(t,kw),2));
         alloc("logits",mul(mul(t,c.vocab),2));alloc("ids",mul(t,8));alloc("selection",16);alloc("select_scratch",min_tiles(c.vocab)*16);
-        if (md.row_codec(md.embedding) && !md.c.dequant_resident) { alloc("ids2",mul(t,8));alloc("q4_rows_out",mul(mul(t,c.hidden),2)); }
         alloc("cos",mul(mul(cap,c.rotary/2),4));alloc("sin",mul(mul(cap,c.rotary/2),4));
         tiered_kv.resize(c.layers);history.resize(c.layers);state.resize(c.layers);keys.resize(c.layers);values.resize(c.layers);peer_history.resize(c.layers);peer_state.resize(c.layers);
         next_attn.assign(c.layers,-1);for(int i=c.layers-2;i>=0;--i)next_attn[i]=md.layers[i+1].kind!=0?i+1:next_attn[i+1];
@@ -988,14 +1115,11 @@ struct Session {
                 // Shadow holds the full FP16 embedding matrix; direct gather.
                 op(venturi_embedding_run(w.first,static_cast<const std::int64_t*>(p("ids")),out,t,c.vocab,c.hidden,c.dtype,m.stream.ptr));
             } else if (m.row_codec(e)) {
-                // Indexed row-codec dequant into contiguous FP16 rows, then the
-                // existing dense FP16 embedding gather (ids rebased to 0..t-1).
-                auto& ids_local=ids;
-                for (int i=0;i<t;++i) ids_local[i]=i;
-                check(cudaMemcpyAsync(p("ids2"),ids_local.data(),t*8,cudaMemcpyHostToDevice,m.stream.ptr));
+                // Indexed row dequant already writes contiguous, ordered rows.
+                // Store into the final activation instead of gathering them again
+                // with an identity ID array. The decode/rounding is unchanged.
                 op(venturi_row_dequant_indexed(w.first,m.high_ptr(e),w.second,static_cast<const std::int64_t*>(p("ids")),
-                    static_cast<__half*>(p("q4_rows_out")),t,c.hidden,padded(e),m.matrix_bits(e),m.stream.ptr));
-                op(venturi_embedding_run(p("q4_rows_out"),static_cast<const std::int64_t*>(p("ids2")),out,t,t,c.hidden,c.dtype,m.stream.ptr));
+                    out,t,c.hidden,padded(e),m.matrix_bits(e),m.stream.ptr));
             } else
             op(venturi_q8_embedding_run(w.first,w.second,static_cast<const std::int64_t*>(p("ids")),out,t,c.vocab,c.hidden,padded(e),c.dtype,m.stream.ptr));
         } else {

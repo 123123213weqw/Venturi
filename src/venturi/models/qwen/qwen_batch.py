@@ -18,7 +18,51 @@ from venturi.models.qwen.qwen_native import NativeQwenModel
 from venturi.ops.vocabulary import _ids
 
 
-def _bind(backend, *, q5_prefill_reuse=False):
+_ATTENTION_EXECUTION = {"legacy": 0, "descriptor": 1, "graph": 2}
+_RESIDENT_COUNTERS = (
+    "direct_v",
+    "v_copies",
+    "direct_hidden",
+    "hidden_copies",
+    "completion_fences",
+    "descriptor_steps",
+    "descriptor_bytes_uploaded",
+    "graph_captures",
+    "graph_replays",
+    "descriptor_eager_layers",
+    "graph_fallback_layers",
+    "capture_ns",
+    "device_descriptor_bytes",
+    "pinned_descriptor_bytes",
+    "v_copy_bytes",
+    "hidden_copy_bytes",
+)
+_DENSE_IO_COUNTERS = (
+    "prior_workspace_bytes",
+    "workspace_bytes",
+    "weight_scratch_bytes",
+    "output_scratch_bytes",
+    "shadow_budget_bytes",
+    "shadow_bytes",
+    "shadow_tiles",
+    "setup_ns",
+    "gemms",
+    "direct_gemms",
+    "output_copy_bytes",
+    "unpack_calls",
+    "unpack_bytes",
+    "shadow_hits",
+    "shadow_read_bytes",
+)
+_SHARED_TILE_COUNTERS = (
+    "shared_tiles",
+    "tile_grouped_calls",
+    "tile_wmma_calls",
+    "tile_avoided_fp16_write_bytes",
+)
+
+
+def _bind(backend, *, q5_prefill_reuse=False, resident_options=False):
     ptr, integer, u64 = C.c_void_p, C.c_int, C.c_uint64
     signatures = {
         "create": ([ptr, ptr, integer], ptr),
@@ -36,7 +80,14 @@ def _bind(backend, *, q5_prefill_reuse=False):
     result = {}
     for name, (args, restype) in signatures.items():
         symbol = "venturi_qwen_batch_" + name
-        if name == "create" and q5_prefill_reuse:
+        if name == "create" and resident_options:
+            symbol += "_resident_v1"
+            args = [*args, integer, integer, integer]
+            if not hasattr(backend._native, symbol):
+                raise RuntimeError(
+                    "Resident batch modes require a rebuilt Qwen library"
+                )
+        elif name == "create" and q5_prefill_reuse:
             symbol += "_q5_prefill_reuse"
             if not hasattr(backend._native, symbol):
                 raise RuntimeError("Q5 prefill reuse requires a rebuilt Qwen library")
@@ -56,7 +107,15 @@ class NativeQwenBatchSession:
         return self.model._cfg["vocab_size"]
 
     @classmethod
-    def create(cls, model, capacities, *, q5_prefill_reuse=False):
+    def create(
+        cls,
+        model,
+        capacities,
+        *,
+        q5_prefill_reuse=False,
+        resident_dataflow=False,
+        attention_execution="legacy",
+    ):
         if type(model) is not NativeQwenModel or model._mode != "resident":
             raise ValueError(
                 "Batch requires a complete resident native target; PP/MTP wrappers are not batch targets"
@@ -74,13 +133,33 @@ class NativeQwenBatchSession:
             raise ValueError("q5_prefill_reuse must be an explicit bool")
         if q5_prefill_reuse and (len(capacities) != 1 or model._max_tokens != 32):
             raise ValueError("Q5 prefill reuse requires one slot and max_tokens=32")
-        native = _bind(model._runtime, q5_prefill_reuse=q5_prefill_reuse)
+        if type(resident_dataflow) is not bool:
+            raise ValueError("resident_dataflow must be an explicit bool")
+        if (
+            type(attention_execution) is not str
+            or attention_execution not in _ATTENTION_EXECUTION
+        ):
+            raise ValueError("attention_execution must be legacy, descriptor, or graph")
+        mode = _ATTENTION_EXECUTION[attention_execution]
+        resident_options = bool(resident_dataflow or mode)
+        native = _bind(
+            model._runtime,
+            q5_prefill_reuse=q5_prefill_reuse,
+            resident_options=resident_options,
+        )
         with model._lock:
             if not model._finalizer.alive:
                 raise RuntimeError("Native Qwen model closed")
             model._metadata()
             cap = (C.c_int * len(capacities))(*capacities)
-            handle = native.create(model._handle, cap, len(capacities))
+            args = (model._handle, cap, len(capacities))
+            handle = (
+                native.create(
+                    *args, int(q5_prefill_reuse), int(resident_dataflow), mode
+                )
+                if resident_options
+                else native.create(*args)
+            )
             if not handle:
                 model._runtime._check(-1)
         self = cls()
@@ -93,6 +172,132 @@ class NativeQwenBatchSession:
         self._lock = threading.RLock()
         self._finalizer = weakref.finalize(self, native.destroy, handle)
         return self
+
+    def resident_execution_info(self):
+        """Cumulative ordinary batch submissions, transfers and graph setup counters."""
+        if type(self) is not NativeQwenBatchSession:
+            raise ValueError("Resident execution counters require an ordinary batch")
+        with self._lock:
+            self._check()
+            fn = getattr(
+                self.model._runtime._native, "venturi_qwen_batch_resident_info_v1", None
+            )
+            if fn is None:
+                raise RuntimeError(
+                    "Resident execution counters require a rebuilt Qwen library"
+                )
+            fn.argtypes, fn.restype = (
+                [C.c_void_p, C.POINTER(C.c_uint64), C.c_int],
+                C.c_int,
+            )
+            values = (C.c_uint64 * len(_RESIDENT_COUNTERS))()
+            self.model._runtime._check(fn(self._handle, values, len(values)))
+            return dict(zip(_RESIDENT_COUNTERS, map(int, values), strict=True))
+
+    def prepare_dense_io(self, *, direct_outputs=False, shadow_budget_bytes=0):
+        """Opt in once per model, before inference, after reserving this batch's KV.
+
+        Workspace is geometry-sized independently of these options. Explicit
+        shadows share immutable shape-identical weight tiles across sessions.
+        """
+        if type(self) is not NativeQwenBatchSession:
+            raise ValueError("Dense I/O preparation requires an ordinary batch")
+        if (
+            type(direct_outputs) is not bool
+            or type(shadow_budget_bytes) is not int
+            or not 0 <= shadow_budget_bytes <= 2**64 - 1
+        ):
+            raise ValueError(
+                "Explicit direct_outputs bool and uint64 shadow budget required"
+            )
+        with self._lock:
+            self._check()
+            fn = getattr(
+                self.model._runtime._native,
+                "venturi_qwen_batch_prepare_dense_io_v1",
+                None,
+            )
+            if fn is None:
+                raise RuntimeError("Dense I/O requires a rebuilt Qwen library")
+            fn.argtypes, fn.restype = [C.c_void_p, C.c_int, C.c_uint64], C.c_int
+            self.model._runtime._check(
+                fn(self._handle, int(direct_outputs), shadow_budget_bytes)
+            )
+
+    def dense_io_info(self):
+        """Model-level counters; copy and unpack payloads are not DRAM counters."""
+        if type(self) is not NativeQwenBatchSession:
+            raise ValueError("Dense I/O counters require an ordinary batch")
+        with self._lock:
+            self._check()
+            lib = self.model._runtime._native
+            fn = getattr(lib, "venturi_qwen_batch_dense_io_info_v2", None)
+            names = _DENSE_IO_COUNTERS + _SHARED_TILE_COUNTERS
+            if fn is None:
+                fn = getattr(lib, "venturi_qwen_batch_dense_io_info_v1", None)
+                names = _DENSE_IO_COUNTERS
+            if fn is None:
+                raise RuntimeError("Dense I/O counters require a rebuilt Qwen library")
+            fn.argtypes, fn.restype = (
+                [C.c_void_p, C.POINTER(C.c_uint64), C.c_int],
+                C.c_int,
+            )
+            values = (C.c_uint64 * len(names))()
+            self.model._runtime._check(fn(self._handle, values, len(values)))
+        return dict(zip(names, map(int, values), strict=True))
+
+    def prepare_shared_tiles(self, *, direct_outputs=False):
+        """Explicit SM70 numerical mode; not interchangeable with the dense path.
+
+        Select it once before executing the model. Small output matrices keep
+        the dense route; codec admission and request ownership are unchanged.
+        """
+        if type(self) is not NativeQwenBatchSession or type(direct_outputs) is not bool:
+            raise ValueError("Shared tiles require an ordinary batch and explicit bool")
+        with self._lock:
+            self._check()
+            fn = getattr(
+                self.model._runtime._native,
+                "venturi_qwen_batch_prepare_shared_tiles_v1",
+                None,
+            )
+            if fn is None:
+                raise RuntimeError("Shared tiles require a rebuilt Qwen library")
+            fn.argtypes, fn.restype = [C.c_void_p, C.c_int], C.c_int
+            self.model._runtime._check(fn(self._handle, int(direct_outputs)))
+
+    def prepare_ada_tiles(self, rules, *, direct_outputs=False):
+        """Apply an explicit experimental SM89 Q5 table before this batch projects."""
+        if type(self) is not NativeQwenBatchSession or type(direct_outputs) is not bool:
+            raise ValueError("Ada tiles require an ordinary batch and explicit bool")
+        if not isinstance(rules, (list, tuple)) or not 0 < len(rules) <= 4096:
+            raise ValueError("Ada rules require an explicit bounded table")
+        raw = []
+        for row in rules:
+            if (
+                not isinstance(row, (tuple, list))
+                or len(row) != 4
+                or any(type(v) is not int or not 0 <= v < 2**31 for v in row)
+            ):
+                raise ValueError("Ada rule must be [M,N,K,mode]")
+            raw.extend(row)
+        values = (C.c_int * len(raw))(*raw)
+        with self._lock:
+            self._check()
+            fn = getattr(
+                self.model._runtime._native,
+                "venturi_qwen_batch_prepare_ada_tiles_v1",
+                None,
+            )
+            if fn is None:
+                raise RuntimeError("Ada tiles require a rebuilt Qwen library")
+            fn.argtypes, fn.restype = (
+                [C.c_void_p, C.c_int, C.POINTER(C.c_int), C.c_int],
+                C.c_int,
+            )
+            self.model._runtime._check(
+                fn(self._handle, int(direct_outputs), values, len(rules))
+            )
 
     def _check(self):
         if not self._finalizer.alive:

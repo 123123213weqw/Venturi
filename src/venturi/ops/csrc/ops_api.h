@@ -7,6 +7,15 @@
 #define VENTURI_EXPORT __attribute__((visibility("default")))
 struct VQFOutput {const std::int8_t* codes;const __half* scales;__half* out;int n,stride;};
 static_assert(sizeof(VQFOutput)==32);
+struct VDecodeAttentionRow {
+    void* key;
+    const void* value;
+    const float* cos;
+    const float* sin;
+    int position;
+    int reserved;
+};
+static_assert(sizeof(VDecodeAttentionRow)==40);
 extern "C" {
 VENTURI_EXPORT int venturi_add_run(const void* a, const void* b, void* out,
                               std::int64_t count, int dtype, void* stream);
@@ -58,6 +67,12 @@ VENTURI_EXPORT int venturi_q8_embedding_run(const std::int8_t* codes, const __ha
 VENTURI_EXPORT int venturi_q5_hmma_run(const void* x,const void* codes,const void* high,const void* scales,void* out,int tokens,int rows,int k,int padded,void* stream);
 VENTURI_EXPORT int venturi_q5_dp4a_fused_run(const void* workspace,std::uint64_t available,const void* codes,const void* high,const void* scales,void* out,int rows,int stride,int tokens,int k,int padded,void* stream);
 VENTURI_EXPORT int venturi_q5_fused_run(const void* x,const void* codes,const void* high,const void* scales,void* out,int t,int rows,int k,int padded,int dtype,void* stream);
+// Canonical signed row-split Q4/Q5/Q6-G64; FP16 inputs/weight rounding, FP32
+// accumulation. Mode 1 groups M<=8, mode 2 uses shared-memory WMMA tiles.
+VENTURI_EXPORT int venturi_row_tiles_sm70_run(const void* x,const void* codes,const void* high,
+    const void* scales,void* out,int m,int n,int k,int padded,int bits,int mode,void* stream);
+VENTURI_EXPORT int venturi_row_tiles_sm89_run(const void* x,const void* codes,const void* high,
+    const void* scales,void* out,int m,int n,int k,int padded,int bits,int mode,void* stream);
 VENTURI_EXPORT int venturi_q8_fused_run(const void* workspace,std::uint64_t available,const VQFOutput* outputs,int count,int tokens,int k,int padded,int passes,void* stream_ptr);
 VENTURI_EXPORT int venturi_q8_head_run(const void* x, const std::int8_t* codes, const __half* scales,
     void* out, int tokens, int vocab, int k, int padded, int dtype, void* raw_stream);
@@ -88,6 +103,12 @@ VENTURI_EXPORT int venturi_qwen_qk_run(const void* qg, const void* key,
     const float* qgamma, const float* kgamma, const float* cos, const float* sin,
     void* qout, void* kout, int tokens, int hq, int hkv, int d, int r, int dtype,
     float epsilon, void* raw_stream);
+// Device-side descriptors are validated by the owning batch before upload.
+// One packed query/key input row per request; every row appends exactly one key.
+VENTURI_EXPORT int venturi_qwen_decode_attention_f16(
+    const void* qg,const void* key,const float* qgamma,const float* kgamma,
+    const VDecodeAttentionRow* device_rows,void* query,void* output,
+    int count,int hq,int hkv,int d,int r,float epsilon,float scale,void* stream);
 VENTURI_EXPORT int venturi_rms_q8_quantize(const void* x,const float* w,void* workspace,std::uint64_t available,
     int t,int k,float epsilon,int chunk,void* intermediate,void* raw_stream);
 VENTURI_EXPORT int venturi_rms_run(const void* x, const float* w, void* out, int tokens,
