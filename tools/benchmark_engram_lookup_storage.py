@@ -165,12 +165,15 @@ def main(argv=None):
     parser.add_argument('--keep', action='store_true')
     arguments = parser.parse_args(argv)
 
-    import torch
-
     output = Path(arguments.output_directory)
     output.mkdir(parents=True, exist_ok=True)
+    if any(output.iterdir()):
+        parser.error('--output-directory must be new or empty; no existing files were changed')
+
+    import torch
+
     workspace = output / 'asset'
-    workspace.mkdir(exist_ok=True)
+    workspace.mkdir()
     asset_path = workspace / 'lookup.gguf'
     result = {'rows': arguments.rows, 'width': arguments.width,
               'columns': arguments.columns, 'phases': [], 'not_measured': [
@@ -291,11 +294,10 @@ def main(argv=None):
 
     store.close()
     result['store_closed'] = store.closed
-    (output / 'measurements').mkdir(exist_ok=True)
+    (output / 'measurements').mkdir()
     (output / 'measurements' / 'results.json').write_text(json.dumps(result, indent=1) + '\n')
     if not arguments.keep:
-        for item in workspace.iterdir():
-            item.unlink()
+        asset_path.unlink()
         workspace.rmdir()
     print(f'\nwrote {output / "measurements" / "results.json"}')
     return 0

@@ -38,6 +38,10 @@ eviction, not by capacity pressure.
 
 ## Fixture
 
+Pass a new or empty `--output-directory`; the script refuses to overwrite
+existing assets or measurements. Use `--keep` to retain the newly generated
+GGUF for the vectorised probe.
+
 `tools/benchmark_engram_lookup_storage.py` writes a single-tensor GGUF
 (`blk.1.engram_embd.weight`, IQ4_NL) that passes the same `inspect_gguf` and
 admission checks as a real asset: 120,000,000 rows x 128 = 8.05 GiB, 72 B rows,
