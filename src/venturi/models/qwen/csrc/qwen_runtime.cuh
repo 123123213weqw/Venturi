@@ -173,11 +173,13 @@ struct Model {
     Buffer dequant,q4_chunk;int q4_rows=8192;
     std::uint64_t prior_dense_workspace_bytes=0;
     struct DenseIO {
-        bool prepared=false,direct=false;
+        bool prepared=false,direct=false,shared_tiles=false;
+        bool exact_q5_batch_created=false;
         std::unique_ptr<Buffer> storage;
         std::map<std::pair<std::uint64_t,int>,std::uint64_t> tiles;
         std::uint64_t budget=0,setup_ns=0,gemms=0,direct_gemms=0,output_copy_bytes=0;
         std::uint64_t unpack_calls=0,unpack_bytes=0,cached_calls=0,cached_bytes=0;
+        std::uint64_t tile_grouped=0,tile_wmma=0,tile_avoided_bytes=0;
     } dense_io;
     Stream stream;
     Stream second_stream;
@@ -351,12 +353,16 @@ struct Model {
         }
         sync();
     }
-    void prepare_dense_io(bool direct,std::uint64_t budget) {
-        require(!dense_io.prepared && !dense_io.gemms,
+    void prepare_dense_io(bool direct,std::uint64_t budget,bool shared=false) {
+        require(!dense_io.prepared && !dense_io.gemms && !dense_io.tile_grouped && !dense_io.tile_wmma,
             "prepare dense I/O once before the first row-codec projection");
         require(c.resident && !parallel() && !stage && !kv_tier && !activation_passes &&
                 !c.dequant_resident && c.dtype==0 && dequant.ptr,
             "dense I/O requires resident single-device chunked FP16 projection and static KV");
+        require(!shared || (VENTURI_BLOCKS_ARCH==70 && !budget),
+            "shared tiles require SM70 without persistent FP16 shadows");
+        require(!shared || !dense_io.exact_q5_batch_created,
+            "cannot combine experimental shared tiles and exact prefill reuse");
         const auto started=native_clock();
         decltype(dense_io.tiles) selected;
         std::uint64_t bytes=0;
@@ -396,7 +402,7 @@ struct Model {
             } catch(...) {try {sync();}catch(...){} throw;}
         }
         device_bytes=add(device_bytes,bytes);
-        dense_io.budget=budget;dense_io.direct=direct;dense_io.storage=std::move(storage);
+        dense_io.budget=budget;dense_io.direct=direct;dense_io.shared_tiles=shared;dense_io.storage=std::move(storage);
         dense_io.tiles=std::move(selected);dense_io.prepared=true;
         dense_io.setup_ns=std::uint64_t((native_clock()-started)*1e9);
     }
@@ -447,6 +453,17 @@ struct Model {
     }
     void project(const VRMatrix& m,const void* x,const std::int8_t* codes,const __half* scales,void* out,int t,int rows,Buffer& quant,cudaStream_t s,bool packed=false,bool reuse_q5_unpack=false) {
         const auto& plan=*plans[matrix_bits(m)];
+        // Width guard from the SM70 probe: narrow outputs have fewer tiles
+        // and can favor dense, not a list of specific layer names or phases.
+        if(dense_io.shared_tiles && !reuse_q5_unpack && plan.path==rowcodec::Path::ChunkedDense &&
+           plan.bits>=4 && plan.bits<=6 && plan.group==64 && rows>=4096 &&
+           m.k==padded(m) && !(reinterpret_cast<std::uintptr_t>(codes)&3u)) {
+            const int mode=t<=4?1:2;
+            op(venturi_row_tiles_sm70_run(x,codes,high_ptr(m),scales,out,t,rows,m.k,padded(m),plan.bits,mode,s));
+            if(mode==1)++dense_io.tile_grouped;else ++dense_io.tile_wmma;
+            dense_io.tile_avoided_bytes=add(dense_io.tile_avoided_bytes,mul(mul(rows,m.k),2));
+            return;
+        }
         if (c.dequant_resident || plan.path==rowcodec::Path::ChunkedDense) {
             row_dense_project(m,x,codes,high_ptr(m),scales,out,t,rows,reuse_q5_unpack);return;
         }

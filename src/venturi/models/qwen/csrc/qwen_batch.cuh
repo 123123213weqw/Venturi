@@ -39,6 +39,8 @@ struct Batch {
             for(int i=0;i<c.layers;++i)if(model->layers[i].kind)attention_layers.push_back(i);
         }
         if(q5_prefill_reuse) {
+            require(!model->dense_io.shared_tiles,
+                    "cannot combine experimental shared tiles and exact prefill reuse");
             require(count==1 && c.max_tokens==32,"Q5 prefill reuse requires one slot and max_tokens=32");
             require(VENTURI_BLOCKS_ARCH==70 && c.dtype==0 && c.weight_bits==5 &&
                     c.weight_group==64 && !model->parallel() && !c.linear_implementation &&
@@ -68,6 +70,7 @@ struct Batch {
         alloc(selection,mul(count,16));alloc(select_scratch,mul(count,Session::min_tiles(c.vocab)*16));
         if(descriptor_bytes) {alloc(device_rows,descriptor_bytes);host_rows.allocate(descriptor_bytes);}
         require(extra_bytes==additional,"batch memory estimate mismatch");
+        if(q5_prefill_reuse)model->dense_io.exact_q5_batch_created=true;
     }
     std::vector<int> slots(const int* p,int count) {
         require(p && count>0 && count<=static_cast<int>(requests.size()),"invalid selected batch slot count");
@@ -398,16 +401,33 @@ extern "C" VENTURI_EXPORT int venturi_qwen_batch_prepare_dense_io_v1(void* h,int
         m.source();m.prepare_dense_io(direct==1,budget);return 0;
     }catch(const std::exception& e){error_text=e.what();return -1;}
 }
-extern "C" VENTURI_EXPORT int venturi_qwen_batch_dense_io_info_v1(void* h,std::uint64_t* out,int count) {
+extern "C" VENTURI_EXPORT int venturi_qwen_batch_prepare_shared_tiles_v1(void* h,int direct) {
     try {
-        vr::require(h && out && count==15,"invalid dense I/O counters");
+        vr::require(h && (direct==0 || direct==1),"invalid explicit tile I/O settings");
+        auto& b=*static_cast<vr::Batch*>(h);auto& m=*b.model;
+        std::lock_guard<std::mutex> a(b.mutex),lock(m.mutex);vr::Device device(m.c.device);
+        m.source();m.prepare_dense_io(direct==1,0,true);return 0;
+    }catch(const std::exception& e){error_text=e.what();return -1;}
+}
+namespace {
+int batch_dense_io_info(void* h,std::uint64_t* out,int count,int expected) {
+    try {
+        vr::require(h && out && count==expected,"invalid dense I/O counters");
         auto& b=*static_cast<vr::Batch*>(h);auto& m=*b.model;
         std::lock_guard<std::mutex> a(b.mutex),lock(m.mutex);const auto& s=m.dense_io;
         const std::uint64_t values[]={m.prior_dense_workspace_bytes,vr::add(m.dequant.bytes,m.q4_chunk.bytes),
             m.dequant.bytes,m.q4_chunk.bytes,s.budget,s.storage?s.storage->bytes:0,s.tiles.size(),
-            s.setup_ns,s.gemms,s.direct_gemms,s.output_copy_bytes,s.unpack_calls,s.unpack_bytes,s.cached_calls,s.cached_bytes};
-        std::copy(std::begin(values),std::end(values),out);return 0;
+            s.setup_ns,s.gemms,s.direct_gemms,s.output_copy_bytes,s.unpack_calls,s.unpack_bytes,s.cached_calls,s.cached_bytes,
+            s.shared_tiles?1ULL:0ULL,s.tile_grouped,s.tile_wmma,s.tile_avoided_bytes};
+        std::copy_n(values,count,out);return 0;
     }catch(const std::exception& e){error_text=e.what();return -1;}
+}
+}
+extern "C" VENTURI_EXPORT int venturi_qwen_batch_dense_io_info_v1(void* h,std::uint64_t* out,int count) {
+    return batch_dense_io_info(h,out,count,15);
+}
+extern "C" VENTURI_EXPORT int venturi_qwen_batch_dense_io_info_v2(void* h,std::uint64_t* out,int count) {
+    return batch_dense_io_info(h,out,count,19);
 }
 extern "C" VENTURI_EXPORT void venturi_qwen_batch_destroy(void* h){delete static_cast<vr::Batch*>(h);}
 extern "C" VENTURI_EXPORT int venturi_qwen_batch_forward(void* h,const int* slots,int count,const std::int64_t* tokens,const int* offsets,float* logits,std::uint64_t elements) {

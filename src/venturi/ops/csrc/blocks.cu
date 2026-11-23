@@ -1102,6 +1102,37 @@ extern "C" int venturi_q5_fused_run(const void* x,const void* codes,const void* 
         check(cudaGetLastError());return 0;
     } catch (const std::exception& e) { error_text=e.what();return -1; }
 }
+#if VENTURI_BLOCKS_ARCH == 70
+#include "row_tiles_sm70.cuh"
+#endif
+extern "C" int venturi_row_tiles_sm70_run(const void* x,const void* codes,const void* high,
+    const void* scales,void* out,int m,int n,int k,int padded,int bits,int mode,void* stream) {
+    try {
+#if VENTURI_BLOCKS_ARCH == 70
+        const auto aligned=reinterpret_cast<std::uintptr_t>(x)|reinterpret_cast<std::uintptr_t>(scales)|
+            reinterpret_cast<std::uintptr_t>(out);
+        require(x && codes && scales && out && !(aligned&1u) &&
+            !(reinterpret_cast<std::uintptr_t>(codes)&3u) &&
+            bits>=4 && bits<=6 && (bits==4 || high) && m>0 && m<=65535*64 &&
+            n>0 && n<=INT32_MAX-64 && k>0 && k<=INT32_MAX-128 && padded>=k &&
+            padded%128==0 && (mode==2 || (mode==1 && m<=8)),
+            "invalid SM70 shared row-tile geometry");
+        const auto* a=static_cast<const __half*>(x);
+        const auto* c=static_cast<const std::uint8_t*>(codes);
+        const auto* h=static_cast<const std::uint8_t*>(high);
+        const auto* s=static_cast<const __half*>(scales);
+        auto* y=static_cast<__half*>(out);
+        const auto st=static_cast<cudaStream_t>(stream);
+        const bool grouped=mode==1;
+        if(bits==4)vrowtile::launch<4>(a,c,h,s,y,m,n,k,padded,grouped,st);
+        else if(bits==5)vrowtile::launch<5>(a,c,h,s,y,m,n,k,padded,grouped,st);
+        else vrowtile::launch<6>(a,c,h,s,y,m,n,k,padded,grouped,st);
+        check(cudaGetLastError());return 0;
+#else
+        throw std::invalid_argument("Shared row-tile projection requires SM70");
+#endif
+    } catch (const std::exception& e) { error_text=e.what();return -1; }
+}
 // q4 fused GEMM: reads compressed nibble codes directly, no FP16 materialization.
 extern "C" int venturi_q4_fused_run(const void* x,const void* codes,const void* scales,void* out,int t,int rows,int k,int padded,int dtype,void* stream) {
     try { require(x && codes && scales && out && t>0 && rows>0 && k>0 && padded>=k && padded%128==0 && dtype==0,"invalid q4 fused GEMM geometry");

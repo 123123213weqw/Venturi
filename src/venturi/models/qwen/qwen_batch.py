@@ -54,6 +54,12 @@ _DENSE_IO_COUNTERS = (
     "shadow_hits",
     "shadow_read_bytes",
 )
+_SHARED_TILE_COUNTERS = (
+    "shared_tiles",
+    "tile_grouped_calls",
+    "tile_wmma_calls",
+    "tile_avoided_fp16_write_bytes",
+)
 
 
 def _bind(backend, *, q5_prefill_reuse=False, resident_options=False):
@@ -224,18 +230,41 @@ class NativeQwenBatchSession:
             raise ValueError("Dense I/O counters require an ordinary batch")
         with self._lock:
             self._check()
-            fn = getattr(
-                self.model._runtime._native, "venturi_qwen_batch_dense_io_info_v1", None
-            )
+            lib = self.model._runtime._native
+            fn = getattr(lib, "venturi_qwen_batch_dense_io_info_v2", None)
+            names = _DENSE_IO_COUNTERS + _SHARED_TILE_COUNTERS
+            if fn is None:
+                fn = getattr(lib, "venturi_qwen_batch_dense_io_info_v1", None)
+                names = _DENSE_IO_COUNTERS
             if fn is None:
                 raise RuntimeError("Dense I/O counters require a rebuilt Qwen library")
             fn.argtypes, fn.restype = (
                 [C.c_void_p, C.POINTER(C.c_uint64), C.c_int],
                 C.c_int,
             )
-            values = (C.c_uint64 * len(_DENSE_IO_COUNTERS))()
+            values = (C.c_uint64 * len(names))()
             self.model._runtime._check(fn(self._handle, values, len(values)))
-        return dict(zip(_DENSE_IO_COUNTERS, map(int, values), strict=True))
+        return dict(zip(names, map(int, values), strict=True))
+
+    def prepare_shared_tiles(self, *, direct_outputs=False):
+        """Explicit SM70 numerical mode; not interchangeable with the dense path.
+
+        Select it once before executing the model. Small output matrices keep
+        the dense route; codec admission and request ownership are unchanged.
+        """
+        if type(self) is not NativeQwenBatchSession or type(direct_outputs) is not bool:
+            raise ValueError("Shared tiles require an ordinary batch and explicit bool")
+        with self._lock:
+            self._check()
+            fn = getattr(
+                self.model._runtime._native,
+                "venturi_qwen_batch_prepare_shared_tiles_v1",
+                None,
+            )
+            if fn is None:
+                raise RuntimeError("Shared tiles require a rebuilt Qwen library")
+            fn.argtypes, fn.restype = [C.c_void_p, C.c_int], C.c_int
+            self.model._runtime._check(fn(self._handle, int(direct_outputs)))
 
     def _check(self):
         if not self._finalizer.alive:
